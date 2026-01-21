@@ -1,1427 +1,557 @@
-"use client";
+"use client"
 
-import { useEffect, useState, useRef } from "react";
+import Link from "next/link"
+import { useEffect, useRef } from "react"
 
-// Import JetBrains Mono from Google Fonts
-const fontLink = typeof window !== "undefined" ? (() => {
-  const link = document.createElement("link");
-  link.href = "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap";
-  link.rel = "stylesheet";
-  document.head.appendChild(link);
-  return link;
-})() : null;
-
-// Color palette
-const colors = {
-  bg: "#0A0A0A",
-  surface: "#1A1A1A",
-  primary: "#F5A623",
-  primaryHover: "#FFB84D",
-  success: "#00FF00",
-  error: "#FF4444",
-  muted: "#888888",
-  border: "#333333",
-  text: "#E0E0E0",
-};
-
-// Core messaging - X-only, no account needed
-const MARKETING_SUBHEADLINE = "No account needed to tip. Zero fees. Tips stay private.";
-
-// ASCII Art Logo
-const ASCII_LOGO = `
-████████╗██╗██████╗ ███████╗
-╚══██╔══╝██║██╔══██╗╚══███╔╝
-   ██║   ██║██████╔╝  ███╔╝
-   ██║   ██║██╔═══╝  ███╔╝
-   ██║   ██║██║     ███████╗
-   ╚═╝   ╚═╝╚═╝     ╚══════╝
-`;
-
-// Typing effect hook
-function useTypingEffect(text: string, speed: number = 50) {
-  const [displayText, setDisplayText] = useState("");
-  const [isComplete, setIsComplete] = useState(false);
-
-  useEffect(() => {
-    let index = 0;
-    setDisplayText("");
-    setIsComplete(false);
-
-    const timer = setInterval(() => {
-      if (index < text.length) {
-        setDisplayText(text.slice(0, index + 1));
-        index++;
-      } else {
-        setIsComplete(true);
-        clearInterval(timer);
-      }
-    }, speed);
-
-    return () => clearInterval(timer);
-  }, [text, speed]);
-
-  return { displayText, isComplete };
-}
-
-// Blinking cursor component
-function Cursor({ visible }: { visible: boolean }) {
-  const [show, setShow] = useState(true);
-
-  useEffect(() => {
-    const interval = setInterval(() => setShow((s) => !s), 530);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!visible) return null;
+// Logo component with TIP + Zcash Z symbol + vertical lines
+function Logo({ className = "" }: { className?: string }) {
   return (
-    <span style={{ color: colors.primary, opacity: show ? 1 : 0 }}>█</span>
-  );
+    <svg
+      className={className}
+      viewBox="0 0 240 100"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ width: "auto", height: "100%" }}
+    >
+      {/* Vertical line from top */}
+      <rect x="165" y="0" width="4" height="14" fill="#F4B728"/>
+      {/* Vertical line from bottom */}
+      <rect x="165" y="86" width="4" height="14" fill="#F4B728"/>
+      <text
+        x="0"
+        y="70"
+        fontFamily="Inter, system-ui, -apple-system, sans-serif"
+        fontSize="60"
+        fontWeight="600"
+        fill="#FFFFFF"
+        letterSpacing="-0.02em"
+      >
+        TIP
+      </text>
+      <g transform="translate(142, 22)">
+        <path
+          d="M0 6 L48 6 L48 12 L16 12 L48 44 L48 50 L0 50 L0 44 L32 44 L0 12 Z"
+          fill="#F4B728"
+        />
+        <rect x="-6" y="18" width="60" height="4" fill="#F4B728"/>
+        <rect x="-6" y="34" width="60" height="4" fill="#F4B728"/>
+      </g>
+    </svg>
+  )
 }
 
-// Trust badges instead of zero stats
-const trustBadges = [
-  { label: "PLATFORM_FEE", value: "0%", desc: "Network fee only" },
-  { label: "LICENSE", value: "MIT", desc: "Open source" },
-  { label: "CUSTODY", value: "SELF", desc: "Your keys only" },
-  { label: "STATUS", value: "LIVE", desc: "X (Twitter)" },
-];
-
-// Tech specs
-const techSpecs = `
-┌─────────────────────────────────────────────────┐
-│  PROTOCOL SPECIFICATIONS                        │
-├─────────────────────────────────────────────────┤
-│  Network:        Zcash Mainnet (Sapling)        │
-│  Encryption:     zk-SNARKs (Groth16)            │
-│  Settlement:     1 block (~75s finality)        │
-│  Min Tip:        0.0001 ZEC (~$0.003)           │
-│  Max Tip:        No limit                       │
-│  Platform Fee:   0% (network fee only)          │
-│  API:            REST + WebSocket + gRPC        │
-│  Auth:           Ed25519 wallet signatures      │
-│  Swap Engine:    NEAR Intents (planned)         │
-│  Input Tokens:   ETH, USDC, SOL (planned)       │
-└─────────────────────────────────────────────────┘
-`;
-
-// Features
-const features = [
-  {
-    title: "ZK_SHIELDED",
-    desc: "zk-SNARKs prove transaction validity without revealing sender, receiver, or amount.",
-    icon: "[]",
-    status: "live" as const,
-  },
-  {
-    title: "ANY_TOKEN_IN",
-    desc: "Tip in ETH, USDC, SOL. Swaps to ZEC via NEAR Intents.",
-    icon: "{}",
-    status: "coming_soon" as const,
-  },
-  {
-    title: "SELF_CUSTODY",
-    desc: "Direct to shielded address. No custodial risk. Your keys, your funds.",
-    icon: "()",
-    status: "live" as const,
-  },
-  {
-    title: "FOSS_LICENSED",
-    desc: "MIT licensed. Audit the code. Run your own node. Verify everything.",
-    icon: "<>",
-    status: "live" as const,
-  },
-];
-
-// Registration form types
-type Platform = "x";
-type FormStatus = "idle" | "submitting" | "success" | "error";
-
-interface FormData {
-  platform: Platform;
-  handle: string;
-  shielded_address: string;
-  tweet_url: string;
+// Scroll indicator arrow
+function ScrollIndicator() {
+  return (
+    <div className="scroll-indicator">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  )
 }
 
-// Registration Form Component
-function RegistrationForm() {
-  const [formData, setFormData] = useState<FormData>({
-    platform: "x",
-    handle: "",
-    shielded_address: "",
-    tweet_url: "",
-  });
-  const [status, setStatus] = useState<FormStatus>("idle");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("submitting");
-    setErrorMessage("");
-
-    try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Registration failed");
-      }
-
-      setStatus("success");
-      setFormData({
-        platform: "x",
-        handle: "",
-        shielded_address: "",
-        tweet_url: "",
-      });
-    } catch (err) {
-      setStatus("error");
-      setErrorMessage(err instanceof Error ? err.message : "Something went wrong");
-    }
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "12px 16px",
-    fontSize: "14px",
-    backgroundColor: colors.bg,
-    color: colors.text,
-    border: `1px solid ${colors.border}`,
-    borderRadius: "4px",
-    fontFamily: "'JetBrains Mono', monospace",
-    boxSizing: "border-box",
-    transition: "border-color 0.2s",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    marginBottom: "8px",
-    fontSize: "12px",
-    color: colors.muted,
-    letterSpacing: "0.5px",
-  };
-
-  const buttonStyle = (isActive: boolean): React.CSSProperties => ({
-    padding: "10px 20px",
-    fontSize: "14px",
-    fontWeight: 500,
-    color: isActive ? colors.bg : colors.text,
-    backgroundColor: isActive ? colors.primary : "transparent",
-    border: `1px solid ${isActive ? colors.primary : colors.border}`,
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontFamily: "'JetBrains Mono', monospace",
-    transition: "all 0.2s",
-  });
-
-  if (status === "success") {
-    return (
-      <div style={{
-        backgroundColor: colors.surface,
-        border: `1px solid ${colors.success}`,
-        borderRadius: "8px",
-        padding: "32px",
-        textAlign: "center",
-      }}>
+// Tweet mockup component with hover interaction
+function TweetMockup() {
+  return (
+    <div style={{
+      backgroundColor: "#000",
+      border: "1px solid #1a1a1a",
+      borderRadius: "16px",
+      padding: "16px",
+      maxWidth: "400px",
+      width: "100%",
+      transition: "border-color 200ms ease, box-shadow 200ms ease",
+    }}
+    className="tweet-mockup"
+    >
+      {/* Tweet header */}
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
         <div style={{
-          width: "64px",
-          height: "64px",
+          width: "48px",
+          height: "48px",
           borderRadius: "50%",
-          backgroundColor: "rgba(0, 255, 0, 0.1)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          margin: "0 auto 16px",
-        }}>
-          <span style={{ fontSize: "32px", color: colors.success }}>✓</span>
+          background: "linear-gradient(135deg, #1a1a1a 0%, #333 100%)",
+        }}/>
+        <div>
+          <div style={{ fontWeight: 600, fontSize: "15px" }}>Creator Name</div>
+          <div style={{ color: "#888", fontSize: "14px" }}>@creator</div>
         </div>
-        <h3 style={{ margin: "0 0 8px", fontSize: "18px", fontWeight: 600 }}>
-          Registration Successful!
-        </h3>
-        <p style={{ margin: "0 0 24px", color: colors.muted, fontSize: "14px" }}>
-          Your tip page is now active. Start sharing your TIPZ link!
-        </p>
-        <button
-          onClick={() => setStatus("idle")}
-          style={{
-            padding: "12px 24px",
-            fontSize: "14px",
-            fontWeight: 600,
-            color: colors.bg,
-            backgroundColor: colors.primary,
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontFamily: "'JetBrains Mono', monospace",
-          }}
-        >
-          Register Another Account
-        </button>
       </div>
-    );
-  }
 
-  return (
-    <form onSubmit={handleSubmit} style={{
-      backgroundColor: colors.surface,
-      border: `1px solid ${colors.border}`,
-      borderRadius: "8px",
-      padding: "32px",
-    }}>
-      {/* Terminal-style header */}
+      {/* Tweet content */}
+      <p style={{
+        fontSize: "15px",
+        lineHeight: "1.5",
+        marginBottom: "16px",
+        color: "#e7e9ea"
+      }}>
+        This thread changed how I think about building products. The key insight is...
+      </p>
+
+      {/* Tweet actions */}
       <div style={{
         display: "flex",
         alignItems: "center",
-        gap: "8px",
-        marginBottom: "24px",
-        paddingBottom: "16px",
-        borderBottom: `1px solid ${colors.border}`,
+        justifyContent: "space-between",
+        paddingTop: "12px",
+        borderTop: "1px solid #1a1a1a",
       }}>
-        <div style={{ display: "flex", gap: "6px" }}>
-          <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#FF5F56" }} />
-          <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#FFBD2E" }} />
-          <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27CA40" }} />
+        <div style={{ display: "flex", gap: "24px", color: "#888" }}>
+          <span style={{ fontSize: "14px" }}>42</span>
+          <span style={{ fontSize: "14px" }}>128</span>
+          <span style={{ fontSize: "14px" }}>1.2K</span>
         </div>
-        <span style={{ color: colors.muted, fontSize: "12px", marginLeft: "8px" }}>
-          [TIPZ] // REGISTER
-        </span>
-      </div>
-
-      {/* Platform - X Only */}
-      <div style={{ marginBottom: "20px" }}>
-        <label style={labelStyle}>PLATFORM</label>
-        <div style={{ display: "flex", gap: "12px" }}>
-          <button
-            type="button"
-            onClick={() => setFormData({ ...formData, platform: "x" })}
-            style={buttonStyle(true)}
-          >
-            X (Twitter)
-          </button>
-        </div>
-      </div>
-
-      {/* Handle Input */}
-      <div style={{ marginBottom: "20px" }}>
-        <label style={labelStyle}>X HANDLE</label>
-        <div style={{ position: "relative" }}>
-          <span style={{
-            position: "absolute",
-            left: "16px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            color: colors.muted,
+        <button
+          className="tip-button"
+          style={{
+            backgroundColor: "#F4B728",
+            color: "#000",
+            border: "none",
+            borderRadius: "20px",
+            padding: "8px 20px",
+            fontSize: "14px",
+            fontWeight: "600",
+            cursor: "pointer",
+            boxShadow: "0 0 20px rgba(244, 183, 40, 0.3)",
+            transition: "transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease",
           }}>
-            @
-          </span>
-          <input
-            type="text"
-            placeholder="yourhandle"
-            value={formData.handle}
-            onChange={(e) => setFormData({ ...formData, handle: e.target.value })}
-            required
-            style={{ ...inputStyle, paddingLeft: "36px" }}
-            onFocus={(e) => e.currentTarget.style.borderColor = colors.primary}
-            onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
-          />
-        </div>
+          TIP
+        </button>
       </div>
-
-      {/* Shielded Address Input */}
-      <div style={{ marginBottom: "20px" }}>
-        <label style={labelStyle}>ZCASH SHIELDED ADDRESS</label>
-        <input
-          type="text"
-          placeholder="zs1..."
-          value={formData.shielded_address}
-          onChange={(e) => setFormData({ ...formData, shielded_address: e.target.value })}
-          required
-          style={inputStyle}
-          onFocus={(e) => e.currentTarget.style.borderColor = colors.primary}
-          onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
-        />
-        <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.muted }}>
-          Must start with &quot;zs&quot; and be 78 characters.{" "}
-          <a
-            href="https://z.cash/wallets/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: colors.primary, textDecoration: "underline" }}
-          >
-            Don&apos;t have a wallet?
-          </a>
-        </p>
-      </div>
-
-      {/* Verification Section */}
-      <div style={{ marginBottom: "24px" }}>
-        <label style={labelStyle}>VERIFICATION</label>
-
-        {/* Step 1: Post verification tweet */}
-        <div style={{ marginBottom: "16px" }}>
-          <p style={{ margin: "0 0 8px", fontSize: "12px", color: colors.muted }}>
-            STEP 1: Post this verification tweet
-          </p>
-          <div style={{
-            backgroundColor: colors.bg,
-            border: `1px solid ${colors.border}`,
-            borderRadius: "4px",
-            padding: "12px 16px",
-            marginBottom: "12px",
-          }}>
-            <pre style={{
-              margin: 0,
-              fontSize: "13px",
-              fontFamily: "'JetBrains Mono', monospace",
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-              color: colors.text,
-            }}>
-{`I'm registering for @tipz_cash to receive private tips via Zcash.
-
-My shielded address: ${formData.shielded_address || "[paste your address first]"}`}
-            </pre>
-          </div>
-          <a
-            href={`https://x.com/intent/tweet?text=${encodeURIComponent(`I'm registering for @tipz_cash to receive private tips via Zcash.
-
-My shielded address: ${formData.shielded_address || "[paste your address first]"}`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "10px 20px",
-              fontSize: "14px",
-              fontWeight: 500,
-              color: colors.bg,
-              backgroundColor: colors.primary,
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontFamily: "'JetBrains Mono', monospace",
-              textDecoration: "none",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.primaryHover}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.primary}
-          >
-            Post on X
-          </a>
-        </div>
-
-        {/* Step 2: Paste tweet URL */}
-        <div>
-          <p style={{ margin: "0 0 8px", fontSize: "12px", color: colors.muted }}>
-            STEP 2: Paste the tweet URL
-          </p>
-          <input
-            type="url"
-            placeholder="https://x.com/yourhandle/status/..."
-            value={formData.tweet_url}
-            onChange={(e) => setFormData({ ...formData, tweet_url: e.target.value })}
-            required
-            style={inputStyle}
-            onFocus={(e) => e.currentTarget.style.borderColor = colors.primary}
-            onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
-          />
-        </div>
-      </div>
-
-      {/* Error Message */}
-      {status === "error" && (
-        <div style={{
-          backgroundColor: "rgba(255, 68, 68, 0.1)",
-          border: `1px solid ${colors.error}`,
-          borderRadius: "4px",
-          padding: "12px 16px",
-          marginBottom: "20px",
-          color: colors.error,
-          fontSize: "13px",
-        }}>
-          {errorMessage}
-        </div>
-      )}
-
-      {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={status === "submitting"}
-        style={{
-          width: "100%",
-          padding: "16px",
-          fontSize: "16px",
-          fontWeight: 600,
-          color: colors.bg,
-          backgroundColor: status === "submitting" ? colors.muted : colors.primary,
-          border: "none",
-          borderRadius: "4px",
-          cursor: status === "submitting" ? "not-allowed" : "pointer",
-          fontFamily: "'JetBrains Mono', monospace",
-          transition: "all 0.2s",
-        }}
-      >
-        {status === "submitting" ? "Registering..." : "Register →"}
-      </button>
-    </form>
-  );
+      <style jsx>{`
+        .tweet-mockup:hover {
+          border-color: #333;
+        }
+        .tip-button:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 30px rgba(244, 183, 40, 0.5);
+          background-color: #fcd34d;
+        }
+        .tip-button:active {
+          transform: scale(0.98);
+        }
+      `}</style>
+    </div>
+  )
 }
 
+// Step card component with hover effects
+function StepCard({
+  number,
+  title,
+  icon
+}: {
+  number: number
+  title: string
+  icon: React.ReactNode
+}) {
+  return (
+    <div
+      className="step-card"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "16px",
+        padding: "32px",
+        border: "1px solid #1a1a1a",
+        borderRadius: "16px",
+        minWidth: "180px",
+        flex: 1,
+        transition: "border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease",
+        cursor: "default",
+      }}>
+      <div
+        className="step-icon"
+        style={{
+          width: "48px",
+          height: "48px",
+          borderRadius: "12px",
+          backgroundColor: "rgba(244, 183, 40, 0.1)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#F4B728",
+          transition: "background-color 200ms ease, transform 200ms ease",
+        }}>
+        {icon}
+      </div>
+      <div style={{ textAlign: "center" }}>
+        <div style={{
+          fontSize: "14px",
+          color: "#F4B728",
+          fontWeight: 500,
+          marginBottom: "4px"
+        }}>
+          Step {number}
+        </div>
+        <div style={{ fontSize: "18px", fontWeight: 500 }}>{title}</div>
+      </div>
+      <style jsx>{`
+        .step-card:hover {
+          border-color: rgba(244, 183, 40, 0.3);
+          transform: translateY(-4px);
+          box-shadow: 0 8px 30px rgba(244, 183, 40, 0.1);
+        }
+        .step-card:hover .step-icon {
+          background-color: rgba(244, 183, 40, 0.2);
+          transform: scale(1.1);
+        }
+      `}</style>
+    </div>
+  )
+}
+
+// Stack item component with hover effects
+function StackItem({
+  icon,
+  title,
+  description
+}: {
+  icon: React.ReactNode
+  title: string
+  description: string
+}) {
+  return (
+    <div
+      className="stack-item"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "16px",
+        textAlign: "center",
+        flex: 1,
+        minWidth: "200px",
+        padding: "24px",
+        borderRadius: "16px",
+        transition: "background-color 200ms ease, transform 200ms ease",
+        cursor: "default",
+      }}>
+      <div
+        className="stack-icon"
+        style={{
+          fontSize: "48px",
+          lineHeight: 1,
+          transition: "transform 300ms ease",
+        }}>
+        {icon}
+      </div>
+      <div>
+        <div style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>{title}</div>
+        <div style={{ fontSize: "16px", color: "#888" }}>{description}</div>
+      </div>
+      <style jsx>{`
+        .stack-item:hover {
+          background-color: rgba(244, 183, 40, 0.03);
+        }
+        .stack-item:hover .stack-icon {
+          transform: scale(1.1) rotate(3deg);
+        }
+      `}</style>
+    </div>
+  )
+}
+
+// Icons
+const KeyIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+  </svg>
+)
+
+const CheckIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+    <polyline points="22,4 12,14.01 9,11.01"/>
+  </svg>
+)
+
+const ShieldIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+  </svg>
+)
+
+// Zcash Z icon for stack
+const ZcashIcon = () => (
+  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+    <circle cx="24" cy="24" r="23" stroke="#F4B728" strokeWidth="2"/>
+    <g transform="translate(12, 12)">
+      <path d="M0 4 L24 4 L24 7 L8 7 L24 17 L24 20 L0 20 L0 17 L16 17 L0 7 Z" fill="#F4B728"/>
+      <rect x="-2" y="9" width="28" height="2" fill="#F4B728"/>
+    </g>
+  </svg>
+)
+
 export default function HomePage() {
-  const heroText = "Get tipped. Stay private. No fees.";
-  const { displayText, isComplete } = useTypingEffect(heroText, 40);
-  const [mounted, setMounted] = useState(false);
-  const registerRef = useRef<HTMLDivElement>(null);
-  const howItWorksRef = useRef<HTMLDivElement>(null);
+  const sectionsRef = useRef<HTMLDivElement[]>([])
 
   useEffect(() => {
-    setMounted(true);
-    // Check for hash on mount to scroll to registration
-    if (typeof window !== "undefined" && window.location.hash === "#register") {
-      setTimeout(() => {
-        registerRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 500);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible")
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    sectionsRef.current.forEach((section) => {
+      if (section) observer.observe(section)
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
+  const addToRefs = (el: HTMLDivElement | null) => {
+    if (el && !sectionsRef.current.includes(el)) {
+      sectionsRef.current.push(el)
     }
-  }, []);
-
-  const scrollToRegister = () => {
-    registerRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const scrollToHowItWorks = () => {
-    howItWorksRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const containerStyle: React.CSSProperties = {
-    minHeight: "100vh",
-    backgroundColor: colors.bg,
-    color: colors.text,
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: "14px",
-    lineHeight: 1.6,
-  };
-
-  const maxWidthStyle: React.CSSProperties = {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "0 24px",
-  };
-
-  const borderStyle = `1px solid ${colors.border}`;
+  }
 
   return (
-    <div style={containerStyle}>
-      {/* Header */}
-      <header
-        style={{
-          borderBottom: borderStyle,
-          padding: "16px 0",
-          position: "sticky",
-          top: 0,
-          backgroundColor: colors.bg,
-          zIndex: 100,
-        }}
-      >
+    <main>
+      {/* Section 1: Hero */}
+      <section className="section" style={{ position: "relative", overflow: "hidden" }}>
+        {/* Hero glow background */}
+        <div className="hero-glow" aria-hidden="true" />
+
         <div
+          ref={addToRefs}
+          className="fade-in"
           style={{
-            ...maxWidthStyle,
             display: "flex",
-            justifyContent: "space-between",
+            flexDirection: "column",
             alignItems: "center",
+            gap: "32px",
+            textAlign: "center",
+            maxWidth: "800px",
+            zIndex: 1,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <span style={{ color: colors.primary, fontWeight: 700 }}>
-              [TIPZ]
-            </span>
-            <span style={{ color: colors.muted, fontSize: "12px" }}>
-              v0.1.0-beta
-            </span>
-            <span style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted, fontSize: "12px" }}>
-              <img src="/zec/brandmark-yellow.svg" alt="Zcash" style={{ width: "14px", height: "14px" }} />
-              ZEC
-            </span>
+          <div style={{ height: "80px" }}>
+            <Logo />
           </div>
-          <nav style={{ display: "flex", gap: "24px" }}>
-            <a
-              href="/manifesto"
-              style={{
-                color: colors.muted,
-                textDecoration: "none",
-                fontSize: "12px",
-                letterSpacing: "0.5px",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = colors.primary)
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = colors.muted)
-              }
-            >
-              MANIFESTO
-            </a>
-            {[
-              { label: "GITHUB", href: "https://github.com/tipz-app" },
-              { label: "EXTENSION", href: "https://chromewebstore.google.com/detail/tipz" },
-            ].map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  color: colors.muted,
-                  textDecoration: "none",
-                  fontSize: "12px",
-                  letterSpacing: "0.5px",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = colors.primary)
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = colors.muted)
-                }
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
+
+          <h1 style={{
+            fontSize: "clamp(24px, 4vw, 32px)",
+            fontWeight: 400,
+            color: "#888",
+            letterSpacing: "-0.01em",
+          }}>
+            Private tips. Any asset. Zero trace.
+          </h1>
+
+          <Link href="/register" className="btn btn--primary">
+            Get Started
+          </Link>
         </div>
-      </header>
+        <ScrollIndicator />
+      </section>
 
-      {/* Hero Section */}
-      <section
-        style={{
-          padding: "80px 0",
-          borderBottom: borderStyle,
-        }}
-      >
-        <div style={maxWidthStyle}>
-          {/* ASCII Logo */}
-          <pre
-            style={{
-              color: colors.primary,
-              fontSize: "10px",
-              lineHeight: 1.2,
-              marginBottom: "32px",
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
-          >
-            {ASCII_LOGO}
-          </pre>
-
-          {/* Typing effect headline */}
-          <div style={{ marginBottom: "24px" }}>
-            <span style={{ color: colors.success }}>{">"}</span>{" "}
-            <span style={{ fontSize: "24px", fontWeight: 600 }}>
-              {mounted ? displayText : heroText}
-              <Cursor visible={mounted && !isComplete} />
-            </span>
+      {/* Section 2: Tip Anyone */}
+      <section className="section">
+        <div
+          ref={addToRefs}
+          className="fade-in"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "80px",
+            maxWidth: "1200px",
+            width: "100%",
+            flexWrap: "wrap",
+          }}
+        >
+          {/* Left: Text */}
+          <div style={{
+            flex: "1 1 400px",
+            maxWidth: "500px",
+          }}>
+            <h2 className="heading-section" style={{ marginBottom: "24px" }}>
+              Tip anyone on X.<br/>
+              <span style={{ color: "#888" }}>Pay with any token.</span>
+            </h2>
+            <p className="body-text" style={{ fontSize: "20px", lineHeight: "1.6" }}>
+              One click. Pick amount. Done.
+            </p>
           </div>
 
-          {/* Subheadline */}
-          <p
-            style={{
-              color: colors.muted,
-              maxWidth: "600px",
-              marginBottom: "32px",
-            }}
-          >
-            {MARKETING_SUBHEADLINE}
-          </p>
-
-          {/* Dual CTA Buttons - Creators + Tippers */}
-          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "16px" }}>
-            <button
-              onClick={scrollToRegister}
-              style={{
-                backgroundColor: colors.primary,
-                color: colors.bg,
-                border: "none",
-                padding: "14px 28px",
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "15px",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = colors.primaryHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = colors.primary;
-              }}
-            >
-              I&apos;m a Creator →
-            </button>
-            <a
-              href="https://chromewebstore.google.com/detail/tipz"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                backgroundColor: colors.primary,
-                color: colors.bg,
-                border: "none",
-                padding: "14px 28px",
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "15px",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s",
-                textDecoration: "none",
-                display: "inline-block",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = colors.primaryHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = colors.primary;
-              }}
-            >
-              I Want to Tip →
-            </a>
+          {/* Right: Tweet mockup */}
+          <div style={{ flex: "1 1 400px", display: "flex", justifyContent: "center" }}>
+            <TweetMockup />
           </div>
-          <button
-            onClick={scrollToHowItWorks}
-            style={{
-              backgroundColor: "transparent",
-              color: colors.muted,
-              border: "none",
-              padding: "0",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: "13px",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              textDecoration: "underline",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = colors.primary;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = colors.muted;
-            }}
-          >
-            See how it works
-          </button>
         </div>
       </section>
 
-      {/* Demo Video - Moved higher for better engagement */}
-      <section
-        style={{
-          padding: "64px 0",
-          borderBottom: borderStyle,
-        }}
-      >
-        <div style={maxWidthStyle}>
-          <div
-            style={{
-              backgroundColor: colors.surface,
-              border: borderStyle,
-              borderRadius: "8px",
-              maxWidth: "800px",
-              margin: "0 auto",
-              overflow: "hidden",
-            }}
-          >
-            <video
-              src="/tip-demo.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              style={{
-                width: "100%",
-                height: "auto",
-                display: "block",
-              }}
+      {/* Section 3: Receive Privately */}
+      <section className="section">
+        <div
+          ref={addToRefs}
+          className="fade-in"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "64px",
+            maxWidth: "1000px",
+            width: "100%",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <h2 className="heading-section" style={{ marginBottom: "16px" }}>
+              Creators get ZEC.<br/>
+              <span style={{ color: "#888" }}>Address stays hidden.</span>
+            </h2>
+          </div>
+
+          {/* Steps */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "24px",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            width: "100%",
+          }}>
+            <StepCard number={1} title="Link address" icon={<KeyIcon />} />
+
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F4B728" strokeWidth="2" style={{ flexShrink: 0 }}>
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+
+            <StepCard number={2} title="Verify tweet" icon={<CheckIcon />} />
+
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F4B728" strokeWidth="2" style={{ flexShrink: 0 }}>
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+
+            <StepCard number={3} title="Receive privately" icon={<ShieldIcon />} />
+          </div>
+
+          <p className="body-text" style={{ textAlign: "center" }}>
+            No public address. No transaction trail.
+          </p>
+        </div>
+      </section>
+
+      {/* Section 4: The Stack */}
+      <section className="section section--half">
+        <div
+          ref={addToRefs}
+          className="fade-in"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "48px",
+            maxWidth: "1000px",
+            width: "100%",
+          }}
+        >
+          <h2 style={{
+            fontSize: "20px",
+            fontWeight: 400,
+            color: "#888",
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+          }}>
+            Powered by
+          </h2>
+
+          <div style={{
+            display: "flex",
+            gap: "64px",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            width: "100%",
+          }}>
+            <StackItem
+              icon={<ZcashIcon />}
+              title="Zcash Shielded"
+              description="Private by default"
+            />
+            <StackItem
+              icon={
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                  <circle cx="24" cy="24" r="23" stroke="#F4B728" strokeWidth="2"/>
+                  <text x="24" y="30" textAnchor="middle" fill="#F4B728" fontSize="18" fontWeight="600">N</text>
+                </svg>
+              }
+              title="NEAR Intents"
+              description="Any-to-ZEC conversion"
+            />
+            <StackItem
+              icon={
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                  <circle cx="24" cy="24" r="23" stroke="#F4B728" strokeWidth="2"/>
+                  <path d="M24 10 L24 38 M18 16 L24 10 L30 16" stroke="#F4B728" strokeWidth="2" fill="none"/>
+                </svg>
+              }
+              title="Instant Swaps"
+              description="<$0.01 fees"
             />
           </div>
-          <p style={{
-            textAlign: "center",
-            color: colors.muted,
-            fontSize: "13px",
-            marginTop: "16px",
-          }}>
-            Watch a tip happen in real-time
-          </p>
         </div>
       </section>
 
-      {/* Trust Badges */}
-      <section
-        style={{
-          padding: "48px 0",
-          borderBottom: borderStyle,
-          backgroundColor: colors.surface,
-        }}
-      >
-        <div style={maxWidthStyle}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "24px",
-            }}
-          >
-            <span style={{ color: colors.success }}>●</span>
-            <span style={{ color: colors.muted, fontSize: "12px" }}>
-              NETWORK_STATUS: OPERATIONAL
-            </span>
-          </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: "1px",
-              backgroundColor: colors.border,
-              border: borderStyle,
-            }}
-          >
-            {trustBadges.map((badge) => (
-              <div
-                key={badge.label}
-                style={{
-                  backgroundColor: colors.bg,
-                  padding: "20px",
-                }}
-              >
-                <div
-                  style={{
-                    color: colors.muted,
-                    fontSize: "11px",
-                    marginBottom: "8px",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  {badge.label}
-                </div>
-                <div
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: 600,
-                    marginBottom: "4px",
-                    color: badge.value === "0%" ? colors.success : colors.text,
-                  }}
-                >
-                  {badge.value}
-                </div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: colors.muted,
-                  }}
-                >
-                  {badge.desc}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works - Two Tracks */}
-      <section
-        ref={howItWorksRef}
-        id="how-it-works"
-        style={{
-          padding: "64px 0",
-          borderBottom: borderStyle,
-        }}
-      >
-        <div style={maxWidthStyle}>
-          {/* For Creators */}
-          <h2
-            style={{
-              color: colors.primary,
-              fontSize: "12px",
-              letterSpacing: "1px",
-              marginBottom: "32px",
-            }}
-          >
-            // FOR_CREATORS
-          </h2>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "24px",
-              marginBottom: "64px",
-            }}
-          >
-            {[
-              {
-                step: "01",
-                title: "Register your shielded address",
-                desc: "Paste your Zcash address and verify ownership with a tweet. No KYC, no middlemen.",
-              },
-              {
-                step: "02",
-                title: "Widget appears automatically",
-                desc: "Once registered, the TIPZ button shows on all your tweets for fans using the extension.",
-              },
-              {
-                step: "03",
-                title: "Receive tips privately",
-                desc: "Tips go directly to your wallet. No public transaction trail. Your income stays private.",
-              },
-            ].map((item) => (
-              <div
-                key={item.step}
-                style={{
-                  border: borderStyle,
-                  padding: "32px 24px",
-                  backgroundColor: colors.surface,
-                  transition: "border-color 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = colors.primary;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = colors.border;
-                }}
-              >
-                <div
-                  style={{
-                    color: colors.primary,
-                    fontSize: "32px",
-                    fontWeight: 700,
-                    marginBottom: "16px",
-                  }}
-                >
-                  {item.step}
-                </div>
-                <h3
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    marginBottom: "12px",
-                  }}
-                >
-                  {item.title}
-                </h3>
-                <p style={{ color: colors.muted, fontSize: "14px", margin: 0 }}>
-                  {item.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* For Tippers */}
-          <h2
-            style={{
-              color: colors.primary,
-              fontSize: "12px",
-              letterSpacing: "1px",
-              marginBottom: "32px",
-            }}
-          >
-            // FOR_TIPPERS
-          </h2>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "24px",
-            }}
-          >
-            {[
-              {
-                step: "01",
-                title: "Install the extension",
-                desc: "Add TIPZ to Chrome. One click, no sign up required.",
-              },
-              {
-                step: "02",
-                title: "Connect your wallet",
-                desc: "Use any crypto wallet. We support multiple tokens.",
-              },
-              {
-                step: "03",
-                title: "Tip any registered creator",
-                desc: "Click the TIPZ button on any tweet. Tips are anonymous and instant.",
-              },
-            ].map((item) => (
-              <div
-                key={`tipper-${item.step}`}
-                style={{
-                  border: borderStyle,
-                  padding: "32px 24px",
-                  backgroundColor: colors.surface,
-                  transition: "border-color 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = colors.primary;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = colors.border;
-                }}
-              >
-                <div
-                  style={{
-                    color: colors.primary,
-                    fontSize: "32px",
-                    fontWeight: 700,
-                    marginBottom: "16px",
-                  }}
-                >
-                  {item.step}
-                </div>
-                <h3
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    marginBottom: "12px",
-                  }}
-                >
-                  {item.title}
-                </h3>
-                <p style={{ color: colors.muted, fontSize: "14px", margin: 0 }}>
-                  {item.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ marginTop: "32px", textAlign: "center" }}>
-            <a
-              href="https://chromewebstore.google.com/detail/tipz"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                backgroundColor: colors.primary,
-                color: colors.bg,
-                border: "none",
-                padding: "14px 28px",
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "15px",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s",
-                textDecoration: "none",
-                display: "inline-block",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = colors.primaryHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = colors.primary;
-              }}
-            >
-              Install Chrome Extension →
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Registration Section */}
-      <section
-        ref={registerRef}
-        id="register"
-        style={{
-          padding: "64px 0",
-          borderBottom: borderStyle,
-          backgroundColor: colors.surface,
-        }}
-      >
-        <div style={maxWidthStyle}>
-          <h2
-            style={{
-              color: colors.primary,
-              fontSize: "12px",
-              letterSpacing: "1px",
-              marginBottom: "16px",
-            }}
-          >
-            // REGISTER
-          </h2>
-          <p style={{ color: colors.muted, marginBottom: "32px", maxWidth: "600px" }}>
-            Register your account to start receiving private tips. No KYC required.
-            Just your handle, a shielded address, and a verification tweet.
-          </p>
-          <div style={{ maxWidth: "600px" }}>
-            <RegistrationForm />
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section
-        style={{
-          padding: "64px 0",
-          borderBottom: borderStyle,
-        }}
-      >
-        <div style={maxWidthStyle}>
-          <h2
-            style={{
-              color: colors.primary,
-              fontSize: "12px",
-              letterSpacing: "1px",
-              marginBottom: "32px",
-            }}
-          >
-            // ARCHITECTURE
-          </h2>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              gap: "24px",
-            }}
-          >
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                style={{
-                  border: borderStyle,
-                  padding: "24px",
-                  backgroundColor: colors.surface,
-                  transition: "border-color 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = colors.primary;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = colors.border;
-                }}
-              >
-                <div style={{ fontSize: "24px", marginBottom: "12px" }}>
-                  {feature.icon}
-                </div>
-                <h3
-                  style={{
-                    color: colors.text,
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    marginBottom: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: "8px",
-                  }}
-                >
-                  {feature.title}
-                  {feature.status === "coming_soon" && (
-                    <span style={{
-                      fontSize: "10px",
-                      color: colors.primary,
-                      border: `1px solid ${colors.primary}`,
-                      padding: "2px 6px",
-                      borderRadius: "2px",
-                    }}>
-                      COMING SOON
-                    </span>
-                  )}
-                </h3>
-                <p
-                  style={{
-                    color: colors.muted,
-                    fontSize: "13px",
-                    margin: 0,
-                  }}
-                >
-                  {feature.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Competitor Comparison */}
-      <section
-        style={{
-          padding: "64px 0",
-          borderBottom: borderStyle,
-          backgroundColor: colors.surface,
-        }}
-      >
-        <div style={maxWidthStyle}>
-          <h2
-            style={{
-              color: colors.primary,
-              fontSize: "12px",
-              letterSpacing: "1px",
-              marginBottom: "32px",
-            }}
-          >
-            // VS_ALTERNATIVES
-          </h2>
-          <div
-            style={{
-              maxWidth: "700px",
-              margin: "0 auto",
-            }}
-          >
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: "14px",
-              }}
-            >
-              <thead>
-                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
-                  <th style={{ padding: "16px", textAlign: "left", color: colors.muted, fontWeight: 500 }}>Feature</th>
-                  <th style={{ padding: "16px", textAlign: "center", color: colors.primary, fontWeight: 600 }}>TIPZ</th>
-                  <th style={{ padding: "16px", textAlign: "center", color: colors.muted, fontWeight: 500 }}>Ko-fi</th>
-                  <th style={{ padding: "16px", textAlign: "center", color: colors.muted, fontWeight: 500 }}>Buy Me a Coffee</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
-                  <td style={{ padding: "16px", color: colors.text }}>Platform fee</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>0%</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>5%</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>5%</td>
-                </tr>
-                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
-                  <td style={{ padding: "16px", color: colors.text }}>Tipper needs account</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>No</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Yes</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Yes</td>
-                </tr>
-                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
-                  <td style={{ padding: "16px", color: colors.text }}>Income privacy</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>Fully shielded</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Public</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Public</td>
-                </tr>
-                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
-                  <td style={{ padding: "16px", color: colors.text }}>Self-custody</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>Yes</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>No</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>No</td>
-                </tr>
-                <tr>
-                  <td style={{ padding: "16px", color: colors.text }}>KYC required</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>No</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Yes</td>
-                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Yes</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* For Developers - Collapsible */}
-      <section
-        style={{
-          padding: "48px 0",
-          borderBottom: borderStyle,
-        }}
-      >
-        <div style={maxWidthStyle}>
-          <details style={{ cursor: "pointer" }}>
-            <summary
-              style={{
-                color: colors.muted,
-                fontSize: "12px",
-                letterSpacing: "1px",
-                marginBottom: "24px",
-                listStyle: "none",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              <span style={{ color: colors.primary }}>[+]</span> FOR_DEVELOPERS: Protocol specs & SDK
-            </summary>
-            <pre
-              style={{
-                color: colors.text,
-                fontSize: "12px",
-                lineHeight: 1.5,
-                overflow: "auto",
-                margin: "24px 0 0 0",
-                padding: "20px",
-                backgroundColor: colors.surface,
-                border: borderStyle,
-                borderRadius: "4px",
-                fontFamily: "'JetBrains Mono', monospace",
-              }}
-            >
-              {techSpecs}
-            </pre>
-          </details>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section
-        style={{
-          padding: "80px 0",
-          borderBottom: borderStyle,
-          textAlign: "center",
-        }}
-      >
-        <div style={maxWidthStyle}>
-          <h2
-            style={{
-              fontSize: "32px",
-              fontWeight: 700,
-              marginBottom: "16px",
-            }}
-          >
-            Start receiving tips in 2 minutes.
-          </h2>
-          <p
-            style={{
-              color: colors.muted,
-              marginBottom: "32px",
-              maxWidth: "500px",
-              margin: "0 auto 32px",
-            }}
-          >
-            Be one of the first creators accepting shielded tips. Zero platform fees.
-            Self-custody by default. No KYC required.
-          </p>
-          <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
-            <button
-              onClick={scrollToRegister}
-              style={{
-                backgroundColor: colors.primary,
-                color: colors.bg,
-                border: "none",
-                padding: "16px 32px",
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "16px",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = colors.primaryHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = colors.primary;
-              }}
-            >
-              Create Your Tip Page →
-            </button>
-            <a
-              href="https://chromewebstore.google.com/detail/tipz"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                backgroundColor: "transparent",
-                color: colors.text,
-                border: borderStyle,
-                padding: "16px 32px",
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "16px",
-                cursor: "pointer",
-                transition: "all 0.2s",
-                textDecoration: "none",
-                display: "inline-block",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = colors.primary;
-                e.currentTarget.style.color = colors.primary;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = colors.border;
-                e.currentTarget.style.color = colors.text;
-              }}
-            >
-              Install Extension to Tip →
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer
-        style={{
-          padding: "32px 0",
-          backgroundColor: colors.bg,
-        }}
-      >
+      {/* Section 5: Final CTA */}
+      <section className="section section--half" style={{ borderTop: "1px solid #1a1a1a" }}>
         <div
+          ref={addToRefs}
+          className="fade-in"
           style={{
-            ...maxWidthStyle,
             display: "flex",
-            justifyContent: "space-between",
+            flexDirection: "column",
             alignItems: "center",
-            flexWrap: "wrap",
-            gap: "16px",
+            gap: "32px",
+            textAlign: "center",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <span style={{ color: colors.primary, fontWeight: 700 }}>
-              [TIPZ]
-            </span>
-            <span style={{ color: colors.muted, fontSize: "12px" }}>
-              v0.1.0-beta
-            </span>
-          </div>
+          <h2 style={{
+            fontSize: "clamp(36px, 6vw, 56px)",
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+          }}>
+            Ready?
+          </h2>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "24px",
-              color: colors.muted,
-              fontSize: "12px",
-            }}
-          >
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "16px",
+          }}>
+            <Link href="/register" className="btn btn--primary">
+              Register as Creator
+            </Link>
             <a
-              href="/manifesto"
-              style={{ color: colors.muted, textDecoration: "none" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = colors.primary)
-              }
-              onMouseLeave={(e) => (e.currentTarget.style.color = colors.muted)}
+              href="#"
+              className="btn btn--text"
             >
-              MANIFESTO
+              Install Extension
             </a>
-            <a
-              href="https://github.com/tipz-app"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: colors.muted, textDecoration: "none" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = colors.primary)
-              }
-              onMouseLeave={(e) => (e.currentTarget.style.color = colors.muted)}
-            >
-              GITHUB
-            </a>
-            <a
-              href="https://x.com/tipz_cash"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: colors.muted, textDecoration: "none" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = colors.primary)
-              }
-              onMouseLeave={(e) => (e.currentTarget.style.color = colors.muted)}
-            >
-              X
-            </a>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", color: colors.muted, fontSize: "11px" }}>
-            <span style={{ color: colors.success }}>●</span> All systems
-            operational |
-            <img src="/zec/brandmark-yellow.svg" alt="Zcash" style={{ width: "12px", height: "12px" }} />
-            Powered by Zcash + NEAR Intents
           </div>
         </div>
-      </footer>
-    </div>
-  );
+
+        {/* Footer */}
+        <footer style={{
+          position: "absolute",
+          bottom: "24px",
+          display: "flex",
+          gap: "24px",
+          fontSize: "14px",
+        }}>
+          <a href="#" className="footer-link">Privacy</a>
+          <a href="#" className="footer-link">Terms</a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="footer-link">GitHub</a>
+        </footer>
+      </section>
+    </main>
+  )
 }

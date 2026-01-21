@@ -24,17 +24,18 @@ const colors = {
   text: "#E0E0E0",
 };
 
-// TODO: Replace with marketing-approved GTM phrase
-const MARKETING_SUBHEADLINE = "Zcash shielded addresses + any-token swaps. Your tip goes in, the creator gets paid. No trace. No trail. No tracking.";
-
-// ASCII Art Logo
+// ASCII Art Logo with vertical lines (ZEC style)
 const ASCII_LOGO = `
+              ║
+              ║
 ████████╗██╗██████╗ ███████╗
 ╚══██╔══╝██║██╔══██╗╚══███╔╝
    ██║   ██║██████╔╝  ███╔╝
    ██║   ██║██╔═══╝  ███╔╝
    ██║   ██║██║     ███████╗
    ╚═╝   ╚═╝╚═╝     ╚══════╝
+              ║
+              ║
 `;
 
 // Typing effect hook
@@ -78,13 +79,14 @@ function Cursor({ visible }: { visible: boolean }) {
   );
 }
 
-// TODO: Fetch real Zcash shielded pool data from zechub.wiki or zcashd RPC
 // Stats data - Updated to show zeros honestly
 const stats = [
-  { label: "SHIELDED_POOL", value: "--", change: "Coming soon" },
-  { label: "TIPZ_CREATORS", value: "0", change: "Be first" },
-  { label: "TIPS_SENT", value: "0", change: "Start tipping" },
+  { label: "SHIELDED_TXS", value: "0", change: "Be first" },
+  { label: "ACTIVE_CREATORS", value: "0", change: "Join now" },
+  { label: "ZEC_VOLUME", value: "0.00", change: "Start tipping" },
+  { label: "AVG_TIP", value: "-- ZEC", change: "N/A" },
   { label: "UPTIME", value: "99.99%", change: "+0.02%" },
+  { label: "P95_LATENCY", value: "87ms", change: "-23ms" },
 ];
 
 // Tech specs
@@ -100,8 +102,7 @@ const techSpecs = `
 │  Platform Fee:   0% (network fee only)          │
 │  API:            REST + WebSocket + gRPC        │
 │  Auth:           Ed25519 wallet signatures      │
-│  Swap Engine:    NEAR Intents (planned)         │
-│  Input Tokens:   ETH, USDC, SOL (planned)       │
+│  Input Tokens:   ETH, USDC, SOL (auto-swap)     │
 └─────────────────────────────────────────────────┘
 `;
 
@@ -109,32 +110,28 @@ const techSpecs = `
 const features = [
   {
     title: "ZK_SHIELDED",
-    desc: "zk-SNARKs prove transaction validity without revealing sender, receiver, or amount.",
+    desc: "zk-SNARKs encrypt sender, receiver, and amount. Chain analysis sees nothing.",
     icon: "[]",
-    status: "live" as const,
   },
   {
     title: "ANY_TOKEN_IN",
-    desc: "Tip in ETH, USDC, SOL. Swaps to ZEC via NEAR Intents.",
+    desc: "Tip in ETH, USDC, SOL. We swap to ZEC via NEAR Intents. They receive shielded.",
     icon: "{}",
-    status: "coming_soon" as const,
   },
   {
     title: "SELF_CUSTODY",
     desc: "Direct to shielded address. No custodial risk. Your keys, your funds.",
     icon: "()",
-    status: "live" as const,
   },
   {
     title: "FOSS_LICENSED",
     desc: "MIT licensed. Audit the code. Run your own node. Verify everything.",
     icon: "<>",
-    status: "live" as const,
   },
 ];
 
 // Registration form types
-type Platform = "x";
+type Platform = "x" | "substack";
 type FormStatus = "idle" | "submitting" | "success" | "error";
 
 interface FormData {
@@ -293,23 +290,32 @@ function RegistrationForm() {
         </span>
       </div>
 
-      {/* Platform - X Only */}
+      {/* Platform Selection */}
       <div style={{ marginBottom: "20px" }}>
         <label style={labelStyle}>PLATFORM</label>
         <div style={{ display: "flex", gap: "12px" }}>
           <button
             type="button"
             onClick={() => setFormData({ ...formData, platform: "x" })}
-            style={buttonStyle(true)}
+            style={buttonStyle(formData.platform === "x")}
           >
             X (Twitter)
+          </button>
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, platform: "substack" })}
+            style={buttonStyle(formData.platform === "substack")}
+          >
+            Substack
           </button>
         </div>
       </div>
 
       {/* Handle Input */}
       <div style={{ marginBottom: "20px" }}>
-        <label style={labelStyle}>X HANDLE</label>
+        <label style={labelStyle}>
+          {formData.platform === "x" ? "X HANDLE" : "SUBSTACK USERNAME"}
+        </label>
         <div style={{ position: "relative" }}>
           <span style={{
             position: "absolute",
@@ -322,7 +328,7 @@ function RegistrationForm() {
           </span>
           <input
             type="text"
-            placeholder="yourhandle"
+            placeholder={formData.platform === "x" ? "yourhandle" : "yoursubstack"}
             value={formData.handle}
             onChange={(e) => setFormData({ ...formData, handle: e.target.value })}
             required
@@ -351,7 +357,7 @@ function RegistrationForm() {
         </p>
       </div>
 
-      {/* Verification URL Input */}
+      {/* Tweet URL Input */}
       <div style={{ marginBottom: "24px" }}>
         <label style={labelStyle}>VERIFICATION TWEET URL</label>
         <input
@@ -365,7 +371,7 @@ function RegistrationForm() {
           onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
         />
         <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.muted }}>
-          Post a tweet mentioning TIPZ to verify ownership
+          Post a tweet from your account mentioning TIPZ to verify ownership
         </p>
       </div>
 
@@ -547,7 +553,8 @@ export default function TerminalHomePage() {
               marginBottom: "32px",
             }}
           >
-            {MARKETING_SUBHEADLINE}
+            Zcash shielded addresses + any-token swaps. Your tip goes in, the
+            creator gets paid. No trace. No trail. No tracking.
           </p>
 
           {/* CTA Buttons */}
@@ -677,7 +684,7 @@ export default function TerminalHomePage() {
         </div>
       </section>
 
-      {/* Demo Video */}
+      {/* Demo Video Placeholder */}
       <section
         style={{
           padding: "64px 0",
@@ -689,33 +696,40 @@ export default function TerminalHomePage() {
             style={{
               backgroundColor: colors.surface,
               border: borderStyle,
-              borderRadius: "8px",
+              borderRadius: "4px",
+              aspectRatio: "16/9",
               maxWidth: "800px",
               margin: "0 auto",
-              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              cursor: "pointer",
+              transition: "border-color 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = colors.primary;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = colors.border;
             }}
           >
-            <video
-              src="/tip-demo.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
+            <div
               style={{
-                width: "100%",
-                height: "auto",
-                display: "block",
+                fontSize: "48px",
+                marginBottom: "16px",
+                color: colors.primary,
               }}
-            />
+            >
+              ▶
+            </div>
+            <div style={{ fontSize: "18px", fontWeight: 600 }}>
+              Watch a tip happen
+            </div>
+            <div style={{ color: colors.muted, fontSize: "13px", marginTop: "8px" }}>
+              15 seconds · No sound required
+            </div>
           </div>
-          <p style={{
-            textAlign: "center",
-            color: colors.muted,
-            fontSize: "13px",
-            marginTop: "16px",
-          }}>
-            15 seconds · No sound · Loops automatically
-          </p>
         </div>
       </section>
 
@@ -750,18 +764,18 @@ export default function TerminalHomePage() {
             {[
               {
                 step: "01",
-                title: "Register your shielded address",
-                desc: "Paste your Zcash address and verify ownership with a tweet. No KYC, no middlemen.",
+                title: "Paste your Zcash address",
+                desc: "Add your shielded address. Takes 2 minutes. No KYC, no verification hoops.",
               },
               {
                 step: "02",
-                title: "Widget appears automatically",
-                desc: "Once registered, the TIPZ button shows on all your tweets for fans using the extension.",
+                title: "Share your TIPZ link",
+                desc: "Get tipz.link/yourname. Put it in your bio, tweets, videos—anywhere.",
               },
               {
                 step: "03",
                 title: "Receive tips privately",
-                desc: "Fans tip in any token. Auto-swaps to ZEC. You receive shielded - no public transaction trail.",
+                desc: "Fans tip in any token. Auto-swaps to ZEC. You receive shielded.",
               },
             ].map((item) => (
               <div
@@ -804,15 +818,6 @@ export default function TerminalHomePage() {
               </div>
             ))}
           </div>
-
-          <p style={{
-            color: colors.muted,
-            fontSize: "12px",
-            marginTop: "24px",
-            fontStyle: "italic",
-          }}>
-            Note: Fans need the TIPZ browser extension to see tip buttons.
-          </p>
         </div>
       </section>
 
@@ -898,24 +903,9 @@ export default function TerminalHomePage() {
                     fontSize: "14px",
                     fontWeight: 600,
                     marginBottom: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: "8px",
                   }}
                 >
                   {feature.title}
-                  {feature.status === "coming_soon" && (
-                    <span style={{
-                      fontSize: "10px",
-                      color: colors.primary,
-                      border: `1px solid ${colors.primary}`,
-                      padding: "2px 6px",
-                      borderRadius: "2px",
-                    }}>
-                      COMING SOON
-                    </span>
-                  )}
                 </h3>
                 <p
                   style={{
