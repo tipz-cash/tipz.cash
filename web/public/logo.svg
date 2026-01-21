@@ -1,0 +1,13 @@
+<svg width="240" height="72" viewBox="0 0 240 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- TIP text -->
+  <text x="0" y="56" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="60" font-weight="600" fill="#FFFFFF" letter-spacing="-0.02em">TIP</text>
+
+  <!-- Zcash Z symbol - simplified iconic version -->
+  <g transform="translate(142, 8)">
+    <!-- Z shape with horizontal bars -->
+    <path d="M0 6 L48 6 L48 12 L16 12 L48 44 L48 50 L0 50 L0 44 L32 44 L0 12 Z" fill="#F4B728"/>
+    <!-- Strike-through lines -->
+    <rect x="-6" y="18" width="60" height="4" fill="#F4B728"/>
+    <rect x="-6" y="34" width="60" height="4" fill="#F4B728"/>
+  </g>
+</svg>

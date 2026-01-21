@@ -1,0 +1,35 @@
+{
+  "name": "tipz-extension",
+  "displayName": "TIPZ",
+  "version": "0.0.1",
+  "description": "Private micro-tipping for X and Substack creators",
+  "author": "",
+  "scripts": {
+    "dev": "plasmo dev",
+    "build": "plasmo build",
+    "package": "plasmo package"
+  },
+  "dependencies": {
+    "plasmo": "0.90.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.0.268",
+    "@types/node": "22.5.4",
+    "@types/react": "18.2.79",
+    "@types/react-dom": "18.2.25",
+    "sharp": "^0.34.5",
+    "typescript": "5.5.4"
+  },
+  "manifest": {
+    "host_permissions": [
+      "https://x.com/*",
+      "https://twitter.com/*",
+      "https://*.substack.com/*"
+    ],
+    "permissions": [
+      "storage"
+    ]
+  }
+}
