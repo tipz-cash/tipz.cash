@@ -1,0 +1,611 @@
+import React from "react";
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  useVideoConfig,
+  interpolate,
+  spring,
+  Sequence,
+} from "remotion";
+
+// TIPZ Color palette
+const colors = {
+  bg: "#0A0A0A",
+  surface: "#1A1A1A",
+  primary: "#F5A623",
+  primaryHover: "#FFB84D",
+  success: "#00FF00",
+  muted: "#888888",
+  border: "#333333",
+  text: "#E0E0E0",
+  twitterBg: "#000000",
+  twitterBorder: "#2F3336",
+};
+
+// Mock Tweet Component
+const Tweet: React.FC<{
+  showTipButton: boolean;
+  tipButtonHighlight: boolean;
+}> = ({ showTipButton, tipButtonHighlight }) => {
+  return (
+    <div
+      style={{
+        backgroundColor: colors.twitterBg,
+        border: `1px solid ${colors.twitterBorder}`,
+        borderRadius: 16,
+        padding: 16,
+        width: 600,
+        fontFamily: "system-ui, -apple-system, sans-serif",
+      }}
+    >
+      {/* Tweet Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: "50%",
+            background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: colors.bg,
+            fontWeight: 700,
+            fontSize: 20,
+          }}
+        >
+          S
+        </div>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ color: colors.text, fontWeight: 700, fontSize: 15 }}>
+              Satoshi
+            </span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#1D9BF0">
+              <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z" />
+            </svg>
+          </div>
+          <span style={{ color: colors.muted, fontSize: 14 }}>@satoshi</span>
+        </div>
+      </div>
+
+      {/* Tweet Content */}
+      <p
+        style={{
+          color: colors.text,
+          fontSize: 17,
+          lineHeight: 1.4,
+          marginTop: 12,
+          marginBottom: 16,
+        }}
+      >
+        Just shipped a major update to my privacy project. Shielded transactions
+        are the future. LFG! 🛡️
+      </p>
+
+      {/* Tweet Actions */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 48,
+          color: colors.muted,
+          fontSize: 13,
+        }}
+      >
+        <span>💬 42</span>
+        <span>🔁 128</span>
+        <span>❤️ 1.2K</span>
+        {showTipButton && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: 20,
+              backgroundColor: tipButtonHighlight
+                ? colors.primary
+                : "transparent",
+              border: `1px solid ${colors.primary}`,
+              color: tipButtonHighlight ? colors.bg : colors.primary,
+              fontWeight: 600,
+              fontSize: 13,
+              transition: "all 0.2s",
+              transform: tipButtonHighlight ? "scale(1.05)" : "scale(1)",
+              boxShadow: tipButtonHighlight
+                ? `0 0 20px ${colors.primary}40`
+                : "none",
+            }}
+          >
+            <span>🛡️</span>
+            <span>TIP</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Tip Modal Component
+const TipModal: React.FC<{
+  progress: number;
+  selectedAmount: number | null;
+  showConfirm: boolean;
+  showSuccess: boolean;
+}> = ({ progress, selectedAmount, showConfirm, showSuccess }) => {
+  const amounts = [0.01, 0.05, 0.1, 0.5, 1];
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: `translate(-50%, -50%) scale(${progress})`,
+        backgroundColor: colors.surface,
+        border: `1px solid ${colors.border}`,
+        borderRadius: 12,
+        padding: 24,
+        width: 360,
+        opacity: progress,
+        fontFamily: "'JetBrains Mono', monospace",
+      }}
+    >
+      {/* Modal Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          paddingBottom: 16,
+          borderBottom: `1px solid ${colors.border}`,
+          marginBottom: 20,
+        }}
+      >
+        <div style={{ display: "flex", gap: 6 }}>
+          <div
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              backgroundColor: "#FF5F56",
+            }}
+          />
+          <div
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              backgroundColor: "#FFBD2E",
+            }}
+          />
+          <div
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              backgroundColor: "#27CA40",
+            }}
+          />
+        </div>
+        <span style={{ color: colors.muted, fontSize: 12, marginLeft: 8 }}>
+          [TIPZ] // SEND_TIP
+        </span>
+      </div>
+
+      {showSuccess ? (
+        // Success State
+        <div style={{ textAlign: "center", padding: "20px 0" }}>
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: "50%",
+              backgroundColor: `${colors.success}20`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px",
+              border: `2px solid ${colors.success}`,
+            }}
+          >
+            <span style={{ fontSize: 32, color: colors.success }}>✓</span>
+          </div>
+          <h3
+            style={{
+              color: colors.text,
+              fontSize: 18,
+              fontWeight: 600,
+              margin: "0 0 8px",
+            }}
+          >
+            Tip Sent!
+          </h3>
+          <p style={{ color: colors.muted, fontSize: 14, margin: 0 }}>
+            0.1 ZEC to @satoshi
+          </p>
+          <p
+            style={{
+              color: colors.success,
+              fontSize: 12,
+              marginTop: 12,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            🛡️ Shielded • No trace
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Recipient */}
+          <div style={{ marginBottom: 20 }}>
+            <div
+              style={{ color: colors.muted, fontSize: 11, marginBottom: 8 }}
+            >
+              SENDING TO
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: colors.bg,
+                  fontWeight: 700,
+                }}
+              >
+                S
+              </div>
+              <div>
+                <div style={{ color: colors.text, fontWeight: 600 }}>
+                  @satoshi
+                </div>
+                <div style={{ color: colors.muted, fontSize: 12 }}>
+                  zs1q8w...x7k9
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Amount Selection */}
+          <div style={{ marginBottom: 20 }}>
+            <div
+              style={{ color: colors.muted, fontSize: 11, marginBottom: 8 }}
+            >
+              SELECT AMOUNT (ZEC)
+            </div>
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                flexWrap: "wrap",
+              }}
+            >
+              {amounts.map((amount) => (
+                <div
+                  key={amount}
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: 6,
+                    backgroundColor:
+                      selectedAmount === amount ? colors.primary : colors.bg,
+                    border: `1px solid ${selectedAmount === amount ? colors.primary : colors.border}`,
+                    color:
+                      selectedAmount === amount ? colors.bg : colors.text,
+                    fontWeight: 500,
+                    fontSize: 14,
+                    transform:
+                      selectedAmount === amount ? "scale(1.05)" : "scale(1)",
+                    boxShadow:
+                      selectedAmount === amount
+                        ? `0 0 15px ${colors.primary}40`
+                        : "none",
+                  }}
+                >
+                  {amount}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Confirm Button */}
+          <button
+            style={{
+              width: "100%",
+              padding: 14,
+              borderRadius: 6,
+              backgroundColor: showConfirm ? colors.primaryHover : colors.primary,
+              border: "none",
+              color: colors.bg,
+              fontWeight: 600,
+              fontSize: 15,
+              fontFamily: "'JetBrains Mono', monospace",
+              transform: showConfirm ? "scale(0.98)" : "scale(1)",
+              boxShadow: showConfirm ? `0 0 30px ${colors.primary}60` : "none",
+            }}
+          >
+            {showConfirm ? "Confirming..." : "Confirm Tip →"}
+          </button>
+
+          {/* Privacy Note */}
+          <p
+            style={{
+              color: colors.muted,
+              fontSize: 11,
+              marginTop: 12,
+              textAlign: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            🛡️ Powered by Zcash shielding
+          </p>
+        </>
+      )}
+    </div>
+  );
+};
+
+// Cursor Component
+const Cursor: React.FC<{ x: number; y: number; clicking: boolean }> = ({
+  x,
+  y,
+  clicking,
+}) => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        transform: "translate(-2px, -2px)",
+        pointerEvents: "none",
+        zIndex: 1000,
+      }}
+    >
+      <svg
+        width={clicking ? 28 : 32}
+        height={clicking ? 28 : 32}
+        viewBox="0 0 24 24"
+        fill="white"
+        style={{
+          filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))",
+          transition: "all 0.1s",
+        }}
+      >
+        <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.48 0 .72-.58.38-.92L5.97 2.88a.5.5 0 0 0-.47.33z" />
+      </svg>
+      {clicking && (
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            left: 10,
+            width: 20,
+            height: 20,
+            borderRadius: "50%",
+            backgroundColor: `${colors.primary}40`,
+            animation: "pulse 0.3s ease-out",
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+// Main Video Component
+export const TipDemo: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  // Timeline (in frames at 30fps):
+  // 0-30: Show tweet without tip button
+  // 30-60: Tip button appears
+  // 60-90: Cursor moves to tip button
+  // 90-120: Cursor clicks tip button
+  // 120-180: Modal appears, cursor moves to 0.1 ZEC
+  // 180-210: Click 0.1 ZEC
+  // 210-270: Cursor moves to confirm button
+  // 270-300: Click confirm
+  // 300-360: Processing animation
+  // 360-450: Success state
+
+  // Tip button visibility
+  const showTipButton = frame > 30;
+  const tipButtonHighlight = frame > 90 && frame < 120;
+
+  // Modal state
+  const modalProgress =
+    frame > 120
+      ? spring({
+          frame: frame - 120,
+          fps,
+          config: { damping: 15, stiffness: 100 },
+        })
+      : 0;
+
+  const selectedAmount = frame > 180 ? 0.1 : null;
+  const showConfirm = frame > 270 && frame < 360;
+  const showSuccess = frame > 360;
+
+  // Cursor position animation
+  let cursorX = 400;
+  let cursorY = 200;
+  let clicking = false;
+
+  if (frame > 60 && frame <= 90) {
+    // Move to tip button
+    const t = (frame - 60) / 30;
+    cursorX = interpolate(t, [0, 1], [400, 850]);
+    cursorY = interpolate(t, [0, 1], [200, 520]);
+  } else if (frame > 90 && frame <= 120) {
+    cursorX = 850;
+    cursorY = 520;
+    clicking = frame > 100 && frame < 110;
+  } else if (frame > 120 && frame <= 180) {
+    // Move to 0.1 ZEC button
+    const t = (frame - 120) / 60;
+    cursorX = interpolate(t, [0, 1], [850, 720]);
+    cursorY = interpolate(t, [0, 1], [520, 580]);
+  } else if (frame > 180 && frame <= 210) {
+    cursorX = 720;
+    cursorY = 580;
+    clicking = frame > 190 && frame < 200;
+  } else if (frame > 210 && frame <= 270) {
+    // Move to confirm button
+    const t = (frame - 210) / 60;
+    cursorX = interpolate(t, [0, 1], [720, 960]);
+    cursorY = interpolate(t, [0, 1], [580, 670]);
+  } else if (frame > 270 && frame <= 300) {
+    cursorX = 960;
+    cursorY = 670;
+    clicking = frame > 280 && frame < 290;
+  } else if (frame > 300) {
+    // Hide cursor during success
+    cursorX = -100;
+    cursorY = -100;
+  }
+
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: colors.bg,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: "'JetBrains Mono', monospace",
+      }}
+    >
+      {/* Background grid pattern */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `
+            linear-gradient(${colors.border}40 1px, transparent 1px),
+            linear-gradient(90deg, ${colors.border}40 1px, transparent 1px)
+          `,
+          backgroundSize: "50px 50px",
+          opacity: 0.3,
+        }}
+      />
+
+      {/* TIPZ Logo */}
+      <div
+        style={{
+          position: "absolute",
+          top: 40,
+          left: 60,
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
+        <span
+          style={{ color: colors.primary, fontWeight: 700, fontSize: 24 }}
+        >
+          [TIPZ]
+        </span>
+        <span style={{ color: colors.muted, fontSize: 14 }}>
+          // DEMO
+        </span>
+      </div>
+
+      {/* Tweet */}
+      <div style={{ position: "relative" }}>
+        <Tweet
+          showTipButton={showTipButton}
+          tipButtonHighlight={tipButtonHighlight}
+        />
+      </div>
+
+      {/* Modal Overlay */}
+      {frame > 120 && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundColor: `rgba(0,0,0,${modalProgress * 0.7})`,
+          }}
+        />
+      )}
+
+      {/* Tip Modal */}
+      {frame > 120 && (
+        <TipModal
+          progress={modalProgress}
+          selectedAmount={selectedAmount}
+          showConfirm={showConfirm}
+          showSuccess={showSuccess}
+        />
+      )}
+
+      {/* Cursor */}
+      <Cursor x={cursorX} y={cursorY} clicking={clicking} />
+
+      {/* Caption */}
+      <Sequence from={0} durationInFrames={90}>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 60,
+            left: "50%",
+            transform: "translateX(-50%)",
+            color: colors.text,
+            fontSize: 18,
+            opacity: interpolate(frame, [0, 15, 75, 90], [0, 1, 1, 0]),
+          }}
+        >
+          Browse X and spot the TIP button...
+        </div>
+      </Sequence>
+
+      <Sequence from={120} durationInFrames={150}>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 60,
+            left: "50%",
+            transform: "translateX(-50%)",
+            color: colors.text,
+            fontSize: 18,
+            opacity: interpolate(
+              frame,
+              [120, 135, 255, 270],
+              [0, 1, 1, 0]
+            ),
+          }}
+        >
+          Select amount and confirm...
+        </div>
+      </Sequence>
+
+      <Sequence from={360} durationInFrames={90}>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 60,
+            left: "50%",
+            transform: "translateX(-50%)",
+            color: colors.success,
+            fontSize: 20,
+            fontWeight: 600,
+            opacity: interpolate(frame, [360, 375, 435, 450], [0, 1, 1, 0]),
+          }}
+        >
+          Private tip sent! No trace, no trail.
+        </div>
+      </Sequence>
+    </AbsoluteFill>
+  );
+};

@@ -1,0 +1,22 @@
+{
+  "name": "tipz-video",
+  "version": "1.0.0",
+  "description": "TIPZ demo videos using Remotion",
+  "scripts": {
+    "dev": "remotion studio src/index.ts",
+    "build": "remotion render src/index.ts TipDemo out/tip-demo.mp4",
+    "build:gif": "remotion render src/index.ts TipDemo out/tip-demo.gif --image-format=png"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@remotion/bundler": "^4.0.407",
+    "@remotion/cli": "^4.0.407",
+    "@types/react": "^19.2.9",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "remotion": "^4.0.407",
+    "typescript": "^5.9.3"
+  }
+}

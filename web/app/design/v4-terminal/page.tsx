@@ -677,7 +677,7 @@ export default function TerminalHomePage() {
         </div>
       </section>
 
-      {/* Demo Video Placeholder */}
+      {/* Demo Video */}
       <section
         style={{
           padding: "64px 0",
@@ -689,40 +689,33 @@ export default function TerminalHomePage() {
             style={{
               backgroundColor: colors.surface,
               border: borderStyle,
-              borderRadius: "4px",
-              aspectRatio: "16/9",
+              borderRadius: "8px",
               maxWidth: "800px",
               margin: "0 auto",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              cursor: "pointer",
-              transition: "border-color 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = colors.primary;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = colors.border;
+              overflow: "hidden",
             }}
           >
-            <div
+            <video
+              src="/tip-demo.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
               style={{
-                fontSize: "48px",
-                marginBottom: "16px",
-                color: colors.primary,
+                width: "100%",
+                height: "auto",
+                display: "block",
               }}
-            >
-              ▶
-            </div>
-            <div style={{ fontSize: "18px", fontWeight: 600 }}>
-              Watch a tip happen
-            </div>
-            <div style={{ color: colors.muted, fontSize: "13px", marginTop: "8px" }}>
-              15 seconds · No sound required
-            </div>
+            />
           </div>
+          <p style={{
+            textAlign: "center",
+            color: colors.muted,
+            fontSize: "13px",
+            marginTop: "16px",
+          }}>
+            15 seconds · No sound · Loops automatically
+          </p>
         </div>
       </section>
 
