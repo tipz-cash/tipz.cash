@@ -13,7 +13,7 @@ import { supabase } from "@/lib/supabase"
  * - 503: Service unhealthy (database unreachable)
  */
 
-const SERVICE_VERSION = "1.1.0"
+const SERVICE_VERSION = "1.1.1"
 
 interface HealthStatus {
   status: "healthy" | "unhealthy"
