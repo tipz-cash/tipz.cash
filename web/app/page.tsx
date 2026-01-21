@@ -25,7 +25,7 @@ const colors = {
 };
 
 // Core messaging - X-only, no account needed
-const MARKETING_SUBHEADLINE = "Private tips for X creators. No account needed to tip. Install the extension, connect your wallet, and tip anonymously via Zcash shielded transactions.";
+const MARKETING_SUBHEADLINE = "No account needed to tip. Zero fees. Tips stay private.";
 
 // ASCII Art Logo
 const ASCII_LOGO = `
@@ -78,13 +78,12 @@ function Cursor({ visible }: { visible: boolean }) {
   );
 }
 
-// TODO: Fetch real Zcash shielded pool data from zechub.wiki or zcashd RPC
-// Stats data - Updated to show zeros honestly
-const stats = [
-  { label: "SHIELDED_POOL", value: "--", change: "Coming soon" },
-  { label: "TIPZ_CREATORS", value: "0", change: "Be first" },
-  { label: "TIPS_SENT", value: "0", change: "Start tipping" },
-  { label: "UPTIME", value: "99.99%", change: "+0.02%" },
+// Trust badges instead of zero stats
+const trustBadges = [
+  { label: "PLATFORM_FEE", value: "0%", desc: "Network fee only" },
+  { label: "LICENSE", value: "MIT", desc: "Open source" },
+  { label: "CUSTODY", value: "SELF", desc: "Your keys only" },
+  { label: "STATUS", value: "LIVE", desc: "X (Twitter)" },
 ];
 
 // Tech specs
@@ -347,7 +346,15 @@ function RegistrationForm() {
           onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
         />
         <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.muted }}>
-          Must start with "zs" and be 78 characters
+          Must start with &quot;zs&quot; and be 78 characters.{" "}
+          <a
+            href="https://z.cash/wallets/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: colors.primary, textDecoration: "underline" }}
+          >
+            Don&apos;t have a wallet?
+          </a>
         </p>
       </div>
 
@@ -409,7 +416,7 @@ function RegistrationForm() {
 }
 
 export default function HomePage() {
-  const heroText = "Private tips for X creators.";
+  const heroText = "Get tipped. Stay private. No fees.";
   const { displayText, isComplete } = useTypingEffect(heroText, 40);
   const [mounted, setMounted] = useState(false);
   const registerRef = useRef<HTMLDivElement>(null);
@@ -484,10 +491,15 @@ export default function HomePage() {
             </span>
           </div>
           <nav style={{ display: "flex", gap: "24px" }}>
-            {["DOCS", "API", "GITHUB", "STATUS"].map((item) => (
+            {[
+              { label: "GITHUB", href: "https://github.com/tipz-app" },
+              { label: "EXTENSION", href: "https://chromewebstore.google.com/detail/tipz" },
+            ].map((item) => (
               <a
-                key={item}
-                href="#"
+                key={item.label}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
                   color: colors.muted,
                   textDecoration: "none",
@@ -502,7 +514,7 @@ export default function HomePage() {
                   (e.currentTarget.style.color = colors.muted)
                 }
               >
-                {item}
+                {item.label}
               </a>
             ))}
           </nav>
@@ -550,8 +562,8 @@ export default function HomePage() {
             {MARKETING_SUBHEADLINE}
           </p>
 
-          {/* CTA Buttons */}
-          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+          {/* Dual CTA Buttons - Creators + Tippers */}
+          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "16px" }}>
             <button
               onClick={scrollToRegister}
               style={{
@@ -572,112 +584,61 @@ export default function HomePage() {
                 e.currentTarget.style.backgroundColor = colors.primary;
               }}
             >
-              Start Receiving Tips →
+              I&apos;m a Creator →
             </button>
-            <button
-              onClick={scrollToHowItWorks}
+            <a
+              href="https://chromewebstore.google.com/detail/tipz"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
-                backgroundColor: "transparent",
-                color: colors.text,
-                border: borderStyle,
+                backgroundColor: colors.primary,
+                color: colors.bg,
+                border: "none",
                 padding: "14px 28px",
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: "15px",
+                fontWeight: 600,
                 cursor: "pointer",
                 transition: "all 0.2s",
+                textDecoration: "none",
+                display: "inline-block",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = colors.primary;
-                e.currentTarget.style.color = colors.primary;
+                e.currentTarget.style.backgroundColor = colors.primaryHover;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = colors.border;
-                e.currentTarget.style.color = colors.text;
+                e.currentTarget.style.backgroundColor = colors.primary;
               }}
             >
-              See How It Works
-            </button>
+              I Want to Tip →
+            </a>
           </div>
+          <button
+            onClick={scrollToHowItWorks}
+            style={{
+              backgroundColor: "transparent",
+              color: colors.muted,
+              border: "none",
+              padding: "0",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "13px",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              textDecoration: "underline",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = colors.primary;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = colors.muted;
+            }}
+          >
+            See how it works
+          </button>
         </div>
       </section>
 
-      {/* Stats Dashboard */}
-      <section
-        style={{
-          padding: "48px 0",
-          borderBottom: borderStyle,
-          backgroundColor: colors.surface,
-        }}
-      >
-        <div style={maxWidthStyle}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "24px",
-            }}
-          >
-            <span style={{ color: colors.success }}>●</span>
-            <span style={{ color: colors.muted, fontSize: "12px" }}>
-              NETWORK_STATUS: OPERATIONAL
-            </span>
-          </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: "1px",
-              backgroundColor: colors.border,
-              border: borderStyle,
-            }}
-          >
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                style={{
-                  backgroundColor: colors.bg,
-                  padding: "20px",
-                }}
-              >
-                <div
-                  style={{
-                    color: colors.muted,
-                    fontSize: "11px",
-                    marginBottom: "8px",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  {stat.label}
-                </div>
-                <div
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: 600,
-                    marginBottom: "4px",
-                  }}
-                >
-                  {stat.value}
-                </div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: stat.change.startsWith("+")
-                      ? colors.success
-                      : stat.change.startsWith("-")
-                      ? "#FF4444"
-                      : colors.primary,
-                  }}
-                >
-                  {stat.change}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Video */}
+      {/* Demo Video - Moved higher for better engagement */}
       <section
         style={{
           padding: "64px 0",
@@ -714,12 +675,85 @@ export default function HomePage() {
             fontSize: "13px",
             marginTop: "16px",
           }}>
-            15 seconds · No sound · Loops automatically
+            Watch a tip happen in real-time
           </p>
         </div>
       </section>
 
-      {/* 3 Steps - How It Works */}
+      {/* Trust Badges */}
+      <section
+        style={{
+          padding: "48px 0",
+          borderBottom: borderStyle,
+          backgroundColor: colors.surface,
+        }}
+      >
+        <div style={maxWidthStyle}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              marginBottom: "24px",
+            }}
+          >
+            <span style={{ color: colors.success }}>●</span>
+            <span style={{ color: colors.muted, fontSize: "12px" }}>
+              NETWORK_STATUS: OPERATIONAL
+            </span>
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: "1px",
+              backgroundColor: colors.border,
+              border: borderStyle,
+            }}
+          >
+            {trustBadges.map((badge) => (
+              <div
+                key={badge.label}
+                style={{
+                  backgroundColor: colors.bg,
+                  padding: "20px",
+                }}
+              >
+                <div
+                  style={{
+                    color: colors.muted,
+                    fontSize: "11px",
+                    marginBottom: "8px",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  {badge.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: 600,
+                    marginBottom: "4px",
+                    color: badge.value === "0%" ? colors.success : colors.text,
+                  }}
+                >
+                  {badge.value}
+                </div>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: colors.muted,
+                  }}
+                >
+                  {badge.desc}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works - Two Tracks */}
       <section
         ref={howItWorksRef}
         id="how-it-works"
@@ -729,6 +763,7 @@ export default function HomePage() {
         }}
       >
         <div style={maxWidthStyle}>
+          {/* For Creators */}
           <h2
             style={{
               color: colors.primary,
@@ -737,7 +772,7 @@ export default function HomePage() {
               marginBottom: "32px",
             }}
           >
-            // HOW_IT_WORKS
+            // FOR_CREATORS
           </h2>
 
           <div
@@ -745,6 +780,7 @@ export default function HomePage() {
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
               gap: "24px",
+              marginBottom: "64px",
             }}
           >
             {[
@@ -761,7 +797,7 @@ export default function HomePage() {
               {
                 step: "03",
                 title: "Receive tips privately",
-                desc: "Fans tip in any token. Auto-swaps to ZEC. You receive shielded - no public transaction trail.",
+                desc: "Tips go directly to your wallet. No public transaction trail. Your income stays private.",
               },
             ].map((item) => (
               <div
@@ -805,14 +841,111 @@ export default function HomePage() {
             ))}
           </div>
 
-          <p style={{
-            color: colors.muted,
-            fontSize: "12px",
-            marginTop: "24px",
-            fontStyle: "italic",
-          }}>
-            Tippers: Install the extension, connect your wallet, tip. No account needed.
-          </p>
+          {/* For Tippers */}
+          <h2
+            style={{
+              color: colors.primary,
+              fontSize: "12px",
+              letterSpacing: "1px",
+              marginBottom: "32px",
+            }}
+          >
+            // FOR_TIPPERS
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "24px",
+            }}
+          >
+            {[
+              {
+                step: "01",
+                title: "Install the extension",
+                desc: "Add TIPZ to Chrome. One click, no sign up required.",
+              },
+              {
+                step: "02",
+                title: "Connect your wallet",
+                desc: "Use any crypto wallet. We support multiple tokens.",
+              },
+              {
+                step: "03",
+                title: "Tip any registered creator",
+                desc: "Click the TIPZ button on any tweet. Tips are anonymous and instant.",
+              },
+            ].map((item) => (
+              <div
+                key={`tipper-${item.step}`}
+                style={{
+                  border: borderStyle,
+                  padding: "32px 24px",
+                  backgroundColor: colors.surface,
+                  transition: "border-color 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = colors.primary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = colors.border;
+                }}
+              >
+                <div
+                  style={{
+                    color: colors.primary,
+                    fontSize: "32px",
+                    fontWeight: 700,
+                    marginBottom: "16px",
+                  }}
+                >
+                  {item.step}
+                </div>
+                <h3
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    marginBottom: "12px",
+                  }}
+                >
+                  {item.title}
+                </h3>
+                <p style={{ color: colors.muted, fontSize: "14px", margin: 0 }}>
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: "32px", textAlign: "center" }}>
+            <a
+              href="https://chromewebstore.google.com/detail/tipz"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                backgroundColor: colors.primary,
+                color: colors.bg,
+                border: "none",
+                padding: "14px 28px",
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "15px",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.2s",
+                textDecoration: "none",
+                display: "inline-block",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.primaryHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = colors.primary;
+              }}
+            >
+              Install Chrome Extension →
+            </a>
+          </div>
         </div>
       </section>
 
@@ -932,7 +1065,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Creator Testimonial */}
+      {/* Competitor Comparison */}
       <section
         style={{
           padding: "64px 0",
@@ -941,39 +1074,70 @@ export default function HomePage() {
         }}
       >
         <div style={maxWidthStyle}>
+          <h2
+            style={{
+              color: colors.primary,
+              fontSize: "12px",
+              letterSpacing: "1px",
+              marginBottom: "32px",
+            }}
+          >
+            // VS_ALTERNATIVES
+          </h2>
           <div
             style={{
               maxWidth: "700px",
               margin: "0 auto",
-              textAlign: "center",
             }}
           >
-            <div
+            <table
               style={{
-                color: colors.primary,
-                fontSize: "48px",
-                marginBottom: "24px",
-                fontFamily: "Georgia, serif",
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: "14px",
               }}
             >
-              &ldquo;
-            </div>
-            <blockquote
-              style={{
-                fontSize: "24px",
-                fontWeight: 500,
-                lineHeight: 1.5,
-                marginBottom: "24px",
-                fontStyle: "italic",
-              }}
-            >
-              Finally, tips that don&apos;t broadcast my income to the world.
-            </blockquote>
-            <div style={{ color: colors.muted, fontSize: "14px" }}>
-              <span style={{ color: colors.primary }}>@indie_creator</span>
-              <span style={{ margin: "0 8px" }}>·</span>
-              12k followers
-            </div>
+              <thead>
+                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: "16px", textAlign: "left", color: colors.muted, fontWeight: 500 }}>Feature</th>
+                  <th style={{ padding: "16px", textAlign: "center", color: colors.primary, fontWeight: 600 }}>TIPZ</th>
+                  <th style={{ padding: "16px", textAlign: "center", color: colors.muted, fontWeight: 500 }}>Ko-fi</th>
+                  <th style={{ padding: "16px", textAlign: "center", color: colors.muted, fontWeight: 500 }}>Buy Me a Coffee</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <td style={{ padding: "16px", color: colors.text }}>Platform fee</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>0%</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>5%</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>5%</td>
+                </tr>
+                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <td style={{ padding: "16px", color: colors.text }}>Tipper needs account</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>No</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Yes</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Yes</td>
+                </tr>
+                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <td style={{ padding: "16px", color: colors.text }}>Income privacy</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>Fully shielded</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Public</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Public</td>
+                </tr>
+                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <td style={{ padding: "16px", color: colors.text }}>Self-custody</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>Yes</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>No</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>No</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: "16px", color: colors.text }}>KYC required</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>No</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Yes</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>Yes</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -1073,7 +1237,10 @@ export default function HomePage() {
             >
               Create Your Tip Page →
             </button>
-            <button
+            <a
+              href="https://chromewebstore.google.com/detail/tipz"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 backgroundColor: "transparent",
                 color: colors.text,
@@ -1083,6 +1250,8 @@ export default function HomePage() {
                 fontSize: "16px",
                 cursor: "pointer",
                 transition: "all 0.2s",
+                textDecoration: "none",
+                display: "inline-block",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = colors.primary;
@@ -1093,8 +1262,8 @@ export default function HomePage() {
                 e.currentTarget.style.color = colors.text;
               }}
             >
-              I Want to Tip Someone
-            </button>
+              Install Extension to Tip →
+            </a>
           </div>
         </div>
       </section>
@@ -1134,7 +1303,9 @@ export default function HomePage() {
             }}
           >
             <a
-              href="#"
+              href="https://github.com/tipz-app"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{ color: colors.muted, textDecoration: "none" }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.color = colors.primary)
@@ -1144,24 +1315,16 @@ export default function HomePage() {
               GITHUB
             </a>
             <a
-              href="#"
+              href="https://x.com/tipz_app"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{ color: colors.muted, textDecoration: "none" }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.color = colors.primary)
               }
               onMouseLeave={(e) => (e.currentTarget.style.color = colors.muted)}
             >
-              DISCORD
-            </a>
-            <a
-              href="#"
-              style={{ color: colors.muted, textDecoration: "none" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = colors.primary)
-              }
-              onMouseLeave={(e) => (e.currentTarget.style.color = colors.muted)}
-            >
-              TWITTER
+              X
             </a>
           </div>
 
