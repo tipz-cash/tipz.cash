@@ -17,7 +17,7 @@ const colors = {
 }
 
 export default function RegisterPage() {
-  const [platform, setPlatform] = useState<"x" | "substack">("x")
+  const [platform] = useState<"x">("x")
   const [handle, setHandle] = useState("")
   const [shieldedAddress, setShieldedAddress] = useState("")
   const [tweetUrl, setTweetUrl] = useState("")
@@ -127,52 +127,31 @@ My shielded address: ${shieldedAddress || "[your address]"}`
             <div style={{ display: "flex", gap: "12px" }}>
               <button
                 type="button"
-                onClick={() => setPlatform("x")}
                 style={{
                   flex: 1,
                   padding: "14px",
                   fontSize: "14px",
                   fontWeight: 500,
-                  backgroundColor: platform === "x" ? colors.accentYellow : colors.cardBg,
-                  border: `1px solid ${platform === "x" ? colors.accentYellow : colors.borderSubtle}`,
+                  backgroundColor: colors.accentYellow,
+                  border: `1px solid ${colors.accentYellow}`,
                   borderRadius: "8px",
-                  color: platform === "x" ? colors.bgBlack : colors.textWhite,
-                  cursor: "pointer",
+                  color: colors.bgBlack,
+                  cursor: "default",
                   transition: "all 200ms ease",
                 }}
               >
                 X (Twitter)
               </button>
-              <button
-                type="button"
-                onClick={() => setPlatform("substack")}
-                style={{
-                  flex: 1,
-                  padding: "14px",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  backgroundColor: platform === "substack" ? colors.accentYellow : colors.cardBg,
-                  border: `1px solid ${platform === "substack" ? colors.accentYellow : colors.borderSubtle}`,
-                  borderRadius: "8px",
-                  color: platform === "substack" ? colors.bgBlack : colors.textWhite,
-                  cursor: "pointer",
-                  transition: "all 200ms ease",
-                }}
-              >
-                Substack
-              </button>
             </div>
           </div>
 
           <div style={{ marginBottom: "24px" }}>
-            <label style={labelStyle}>
-              {platform === "x" ? "X Handle" : "Substack Subdomain"}
-            </label>
+            <label style={labelStyle}>X Handle</label>
             <input
               type="text"
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
-              placeholder={platform === "x" ? "@username" : "yourname"}
+              placeholder="@username"
               style={inputStyle}
               required
               onFocus={(e) => {

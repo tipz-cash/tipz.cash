@@ -46,7 +46,7 @@ docs/
 
 **Core Value Proposition**: Private tips. Any asset. Zero trace.
 
-**Target Audience**: Crypto-native creators on X/Twitter and Substack
+**Target Audience**: Crypto-native creators on X/Twitter
 
 **Tech Stack**:
 - Web App: Next.js 16, Supabase

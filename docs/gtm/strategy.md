@@ -107,7 +107,7 @@ TIPZ launches as the first private micro-tipping solution for crypto-native crea
 **Actions**:
 - [ ] Teaser content on X
 - [ ] Soft outreach to 5-10 friendly creators for beta
-- [ ] Final testing on X.com and Substack
+- [ ] Final testing on X.com
 - [ ] Prepare all launch assets
 
 **Success Metrics**:
