@@ -32,18 +32,18 @@ const Tweet: React.FC<{
       style={{
         backgroundColor: colors.twitterBg,
         border: `1px solid ${colors.twitterBorder}`,
-        borderRadius: 16,
-        padding: 16,
-        width: 600,
+        borderRadius: 20,
+        padding: 24,
+        width: 720,
         fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
       {/* Tweet Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <div
           style={{
-            width: 48,
-            height: 48,
+            width: 56,
+            height: 56,
             borderRadius: "50%",
             background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
             display: "flex",
@@ -51,21 +51,21 @@ const Tweet: React.FC<{
             justifyContent: "center",
             color: colors.bg,
             fontWeight: 700,
-            fontSize: 20,
+            fontSize: 24,
           }}
         >
           S
         </div>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ color: colors.text, fontWeight: 700, fontSize: 15 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ color: colors.text, fontWeight: 700, fontSize: 18 }}>
               Satoshi
             </span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#1D9BF0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#1D9BF0">
               <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z" />
             </svg>
           </div>
-          <span style={{ color: colors.muted, fontSize: 14 }}>@satoshi</span>
+          <span style={{ color: colors.muted, fontSize: 16 }}>@satoshi</span>
         </div>
       </div>
 
@@ -73,10 +73,10 @@ const Tweet: React.FC<{
       <p
         style={{
           color: colors.text,
-          fontSize: 17,
-          lineHeight: 1.4,
-          marginTop: 12,
-          marginBottom: 16,
+          fontSize: 20,
+          lineHeight: 1.5,
+          marginTop: 16,
+          marginBottom: 20,
         }}
       >
         Just shipped a major update to my privacy project. Shielded transactions
@@ -88,9 +88,9 @@ const Tweet: React.FC<{
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 48,
+          gap: 56,
           color: colors.muted,
-          fontSize: 13,
+          fontSize: 16,
         }}
       >
         <span>💬 42</span>
@@ -101,20 +101,20 @@ const Tweet: React.FC<{
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 6,
-              padding: "6px 12px",
-              borderRadius: 20,
+              gap: 8,
+              padding: "8px 16px",
+              borderRadius: 24,
               backgroundColor: tipButtonHighlight
                 ? colors.primary
                 : "transparent",
-              border: `1px solid ${colors.primary}`,
+              border: `2px solid ${colors.primary}`,
               color: tipButtonHighlight ? colors.bg : colors.primary,
               fontWeight: 600,
-              fontSize: 13,
+              fontSize: 15,
               transition: "all 0.2s",
-              transform: tipButtonHighlight ? "scale(1.05)" : "scale(1)",
+              transform: tipButtonHighlight ? "scale(1.08)" : "scale(1)",
               boxShadow: tipButtonHighlight
-                ? `0 0 20px ${colors.primary}40`
+                ? `0 0 30px ${colors.primary}50`
                 : "none",
             }}
           >
@@ -144,10 +144,10 @@ const TipModal: React.FC<{
         left: "50%",
         transform: `translate(-50%, -50%) scale(${progress})`,
         backgroundColor: colors.surface,
-        border: `1px solid ${colors.border}`,
-        borderRadius: 12,
-        padding: 24,
-        width: 360,
+        border: `2px solid ${colors.border}`,
+        borderRadius: 16,
+        padding: 32,
+        width: 440,
         opacity: progress,
         fontFamily: "'JetBrains Mono', monospace",
       }}
@@ -408,70 +408,74 @@ export const TipDemo: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Timeline (in frames at 30fps):
-  // 0-30: Show tweet without tip button
-  // 30-60: Tip button appears
-  // 60-90: Cursor moves to tip button
-  // 90-120: Cursor clicks tip button
-  // 120-180: Modal appears, cursor moves to 0.1 ZEC
-  // 180-210: Click 0.1 ZEC
-  // 210-270: Cursor moves to confirm button
-  // 270-300: Click confirm
-  // 300-360: Processing animation
-  // 360-450: Success state
+  // Timeline (in frames at 30fps) - SLOWER for smoother feel:
+  // 0-45: Show tweet without tip button
+  // 45-90: Tip button appears with glow
+  // 90-150: Cursor moves to tip button (slower, smoother)
+  // 150-180: Cursor clicks tip button
+  // 180-270: Modal appears, cursor moves to 0.1 ZEC
+  // 270-315: Click 0.1 ZEC
+  // 315-390: Cursor moves to confirm button
+  // 390-420: Click confirm
+  // 420-480: Processing animation
+  // 480-540: Success state
 
   // Tip button visibility
-  const showTipButton = frame > 30;
-  const tipButtonHighlight = frame > 90 && frame < 120;
+  const showTipButton = frame > 45;
+  const tipButtonHighlight = frame > 135 && frame < 180;
 
-  // Modal state
+  // Modal state with smoother spring
   const modalProgress =
-    frame > 120
+    frame > 180
       ? spring({
-          frame: frame - 120,
+          frame: frame - 180,
           fps,
-          config: { damping: 15, stiffness: 100 },
+          config: { damping: 20, stiffness: 80 },
         })
       : 0;
 
-  const selectedAmount = frame > 180 ? 0.1 : null;
-  const showConfirm = frame > 270 && frame < 360;
-  const showSuccess = frame > 360;
+  const selectedAmount = frame > 270 ? 0.1 : null;
+  const showConfirm = frame > 390 && frame < 480;
+  const showSuccess = frame > 480;
 
-  // Cursor position animation
-  let cursorX = 400;
-  let cursorY = 200;
+  // Cursor position animation with smoother easing
+  let cursorX = 500;
+  let cursorY = 300;
   let clicking = false;
 
-  if (frame > 60 && frame <= 90) {
-    // Move to tip button
-    const t = (frame - 60) / 30;
-    cursorX = interpolate(t, [0, 1], [400, 850]);
-    cursorY = interpolate(t, [0, 1], [200, 520]);
-  } else if (frame > 90 && frame <= 120) {
-    cursorX = 850;
-    cursorY = 520;
-    clicking = frame > 100 && frame < 110;
-  } else if (frame > 120 && frame <= 180) {
-    // Move to 0.1 ZEC button
-    const t = (frame - 120) / 60;
-    cursorX = interpolate(t, [0, 1], [850, 720]);
-    cursorY = interpolate(t, [0, 1], [520, 580]);
-  } else if (frame > 180 && frame <= 210) {
-    cursorX = 720;
-    cursorY = 580;
-    clicking = frame > 190 && frame < 200;
-  } else if (frame > 210 && frame <= 270) {
-    // Move to confirm button
-    const t = (frame - 210) / 60;
-    cursorX = interpolate(t, [0, 1], [720, 960]);
-    cursorY = interpolate(t, [0, 1], [580, 670]);
-  } else if (frame > 270 && frame <= 300) {
+  // Smooth easing function
+  const easeInOutCubic = (t: number) =>
+    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+  if (frame > 90 && frame <= 150) {
+    // Move to tip button - slower
+    const t = easeInOutCubic((frame - 90) / 60);
+    cursorX = interpolate(t, [0, 1], [500, 920]);
+    cursorY = interpolate(t, [0, 1], [300, 540]);
+  } else if (frame > 150 && frame <= 180) {
+    cursorX = 920;
+    cursorY = 540;
+    clicking = frame > 160 && frame < 175;
+  } else if (frame > 180 && frame <= 270) {
+    // Move to 0.1 ZEC button - slower
+    const t = easeInOutCubic((frame - 180) / 90);
+    cursorX = interpolate(t, [0, 1], [920, 800]);
+    cursorY = interpolate(t, [0, 1], [540, 600]);
+  } else if (frame > 270 && frame <= 315) {
+    cursorX = 800;
+    cursorY = 600;
+    clicking = frame > 285 && frame < 300;
+  } else if (frame > 315 && frame <= 390) {
+    // Move to confirm button - slower
+    const t = easeInOutCubic((frame - 315) / 75);
+    cursorX = interpolate(t, [0, 1], [800, 960]);
+    cursorY = interpolate(t, [0, 1], [600, 720]);
+  } else if (frame > 390 && frame <= 420) {
     cursorX = 960;
-    cursorY = 670;
-    clicking = frame > 280 && frame < 290;
-  } else if (frame > 300) {
-    // Hide cursor during success
+    cursorY = 720;
+    clicking = frame > 400 && frame < 415;
+  } else if (frame > 420) {
+    // Fade out cursor during success
     cursorX = -100;
     cursorY = -100;
   }
@@ -554,34 +558,34 @@ export const TipDemo: React.FC = () => {
       <Cursor x={cursorX} y={cursorY} clicking={clicking} />
 
       {/* Caption */}
-      <Sequence from={0} durationInFrames={90}>
+      <Sequence from={0} durationInFrames={150}>
         <div
           style={{
             position: "absolute",
-            bottom: 60,
+            bottom: 80,
             left: "50%",
             transform: "translateX(-50%)",
             color: colors.text,
-            fontSize: 18,
-            opacity: interpolate(frame, [0, 15, 75, 90], [0, 1, 1, 0]),
+            fontSize: 22,
+            opacity: interpolate(frame, [0, 20, 130, 150], [0, 1, 1, 0]),
           }}
         >
           Browse X and spot the TIP button...
         </div>
       </Sequence>
 
-      <Sequence from={120} durationInFrames={150}>
+      <Sequence from={180} durationInFrames={210}>
         <div
           style={{
             position: "absolute",
-            bottom: 60,
+            bottom: 80,
             left: "50%",
             transform: "translateX(-50%)",
             color: colors.text,
-            fontSize: 18,
+            fontSize: 22,
             opacity: interpolate(
               frame,
-              [120, 135, 255, 270],
+              [180, 200, 370, 390],
               [0, 1, 1, 0]
             ),
           }}
@@ -590,17 +594,17 @@ export const TipDemo: React.FC = () => {
         </div>
       </Sequence>
 
-      <Sequence from={360} durationInFrames={90}>
+      <Sequence from={480} durationInFrames={120}>
         <div
           style={{
             position: "absolute",
-            bottom: 60,
+            bottom: 80,
             left: "50%",
             transform: "translateX(-50%)",
             color: colors.success,
-            fontSize: 20,
+            fontSize: 24,
             fontWeight: 600,
-            opacity: interpolate(frame, [360, 375, 435, 450], [0, 1, 1, 0]),
+            opacity: interpolate(frame, [480, 500, 580, 600], [0, 1, 1, 0]),
           }}
         >
           Private tip sent! No trace, no trail.
