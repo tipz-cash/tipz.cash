@@ -24,7 +24,7 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
-  const verificationText = `I'm registering for @TIPZ_xyz to receive private tips via Zcash.
+  const verificationText = `I'm registering for @tipz_cash to receive private tips via Zcash.
 
 My shielded address: ${shieldedAddress || "[your address]"}`
 

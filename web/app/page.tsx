@@ -358,22 +358,80 @@ function RegistrationForm() {
         </p>
       </div>
 
-      {/* Verification URL Input */}
+      {/* Verification Section */}
       <div style={{ marginBottom: "24px" }}>
-        <label style={labelStyle}>VERIFICATION TWEET URL</label>
-        <input
-          type="url"
-          placeholder="https://x.com/yourhandle/status/..."
-          value={formData.tweet_url}
-          onChange={(e) => setFormData({ ...formData, tweet_url: e.target.value })}
-          required
-          style={inputStyle}
-          onFocus={(e) => e.currentTarget.style.borderColor = colors.primary}
-          onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
-        />
-        <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.muted }}>
-          Post a tweet mentioning TIPZ to verify ownership
-        </p>
+        <label style={labelStyle}>VERIFICATION</label>
+
+        {/* Step 1: Post verification tweet */}
+        <div style={{ marginBottom: "16px" }}>
+          <p style={{ margin: "0 0 8px", fontSize: "12px", color: colors.muted }}>
+            STEP 1: Post this verification tweet
+          </p>
+          <div style={{
+            backgroundColor: colors.bg,
+            border: `1px solid ${colors.border}`,
+            borderRadius: "4px",
+            padding: "12px 16px",
+            marginBottom: "12px",
+          }}>
+            <pre style={{
+              margin: 0,
+              fontSize: "13px",
+              fontFamily: "'JetBrains Mono', monospace",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              color: colors.text,
+            }}>
+{`I'm registering for @tipz_cash to receive private tips via Zcash.
+
+My shielded address: ${formData.shielded_address || "[paste your address first]"}`}
+            </pre>
+          </div>
+          <a
+            href={`https://x.com/intent/tweet?text=${encodeURIComponent(`I'm registering for @tipz_cash to receive private tips via Zcash.
+
+My shielded address: ${formData.shielded_address || "[paste your address first]"}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "10px 20px",
+              fontSize: "14px",
+              fontWeight: 500,
+              color: colors.bg,
+              backgroundColor: colors.primary,
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontFamily: "'JetBrains Mono', monospace",
+              textDecoration: "none",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.primaryHover}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.primary}
+          >
+            Post on X
+          </a>
+        </div>
+
+        {/* Step 2: Paste tweet URL */}
+        <div>
+          <p style={{ margin: "0 0 8px", fontSize: "12px", color: colors.muted }}>
+            STEP 2: Paste the tweet URL
+          </p>
+          <input
+            type="url"
+            placeholder="https://x.com/yourhandle/status/..."
+            value={formData.tweet_url}
+            onChange={(e) => setFormData({ ...formData, tweet_url: e.target.value })}
+            required
+            style={inputStyle}
+            onFocus={(e) => e.currentTarget.style.borderColor = colors.primary}
+            onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
+          />
+        </div>
       </div>
 
       {/* Error Message */}
@@ -491,6 +549,24 @@ export default function HomePage() {
             </span>
           </div>
           <nav style={{ display: "flex", gap: "24px" }}>
+            <a
+              href="/manifesto"
+              style={{
+                color: colors.muted,
+                textDecoration: "none",
+                fontSize: "12px",
+                letterSpacing: "0.5px",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = colors.primary)
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = colors.muted)
+              }
+            >
+              MANIFESTO
+            </a>
             {[
               { label: "GITHUB", href: "https://github.com/tipz-app" },
               { label: "EXTENSION", href: "https://chromewebstore.google.com/detail/tipz" },
@@ -1303,6 +1379,16 @@ export default function HomePage() {
             }}
           >
             <a
+              href="/manifesto"
+              style={{ color: colors.muted, textDecoration: "none" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = colors.primary)
+              }
+              onMouseLeave={(e) => (e.currentTarget.style.color = colors.muted)}
+            >
+              MANIFESTO
+            </a>
+            <a
               href="https://github.com/tipz-app"
               target="_blank"
               rel="noopener noreferrer"
@@ -1315,7 +1401,7 @@ export default function HomePage() {
               GITHUB
             </a>
             <a
-              href="https://x.com/tipz_app"
+              href="https://x.com/tipz_cash"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: colors.muted, textDecoration: "none" }}
