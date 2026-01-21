@@ -297,7 +297,7 @@ function IndexPopup() {
                   lineHeight: 1.5,
                   fontFamily: fonts.mono,
                 }}>
-                  Look for the <span style={{ color: colors.primary, fontWeight: 500 }}>TIP</span> button on tweets and Substack articles to send private tips.
+                  Look for the <span style={{ color: colors.primary, fontWeight: 500 }}>TIP</span> button on tweets to send private tips.
                 </p>
               </div>
             </div>
@@ -337,23 +337,13 @@ function IndexPopup() {
               </div>
             )}
 
-            {/* Primary CTA */}
-            <a
-              href={`${API_URL}/design/v4-terminal#register`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={buttonPrimaryStyle}
-            >
-              Register as Creator
-            </a>
-
-            {/* Secondary link */}
+            {/* Creators link - subtle */}
             <div style={{
-              marginTop: "12px",
+              marginTop: "8px",
               textAlign: "center",
             }}>
               <a
-                href={`${API_URL}/design/v4-terminal`}
+                href={`${API_URL}/design/v4-terminal#register`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -363,7 +353,7 @@ function IndexPopup() {
                   fontFamily: fonts.mono,
                 }}
               >
-                Learn more about TIPZ
+                Are you a creator? Register to receive tips
               </a>
             </div>
           </>

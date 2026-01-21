@@ -123,8 +123,7 @@ web/
 ```
 extension/
 ├── contents/
-│   ├── x.tsx                 # X.com content script
-│   └── substack.tsx          # Substack content script
+│   └── x.tsx                 # X.com content script
 ├── components/
 │   ├── TipButton.tsx         # Injected tip button
 │   └── TipModal.tsx          # Tipping interface
@@ -135,7 +134,7 @@ extension/
 ```
 
 #### Key Responsibilities
-1. **Content Scripts**: Detect tweets/articles, inject UI
+1. **Content Scripts**: Detect tweets, inject UI
 2. **TipButton**: Display registration status, trigger modal
 3. **TipModal**: Amount selection, payment execution
 4. **Popup**: Extension settings and status
@@ -148,7 +147,7 @@ extension/
 ```sql
 CREATE TABLE creators (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  platform TEXT NOT NULL,           -- 'x' or 'substack'
+  platform TEXT NOT NULL,           -- 'x' (X-only for now)
   handle TEXT NOT NULL,             -- Original handle (preserves case)
   handle_normalized TEXT NOT NULL,  -- Lowercase, no @ prefix
   shielded_address TEXT NOT NULL,   -- Zcash shielded (zs...)
@@ -172,7 +171,7 @@ CREATE INDEX idx_creators_platform_handle ON creators(platform, handle_normalize
 3. Client submits to POST /api/register
 4. Server validates:
    - Required fields present
-   - Platform is 'x' or 'substack'
+   - Platform is 'x'
    - Shielded address format (zs + 76 chars)
    - Tweet URL format matches handle
 5. Server upserts to Supabase
@@ -378,5 +377,5 @@ tipz.app/dashboard → Analytics API → Supabase (anonymized)
 
 ### Phase 4: Multi-Platform
 ```
-Extension → Platform Adapters → {X, Substack, YouTube, Twitch, ...}
+Extension → Platform Adapters → {X, YouTube, Twitch, ...}
 ```

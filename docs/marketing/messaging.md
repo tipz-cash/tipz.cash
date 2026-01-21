@@ -6,17 +6,17 @@ Core messaging, value propositions, and copy for the TIPZ platform.
 
 ## Primary Tagline
 
-**"Private tips. Any asset. Zero trace."**
+**"Private tips for X creators. No account needed."**
 
 ---
 
 ## Secondary Taglines
 
-- "Tip creators without leaving a trail"
-- "Your generosity, their privacy"
+- "Zero accounts. Zero data stored. Just tips."
+- "Install. Connect. Tip. That's it."
+- "Your followers don't need an account to tip you"
+- "Tip privately via Zcash shielded transactions"
 - "The private layer for creator support"
-- "Every token. One destination. No trace."
-- "Zcash-powered tips for the privacy era"
 
 ---
 
@@ -35,10 +35,11 @@ Core messaging, value propositions, and copy for the TIPZ platform.
 
 | Feature | Benefit | Message |
 |---------|---------|---------|
+| No account required | Instant access | "Zero accounts. Zero data stored. Just tips." |
 | Private by default | Tip without exposure | "Support creators without broadcasting your wallet." |
 | Any token | Use what you have | "Tip from any wallet, any chain. We handle the swap." |
-| Native integration | Seamless experience | "Tip button appears right next to tweets." |
-| Low friction | No signups | "Just connect wallet and tip. That's it." |
+| Native integration | Seamless experience | "Tip button appears right next to tweets on X." |
+| 3-step flow | Ultra low friction | "Install → Connect Wallet → Tip. That's it." |
 
 ---
 
@@ -60,7 +61,7 @@ Core messaging, value propositions, and copy for the TIPZ platform.
 
 **Headline**: "Tipping, native to your timeline"
 
-**Body**: The TIPZ extension adds a tip button to every registered creator's posts on X and Substack. No copying addresses, no switching tabs. Just click, pick an amount, and send.
+**Body**: The TIPZ extension adds a tip button to every registered creator's tweets on X. No copying addresses, no switching tabs. Just click, pick an amount, and send.
 
 ### Creator Registration
 
@@ -174,7 +175,7 @@ Done. You're now tippable from anywhere your content lives.
 For tippers:
 
 1. Install the TIPZ extension
-2. Browse X or Substack
+2. Browse X
 3. Click the tip button on any registered creator
 4. Confirm in your wallet
 
@@ -330,6 +331,22 @@ Privacy isn't paranoia. It's a right. Let's build a more private internet togeth
 - "What if your Venmo transactions were on a public blockchain? That's crypto tips today."
 
 ### Response Templates
-- Re: "What is this?" → "TIPZ = private tips for creators using Zcash shielded addresses. Any token in, private ZEC out."
+- Re: "What is this?" → "TIPZ = private tips for X creators using Zcash shielded addresses. No account needed to tip."
 - Re: "How is this private?" → "Tips go to Zcash shielded addresses where sender, receiver, and amount are all encrypted."
 - Re: "Is this legal?" → "Zcash is legal in every major jurisdiction. Privacy isn't a crime."
+- Re: "Do I need an account?" → "Tippers don't need any account. Just install the extension and connect your wallet."
+
+---
+
+## Verification Tweet Template
+
+For creators to share after registration:
+
+```
+I'm now accepting private tips via @tipz_cash 🛡️
+
+No account needed - just install the extension and tip.
+My tip page: tipz.app/[handle]
+
+Powered by Zcash shielded transactions.
+```

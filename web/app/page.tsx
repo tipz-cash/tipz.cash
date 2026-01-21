@@ -24,8 +24,8 @@ const colors = {
   text: "#E0E0E0",
 };
 
-// TODO: Replace with marketing-approved GTM phrase
-const MARKETING_SUBHEADLINE = "Zcash shielded addresses + any-token swaps. Your tip goes in, the creator gets paid. No trace. No trail. No tracking.";
+// Core messaging - X-only, no account needed
+const MARKETING_SUBHEADLINE = "Private tips for X creators. No account needed to tip. Install the extension, connect your wallet, and tip anonymously via Zcash shielded transactions.";
 
 // ASCII Art Logo
 const ASCII_LOGO = `
@@ -134,7 +134,7 @@ const features = [
 ];
 
 // Registration form types
-type Platform = "x" | "substack";
+type Platform = "x";
 type FormStatus = "idle" | "submitting" | "success" | "error";
 
 interface FormData {
@@ -293,32 +293,23 @@ function RegistrationForm() {
         </span>
       </div>
 
-      {/* Platform Selection */}
+      {/* Platform - X Only */}
       <div style={{ marginBottom: "20px" }}>
         <label style={labelStyle}>PLATFORM</label>
         <div style={{ display: "flex", gap: "12px" }}>
           <button
             type="button"
             onClick={() => setFormData({ ...formData, platform: "x" })}
-            style={buttonStyle(formData.platform === "x")}
+            style={buttonStyle(true)}
           >
             X (Twitter)
-          </button>
-          <button
-            type="button"
-            onClick={() => setFormData({ ...formData, platform: "substack" })}
-            style={buttonStyle(formData.platform === "substack")}
-          >
-            Substack
           </button>
         </div>
       </div>
 
       {/* Handle Input */}
       <div style={{ marginBottom: "20px" }}>
-        <label style={labelStyle}>
-          {formData.platform === "x" ? "X HANDLE" : "SUBSTACK USERNAME"}
-        </label>
+        <label style={labelStyle}>X HANDLE</label>
         <div style={{ position: "relative" }}>
           <span style={{
             position: "absolute",
@@ -331,7 +322,7 @@ function RegistrationForm() {
           </span>
           <input
             type="text"
-            placeholder={formData.platform === "x" ? "yourhandle" : "yoursubstack"}
+            placeholder="yourhandle"
             value={formData.handle}
             onChange={(e) => setFormData({ ...formData, handle: e.target.value })}
             required
@@ -362,16 +353,10 @@ function RegistrationForm() {
 
       {/* Verification URL Input */}
       <div style={{ marginBottom: "24px" }}>
-        <label style={labelStyle}>
-          {formData.platform === "x" ? "VERIFICATION TWEET URL" : "VERIFICATION NOTE URL"}
-        </label>
+        <label style={labelStyle}>VERIFICATION TWEET URL</label>
         <input
           type="url"
-          placeholder={
-            formData.platform === "x"
-              ? "https://x.com/yourhandle/status/..."
-              : "https://yoursubstack.substack.com/note/p-..."
-          }
+          placeholder="https://x.com/yourhandle/status/..."
           value={formData.tweet_url}
           onChange={(e) => setFormData({ ...formData, tweet_url: e.target.value })}
           required
@@ -380,9 +365,7 @@ function RegistrationForm() {
           onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
         />
         <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.muted }}>
-          {formData.platform === "x"
-            ? "Post a tweet mentioning TIPZ to verify ownership"
-            : "Publish a Substack Note mentioning TIPZ. Copy the Note URL after publishing."}
+          Post a tweet mentioning TIPZ to verify ownership
         </p>
       </div>
 
@@ -426,7 +409,7 @@ function RegistrationForm() {
 }
 
 export default function HomePage() {
-  const heroText = "Tip creators without leaving a trace.";
+  const heroText = "Private tips for X creators.";
   const { displayText, isComplete } = useTypingEffect(heroText, 40);
   const [mounted, setMounted] = useState(false);
   const registerRef = useRef<HTMLDivElement>(null);
@@ -775,12 +758,12 @@ export default function HomePage() {
               {
                 step: "01",
                 title: "Register your shielded address",
-                desc: "Paste your Zcash address and verify ownership with a tweet or note. No KYC, no middlemen.",
+                desc: "Paste your Zcash address and verify ownership with a tweet. No KYC, no middlemen.",
               },
               {
                 step: "02",
                 title: "Widget appears automatically",
-                desc: "Once registered, the TIPZ button shows on all your tweets and Substack posts for fans using the extension.",
+                desc: "Once registered, the TIPZ button shows on all your tweets for fans using the extension.",
               },
               {
                 step: "03",
@@ -835,7 +818,7 @@ export default function HomePage() {
             marginTop: "24px",
             fontStyle: "italic",
           }}>
-            Note: Fans need the TIPZ browser extension to see tip buttons.
+            Tippers: Install the extension, connect your wallet, tip. No account needed.
           </p>
         </div>
       </section>

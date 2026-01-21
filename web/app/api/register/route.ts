@@ -60,45 +60,6 @@ export interface TweetVerificationResult {
 }
 
 /**
- * Extract and validate Substack Note URL components.
- *
- * Validates:
- * - URL format matches Substack Note URL pattern
- * - Protocol is HTTPS
- * - Domain is *.substack.com
- * - Path contains valid note ID
- *
- * @param url - The Substack Note URL to parse
- * @returns Parsed components or null if invalid
- */
-function parseSubstackNoteUrl(url: string): {
-  subdomain: string
-  noteId: string
-} | null {
-  if (!url || typeof url !== "string") {
-    return null
-  }
-
-  const trimmedUrl = url.trim()
-
-  // Substack Note URL pattern: https://{subdomain}.substack.com/note/p-{noteId}
-  const notePattern = /^https:\/\/([a-zA-Z0-9-]+)\.substack\.com\/note\/p-(\d+)/i
-
-  const match = trimmedUrl.match(notePattern)
-
-  if (!match) {
-    return null
-  }
-
-  const [, subdomain, noteId] = match
-
-  return {
-    subdomain: subdomain.toLowerCase(),
-    noteId
-  }
-}
-
-/**
  * Extract and validate tweet URL components.
  *
  * Validates:
@@ -247,62 +208,8 @@ async function verifyTweet(
 }
 
 /**
- * Verify Substack Note ownership.
- *
- * Current implementation (Phase 1):
- * - Validates URL format
- * - Verifies subdomain matches handle
- * - Returns "pending" status for later verification
- *
- * TODO: Phase 2 - Substack API Integration
- * - Fetch note content via Substack API or scraping
- * - Verify note contains required text (e.g., "TIPZ")
- * - Check note is not deleted
- *
- * @param noteUrl - Full URL to the verification note
- * @param handle - The handle being registered (should match subdomain)
- * @param shieldedAddress - The shielded address being registered
- * @returns Verification result with status and metadata
- */
-async function verifySubstackNote(
-  noteUrl: string,
-  handle: string,
-  shieldedAddress: string
-): Promise<TweetVerificationResult> {
-  // Parse and validate URL structure
-  const parsed = parseSubstackNoteUrl(noteUrl)
-
-  if (!parsed) {
-    return {
-      valid: false,
-      status: "failed",
-      error:
-        "Invalid Substack Note URL format. Expected: https://{yoursubstack}.substack.com/note/p-{id}"
-    }
-  }
-
-  // Verify the note is from the handle being registered
-  // For Substack, the handle should match the subdomain
-  const expectedHandle = normalizeHandle(handle)
-
-  if (parsed.subdomain !== expectedHandle) {
-    return {
-      valid: false,
-      status: "failed",
-      error: `Note must be from ${handle}.substack.com. Found note from ${parsed.subdomain}.substack.com`
-    }
-  }
-
-  // For now, return pending status - URL is valid but content not verified
-  return {
-    valid: true,
-    status: "pending",
-    tweetId: parsed.noteId // Reusing tweetId field for noteId
-  }
-}
-
-/**
- * Route verification to appropriate handler based on platform.
+ * Verify ownership by tweet.
+ * Currently only X platform is supported.
  */
 async function verifyOwnership(
   platform: string,
@@ -312,14 +219,12 @@ async function verifyOwnership(
 ): Promise<TweetVerificationResult> {
   if (platform === "x") {
     return verifyTweet(verificationUrl, handle, shieldedAddress)
-  } else if (platform === "substack") {
-    return verifySubstackNote(verificationUrl, handle, shieldedAddress)
   }
 
   return {
     valid: false,
     status: "failed",
-    error: `Unsupported platform: ${platform}`
+    error: `Unsupported platform: ${platform}. Only X is currently supported.`
   }
 }
 
@@ -372,11 +277,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate platform
-    const validPlatforms = ["x", "substack"] as const
+    // Validate platform (X-only for now)
+    const validPlatforms = ["x"] as const
     if (!validPlatforms.includes(platform as typeof validPlatforms[number])) {
       return NextResponse.json(
-        { error: "Invalid platform. Must be 'x' or 'substack'" },
+        { error: "Invalid platform. Only 'x' is currently supported." },
         {
           status: 400,
           headers: rateLimitHeaders(rateLimitResult)

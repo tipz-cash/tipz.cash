@@ -28,22 +28,15 @@ Landing Page → Register Page → Form Completion → Tweet Verification → Su
 - Scrolls to see features and how it works
 - Clicks "Register as Creator" CTA
 
-#### Step 2: Platform Selection
+#### Step 2: Form Completion
 - User arrives at /register
-- Chooses platform: X (Twitter) or Substack
-- UI updates to show platform-specific fields
-
-#### Step 3: Form Completion
+- Platform is X (Twitter)
+- Form shows X-specific fields
 
 **For X (Twitter):**
 1. Enter X handle (e.g., @username)
 2. Enter Zcash shielded address (zs...)
 3. Enter verification tweet URL
-
-**For Substack:**
-1. Enter Substack subdomain (e.g., username.substack.com)
-2. Enter Zcash shielded address (zs...)
-3. Enter verification tweet URL (still uses Twitter for verification)
 
 #### Step 4: Tweet Verification
 - User must post a tweet containing their TIPZ address
@@ -148,21 +141,7 @@ Browse X → See Tip Button → Click Tip → Select Amount → Confirm Transact
 
 ---
 
-## Flow 3: Tipping on Substack
-
-### Journey Map
-
-Same as X flow, but triggered on Substack article pages.
-
-### Differences
-
-- Button appears near author byline
-- Creator lookup uses Substack subdomain
-- Same payment flow once initiated
-
----
-
-## Flow 4: Extension Popup
+## Flow 3: Extension Popup
 
 ### States
 
@@ -171,9 +150,9 @@ Same as X flow, but triggered on Substack article pages.
 ┌────────────────────────┐
 │  TIPZ                  │
 │                        │
-│  Visit X or Substack   │
-│  to start tipping      │
-│  creators.             │
+│  Visit X to start      │
+│  tipping creators.     │
+│                        │
 │                        │
 │  [Go to X] [Register]  │
 └────────────────────────┘
@@ -214,7 +193,7 @@ Same as X flow, but triggered on Substack article pages.
 
 ---
 
-## Flow 5: Creator Address Update
+## Flow 4: Creator Address Update
 
 ### Journey Map
 
