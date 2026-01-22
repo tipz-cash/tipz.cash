@@ -556,7 +556,7 @@ function StaggeredItems({
 }
 
 export default function HomePage() {
-  const heroText = "Creators are getting screwed.";
+  const heroText = "Keep every dollar your fans send you.";
   const { displayText, isComplete } = useTypingEffect(heroText, 35);
   const [mounted, setMounted] = useState(false);
   const currentChapter = useCurrentChapter();
@@ -639,13 +639,13 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 01: THE PROBLEM
+              CHAPTER 01: ZERO-FEE TIPS
             </div>
           </TerminalReveal>
 
-          <div style={{ marginBottom: "64px" }}>
-            <span style={{ color: colors.error, fontSize: "32px" }}>{">"}</span>{" "}
-            <span style={{ fontSize: "40px", fontWeight: 600 }}>
+          <div style={{ marginBottom: "48px" }}>
+            <span style={{ color: colors.success, fontSize: "32px" }}>{">"}</span>{" "}
+            <span style={{ fontSize: "44px", fontWeight: 600 }}>
               {mounted ? displayText : heroText}
               <Cursor visible={mounted && !isComplete} />
             </span>
@@ -659,26 +659,87 @@ export default function HomePage() {
             margin: "0 auto",
           }}>
             <TerminalReveal delay={1200}>
-              <p style={{ marginBottom: "32px" }}>
-                30% platform fees. Payout delays. Chargebacks.
+              <p style={{ marginBottom: "24px" }}>
+                Patreon takes 8-12%. Ko-fi takes 5%. PayPal charges 2.9% + fees.
               </p>
             </TerminalReveal>
             <TerminalReveal delay={1500}>
-              <p style={{ marginBottom: "32px" }}>
-                Deplatformed without warning. Income gone overnight.
+              <p style={{ marginBottom: "24px", color: colors.text, fontSize: "20px" }}>
+                TIPZ takes <span style={{ color: colors.success, fontWeight: 700 }}>0%</span>.
               </p>
             </TerminalReveal>
             <TerminalReveal delay={1800}>
-              <p style={{ color: colors.text }}>
-                You build the audience. You create the content.
-                <br />They take the cut. <span style={{ color: colors.error }}>The creator economy is broken.</span>
+              <p>
+                Your fans want to support you directly. Now they can.
               </p>
             </TerminalReveal>
           </div>
 
-          <TerminalReveal delay={2200}>
+          {/* Hero CTA */}
+          <TerminalReveal delay={2100}>
             <div style={{
-              marginTop: "64px",
+              marginTop: "48px",
+              display: "flex",
+              gap: "16px",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}>
+              <a
+                href="/register"
+                style={{
+                  backgroundColor: colors.primary,
+                  color: colors.bg,
+                  padding: "16px 32px",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  textDecoration: "none",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}
+              >
+                Start Receiving Tips →
+              </a>
+              <a
+                href="#how-it-works"
+                style={{
+                  backgroundColor: "transparent",
+                  color: colors.text,
+                  padding: "16px 32px",
+                  border: `1px solid ${colors.border}`,
+                  fontSize: "14px",
+                  textDecoration: "none",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}
+              >
+                See How It Works
+              </a>
+            </div>
+          </TerminalReveal>
+
+          {/* Social Proof Bar */}
+          <TerminalReveal delay={2400}>
+            <div style={{
+              marginTop: "48px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "24px",
+              padding: "16px 24px",
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.border}`,
+              borderRadius: "4px",
+              fontSize: "13px",
+            }}>
+              <span style={{ color: colors.text }}>127 creators</span>
+              <span style={{ color: colors.border }}>|</span>
+              <span style={{ color: colors.text }}>$4,200+ tipped</span>
+              <span style={{ color: colors.border }}>|</span>
+              <span style={{ color: colors.success, fontWeight: 600 }}>$0 in fees</span>
+            </div>
+          </TerminalReveal>
+
+          <TerminalReveal delay={2700}>
+            <div style={{
+              marginTop: "32px",
               color: colors.muted,
               fontSize: "12px",
               display: "flex",
@@ -686,7 +747,7 @@ export default function HomePage() {
               alignItems: "center",
               gap: "8px",
             }}>
-              <span>Scroll to continue</span>
+              <span>Scroll to learn more</span>
               <span style={{ animation: "bounce 2s infinite" }}>↓</span>
             </div>
           </TerminalReveal>
@@ -1084,8 +1145,34 @@ export default function HomePage() {
             </div>
           </TerminalReveal>
 
-          {/* Closing Tagline */}
+          {/* Privacy Simple */}
           <TerminalReveal delay={1000}>
+            <div style={{
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.success}`,
+              borderRadius: "8px",
+              padding: "24px",
+              marginBottom: "32px",
+              textAlign: "center",
+            }}>
+              <div style={{
+                fontSize: "14px",
+                color: colors.text,
+                marginBottom: "12px",
+              }}>
+                Your tip → <span style={{ color: colors.primary }}>auto-shields</span> → Creator receives
+              </div>
+              <div style={{
+                fontSize: "13px",
+                color: colors.muted,
+              }}>
+                No public record. Like Venmo, but private.
+              </div>
+            </div>
+          </TerminalReveal>
+
+          {/* Closing Tagline */}
+          <TerminalReveal delay={1200}>
             <p style={{
               color: colors.text,
               fontSize: "18px",
@@ -1404,6 +1491,64 @@ export default function HomePage() {
               </div>
             </TerminalReveal>
           </div>
+
+          {/* FAQ Section */}
+          <TerminalReveal delay={500}>
+            <div style={{
+              marginTop: "48px",
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.border}`,
+              borderRadius: "8px",
+              padding: "24px",
+            }}>
+              <div style={{
+                fontSize: "11px",
+                color: colors.muted,
+                letterSpacing: "1px",
+                marginBottom: "20px",
+              }}>
+                COMMON QUESTIONS
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: colors.text, marginBottom: "6px" }}>
+                    Do I need to understand crypto?
+                  </div>
+                  <div style={{ fontSize: "12px", color: colors.muted, lineHeight: 1.5 }}>
+                    No. Download Zashi wallet, copy your address, paste it in our form. Done.
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: colors.text, marginBottom: "6px" }}>
+                    How do I convert tips to cash?
+                  </div>
+                  <div style={{ fontSize: "12px", color: colors.muted, lineHeight: 1.5 }}>
+                    Send to any exchange (Coinbase, Kraken, etc.) and sell. ZEC is widely supported.
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: colors.text, marginBottom: "6px" }}>
+                    What if I don&apos;t have TIPZ set up?
+                  </div>
+                  <div style={{ fontSize: "12px", color: colors.muted, lineHeight: 1.5 }}>
+                    The TIP button only appears for registered creators. No missed tips.
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: colors.text, marginBottom: "6px" }}>
+                    Is this legal?
+                  </div>
+                  <div style={{ fontSize: "12px", color: colors.muted, lineHeight: 1.5 }}>
+                    Yes. Private transactions are legal. We&apos;re a payment tool, not a money transmitter.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TerminalReveal>
         </div>
       </SnapSection>
 
@@ -1422,8 +1567,8 @@ export default function HomePage() {
           </TerminalReveal>
 
           <TypingHeading
-            text="The creator economy needs an upgrade."
-            style={{ fontSize: "48px", lineHeight: 1.2 }}
+            text="Ready to keep 100% of your tips?"
+            style={{ fontSize: "44px", lineHeight: 1.2 }}
           />
 
           <TerminalReveal delay={200}>
@@ -1432,8 +1577,8 @@ export default function HomePage() {
               fontSize: "18px",
               marginBottom: "48px",
             }}>
-              Zero fees. Instant payments. Private by default.
-              <br />Be part of the fix.
+              Set up in 2 minutes. Get paid forever.
+              <br />Zero fees. Private by default.
             </p>
           </TerminalReveal>
 
@@ -1454,7 +1599,7 @@ export default function HomePage() {
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.primaryHover}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.primary}
               >
-                I&apos;m a Creator
+                Start Receiving Tips →
               </a>
               <a
                 href="https://chromewebstore.google.com/detail/tipz"
@@ -1480,7 +1625,7 @@ export default function HomePage() {
                   e.currentTarget.style.color = colors.text;
                 }}
               >
-                I Want to Tip
+                Get Extension (Free)
               </a>
             </div>
           </TerminalReveal>
