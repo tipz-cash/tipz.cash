@@ -26,6 +26,22 @@ export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
   }))
 }
 
+// Check if tweet is a reply (not an original post)
+function isReplyTweet(element: HTMLElement): boolean {
+  const tweetContainer = element.closest('[data-testid="tweet"]')
+  if (!tweetContainer) return false
+
+  // Check for "Replying to" text which indicates a reply
+  const replyingTo = tweetContainer.querySelector('[data-testid="reply"]')
+  if (replyingTo) return true
+
+  // Also check for the reply context that shows who you're replying to
+  const socialContext = tweetContainer.querySelector('[data-testid="socialContext"]')
+  if (socialContext?.textContent?.includes('Replying to')) return true
+
+  return false
+}
+
 // Extract handle from tweet element
 function getHandleFromTweet(element: HTMLElement): string | null {
   // Navigate up to find the tweet container
@@ -55,12 +71,17 @@ function TipzInline({ anchor }: TipzInlineProps) {
   const [creator, setCreator] = useState<Creator | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isReply, setIsReply] = useState(false)
 
   useEffect(() => {
+    // Check if this is a reply tweet - don't show TIP on replies
+    const reply = isReplyTweet(anchor.element)
+    setIsReply(reply)
+
     const extractedHandle = getHandleFromTweet(anchor.element)
     setHandle(extractedHandle)
 
-    if (extractedHandle) {
+    if (extractedHandle && !reply) {
       lookupCreator("x", extractedHandle)
         .then((result) => {
           if (result.found && result.creator) {
@@ -73,7 +94,8 @@ function TipzInline({ anchor }: TipzInlineProps) {
     }
   }, [anchor.element])
 
-  if (!handle || isLoading) {
+  // Don't show TIP button on replies, only original posts
+  if (!handle || isLoading || isReply) {
     return null
   }
 

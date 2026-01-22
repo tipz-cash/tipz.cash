@@ -162,6 +162,17 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     }
   }, [isOpen])
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow
+      document.body.style.overflow = "hidden"
+      return () => {
+        document.body.style.overflow = originalOverflow
+      }
+    }
+  }, [isOpen])
+
   const {
     wallet,
     availableWallets,
@@ -801,7 +812,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     <div style={overlayStyle} onClick={handleClose}>
       <style>{animationStyles}</style>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-        <TerminalHeader title={`[TIPZ] // TIP_@${handle.toUpperCase()}`} onClose={handleClose} />
+        <TerminalHeader title={`Tip @${handle}`} onClose={handleClose} />
         <div style={modalContentStyle}>
           {/* Header */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
@@ -886,46 +897,6 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
             </button>
           )}
 
-          {/* Token Selector (if connected) */}
-          {wallet.isConnected && supportedTokens.length > 0 && (
-            <div style={{ marginBottom: "16px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                <label style={{ fontSize: "12px", color: colors.muted }}>
-                  Pay with
-                </label>
-                {selectedToken && tokenBalances.get(selectedToken.symbol) && (
-                  <span style={{ fontSize: "11px", color: colors.muted }}>
-                    Balance: {formatTokenAmount(tokenBalances.get(selectedToken.symbol) || "0", selectedToken.decimals)} {selectedToken.symbol}
-                  </span>
-                )}
-              </div>
-              <select
-                value={selectedToken?.symbol || ""}
-                onChange={(e) => {
-                  const token = supportedTokens.find((t) => t.symbol === e.target.value)
-                  if (token) selectToken(token)
-                }}
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  fontSize: "13px",
-                  backgroundColor: colors.bg,
-                  color: colors.textWhite,
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontFamily: fonts.mono,
-                }}
-              >
-                {supportedTokens.map((token) => (
-                  <option key={token.symbol} value={token.symbol}>
-                    {token.symbol} - {token.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           {/* Amount Selection - USD Denominated */}
           <div style={{ marginBottom: "16px" }}>
             <label style={{ display: "block", marginBottom: "8px", fontSize: "12px", color: colors.muted }}>
@@ -997,7 +968,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                   <span>
                     {selectedToken?.symbol || "Select asset"}
                     {selectedToken && tokenBalances.get(selectedToken.symbol) && (
-                      <span style={{ color: colors.muted }}> · {parseFloat(tokenBalances.get(selectedToken.symbol) || "0").toFixed(4)} avail</span>
+                      <span style={{ color: colors.muted }}> · {parseFloat(tokenBalances.get(selectedToken.symbol) || "0").toFixed(4)}</span>
                     )}
                   </span>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1042,7 +1013,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                       >
                         <span>{token.symbol}</span>
                         <span style={{ color: colors.muted }}>
-                          {parseFloat(tokenBalances.get(token.symbol) || "0").toFixed(4)} avail
+                          {parseFloat(tokenBalances.get(token.symbol) || "0").toFixed(4)}
                         </span>
                       </button>
                     ))}
