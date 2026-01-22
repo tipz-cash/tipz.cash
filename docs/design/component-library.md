@@ -2,114 +2,296 @@
 
 Reference for all UI components used across the TIPZ web app and browser extension.
 
+All components use the terminal aesthetic with JetBrains Mono font and the amber/black color palette.
+
+---
+
+## Design Tokens
+
+### Colors (JavaScript/TypeScript)
+
+```typescript
+const colors = {
+  bg: "#0A0A0A",           // True Black - primary background
+  surface: "#1A1A1A",      // Surface - cards, elevated elements
+  primary: "#F5A623",      // Terminal Amber - CTAs, accents
+  primaryHover: "#FFB84D", // Amber Hover - hover states
+  success: "#00FF00",      // Matrix Green - success states
+  error: "#FF4444",        // Error Red - error states
+  muted: "#888888",        // Muted Gray - secondary text
+  border: "#333333",       // Border Gray - borders, dividers
+  text: "#E0E0E0",         // Phosphor White - primary text
+};
+```
+
+### Base Styles
+
+```typescript
+const containerStyle: React.CSSProperties = {
+  minHeight: "100vh",
+  backgroundColor: colors.bg,
+  color: colors.text,
+  fontFamily: "'JetBrains Mono', monospace",
+  fontSize: "14px",
+  lineHeight: 1.6,
+};
+
+const maxWidthStyle: React.CSSProperties = {
+  maxWidth: "1200px",
+  margin: "0 auto",
+  padding: "0 24px",
+};
+
+const borderStyle = `1px solid ${colors.border}`;
+```
+
 ---
 
 ## Buttons
 
 ### Primary Button
 
-Used for main CTAs (Register, Send Tip, Connect Wallet).
+Used for main CTAs (Register, Send Tip, Install Extension).
 
 ```tsx
-<button className="bg-[#F4B728] text-black px-6 py-3 rounded-lg font-medium hover:bg-[#d9a423] transition-colors">
-  Primary Action
+<button
+  style={{
+    backgroundColor: colors.primary,
+    color: colors.bg,
+    border: "none",
+    padding: "14px 28px",
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: "15px",
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "all 0.2s",
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.backgroundColor = colors.primaryHover;
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.backgroundColor = colors.primary;
+  }}
+>
+  I'm a Creator →
 </button>
 ```
 
 **States**:
-- Default: `bg-[#F4B728]`
-- Hover: `bg-[#d9a423]`
-- Disabled: `bg-[#F4B728]/50 cursor-not-allowed`
+- Default: `backgroundColor: #F5A623`
+- Hover: `backgroundColor: #FFB84D`
+- Disabled: `backgroundColor: #888888, cursor: not-allowed`
 - Loading: Show spinner, disable interaction
 
 ### Secondary Button
 
-Used for secondary actions (Cancel, Learn More).
+Used for secondary actions (See How It Works, Cancel).
 
 ```tsx
-<button className="border border-[#888] text-white px-6 py-3 rounded-lg font-medium hover:border-[#F4B728] hover:text-[#F4B728] transition-colors">
-  Secondary Action
+<button
+  style={{
+    backgroundColor: "transparent",
+    color: colors.text,
+    border: `1px solid ${colors.border}`,
+    padding: "14px 28px",
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: "15px",
+    cursor: "pointer",
+    transition: "all 0.2s",
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.borderColor = colors.primary;
+    e.currentTarget.style.color = colors.primary;
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.borderColor = colors.border;
+    e.currentTarget.style.color = colors.text;
+  }}
+>
+  See How It Works
 </button>
 ```
 
-### Ghost Button
+### Ghost Button (Link Style)
 
-Used for tertiary actions, links within content.
+Used for tertiary actions, inline links.
 
 ```tsx
-<button className="text-[#F4B728] underline hover:text-[#d9a423] transition-colors">
-  Ghost Action
+<button
+  style={{
+    backgroundColor: "transparent",
+    color: colors.muted,
+    border: "none",
+    padding: "0",
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: "13px",
+    cursor: "pointer",
+    textDecoration: "underline",
+    transition: "color 0.2s",
+  }}
+  onMouseEnter={(e) => e.currentTarget.style.color = colors.primary}
+  onMouseLeave={(e) => e.currentTarget.style.color = colors.muted}
+>
+  See how it works
 </button>
 ```
 
 ### Tip Button (Extension)
 
-Injected next to tweets/articles.
+Terminal-style button injected next to tweets.
 
 ```tsx
-// Registered creator
-<button className="tipz-tip-btn bg-[#F4B728] text-black px-3 py-1 rounded text-sm font-medium">
-  Tip
-</button>
+// Registered creator - clickable
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "8px 18px",
+    borderRadius: 6,
+    backgroundColor: colors.bg,
+    border: `2px solid ${colors.primary}`,
+    color: colors.primary,
+    fontWeight: 600,
+    fontSize: 14,
+    fontFamily: "'JetBrains Mono', monospace",
+    letterSpacing: "0.5px",
+    cursor: "pointer",
+  }}
+>
+  [TIP]
+</div>
 
-// Unregistered creator
-<button className="tipz-tip-btn bg-transparent border border-[#888] text-[#888] px-3 py-1 rounded text-sm cursor-default">
+// Hover state
+style={{
+  backgroundColor: colors.primary,
+  color: colors.bg,
+  boxShadow: `0 0 24px ${colors.primary}60`,
+}}
+
+// Unregistered creator - disabled
+<div
+  style={{
+    padding: "8px 18px",
+    borderRadius: 6,
+    backgroundColor: "transparent",
+    border: `1px solid ${colors.border}`,
+    color: colors.muted,
+    fontSize: 12,
+    cursor: "default",
+  }}
+>
   Not on TIPZ
-</button>
+</div>
 ```
 
 ---
 
 ## Form Elements
 
+### Input Style Constants
+
+```typescript
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "12px 16px",
+  fontSize: "14px",
+  backgroundColor: colors.bg,
+  color: colors.text,
+  border: `1px solid ${colors.border}`,
+  borderRadius: "4px",
+  fontFamily: "'JetBrains Mono', monospace",
+  boxSizing: "border-box",
+  transition: "border-color 0.2s",
+};
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  marginBottom: "8px",
+  fontSize: "12px",
+  color: colors.muted,
+  letterSpacing: "0.5px",
+  textTransform: "uppercase",
+};
+```
+
 ### Text Input
 
 ```tsx
-<input
-  type="text"
-  placeholder="@username"
-  className="w-full bg-black border border-[#333] rounded-lg px-4 py-3 text-white placeholder-[#888] focus:border-[#F4B728] focus:outline-none transition-colors"
-/>
+<div style={{ marginBottom: "20px" }}>
+  <label style={labelStyle}>X HANDLE</label>
+  <div style={{ position: "relative" }}>
+    <span style={{
+      position: "absolute",
+      left: "16px",
+      top: "50%",
+      transform: "translateY(-50%)",
+      color: colors.muted,
+    }}>
+      @
+    </span>
+    <input
+      type="text"
+      placeholder="yourhandle"
+      style={{ ...inputStyle, paddingLeft: "36px" }}
+      onFocus={(e) => e.currentTarget.style.borderColor = colors.primary}
+      onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
+    />
+  </div>
+</div>
 ```
 
 **States**:
-- Default: `border-[#333]`
-- Focus: `border-[#F4B728]`
-- Error: `border-red-500`
-- Disabled: `opacity-50 cursor-not-allowed`
+- Default: `border: 1px solid #333333`
+- Focus: `border-color: #F5A623`
+- Error: `border-color: #FF4444`
+- Disabled: `opacity: 0.5, cursor: not-allowed`
 
-### Textarea
+### Text Input with Helper Text
 
 ```tsx
-<textarea
-  placeholder="Enter your message..."
-  rows={4}
-  className="w-full bg-black border border-[#333] rounded-lg px-4 py-3 text-white placeholder-[#888] focus:border-[#F4B728] focus:outline-none transition-colors resize-none"
-/>
+<div style={{ marginBottom: "20px" }}>
+  <label style={labelStyle}>ZCASH SHIELDED ADDRESS</label>
+  <input
+    type="text"
+    placeholder="zs1..."
+    style={inputStyle}
+  />
+  <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.muted }}>
+    Must start with "zs" and be 78 characters.{" "}
+    <a href="#" style={{ color: colors.primary, textDecoration: "underline" }}>
+      Don't have a wallet?
+    </a>
+  </p>
+</div>
 ```
 
-### Select Dropdown
+### Platform Selection Buttons
 
 ```tsx
-<select className="w-full bg-black border border-[#333] rounded-lg px-4 py-3 text-white focus:border-[#F4B728] focus:outline-none">
-  <option value="">Select platform</option>
-  <option value="x">X (Twitter)</option>
-  <option value="substack">Substack</option>
-</select>
-```
+const buttonStyle = (isActive: boolean): React.CSSProperties => ({
+  padding: "10px 20px",
+  fontSize: "14px",
+  fontWeight: 500,
+  color: isActive ? colors.bg : colors.text,
+  backgroundColor: isActive ? colors.primary : "transparent",
+  border: `1px solid ${isActive ? colors.primary : colors.border}`,
+  borderRadius: "4px",
+  cursor: "pointer",
+  fontFamily: "'JetBrains Mono', monospace",
+  transition: "all 0.2s",
+});
 
-### Radio Group
-
-```tsx
-<div className="flex gap-4">
-  <label className="flex items-center gap-2 cursor-pointer">
-    <input type="radio" name="platform" value="x" className="accent-[#F4B728]" />
-    <span className="text-white">X (Twitter)</span>
-  </label>
-  <label className="flex items-center gap-2 cursor-pointer">
-    <input type="radio" name="platform" value="substack" className="accent-[#F4B728]" />
-    <span className="text-white">Substack</span>
-  </label>
+<div style={{ marginBottom: "20px" }}>
+  <label style={labelStyle}>PLATFORM</label>
+  <div style={{ display: "flex", gap: "12px" }}>
+    <button type="button" style={buttonStyle(true)}>
+      X (Twitter)
+    </button>
+    <button type="button" style={buttonStyle(false)}>
+      Substack
+    </button>
+  </div>
 </div>
 ```
 
@@ -119,28 +301,108 @@ Injected next to tweets/articles.
 
 ### Feature Card
 
-Used on landing page for feature highlights.
+Used for architecture/feature highlights on the landing page.
 
 ```tsx
-<div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-6 hover:border-[#F4B728]/50 transition-colors">
-  <div className="text-[#F4B728] text-2xl mb-4">🔒</div>
-  <h3 className="text-white text-xl font-semibold mb-2">Feature Title</h3>
-  <p className="text-[#888] text-sm">Feature description goes here.</p>
+<div
+  style={{
+    border: `1px solid ${colors.border}`,
+    padding: "24px",
+    backgroundColor: colors.surface,
+    transition: "border-color 0.2s",
+  }}
+  onMouseEnter={(e) => e.currentTarget.style.borderColor = colors.primary}
+  onMouseLeave={(e) => e.currentTarget.style.borderColor = colors.border}
+>
+  <div style={{ fontSize: "24px", marginBottom: "12px" }}>
+    []  {/* Terminal-style icon */}
+  </div>
+  <h3 style={{
+    color: colors.text,
+    fontSize: "14px",
+    fontWeight: 600,
+    marginBottom: "8px",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  }}>
+    ZK_SHIELDED
+    {/* Optional badge */}
+    <span style={{
+      fontSize: "10px",
+      color: colors.primary,
+      border: `1px solid ${colors.primary}`,
+      padding: "2px 6px",
+      borderRadius: "2px",
+    }}>
+      COMING SOON
+    </span>
+  </h3>
+  <p style={{ color: colors.muted, fontSize: "13px", margin: 0 }}>
+    zk-SNARKs prove transaction validity without revealing sender, receiver, or amount.
+  </p>
 </div>
 ```
 
-### Creator Card
+### Step Card
 
-Display registered creator info.
+Used in "How It Works" sections.
 
 ```tsx
-<div className="bg-[#1a1a1a] border border-[#333] rounded-lg p-4 flex items-center gap-4">
-  <div className="w-12 h-12 bg-[#333] rounded-full flex items-center justify-center">
-    <span className="text-[#F4B728]">@</span>
+<div
+  style={{
+    border: `1px solid ${colors.border}`,
+    padding: "32px 24px",
+    backgroundColor: colors.surface,
+    transition: "border-color 0.2s",
+  }}
+  onMouseEnter={(e) => e.currentTarget.style.borderColor = colors.primary}
+  onMouseLeave={(e) => e.currentTarget.style.borderColor = colors.border}
+>
+  <div style={{
+    color: colors.primary,
+    fontSize: "32px",
+    fontWeight: 700,
+    marginBottom: "16px",
+  }}>
+    01
   </div>
-  <div>
-    <div className="text-white font-medium">@username</div>
-    <div className="text-[#888] text-sm">Registered on TIPZ</div>
+  <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "12px" }}>
+    Register your shielded address
+  </h3>
+  <p style={{ color: colors.muted, fontSize: "14px", margin: 0 }}>
+    Paste your Zcash address and verify ownership with a tweet. No KYC, no middlemen.
+  </p>
+</div>
+```
+
+### Trust Badge Card
+
+Used for status/metrics display.
+
+```tsx
+<div style={{
+  backgroundColor: colors.bg,
+  padding: "20px",
+}}>
+  <div style={{
+    color: colors.muted,
+    fontSize: "11px",
+    marginBottom: "8px",
+    letterSpacing: "0.5px",
+  }}>
+    PLATFORM_FEE
+  </div>
+  <div style={{
+    fontSize: "20px",
+    fontWeight: 600,
+    marginBottom: "4px",
+    color: colors.success, // Green for "0%"
+  }}>
+    0%
+  </div>
+  <div style={{ fontSize: "12px", color: colors.muted }}>
+    Network fee only
   </div>
 </div>
 ```
@@ -149,50 +411,194 @@ Display registered creator info.
 
 ## Modals
 
-### Base Modal
+### Terminal Window Modal
+
+Used for registration forms and tip modals. Features macOS-style traffic lights.
 
 ```tsx
-<div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-  <div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-6 max-w-md w-full mx-4">
-    <h2 className="text-white text-xl font-semibold mb-4">Modal Title</h2>
-    <div className="text-[#888] mb-6">Modal content goes here.</div>
-    <div className="flex gap-3 justify-end">
-      <button className="border border-[#888] text-white px-4 py-2 rounded-lg">Cancel</button>
-      <button className="bg-[#F4B728] text-black px-4 py-2 rounded-lg">Confirm</button>
+<form style={{
+  backgroundColor: colors.surface,
+  border: `1px solid ${colors.border}`,
+  borderRadius: "8px",
+  padding: "32px",
+}}>
+  {/* Terminal-style header */}
+  <div style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginBottom: "24px",
+    paddingBottom: "16px",
+    borderBottom: `1px solid ${colors.border}`,
+  }}>
+    {/* Traffic lights */}
+    <div style={{ display: "flex", gap: "6px" }}>
+      <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#FF5F56" }} />
+      <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#FFBD2E" }} />
+      <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27CA40" }} />
     </div>
+    <span style={{ color: colors.muted, fontSize: "12px", marginLeft: "8px" }}>
+      [TIPZ] // REGISTER
+    </span>
   </div>
-</div>
+
+  {/* Form content */}
+  {/* ... */}
+</form>
 ```
 
 ### Tip Modal (Extension)
 
+Terminal-styled modal for tipping flow.
+
 ```tsx
-<div className="tipz-modal bg-[#1a1a1a] border border-[#333] rounded-xl p-6 w-80">
-  <div className="flex justify-between items-center mb-4">
-    <h3 className="text-white font-semibold">Tip @username</h3>
-    <button className="text-[#888] hover:text-white">&times;</button>
+<div style={{
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  backgroundColor: colors.surface,
+  border: `1px solid ${colors.border}`,
+  borderRadius: 8,
+  padding: 28,
+  width: 380,
+  fontFamily: "'JetBrains Mono', monospace",
+  boxShadow: `0 20px 60px ${colors.bg}80, 0 0 1px ${colors.primary}40`,
+}}>
+  {/* Header */}
+  <div style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    paddingBottom: 16,
+    borderBottom: `1px solid ${colors.border}`,
+    marginBottom: 20,
+  }}>
+    <div style={{ display: "flex", gap: 6 }}>
+      <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#FF5F56" }} />
+      <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#FFBD2E" }} />
+      <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#27CA40" }} />
+    </div>
+    <span style={{ color: colors.muted, fontSize: 12, marginLeft: 8 }}>
+      [TIPZ] // SEND_TIP
+    </span>
   </div>
 
-  {/* Amount presets */}
-  <div className="grid grid-cols-4 gap-2 mb-4">
-    {[0.01, 0.05, 0.1, 0.5].map(amount => (
-      <button className="bg-[#333] text-white py-2 rounded hover:bg-[#F4B728] hover:text-black transition-colors">
-        {amount} ZEC
-      </button>
-    ))}
+  {/* Recipient */}
+  <div style={{ marginBottom: 20 }}>
+    <div style={{ color: colors.muted, fontSize: 11, marginBottom: 8 }}>
+      SENDING TO
+    </div>
+    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{
+        width: 40,
+        height: 40,
+        borderRadius: "50%",
+        background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: colors.bg,
+        fontWeight: 700,
+      }}>
+        S
+      </div>
+      <div>
+        <div style={{ color: colors.text, fontWeight: 600 }}>@satoshi</div>
+        <div style={{ color: colors.muted, fontSize: 12 }}>zs1q8w...x7k9</div>
+      </div>
+    </div>
   </div>
 
-  {/* Custom amount */}
-  <input
-    type="number"
-    placeholder="Custom amount"
-    className="w-full bg-black border border-[#333] rounded px-3 py-2 text-white mb-4"
-  />
+  {/* Amount Selection */}
+  <div style={{ marginBottom: 20 }}>
+    <div style={{ color: colors.muted, fontSize: 11, marginBottom: 8 }}>
+      SELECT AMOUNT (ZEC)
+    </div>
+    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {[0.01, 0.05, 0.1, 0.5, 1].map((amount) => (
+        <div
+          key={amount}
+          style={{
+            padding: "10px 16px",
+            borderRadius: 6,
+            backgroundColor: selectedAmount === amount ? colors.primary : colors.bg,
+            border: `1px solid ${selectedAmount === amount ? colors.primary : colors.border}`,
+            color: selectedAmount === amount ? colors.bg : colors.text,
+            fontWeight: 500,
+            fontSize: 14,
+            cursor: "pointer",
+          }}
+        >
+          {amount}
+        </div>
+      ))}
+    </div>
+  </div>
 
-  {/* Send button */}
-  <button className="w-full bg-[#F4B728] text-black py-3 rounded-lg font-medium">
-    Send Tip
+  {/* Confirm Button */}
+  <button style={{
+    width: "100%",
+    padding: 14,
+    borderRadius: 6,
+    backgroundColor: colors.primary,
+    border: "none",
+    color: colors.bg,
+    fontWeight: 600,
+    fontSize: 15,
+    fontFamily: "'JetBrains Mono', monospace",
+    cursor: "pointer",
+  }}>
+    Confirm Tip →
   </button>
+
+  {/* Privacy Note */}
+  <p style={{
+    color: colors.muted,
+    fontSize: 11,
+    marginTop: 12,
+    textAlign: "center",
+  }}>
+    Powered by Zcash shielding
+  </p>
+</div>
+```
+
+### Success State Modal
+
+```tsx
+<div style={{ textAlign: "center", padding: "20px 0" }}>
+  <div style={{
+    width: 64,
+    height: 64,
+    borderRadius: "50%",
+    backgroundColor: `${colors.success}20`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 16px",
+    border: `2px solid ${colors.success}`,
+  }}>
+    <span style={{ fontSize: 32, color: colors.success }}>✓</span>
+  </div>
+  <h3 style={{
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: 600,
+    margin: "0 0 8px",
+  }}>
+    Tip Sent!
+  </h3>
+  <p style={{ color: colors.muted, fontSize: 14, margin: 0 }}>
+    0.1 ZEC to @satoshi
+  </p>
+  <p style={{
+    color: colors.success,
+    fontSize: 12,
+    marginTop: 12,
+  }}>
+    Shielded • No trace
+  </p>
 </div>
 ```
 
@@ -200,25 +606,68 @@ Display registered creator info.
 
 ## Alerts & Notifications
 
-### Toast Notification
+### Error Alert (Inline)
 
 ```tsx
-<div className="fixed bottom-4 right-4 bg-[#1a1a1a] border border-[#333] rounded-lg p-4 flex items-center gap-3 shadow-xl">
-  <div className="text-green-500">✓</div>
-  <div className="text-white">Tip sent successfully!</div>
+{status === "error" && (
+  <div style={{
+    backgroundColor: "rgba(255, 68, 68, 0.1)",
+    border: `1px solid ${colors.error}`,
+    borderRadius: "4px",
+    padding: "12px 16px",
+    marginBottom: "20px",
+    color: colors.error,
+    fontSize: "13px",
+  }}>
+    {errorMessage}
+  </div>
+)}
+```
+
+### Success Alert (Inline)
+
+```tsx
+<div style={{
+  backgroundColor: colors.surface,
+  border: `1px solid ${colors.success}`,
+  borderRadius: "8px",
+  padding: "32px",
+  textAlign: "center",
+}}>
+  <div style={{
+    width: "64px",
+    height: "64px",
+    borderRadius: "50%",
+    backgroundColor: "rgba(0, 255, 0, 0.1)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 16px",
+  }}>
+    <span style={{ fontSize: "32px", color: colors.success }}>✓</span>
+  </div>
+  <h3 style={{ margin: "0 0 8px", fontSize: "18px", fontWeight: 600 }}>
+    Registration Successful!
+  </h3>
+  <p style={{ margin: "0 0 24px", color: colors.muted, fontSize: "14px" }}>
+    Your tip page is now active. Start sharing your TIPZ link!
+  </p>
 </div>
 ```
 
-**Variants**:
-- Success: `border-green-500/50` with green check
-- Error: `border-red-500/50` with red X
-- Info: `border-[#F4B728]/50` with gold info icon
-
-### Inline Alert
+### Status Indicator
 
 ```tsx
-<div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 text-red-400 text-sm">
-  Error message goes here.
+<div style={{
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  marginBottom: "24px",
+}}>
+  <span style={{ color: colors.success }}>●</span>
+  <span style={{ color: colors.muted, fontSize: "12px" }}>
+    NETWORK_STATUS: OPERATIONAL
+  </span>
 </div>
 ```
 
@@ -229,22 +678,55 @@ Display registered creator info.
 ### Spinner
 
 ```tsx
-<div className="animate-spin rounded-full h-6 w-6 border-2 border-[#F4B728] border-t-transparent" />
+<div style={{
+  width: 24,
+  height: 24,
+  border: `2px solid ${colors.primary}`,
+  borderTopColor: "transparent",
+  borderRadius: "50%",
+  animation: "spin 1s linear infinite",
+}} />
 ```
 
-### Skeleton
+### Button Loading State
 
 ```tsx
-<div className="animate-pulse bg-[#333] rounded h-4 w-full" />
-```
-
-### Button Loading
-
-```tsx
-<button disabled className="bg-[#F4B728]/50 text-black px-6 py-3 rounded-lg font-medium flex items-center gap-2">
-  <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent" />
-  Processing...
+<button
+  disabled
+  style={{
+    width: "100%",
+    padding: "16px",
+    fontSize: "16px",
+    fontWeight: 600,
+    color: colors.bg,
+    backgroundColor: colors.muted,
+    border: "none",
+    borderRadius: "4px",
+    cursor: "not-allowed",
+    fontFamily: "'JetBrains Mono', monospace",
+  }}
+>
+  Registering...
 </button>
+```
+
+### Processing State (Modal)
+
+```tsx
+<div style={{ textAlign: "center", padding: "20px 0" }}>
+  <div style={{
+    width: 48,
+    height: 48,
+    border: `3px solid ${colors.primary}`,
+    borderTopColor: "transparent",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite",
+    margin: "0 auto 16px",
+  }} />
+  <p style={{ color: colors.muted, fontSize: 14 }}>
+    Processing transaction...
+  </p>
+</div>
 ```
 
 ---
@@ -254,13 +736,55 @@ Display registered creator info.
 ### Header
 
 ```tsx
-<header className="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-sm border-b border-[#333] z-50">
-  <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-    <div className="text-[#F4B728] text-xl font-semibold">TIPZ</div>
-    <nav className="flex gap-6">
-      <a href="#features" className="text-[#888] hover:text-white transition-colors">Features</a>
-      <a href="#how" className="text-[#888] hover:text-white transition-colors">How it Works</a>
-      <a href="/register" className="bg-[#F4B728] text-black px-4 py-2 rounded-lg font-medium">Register</a>
+<header style={{
+  borderBottom: `1px solid ${colors.border}`,
+  padding: "16px 0",
+  position: "sticky",
+  top: 0,
+  backgroundColor: colors.bg,
+  zIndex: 100,
+}}>
+  <div style={{
+    maxWidth: "1200px",
+    margin: "0 auto",
+    padding: "0 24px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }}>
+    {/* Logo section */}
+    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <span style={{ color: colors.primary, fontWeight: 700 }}>
+        [TIPZ]
+      </span>
+      <span style={{ color: colors.muted, fontSize: "12px" }}>
+        v0.1.0-beta
+      </span>
+      <span style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted, fontSize: "12px" }}>
+        <img src="/zec/brandmark-yellow.svg" alt="Zcash" style={{ width: "14px", height: "14px" }} />
+        ZEC
+      </span>
+    </div>
+
+    {/* Navigation */}
+    <nav style={{ display: "flex", gap: "24px" }}>
+      {["MANIFESTO", "GITHUB", "EXTENSION"].map((item) => (
+        <a
+          key={item}
+          href="#"
+          style={{
+            color: colors.muted,
+            textDecoration: "none",
+            fontSize: "12px",
+            letterSpacing: "0.5px",
+            transition: "color 0.2s",
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = colors.primary}
+          onMouseLeave={(e) => e.currentTarget.style.color = colors.muted}
+        >
+          {item}
+        </a>
+      ))}
     </nav>
   </div>
 </header>
@@ -269,13 +793,46 @@ Display registered creator info.
 ### Footer
 
 ```tsx
-<footer className="border-t border-[#333] py-12">
-  <div className="max-w-6xl mx-auto px-6 flex justify-between items-center">
-    <div className="text-[#888] text-sm">© 2026 TIPZ. All rights reserved.</div>
-    <div className="flex gap-6">
-      <a href="#" className="text-[#888] hover:text-[#F4B728]">Twitter</a>
-      <a href="#" className="text-[#888] hover:text-[#F4B728]">GitHub</a>
-      <a href="#" className="text-[#888] hover:text-[#F4B728]">Discord</a>
+<footer style={{
+  padding: "32px 0",
+  backgroundColor: colors.bg,
+}}>
+  <div style={{
+    maxWidth: "1200px",
+    margin: "0 auto",
+    padding: "0 24px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: "16px",
+  }}>
+    {/* Logo */}
+    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+      <span style={{ color: colors.primary, fontWeight: 700 }}>[TIPZ]</span>
+      <span style={{ color: colors.muted, fontSize: "12px" }}>v0.1.0-beta</span>
+    </div>
+
+    {/* Links */}
+    <div style={{ display: "flex", gap: "24px", color: colors.muted, fontSize: "12px" }}>
+      {["MANIFESTO", "GITHUB", "X"].map((item) => (
+        <a
+          key={item}
+          href="#"
+          style={{ color: colors.muted, textDecoration: "none" }}
+          onMouseEnter={(e) => e.currentTarget.style.color = colors.primary}
+          onMouseLeave={(e) => e.currentTarget.style.color = colors.muted}
+        >
+          {item}
+        </a>
+      ))}
+    </div>
+
+    {/* Status */}
+    <div style={{ display: "flex", alignItems: "center", gap: "8px", color: colors.muted, fontSize: "11px" }}>
+      <span style={{ color: colors.success }}>●</span> All systems operational |
+      <img src="/zec/brandmark-yellow.svg" alt="Zcash" style={{ width: "12px", height: "12px" }} />
+      Powered by Zcash + NEAR Intents
     </div>
   </div>
 </footer>
@@ -283,77 +840,223 @@ Display registered creator info.
 
 ---
 
-## Extension-Specific Components
+## Section Components
 
-### Extension Popup
+### Section Header
 
 ```tsx
-<div className="w-80 bg-black p-6">
-  <div className="text-[#F4B728] text-xl font-semibold mb-4">TIPZ</div>
-  <p className="text-[#888] text-sm mb-6">Private tips for creators on X and Substack.</p>
+<h2 style={{
+  color: colors.primary,
+  fontSize: "12px",
+  letterSpacing: "1px",
+  marginBottom: "32px",
+}}>
+  // FOR_CREATORS
+</h2>
+```
 
-  {/* Status */}
-  <div className="bg-[#1a1a1a] rounded-lg p-4 mb-4">
-    <div className="text-white text-sm font-medium">Extension Active</div>
-    <div className="text-[#888] text-xs">Monitoring supported sites</div>
-  </div>
+### Collapsible Details (For Developers)
 
-  {/* Links */}
-  <div className="space-y-2">
-    <a href="https://tipz.app" className="block text-[#F4B728] text-sm hover:underline">
-      Register as Creator →
-    </a>
-    <a href="https://tipz.app/help" className="block text-[#888] text-sm hover:text-white">
-      Help & Support
-    </a>
-  </div>
-</div>
+```tsx
+<details style={{ cursor: "pointer" }}>
+  <summary style={{
+    color: colors.muted,
+    fontSize: "12px",
+    letterSpacing: "1px",
+    marginBottom: "24px",
+    listStyle: "none",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  }}>
+    <span style={{ color: colors.primary }}>[+]</span> FOR_DEVELOPERS: Protocol specs & SDK
+  </summary>
+  <pre style={{
+    color: colors.text,
+    fontSize: "12px",
+    lineHeight: 1.5,
+    overflow: "auto",
+    margin: "24px 0 0 0",
+    padding: "20px",
+    backgroundColor: colors.surface,
+    border: `1px solid ${colors.border}`,
+    borderRadius: "4px",
+    fontFamily: "'JetBrains Mono', monospace",
+  }}>
+    {techSpecs}
+  </pre>
+</details>
+```
+
+### Comparison Table
+
+```tsx
+<table style={{
+  width: "100%",
+  borderCollapse: "collapse",
+  fontSize: "14px",
+}}>
+  <thead>
+    <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+      <th style={{ padding: "16px", textAlign: "left", color: colors.muted, fontWeight: 500 }}>Feature</th>
+      <th style={{ padding: "16px", textAlign: "center", color: colors.primary, fontWeight: 600 }}>TIPZ</th>
+      <th style={{ padding: "16px", textAlign: "center", color: colors.muted, fontWeight: 500 }}>Ko-fi</th>
+      <th style={{ padding: "16px", textAlign: "center", color: colors.muted, fontWeight: 500 }}>Buy Me a Coffee</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+      <td style={{ padding: "16px", color: colors.text }}>Platform fee</td>
+      <td style={{ padding: "16px", textAlign: "center", color: colors.success, fontWeight: 600 }}>0%</td>
+      <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>5%</td>
+      <td style={{ padding: "16px", textAlign: "center", color: colors.muted }}>5%</td>
+    </tr>
+  </tbody>
+</table>
 ```
 
 ---
 
-## Animation Classes
+## Special Components
 
-```css
-/* Fade in from bottom */
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
+### ASCII Art Logo
+
+```tsx
+const ASCII_LOGO = `
+                     ██
+████████╗██╗██████╗███████╗
+╚══██╔══╝██║██╔══██╗╚═███╔╝
+   ██║   ██║██████╔╝ ███╔╝
+   ██║   ██║██╔═══╝ ███╔╝
+   ██║   ██║██║    ███╔╝
+   ╚═╝   ╚═╝╚═╝   ███████╗
+                     ██
+`;
+
+<pre style={{
+  color: colors.primary,
+  fontSize: "10px",
+  lineHeight: 1.2,
+  marginBottom: "32px",
+  fontFamily: "'JetBrains Mono', monospace",
+}}>
+  {ASCII_LOGO}
+</pre>
+```
+
+### Typing Effect Hero
+
+```tsx
+function useTypingEffect(text: string, speed: number = 50) {
+  const [displayText, setDisplayText] = useState("");
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    let index = 0;
+    setDisplayText("");
+    setIsComplete(false);
+
+    const timer = setInterval(() => {
+      if (index < text.length) {
+        setDisplayText(text.slice(0, index + 1));
+        index++;
+      } else {
+        setIsComplete(true);
+        clearInterval(timer);
+      }
+    }, speed);
+
+    return () => clearInterval(timer);
+  }, [text, speed]);
+
+  return { displayText, isComplete };
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+// Usage
+const heroText = "Get tipped. Stay private. No fees.";
+const { displayText, isComplete } = useTypingEffect(heroText, 40);
+
+<div style={{ marginBottom: "24px" }}>
+  <span style={{ color: colors.success }}>{">"}</span>{" "}
+  <span style={{ fontSize: "24px", fontWeight: 600 }}>
+    {displayText}
+    <Cursor visible={!isComplete} />
+  </span>
+</div>
+```
+
+### Blinking Cursor
+
+```tsx
+function Cursor({ visible }: { visible: boolean }) {
+  const [show, setShow] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => setShow((s) => !s), 530);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!visible) return null;
+  return (
+    <span style={{ color: colors.primary, opacity: show ? 1 : 0 }}>█</span>
+  );
+}
+```
+
+---
+
+## Animation Classes (CSS)
+
+```css
+/* Spinner animation */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Cursor blink */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 /* Pulse glow */
-.animate-glow {
-  animation: glow 2s ease-in-out infinite;
-}
-
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(244, 183, 40, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(244, 183, 40, 0.5); }
+  0%, 100% { box-shadow: 0 0 20px rgba(245, 166, 35, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(245, 166, 35, 0.5); }
 }
+```
 
-/* Slide in from right */
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out;
-}
+---
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+## Grid Layout Patterns
+
+### Feature Grid
+
+```tsx
+<div style={{
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+  gap: "24px",
+}}>
+  {features.map((feature) => (
+    <FeatureCard key={feature.title} {...feature} />
+  ))}
+</div>
+```
+
+### Stats Grid
+
+```tsx
+<div style={{
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gap: "1px",
+  backgroundColor: colors.border,
+  border: `1px solid ${colors.border}`,
+}}>
+  {stats.map((stat) => (
+    <StatCard key={stat.label} {...stat} />
+  ))}
+</div>
 ```
