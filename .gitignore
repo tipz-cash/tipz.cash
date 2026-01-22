@@ -36,5 +36,3 @@ yarn-error.log*
 # Extension builds
 extension/build/
 extension/keys.json
-.vercel
-.env*.local
