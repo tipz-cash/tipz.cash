@@ -151,6 +151,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
   const [isClosing, setIsClosing] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   const [showAssetDropdown, setShowAssetDropdown] = useState(false)
+  const [forceConnect, setForceConnect] = useState(false)
 
   // Handle opening animation
   useEffect(() => {
@@ -198,6 +199,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       setTimeout(() => {
         setView("amount")
         setCustomAmountUsd("")
+        setForceConnect(false)
         resetTransaction()
       }, 200)
     }
@@ -240,7 +242,8 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
   }
 
   const handleConnectWallet = async (walletType: WalletType) => {
-    await connect(walletType)
+    await connect(walletType, forceConnect)
+    setForceConnect(false) // Reset flag after connecting
     if (!error) {
       setView("amount")
     }
@@ -822,6 +825,13 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     )
   }
 
+  // Handler for changing wallet
+  const handleChangeWallet = async () => {
+    await disconnect()
+    setForceConnect(true) // Flag that next connect should force account picker
+    setView("wallet")
+  }
+
   // Main Amount Selection View
   return renderInPortal(
     <div style={overlayStyle} onClick={handleClose}>
@@ -829,6 +839,60 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
         <TerminalHeader title={`Tip @${handle}`} onClose={handleClose} />
         <div style={modalContentStyle}>
+          {/* Connected Wallet Info */}
+          {wallet.isConnected && wallet.address && (
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 12px",
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.border}`,
+              borderRadius: "4px",
+              marginBottom: "16px",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: colors.success,
+                }} />
+                <span style={{
+                  fontSize: "12px",
+                  color: colors.textWhite,
+                  fontFamily: fonts.mono,
+                }}>
+                  {shortenAddress(wallet.address, 4)}
+                </span>
+              </div>
+              <button
+                onClick={handleChangeWallet}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: colors.muted,
+                  fontSize: "11px",
+                  fontFamily: fonts.mono,
+                  cursor: "pointer",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  transition: "all 0.15s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.border
+                  e.currentTarget.style.color = colors.textWhite
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent"
+                  e.currentTarget.style.color = colors.muted
+                }}
+              >
+                Change
+              </button>
+            </div>
+          )}
+
           {/* Amount Selection - USD Denominated */}
           <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "20px" }}>
             {TIP_AMOUNTS_USD.map((amount) => (

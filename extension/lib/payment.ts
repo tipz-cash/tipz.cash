@@ -401,9 +401,10 @@ function getEthereumProvider(): Eip1193Provider | null {
 
 /**
  * Connect to MetaMask wallet (via wallet bridge for content script isolation)
+ * @param force - If true, forces the wallet to show account picker even if already connected
  */
-async function connectMetaMask(): Promise<WalletState> {
-  console.log("TIPZ: Connecting via wallet bridge...")
+async function connectMetaMask(force?: boolean): Promise<WalletState> {
+  console.log("TIPZ: Connecting via wallet bridge...", { force })
 
   try {
     // First check if wallet is available
@@ -412,8 +413,8 @@ async function connectMetaMask(): Promise<WalletState> {
       throw new Error("No wallet found. Please install MetaMask or Rabby.")
     }
 
-    // Request connection
-    const connectResult = await walletBridgeRequest("connect")
+    // Request connection (use forceConnect to show account picker when changing wallets)
+    const connectResult = await walletBridgeRequest(force ? "forceConnect" : "connect")
     const { accounts, chainId } = connectResult
 
     if (!accounts || accounts.length === 0) {
@@ -536,14 +537,16 @@ async function connectCoinbase(): Promise<WalletState> {
 
 /**
  * Connect to a wallet
+ * @param walletType - The type of wallet to connect to
+ * @param force - If true, forces the wallet to show account picker even if already connected
  */
-export async function connectWallet(walletType: WalletType): Promise<WalletState> {
-  console.log("TIPZ: Connecting wallet", { walletType })
+export async function connectWallet(walletType: WalletType, force?: boolean): Promise<WalletState> {
+  console.log("TIPZ: Connecting wallet", { walletType, force })
 
   switch (walletType) {
     case "metamask":
     case "rabby":
-      return connectMetaMask() // Both use the same injected provider
+      return connectMetaMask(force) // Both use the same injected provider
     case "walletconnect":
       return connectWalletConnect()
     case "coinbase":
