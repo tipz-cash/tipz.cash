@@ -186,6 +186,11 @@ function TypingHeading({
     return () => clearInterval(interval);
   }, [hasStarted, isComplete]);
 
+  // Show full text if not started yet (before intersection), or show typing progress
+  const showText = hasStarted ? displayText : text;
+  const showCursor = hasStarted && !isComplete;
+  const showSuffix = !hasStarted || isComplete;
+
   return (
     <h2
       ref={ref as React.RefObject<HTMLHeadingElement>}
@@ -194,28 +199,18 @@ function TypingHeading({
         fontWeight: 600,
         marginBottom: "32px",
         lineHeight: 1.3,
-        position: "relative",
         ...style,
       }}
     >
-      {/* Invisible placeholder to reserve space and prevent layout shift */}
-      <span style={{ visibility: "hidden" }}>
-        {prefix && <span>{prefix} </span>}
-        {text}
-        {suffix}
-      </span>
-      {/* Visible typing text positioned absolutely over placeholder */}
-      <span style={{ position: "absolute", left: 0, top: 0 }}>
-        {prefix && <span style={{ color: prefixColor || colors.success }}>{prefix}</span>}
-        {prefix && " "}
-        {displayText}
-        {!isComplete && hasStarted && (
-          <span style={{ color: colors.primary, opacity: cursorVisible ? 1 : 0 }}>█</span>
-        )}
-        {isComplete && suffix && (
-          <span style={{ color: suffixColor || colors.primary }}>{suffix}</span>
-        )}
-      </span>
+      {prefix && <span style={{ color: prefixColor || colors.success }}>{prefix}</span>}
+      {prefix && " "}
+      {showText}
+      {showCursor && (
+        <span style={{ color: colors.primary, opacity: cursorVisible ? 1 : 0 }}>█</span>
+      )}
+      {showSuffix && suffix && (
+        <span style={{ color: suffixColor || colors.primary }}>{suffix}</span>
+      )}
     </h2>
   );
 }
@@ -428,7 +423,7 @@ function ChapterIndicator({ currentChapter }: { currentChapter: number }) {
   );
 }
 
-// Section wrapper (smooth scroll, no snap)
+// Section wrapper with smooth scroll snap
 function SnapSection({
   children,
   id,
@@ -443,6 +438,8 @@ function SnapSection({
       id={id}
       style={{
         minHeight: "100vh",
+        scrollSnapAlign: "start",
+        scrollSnapStop: "normal",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -511,8 +508,6 @@ export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   const currentChapter = useCurrentChapter();
   const { ref: codeRef1, isInView: codeInView1 } = useInView(0.15);
-  const { ref: codeRef2, isInView: codeInView2 } = useInView(0.15);
-  const { ref: codeRef3, isInView: codeInView3 } = useInView(0.15);
 
   useEffect(() => {
     setMounted(true);
@@ -533,13 +528,6 @@ export default function HomePage() {
     "Status:   PUBLIC ❌",
   ];
 
-  const shieldedTipsLines = [
-    "Sender:   [ENCRYPTED]",
-    "Receiver: [ENCRYPTED]",
-    "Amount:   [ENCRYPTED]",
-    "Time:     [ENCRYPTED]",
-    "Status:   PRIVATE ✓",
-  ];
 
   return (
     <div
@@ -549,16 +537,13 @@ export default function HomePage() {
         color: colors.text,
         fontFamily: "'JetBrains Mono', monospace",
         overflowY: "auto",
+        scrollSnapType: "y proximity",
         scrollBehavior: "smooth",
         height: "100vh",
       }}
     >
       {/* Fixed Header */}
       <header style={{
-        padding: "20px 48px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
         position: "fixed",
         top: 0,
         left: 0,
@@ -568,16 +553,24 @@ export default function HomePage() {
         zIndex: 100,
         borderBottom: `1px solid ${colors.border}`,
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px" }}>[TIPZ]</span>
-          <span style={{ color: colors.muted, fontSize: "11px" }}>v0.1.0-beta</span>
+        <div style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "20px 48px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}>
+          <a href="/" style={{ display: "flex", alignItems: "center", gap: "16px", textDecoration: "none" }}>
+            <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px" }}>[TIPZ]</span>
+            <span style={{ color: colors.muted, fontSize: "11px" }}>v0.1.0-beta</span>
+          </a>
+          <nav style={{ display: "flex", gap: "32px" }}>
+            <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "12px" }}>MANIFESTO</a>
+            <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "12px" }}>DOCS</a>
+            <a href="/register" style={{ color: colors.primary, textDecoration: "none", fontSize: "12px", fontWeight: 600 }}>REGISTER</a>
+          </nav>
         </div>
-        <nav style={{ display: "flex", gap: "32px" }}>
-          <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "12px" }}>MANIFESTO</a>
-          <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "12px" }}>DOCS</a>
-          <a href="https://github.com/tipz-app" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "12px" }}>GITHUB</a>
-          <a href="/register" style={{ color: colors.primary, textDecoration: "none", fontSize: "12px", fontWeight: 600 }}>REGISTER</a>
-        </nav>
       </header>
 
       {/* Chapter Indicator */}
@@ -780,60 +773,153 @@ export default function HomePage() {
             style={{ fontSize: "40px" }}
           />
 
-          <div style={{
-            color: colors.muted,
-            fontSize: "18px",
-            lineHeight: 1.8,
-            marginBottom: "48px",
-          }}>
-            <TerminalReveal delay={200}>
-              <p style={{ marginBottom: "32px" }}>
-                Instant micropayments. Zero fees. <span style={{ color: colors.textBright }}>Private by default.</span>
-              </p>
-            </TerminalReveal>
-            <TerminalReveal delay={350}>
-              <p>
-                Your tip goes in. The creator gets paid.
-                <br />
-                No trace. No trail. No tracking.
-              </p>
-            </TerminalReveal>
-          </div>
+          <TerminalReveal delay={200}>
+            <p style={{
+              color: colors.muted,
+              fontSize: "18px",
+              lineHeight: 1.8,
+              marginBottom: "48px",
+            }}>
+              See the tip button. Click. Send. <span style={{ color: colors.success }}>Private.</span>
+            </p>
+          </TerminalReveal>
 
+          {/* Visual Flow: Tweet → Popup → Sent */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "32px",
+            gridTemplateColumns: "1fr auto 1fr auto 1fr",
+            gap: "16px",
+            alignItems: "center",
             marginTop: "32px",
           }}>
-            <div
-              ref={codeRef2}
-              style={{
+            {/* Step 1: Mock Tweet */}
+            <TerminalReveal delay={300}>
+              <div style={{
                 backgroundColor: colors.surface,
-                border: `1px solid ${colors.error}`,
-                padding: "24px",
-              }}
-            >
-              <div style={{ color: colors.error, fontWeight: 600, marginBottom: "16px", fontSize: "12px" }}>
-                TRADITIONAL TIPS
+                border: `1px solid ${colors.border}`,
+                padding: "20px",
+                borderRadius: "4px",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                  <div style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    backgroundColor: colors.primary,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    color: colors.bg,
+                  }}>
+                    S
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: "14px" }}>Satoshi Nakamoto</div>
+                    <div style={{ color: colors.muted, fontSize: "12px" }}>@satoshi</div>
+                  </div>
+                </div>
+                <p style={{ fontSize: "14px", lineHeight: 1.5, marginBottom: "16px" }}>
+                  If you don&apos;t believe me or don&apos;t get it, I don&apos;t have time to try to convince you, sorry.
+                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <span style={{ color: colors.muted, fontSize: "12px" }}>♡ 42.1K</span>
+                  <span style={{ color: colors.muted, fontSize: "12px" }}>↻ 12.8K</span>
+                  <span style={{
+                    backgroundColor: colors.primary,
+                    color: colors.bg,
+                    padding: "4px 12px",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                  }}>
+                    [TIP]
+                  </span>
+                </div>
               </div>
-              <CodeBlockReveal lines={publicBlockchainLines} isInView={codeInView2} lineDelay={60} />
-            </div>
+            </TerminalReveal>
 
-            <div
-              ref={codeRef3}
-              style={{
+            {/* Arrow 1 */}
+            <TerminalReveal delay={500}>
+              <span style={{ color: colors.primary, fontSize: "24px" }}>→</span>
+            </TerminalReveal>
+
+            {/* Step 2: Popup Modal */}
+            <TerminalReveal delay={600}>
+              <div style={{
+                backgroundColor: colors.surface,
+                border: `1px solid ${colors.primary}`,
+                padding: "20px",
+              }}>
+                <div style={{ fontSize: "12px", color: colors.primary, fontWeight: 600, marginBottom: "16px" }}>
+                  TIP @satoshi
+                </div>
+                <div style={{
+                  backgroundColor: colors.bg,
+                  padding: "12px",
+                  marginBottom: "12px",
+                  textAlign: "center",
+                }}>
+                  <span style={{ fontSize: "32px", fontWeight: 700 }}>$5</span>
+                  <span style={{ color: colors.muted, fontSize: "12px", marginLeft: "8px" }}>USDC</span>
+                </div>
+                <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", textAlign: "center" }}>
+                  Wallet: 0x7a2f...4e3d
+                </div>
+                <div style={{
+                  backgroundColor: colors.primary,
+                  color: colors.bg,
+                  padding: "10px",
+                  textAlign: "center",
+                  fontWeight: 600,
+                  fontSize: "12px",
+                }}>
+                  SEND TIP →
+                </div>
+              </div>
+            </TerminalReveal>
+
+            {/* Arrow 2 */}
+            <TerminalReveal delay={800}>
+              <span style={{ color: colors.success, fontSize: "24px" }}>→</span>
+            </TerminalReveal>
+
+            {/* Step 3: Sent Confirmation */}
+            <TerminalReveal delay={900}>
+              <div style={{
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.success}`,
-                padding: "24px",
-              }}
-            >
-              <div style={{ color: colors.success, fontWeight: 600, marginBottom: "16px", fontSize: "12px" }}>
-                TIPZ SHIELDED TIPS
+                padding: "20px",
+                textAlign: "center",
+              }}>
+                <div style={{
+                  fontSize: "48px",
+                  marginBottom: "12px",
+                }}>
+                  ✓
+                </div>
+                <div style={{ color: colors.success, fontWeight: 600, fontSize: "14px", marginBottom: "8px" }}>
+                  TIP SENT
+                </div>
+                <div style={{ fontSize: "11px", color: colors.muted, lineHeight: 1.6 }}>
+                  <div>Sender: <span style={{ color: colors.success }}>[PRIVATE]</span></div>
+                  <div>Amount: <span style={{ color: colors.success }}>[ENCRYPTED]</span></div>
+                  <div>Receiver: <span style={{ color: colors.success }}>[SHIELDED]</span></div>
+                </div>
               </div>
-              <CodeBlockReveal lines={shieldedTipsLines} isInView={codeInView3} lineDelay={60} />
-            </div>
+            </TerminalReveal>
           </div>
+
+          <TerminalReveal delay={1100}>
+            <p style={{
+              color: colors.text,
+              fontSize: "14px",
+              textAlign: "center",
+              marginTop: "32px",
+            }}>
+              No trace. No trail. <span style={{ color: colors.success }}>Just support.</span>
+            </p>
+          </TerminalReveal>
         </div>
       </SnapSection>
 
