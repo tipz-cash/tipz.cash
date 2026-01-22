@@ -13,7 +13,8 @@ interface TipModalProps {
   onClose: () => void
 }
 
-const TIP_AMOUNTS = [0.01, 0.05, 0.1, 0.5, 1]
+// USD-denominated tip amounts
+const TIP_AMOUNTS_USD = [1, 5, 10, 25]
 
 // Animation styles
 const animationStyles = `
@@ -88,7 +89,7 @@ const statusMessages: Record<TransactionStatus, string> = {
   connecting: "Connecting wallet...",
   connected: "Wallet connected",
   approving: "Approving transaction...",
-  swapping: "Swapping to ZEC...",
+  swapping: "Processing payment...",
   routing: "Routing to shielded address...",
   confirming: "Confirming transaction...",
   completed: "Tip sent successfully!",
@@ -144,11 +145,12 @@ function TerminalHeader({ title, onClose }: { title: string; onClose?: () => voi
 }
 
 export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
-  const [selectedAmount, setSelectedAmount] = useState(0.05)
-  const [customAmount, setCustomAmount] = useState("")
+  const [selectedAmountUsd, setSelectedAmountUsd] = useState(5) // Default $5
+  const [customAmountUsd, setCustomAmountUsd] = useState("")
   const [view, setView] = useState<"amount" | "wallet" | "processing" | "success" | "error">("amount")
   const [isClosing, setIsClosing] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
+  const [showAssetDropdown, setShowAssetDropdown] = useState(false)
 
   // Handle opening animation
   useEffect(() => {
@@ -212,7 +214,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     document.body.appendChild(portalContainer)
   }
 
-  const currentAmount = customAmount ? parseFloat(customAmount) : selectedAmount
+  const currentAmountUsd = customAmountUsd ? parseFloat(customAmountUsd) : selectedAmountUsd
 
   const handleTip = async () => {
     if (!creator) return
@@ -222,7 +224,8 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       return
     }
 
-    await tip(currentAmount.toString(), creator.shielded_address, handle)
+    // Pass USD amount - the payment system handles conversion
+    await tip(currentAmountUsd.toString(), creator.shielded_address, handle)
   }
 
   const handleConnectWallet = async (walletType: WalletType) => {
@@ -533,7 +536,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                 {statusMessages[transactionStatus] || "Processing..."}
               </h2>
               <p style={{ margin: 0, color: colors.muted, fontSize: "13px" }}>
-                Sending {currentAmount} ZEC to @{handle}
+                Sending ${currentAmountUsd} to @{handle}
               </p>
 
               {/* Progress steps with animated dots */}
@@ -661,7 +664,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                 fontSize: "13px",
                 animation: "modalFadeIn 0.3s ease-out 0.2s both",
               }}>
-                You sent {transaction?.toAmount || currentAmount} ZEC to @{handle}
+                You sent ${currentAmountUsd} to @{handle}
               </p>
               <p style={{
                 margin: 0,
@@ -669,7 +672,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                 fontSize: "12px",
                 animation: "modalFadeIn 0.3s ease-out 0.25s both",
               }}>
-                They'll receive it privately via Zcash shielded transfer.
+                Delivered privately via shielded transfer.
               </p>
 
               {transaction?.txHash && (
@@ -807,7 +810,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                 Tip @{handle}
               </h2>
               <p style={{ margin: 0, color: colors.muted, fontSize: "12px" }}>
-                Send a private tip in ZEC
+                Send a private tip
               </p>
             </div>
             <button
@@ -923,36 +926,36 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
             </div>
           )}
 
-          {/* Amount Selection */}
+          {/* Amount Selection - USD Denominated */}
           <div style={{ marginBottom: "16px" }}>
             <label style={{ display: "block", marginBottom: "8px", fontSize: "12px", color: colors.muted }}>
               Amount
             </label>
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {TIP_AMOUNTS.map((amount) => (
+              {TIP_AMOUNTS_USD.map((amount) => (
                 <button
                   key={amount}
                   onClick={() => {
-                    setSelectedAmount(amount)
-                    setCustomAmount("")
+                    setSelectedAmountUsd(amount)
+                    setCustomAmountUsd("")
                   }}
-                  style={amountButtonStyle(selectedAmount === amount && !customAmount)}
+                  style={amountButtonStyle(selectedAmountUsd === amount && !customAmountUsd)}
                 >
-                  {amount} ZEC
+                  ${amount}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Custom Amount Input */}
-          <div style={{ marginBottom: "20px" }}>
+          <div style={{ marginBottom: "16px" }}>
             <input
               type="number"
-              placeholder="Custom amount (ZEC)"
-              value={customAmount}
-              onChange={(e) => setCustomAmount(e.target.value)}
-              min="0.001"
-              step="0.001"
+              placeholder="Custom amount ($)"
+              value={customAmountUsd}
+              onChange={(e) => setCustomAmountUsd(e.target.value)}
+              min="0.01"
+              step="0.01"
               style={{
                 width: "100%",
                 padding: "12px",
@@ -966,6 +969,88 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
               }}
             />
           </div>
+
+          {/* Asset Selector - Pay From */}
+          {wallet.isConnected && supportedTokens.length > 0 && (
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{ display: "block", marginBottom: "8px", fontSize: "12px", color: colors.muted }}>
+                Pay from
+              </label>
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => setShowAssetDropdown(!showAssetDropdown)}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    fontSize: "13px",
+                    backgroundColor: colors.surface,
+                    color: colors.textWhite,
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: "4px",
+                    fontFamily: fonts.mono,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span>
+                    {selectedToken?.symbol || "Select asset"}
+                    {selectedToken && tokenBalances.get(selectedToken.symbol) && (
+                      <span style={{ color: colors.muted }}> · {parseFloat(tokenBalances.get(selectedToken.symbol) || "0").toFixed(4)} avail</span>
+                    )}
+                  </span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </button>
+                {showAssetDropdown && (
+                  <div style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    right: 0,
+                    marginTop: "4px",
+                    backgroundColor: colors.surface,
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: "4px",
+                    zIndex: 10,
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                  }}>
+                    {supportedTokens.map((token) => (
+                      <button
+                        key={token.symbol}
+                        onClick={() => {
+                          selectToken(token)
+                          setShowAssetDropdown(false)
+                        }}
+                        style={{
+                          width: "100%",
+                          padding: "12px 16px",
+                          fontSize: "13px",
+                          backgroundColor: selectedToken?.symbol === token.symbol ? colors.bg : "transparent",
+                          color: colors.textWhite,
+                          border: "none",
+                          borderBottom: `1px solid ${colors.border}`,
+                          fontFamily: fonts.mono,
+                          cursor: "pointer",
+                          textAlign: "left",
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <span>{token.symbol}</span>
+                        <span style={{ color: colors.muted }}>
+                          {parseFloat(tokenBalances.get(token.symbol) || "0").toFixed(4)} avail
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Error Display */}
           {error && (
@@ -998,15 +1083,15 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
           {/* Send Button */}
           <button
             onClick={handleTip}
-            disabled={!currentAmount || currentAmount <= 0}
+            disabled={!currentAmountUsd || currentAmountUsd <= 0}
             style={{
               ...buttonPrimaryStyle,
-              opacity: !currentAmount || currentAmount <= 0 ? 0.5 : 1,
-              cursor: !currentAmount || currentAmount <= 0 ? "not-allowed" : "pointer",
+              opacity: !currentAmountUsd || currentAmountUsd <= 0 ? 0.5 : 1,
+              cursor: !currentAmountUsd || currentAmountUsd <= 0 ? "not-allowed" : "pointer",
             }}
           >
             {wallet.isConnected
-              ? `Send ${formatTokenAmount(currentAmount.toString(), 8)} ZEC`
+              ? `Send $${currentAmountUsd} tip`
               : "Connect Wallet to Tip"}
           </button>
 
@@ -1017,7 +1102,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
             color: colors.muted,
             textAlign: "center",
           }}>
-            Tips are sent via Zcash shielded transactions for privacy.
+            Delivered privately via shielded transfer
           </p>
         </div>
       </div>
