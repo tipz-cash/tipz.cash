@@ -24,6 +24,27 @@ const designs = [
     inspiration: "Balaji's sites, crypto punk",
     colors: ["#FFFFFF", "#000000", "#FF0000", "#FFFF00", "#0000FF"],
   },
+  {
+    id: "v6-dense",
+    name: "Dense (V6)",
+    description: "Bloomberg terminal, data-heavy, tickers",
+    inspiration: "Bloomberg Terminal, trading interfaces",
+    colors: ["#0A0A0A", "#1A1A1A", "#F5A623", "#22C55E", "#666666"],
+  },
+  {
+    id: "v6-minimal",
+    name: "Minimal (V6)",
+    description: "Clean terminal, breathing room, focused",
+    inspiration: "Linear, Vercel, minimal SaaS",
+    colors: ["#0A0A0A", "#1A1A1A", "#F5A623", "#FFFFFF", "#888888"],
+  },
+  {
+    id: "v6-narrative",
+    name: "Narrative (V6)",
+    description: "Story-driven, chapter format, scroll animations",
+    inspiration: "Stripe, Apple product pages",
+    colors: ["#0A0A0A", "#1A1A1A", "#F5A623", "#3B82F6", "#888888"],
+  },
 ]
 
 export default function DesignIndex() {
@@ -47,7 +68,7 @@ export default function DesignIndex() {
           color: "#888",
           marginBottom: "48px",
         }}>
-          3 finalist directions. Open in separate tabs to compare.
+          6 design variants. Open in separate tabs to compare.
         </p>
 
         <div style={{
