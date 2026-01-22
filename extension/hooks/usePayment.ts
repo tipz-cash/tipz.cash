@@ -26,6 +26,8 @@ import {
   getTokenBalance,
   setupWalletListeners,
   switchChain,
+  restoreWalletSession,
+  loadWalletSession,
 } from "~lib/payment"
 
 export interface UsePaymentReturn {
@@ -69,6 +71,36 @@ const initialWalletState: WalletState = {
   balance: null,
 }
 
+// Auto-select token with highest USD value
+const selectHighestValueToken = (
+  tokens: SupportedToken[],
+  balances: Map<string, string>
+): SupportedToken | null => {
+  if (tokens.length === 0) return null
+
+  // For now, simple heuristic: ETH balance * rough price > others
+  // TODO: Add price feed for accurate USD values
+  let bestToken = tokens[0]
+  let bestValue = 0
+
+  for (const token of tokens) {
+    const balance = parseFloat(balances.get(token.symbol) || "0")
+    // Rough USD estimates - ETH ~$3000, USDC/USDT = $1
+    const price =
+      token.symbol === "ETH"
+        ? 3000
+        : ["USDC", "USDT", "DAI"].includes(token.symbol)
+          ? 1
+          : 0
+    const value = balance * price
+    if (value > bestValue) {
+      bestValue = value
+      bestToken = token
+    }
+  }
+  return bestToken
+}
+
 export function usePayment(): UsePaymentReturn {
   // Wallet state
   const [wallet, setWallet] = useState<WalletState>(initialWalletState)
@@ -98,7 +130,29 @@ export function usePayment(): UsePaymentReturn {
       const wallets = getAvailableWallets()
       setAvailableWallets(wallets)
 
-      // Check if already connected
+      // Check if we have a saved session to restore
+      const savedSession = loadWalletSession()
+      if (savedSession) {
+        console.log("TIPZ: Found saved wallet session, attempting to restore...")
+        const restoredState = await restoreWalletSession()
+        if (restoredState) {
+          setWallet(restoredState)
+          if (restoredState.chainId) {
+            const tokens = await getSupportedTokens(restoredState.chainId)
+            setSupportedTokens(tokens)
+            if (tokens.length > 0) {
+              setSelectedToken(tokens[0])
+            }
+          }
+          return // Successfully restored, done
+        }
+        // Session restore failed - session was already cleared by restoreWalletSession()
+        // User will need to manually connect, so just leave wallet disconnected
+        console.log("TIPZ: Session restore failed, user will need to reconnect")
+        return
+      }
+
+      // No saved session - check if already connected via provider (unlikely but possible)
       const state = await getWalletState()
       if (state.isConnected) {
         setWallet(state)
@@ -110,6 +164,7 @@ export function usePayment(): UsePaymentReturn {
           }
         }
       }
+      // If not connected, that's fine - user will connect when they want to tip
     }
 
     init()
@@ -214,6 +269,12 @@ export function usePayment(): UsePaymentReturn {
       }
 
       setTokenBalances(balances)
+
+      // Auto-select token with highest USD value
+      const bestToken = selectHighestValueToken(supportedTokens, balances)
+      if (bestToken) {
+        setSelectedToken(bestToken)
+      }
     }
 
     loadBalances()
@@ -246,21 +307,27 @@ export function usePayment(): UsePaymentReturn {
   }, [])
 
   // Disconnect wallet
+  // IMPORTANT: Clear React state FIRST (synchronously) to prevent race conditions,
+  // then call disconnectWallet() for async cleanup
   const disconnect = useCallback(async () => {
+    // Step 1: Clear all React state synchronously FIRST
+    // This ensures the UI reflects disconnected state immediately
+    setWallet(initialWalletState)
+    setSelectedToken(null)
+    setSupportedTokens([])
+    setTokenBalances(new Map())
+    setTransaction(null)
+    setTransactionStatus("idle")
+
+    // Clean up listeners
+    if (cleanupRef.current) {
+      cleanupRef.current()
+      cleanupRef.current = null
+    }
+
+    // Step 2: Async cleanup (session storage, wallet providers, etc.)
     try {
       await disconnectWallet()
-      setWallet(initialWalletState)
-      setSelectedToken(null)
-      setSupportedTokens([])
-      setTokenBalances(new Map())
-      setTransaction(null)
-      setTransactionStatus("idle")
-
-      // Clean up listeners
-      if (cleanupRef.current) {
-        cleanupRef.current()
-        cleanupRef.current = null
-      }
     } catch (err) {
       console.error("TIPZ: Wallet disconnection error", err)
     }
