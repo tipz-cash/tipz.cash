@@ -265,11 +265,18 @@ async function connectMetaMask(): Promise<WalletState> {
 
 /**
  * Connect to WalletConnect
- * NOTE: Temporarily disabled to reduce bundle size for testing.
- * WalletConnect will be re-enabled for production.
+ * NOTE: WalletConnect SDK has bundling issues with the current toolchain.
+ * Using direct browser wallet injection (MetaMask/Rabby) for now.
+ * TODO: Re-enable once WalletConnect v2 bundling issues are resolved.
  */
 async function connectWalletConnect(): Promise<WalletState> {
-  throw new Error("WalletConnect is coming soon. Please use MetaMask or Rabby for now.")
+  // For now, try to use the injected provider (works with MetaMask, Rabby, etc.)
+  const ethereum = getEthereumProvider()
+  if (ethereum) {
+    console.log("TIPZ: WalletConnect requested, falling back to injected provider")
+    return connectMetaMask() // Use injected provider
+  }
+  throw new Error("WalletConnect QR modal coming soon. Please install MetaMask or Rabby browser extension.")
 }
 
 /**

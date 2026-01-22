@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import type { Creator } from "~lib/api"
 import { usePayment } from "~hooks/usePayment"
 import type { TransactionStatus, WalletType } from "~lib/payment"
@@ -178,6 +179,15 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
 
   if (!isOpen) return null
 
+  // Create portal container if it doesn't exist
+  let portalContainer = document.getElementById("tipz-modal-root")
+  if (!portalContainer) {
+    portalContainer = document.createElement("div")
+    portalContainer.id = "tipz-modal-root"
+    portalContainer.style.cssText = "position: fixed; top: 0; left: 0; z-index: 2147483647; pointer-events: none;"
+    document.body.appendChild(portalContainer)
+  }
+
   const currentAmount = customAmount ? parseFloat(customAmount) : selectedAmount
 
   const handleTip = async () => {
@@ -217,9 +227,10 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    zIndex: 999999,
+    zIndex: 2147483647, // Maximum z-index
     backdropFilter: "blur(4px)",
     animation: isClosing ? "modalFadeOut 0.2s ease-out forwards" : "modalFadeIn 0.25s ease-out forwards",
+    pointerEvents: "auto", // Enable clicks through portal container
   }
 
   const modalStyle: React.CSSProperties = {
@@ -282,9 +293,14 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     boxShadow: isSelected ? `0 0 12px rgba(245, 166, 35, 0.3)` : "none",
   })
 
+  // Helper to wrap content in portal
+  const renderInPortal = (content: React.ReactNode) => {
+    return createPortal(content, portalContainer!)
+  }
+
   // Creator Not Registered View
   if (!creator) {
-    return (
+    return renderInPortal(
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
@@ -326,7 +342,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
 
   // Wallet Selection View
   if (view === "wallet") {
-    return (
+    return renderInPortal(
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
@@ -445,7 +461,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
 
   // Processing View
   if (view === "processing") {
-    return (
+    return renderInPortal(
       <div style={overlayStyle}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
@@ -552,7 +568,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
 
   // Success View
   if (view === "success") {
-    return (
+    return renderInPortal(
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
@@ -651,7 +667,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
 
   // Error View
   if (view === "error") {
-    return (
+    return renderInPortal(
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
         <div style={{
@@ -734,7 +750,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
   }
 
   // Main Amount Selection View
-  return (
+  return renderInPortal(
     <div style={overlayStyle} onClick={handleClose}>
       <style>{animationStyles}</style>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
