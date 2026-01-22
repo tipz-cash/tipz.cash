@@ -194,19 +194,28 @@ function TypingHeading({
         fontWeight: 600,
         marginBottom: "32px",
         lineHeight: 1.3,
-        minHeight: "1.3em",
+        position: "relative",
         ...style,
       }}
     >
-      {prefix && <span style={{ color: prefixColor || colors.success }}>{prefix}</span>}
-      {prefix && " "}
-      {displayText}
-      {!isComplete && hasStarted && (
-        <span style={{ color: colors.primary, opacity: cursorVisible ? 1 : 0 }}>█</span>
-      )}
-      {isComplete && suffix && (
-        <span style={{ color: suffixColor || colors.primary }}>{suffix}</span>
-      )}
+      {/* Invisible placeholder to reserve space and prevent layout shift */}
+      <span style={{ visibility: "hidden" }}>
+        {prefix && <span>{prefix} </span>}
+        {text}
+        {suffix}
+      </span>
+      {/* Visible typing text positioned absolutely over placeholder */}
+      <span style={{ position: "absolute", left: 0, top: 0 }}>
+        {prefix && <span style={{ color: prefixColor || colors.success }}>{prefix}</span>}
+        {prefix && " "}
+        {displayText}
+        {!isComplete && hasStarted && (
+          <span style={{ color: colors.primary, opacity: cursorVisible ? 1 : 0 }}>█</span>
+        )}
+        {isComplete && suffix && (
+          <span style={{ color: suffixColor || colors.primary }}>{suffix}</span>
+        )}
+      </span>
     </h2>
   );
 }
@@ -419,7 +428,7 @@ function ChapterIndicator({ currentChapter }: { currentChapter: number }) {
   );
 }
 
-// Snap Section wrapper
+// Section wrapper (smooth scroll, no snap)
 function SnapSection({
   children,
   id,
@@ -434,7 +443,6 @@ function SnapSection({
       id={id}
       style={{
         minHeight: "100vh",
-        scrollSnapAlign: "start",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -541,8 +549,7 @@ export default function HomePage() {
         color: colors.text,
         fontFamily: "'JetBrains Mono', monospace",
         overflowY: "auto",
-        scrollSnapType: "y mandatory",
-        scrollPaddingTop: "70px",
+        scrollBehavior: "smooth",
         height: "100vh",
       }}
     >
@@ -690,7 +697,7 @@ export default function HomePage() {
       </SnapSection>
 
       {/* Chapter 3: The Surveillance Problem */}
-      <SnapSection id="surveillance" style={{ backgroundColor: colors.surface, padding: "0 48px" }}>
+      <SnapSection id="surveillance" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -831,7 +838,7 @@ export default function HomePage() {
       </SnapSection>
 
       {/* Chapter 5: Any Token */}
-      <SnapSection id="any-token" style={{ backgroundColor: colors.surface, padding: "0 48px" }}>
+      <SnapSection id="any-token" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -1061,7 +1068,7 @@ export default function HomePage() {
       </SnapSection>
 
       {/* Chapter 7: Why It Matters */}
-      <SnapSection id="why-it-matters" style={{ backgroundColor: colors.surface, padding: "0 48px" }}>
+      <SnapSection id="why-it-matters" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -1227,7 +1234,6 @@ export default function HomePage() {
         alignItems: "center",
         borderTop: `1px solid ${colors.border}`,
         fontSize: "12px",
-        scrollSnapAlign: "end",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <span style={{ color: colors.primary, fontWeight: 700 }}>[TIPZ]</span>
