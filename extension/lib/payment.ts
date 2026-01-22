@@ -11,6 +11,52 @@ import { BrowserProvider, formatUnits, parseUnits, Contract } from "ethers"
 import type { Eip1193Provider } from "ethers"
 
 // ============================================================================
+// Wallet Bridge Communication (for content script isolation)
+// ============================================================================
+
+interface WalletBridgeResponse {
+  id: string
+  success: boolean
+  result?: any
+  error?: string
+}
+
+let bridgeRequestId = 0
+
+/**
+ * Send a request to the wallet bridge running in the main world
+ */
+async function walletBridgeRequest(method: string, params?: any): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const id = `tipz-${++bridgeRequestId}-${Date.now()}`
+
+    const handleResponse = (event: CustomEvent<WalletBridgeResponse>) => {
+      if (event.detail.id !== id) return
+      window.removeEventListener("tipz-wallet-response" as any, handleResponse)
+
+      if (event.detail.success) {
+        resolve(event.detail.result)
+      } else {
+        reject(new Error(event.detail.error || "Unknown wallet error"))
+      }
+    }
+
+    window.addEventListener("tipz-wallet-response" as any, handleResponse)
+
+    // Set timeout
+    setTimeout(() => {
+      window.removeEventListener("tipz-wallet-response" as any, handleResponse)
+      reject(new Error("Wallet request timed out. Make sure you have a wallet installed."))
+    }, 30000)
+
+    // Send request to bridge
+    window.dispatchEvent(new CustomEvent("tipz-wallet-request", {
+      detail: { id, method, params }
+    }))
+  })
+}
+
+// ============================================================================
 // Types & Interfaces
 // ============================================================================
 
@@ -185,39 +231,40 @@ function getEthereumProvider(): Eip1193Provider | null {
 }
 
 /**
- * Connect to MetaMask wallet
+ * Connect to MetaMask wallet (via wallet bridge for content script isolation)
  */
 async function connectMetaMask(): Promise<WalletState> {
-  const ethereum = getEthereumProvider()
-  if (!ethereum) {
-    throw new Error("MetaMask is not installed. Please install MetaMask to continue.")
-  }
+  console.log("TIPZ: Connecting via wallet bridge...")
 
   try {
-    // Request account access
-    const accounts = await (ethereum as any).request({
-      method: "eth_requestAccounts",
-    })
+    // First check if wallet is available
+    const checkResult = await walletBridgeRequest("check")
+    if (!checkResult.available) {
+      throw new Error("No wallet found. Please install MetaMask or Rabby.")
+    }
+
+    // Request connection
+    const connectResult = await walletBridgeRequest("connect")
+    const { accounts, chainId } = connectResult
 
     if (!accounts || accounts.length === 0) {
-      throw new Error("No accounts found. Please unlock MetaMask and try again.")
+      throw new Error("No accounts found. Please unlock your wallet and try again.")
     }
 
     const address = accounts[0]
-
-    // Get chain ID
-    const chainIdHex = await (ethereum as any).request({ method: "eth_chainId" })
-    const chainId = parseInt(chainIdHex, 16)
-
-    // Create provider
-    currentProvider = new BrowserProvider(ethereum)
     currentWalletType = "metamask"
 
-    // Get native token balance
-    const balance = await currentProvider.getBalance(address)
-    const balanceFormatted = formatUnits(balance, 18)
+    // Get balance via bridge
+    let balanceFormatted = "0"
+    try {
+      const balanceHex = await walletBridgeRequest("getBalance", { address })
+      const balanceWei = BigInt(balanceHex)
+      balanceFormatted = formatUnits(balanceWei, 18)
+    } catch (err) {
+      console.warn("TIPZ: Could not fetch balance", err)
+    }
 
-    // Get ETH price (simplified - in production use a price feed)
+    // Get ETH price
     const ethPriceUsd = await getTokenPriceUsd("ETH", chainId)
 
     return {
@@ -235,11 +282,11 @@ async function connectMetaMask(): Promise<WalletState> {
       },
     }
   } catch (error: any) {
-    console.error("TIPZ: MetaMask connection error", error)
-    if (error.code === 4001) {
+    console.error("TIPZ: Wallet connection error", error)
+    if (error.message.includes("rejected")) {
       throw new Error("Connection request was rejected. Please try again.")
     }
-    throw new Error(error.message || "Failed to connect to MetaMask")
+    throw new Error(error.message || "Failed to connect wallet")
   }
 }
 
