@@ -1557,7 +1557,7 @@ export default function HomePage() {
                     gap: "5px",
                     cursor: "pointer",
                     boxShadow: `0 0 20px ${colors.primaryGlow}`,
-                    animation: tweetVisible ? "button-click 0.6s ease-in-out 1.4s forwards" : "none",
+                    animation: tweetVisible ? "button-click-loop 12s ease-in-out 1.4s infinite" : "none",
                   }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
@@ -1582,7 +1582,7 @@ export default function HomePage() {
               zIndex: 10,
               opacity: 0,
               animation: tweetVisible
-                ? "modal-popup 0.8s ease-out 1.8s forwards, float-subtle 6s ease-in-out 2.6s infinite"
+                ? "modal-loop 12s ease-in-out 1.8s infinite"
                 : "none",
             }}>
                 {/* Compact Header */}
@@ -3224,38 +3224,71 @@ export default function HomePage() {
           }
         }
 
-        /* GPU-optimized button click - one-shot animation */
-        @keyframes button-click {
-          0% {
+        /* GPU-optimized button click - looping every 12s */
+        @keyframes button-click-loop {
+          0%, 4% {
             transform: scale(1);
             filter: drop-shadow(0 0 20px rgba(245, 166, 35, 0.4));
           }
-          40% {
+          5% {
             transform: scale(0.92);
             filter: drop-shadow(0 0 35px rgba(245, 166, 35, 0.9));
           }
-          70%, 100% {
+          8%, 100% {
             transform: scale(1);
             filter: drop-shadow(0 0 25px rgba(245, 166, 35, 0.5));
           }
         }
 
-        /* Modal popup with spring-like overshoot - one-shot animation */
-        @keyframes modal-popup {
-          0% {
+        /* Modal popup with float and fade - looping every 12s */
+        @keyframes modal-loop {
+          0%, 5% {
             opacity: 0;
             transform: rotate(3deg) scale(0.85) translateY(20px);
           }
-          60% {
+          10% {
             opacity: 1;
             transform: rotate(3deg) scale(1.04) translateY(-2px);
           }
-          80% {
+          13% {
+            opacity: 1;
             transform: rotate(3deg) scale(0.99) translateY(1px);
           }
-          100% {
+          16%, 25% {
             opacity: 1;
             transform: rotate(3deg) scale(1) translateY(0);
+          }
+          30% {
+            opacity: 1;
+            transform: rotate(3deg) translateY(-8px);
+          }
+          40% {
+            opacity: 1;
+            transform: rotate(3deg) translateY(0);
+          }
+          50% {
+            opacity: 1;
+            transform: rotate(3deg) translateY(-8px);
+          }
+          60% {
+            opacity: 1;
+            transform: rotate(3deg) translateY(0);
+          }
+          70% {
+            opacity: 1;
+            transform: rotate(3deg) translateY(-6px);
+          }
+          75% {
+            opacity: 1;
+            transform: rotate(3deg) translateY(0);
+          }
+          80% {
+            opacity: 0;
+            transform: rotate(3deg) scale(0.95) translateY(10px);
+          }
+          100% {
+            opacity: 0;
+            transform: rotate(3deg) scale(0.85) translateY(20px);
           }
         }
 
