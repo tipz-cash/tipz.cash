@@ -89,74 +89,69 @@ export default function DocsPage() {
       {/* Header */}
       <header
         style={{
-          padding: "20px 48px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
           borderBottom: `1px solid ${colors.border}`,
         }}
       >
-        <Link
-          href="/"
+        <div
           style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "20px 48px",
             display: "flex",
+            justifyContent: "space-between",
             alignItems: "center",
-            gap: "16px",
-            textDecoration: "none",
           }}
         >
-          <span
-            style={{ color: colors.primary, fontWeight: 700, fontSize: "16px" }}
-          >
-            [TIPZ]
-          </span>
-          <span style={{ color: colors.muted, fontSize: "11px" }}>
-            v0.1.0-beta
-          </span>
-        </Link>
-        <nav style={{ display: "flex", gap: "32px" }}>
           <Link
-            href="/manifesto"
+            href="/"
             style={{
-              color: colors.muted,
+              display: "flex",
+              alignItems: "center",
+              gap: "16px",
               textDecoration: "none",
-              fontSize: "12px",
             }}
           >
-            MANIFESTO
+            <span
+              style={{ color: colors.primary, fontWeight: 700, fontSize: "16px" }}
+            >
+              [TIPZ]
+            </span>
+            <span style={{ color: colors.muted, fontSize: "11px" }}>
+              v0.1.0-beta
+            </span>
           </Link>
-          <span
-            style={{
-              color: colors.primary,
-              fontSize: "12px",
-              fontWeight: 600,
-            }}
-          >
-            DOCS
-          </span>
-          <a
-            href="https://github.com/tipz-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: colors.muted,
-              textDecoration: "none",
-              fontSize: "12px",
-            }}
-          >
-            GITHUB
-          </a>
-          <Link
-            href="/register"
-            style={{
-              color: colors.muted,
-              textDecoration: "none",
-              fontSize: "12px",
-            }}
-          >
-            REGISTER
-          </Link>
-        </nav>
+          <nav style={{ display: "flex", gap: "32px" }}>
+            <Link
+              href="/manifesto"
+              style={{
+                color: colors.muted,
+                textDecoration: "none",
+                fontSize: "12px",
+              }}
+            >
+              MANIFESTO
+            </Link>
+            <span
+              style={{
+                color: colors.primary,
+                fontSize: "12px",
+                fontWeight: 600,
+              }}
+            >
+              DOCS
+            </span>
+            <Link
+              href="/register"
+              style={{
+                color: colors.muted,
+                textDecoration: "none",
+                fontSize: "12px",
+              }}
+            >
+              REGISTER
+            </Link>
+          </nav>
+        </div>
       </header>
 
       {/* Main content */}

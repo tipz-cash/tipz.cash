@@ -221,7 +221,6 @@ export default function ManifestoPage() {
       <header
         style={{
           borderBottom: borderStyle,
-          padding: "16px 0",
           position: "sticky",
           top: 0,
           backgroundColor: colors.bg,
@@ -230,8 +229,9 @@ export default function ManifestoPage() {
       >
         <div
           style={{
-            ...maxWidthStyle,
             maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "20px 48px",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -242,25 +242,43 @@ export default function ManifestoPage() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "12px",
+              gap: "16px",
               textDecoration: "none",
             }}
           >
-            <span style={{ color: colors.primary, fontWeight: 700 }}>
+            <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px" }}>
               [TIPZ]
             </span>
-            <span style={{ color: colors.muted, fontSize: "12px" }}>
+            <span style={{ color: colors.muted, fontSize: "11px" }}>
               v0.1.0-beta
             </span>
           </Link>
-          <nav style={{ display: "flex", gap: "24px" }}>
-            <Link
-              href="/#register"
+          <nav style={{ display: "flex", gap: "32px" }}>
+            <span
               style={{
                 color: colors.primary,
+                fontSize: "12px",
+                fontWeight: 600,
+              }}
+            >
+              MANIFESTO
+            </span>
+            <Link
+              href="/docs"
+              style={{
+                color: colors.muted,
                 textDecoration: "none",
                 fontSize: "12px",
-                letterSpacing: "0.5px",
+              }}
+            >
+              DOCS
+            </Link>
+            <Link
+              href="/register"
+              style={{
+                color: colors.muted,
+                textDecoration: "none",
+                fontSize: "12px",
               }}
             >
               REGISTER
