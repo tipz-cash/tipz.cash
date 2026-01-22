@@ -95,26 +95,50 @@ const statusMessages: Record<TransactionStatus, string> = {
   failed: "Transaction failed",
 }
 
-// Terminal window header dots
-function TerminalHeader({ title }: { title: string }) {
+// Terminal window header with close button
+function TerminalHeader({ title, onClose }: { title: string; onClose?: () => void }) {
   return (
     <div style={{
       display: "flex",
       alignItems: "center",
-      gap: "8px",
+      justifyContent: "space-between",
       padding: "12px 16px",
       backgroundColor: colors.surface,
       borderBottom: `1px solid ${colors.border}`,
       borderRadius: "12px 12px 0 0",
     }}>
-      <div style={{ display: "flex", gap: "6px" }}>
-        <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#FF5F56" }} />
-        <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#FFBD2E" }} />
-        <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27CA40" }} />
-      </div>
-      <span style={{ color: colors.muted, fontSize: "12px", fontFamily: fonts.mono, marginLeft: "8px" }}>
+      <span style={{ color: colors.muted, fontSize: "12px", fontFamily: fonts.mono }}>
         {title}
       </span>
+      {onClose && (
+        <button
+          onClick={onClose}
+          style={{
+            background: "none",
+            border: "none",
+            color: colors.muted,
+            cursor: "pointer",
+            padding: "4px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "4px",
+            transition: "all 0.15s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = colors.border
+            e.currentTarget.style.color = colors.textWhite
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent"
+            e.currentTarget.style.color = colors.muted
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      )}
     </div>
   )
 }
@@ -304,7 +328,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-          <TerminalHeader title="[TIPZ] // ERROR" />
+          <TerminalHeader title="[TIPZ] // ERROR" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", marginBottom: "24px" }}>
               <div style={{
@@ -346,7 +370,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-          <TerminalHeader title="[TIPZ] // CONNECT_WALLET" />
+          <TerminalHeader title="[TIPZ] // CONNECT_WALLET" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
               <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 600 }}>
@@ -465,7 +489,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       <div style={overlayStyle}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-          <TerminalHeader title="[TIPZ] // PROCESSING" />
+          <TerminalHeader title="[TIPZ] // PROCESSING" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               {/* Spinner */}
@@ -572,7 +596,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-          <TerminalHeader title="[TIPZ] // SUCCESS" />
+          <TerminalHeader title="[TIPZ] // SUCCESS" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               <div style={{
@@ -674,7 +698,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
           ...modalStyle,
           animation: "shake 0.5s ease-out, modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
         }} onClick={(e) => e.stopPropagation()}>
-          <TerminalHeader title="[TIPZ] // ERROR" />
+          <TerminalHeader title="[TIPZ] // ERROR" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               <div style={{
@@ -754,7 +778,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     <div style={overlayStyle} onClick={handleClose}>
       <style>{animationStyles}</style>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-        <TerminalHeader title={`[TIPZ] // TIP_@${handle.toUpperCase()}`} />
+        <TerminalHeader title={`[TIPZ] // TIP_@${handle.toUpperCase()}`} onClose={handleClose} />
         <div style={modalContentStyle}>
           {/* Header */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
