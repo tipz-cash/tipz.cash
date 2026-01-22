@@ -116,20 +116,37 @@ function useTypingOnView(text: string, speed: number = 35) {
   const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-        }
-      },
-      { threshold: 0.3 }
-    );
+    if (!ref.current) return;
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
+    const element = ref.current;
+    let observer: IntersectionObserver | null = null;
 
-    return () => observer.disconnect();
+    // Use requestAnimationFrame to ensure layout is complete before checking visibility
+    const checkVisibility = () => {
+      const rect = element.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+
+      if (isVisible) {
+        setIsInView(true);
+      } else {
+        // Only set up observer if not already visible
+        observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              setIsInView(true);
+              observer?.disconnect();
+            }
+          },
+          { threshold: 0.05 } // Very low threshold for reliable triggering
+        );
+        observer.observe(element);
+      }
+    };
+
+    // Wait for next frame to ensure layout is complete
+    requestAnimationFrame(checkVisibility);
+
+    return () => observer?.disconnect();
   }, []);
 
   useEffect(() => {
@@ -177,38 +194,74 @@ function TypingHeading({
   suffixColor?: string;
   style?: React.CSSProperties;
 }) {
-  const { ref, displayText, isComplete, hasStarted } = useTypingOnView(text, 35);
+  const ref = useRef<HTMLHeadingElement>(null);
+  const [hasTriggered, setHasTriggered] = useState(false);
+  const [displayText, setDisplayText] = useState("");
+  const [isComplete, setIsComplete] = useState(false);
   const [cursorVisible, setCursorVisible] = useState(true);
 
+  // Intersection observer - trigger animation when scrolled into view
   useEffect(() => {
-    if (!hasStarted || isComplete) return;
+    if (!ref.current || hasTriggered) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHasTriggered(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [hasTriggered]);
+
+  // Start typing animation once triggered
+  useEffect(() => {
+    if (!hasTriggered) return;
+
+    let index = 0;
+    const timer = setInterval(() => {
+      index++;
+      if (index <= text.length) {
+        setDisplayText(text.slice(0, index));
+      } else {
+        setIsComplete(true);
+        clearInterval(timer);
+      }
+    }, 40);
+
+    return () => clearInterval(timer);
+  }, [hasTriggered, text]);
+
+  // Blink cursor until complete
+  useEffect(() => {
+    if (isComplete) return;
     const interval = setInterval(() => setCursorVisible(v => !v), 530);
     return () => clearInterval(interval);
-  }, [hasStarted, isComplete]);
-
-  // Show full text if not started yet (before intersection), or show typing progress
-  const showText = hasStarted ? displayText : text;
-  const showCursor = hasStarted && !isComplete;
-  const showSuffix = !hasStarted || isComplete;
+  }, [isComplete]);
 
   return (
     <h2
-      ref={ref as React.RefObject<HTMLHeadingElement>}
+      ref={ref}
       style={{
         fontSize: "32px",
         fontWeight: 600,
         marginBottom: "32px",
         lineHeight: 1.3,
+        color: colors.textBright,
         ...style,
       }}
     >
       {prefix && <span style={{ color: prefixColor || colors.success }}>{prefix}</span>}
       {prefix && " "}
-      {showText}
-      {showCursor && (
+      {displayText}
+      {!isComplete && (
         <span style={{ color: colors.primary, opacity: cursorVisible ? 1 : 0 }}>█</span>
       )}
-      {showSuffix && suffix && (
+      {isComplete && suffix && (
         <span style={{ color: suffixColor || colors.primary }}>{suffix}</span>
       )}
     </h2>
@@ -773,151 +826,273 @@ export default function HomePage() {
             style={{ fontSize: "40px" }}
           />
 
-          <TerminalReveal delay={200}>
-            <p style={{
-              color: colors.muted,
-              fontSize: "18px",
-              lineHeight: 1.8,
-              marginBottom: "48px",
-            }}>
-              See the tip button. Click. Send. <span style={{ color: colors.success }}>Private.</span>
-            </p>
-          </TerminalReveal>
-
-          {/* Visual Flow: Tweet → Popup → Sent */}
+          {/* Tweet + Modal Visual Side by Side */}
           <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr auto 1fr auto 1fr",
-            gap: "16px",
-            alignItems: "center",
+            display: "flex",
+            gap: "24px",
+            alignItems: "flex-start",
             marginTop: "32px",
+            marginBottom: "48px",
           }}>
-            {/* Step 1: Mock Tweet */}
-            <TerminalReveal delay={300}>
+            {/* Mock Tweet */}
+            <TerminalReveal delay={200}>
               <div style={{
-                backgroundColor: colors.surface,
+                backgroundColor: "#000000",
                 border: `1px solid ${colors.border}`,
-                padding: "20px",
-                borderRadius: "4px",
+                borderRadius: "16px",
+                padding: "16px",
+                width: "380px",
+                flexShrink: 0,
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                {/* Tweet Header */}
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", marginBottom: "12px" }}>
                   <div style={{
-                    width: "40px",
-                    height: "40px",
+                    width: "48px",
+                    height: "48px",
                     borderRadius: "50%",
-                    backgroundColor: colors.primary,
+                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "16px",
+                    fontSize: "20px",
                     fontWeight: 700,
-                    color: colors.bg,
+                    color: "#FFFFFF",
+                    flexShrink: 0,
                   }}>
-                    S
+                    A
                   </div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: "14px" }}>Satoshi Nakamoto</div>
-                    <div style={{ color: colors.muted, fontSize: "12px" }}>@satoshi</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <span style={{ fontWeight: 700, fontSize: "15px", color: "#FFFFFF" }}>Alex Chen</span>
+                      <span style={{ color: colors.muted, fontSize: "15px" }}>@alexcreates · 2h</span>
+                    </div>
                   </div>
                 </div>
-                <p style={{ fontSize: "14px", lineHeight: 1.5, marginBottom: "16px" }}>
-                  If you don&apos;t believe me or don&apos;t get it, I don&apos;t have time to try to convince you, sorry.
-                </p>
-                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                  <span style={{ color: colors.muted, fontSize: "12px" }}>♡ 42.1K</span>
-                  <span style={{ color: colors.muted, fontSize: "12px" }}>↻ 12.8K</span>
-                  <span style={{
+
+                {/* Tweet Content */}
+                <div style={{ marginBottom: "16px" }}>
+                  <p style={{ fontSize: "15px", lineHeight: 1.5, color: "#FFFFFF", margin: 0 }}>
+                    Just made a 50-part thread on how to build your first SaaS app.
+                  </p>
+                  <p style={{ fontSize: "15px", lineHeight: 1.5, color: "#FFFFFF", margin: "8px 0 0 0" }}>
+                    3 years of learnings, condensed into actionable steps.
+                  </p>
+                  <p style={{ fontSize: "15px", lineHeight: 1.5, color: "#FFFFFF", margin: "8px 0 0 0" }}>
+                    Thread below
+                  </p>
+                </div>
+
+                {/* Tweet Actions */}
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingTop: "12px",
+                  borderTop: `1px solid ${colors.border}`,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px", color: colors.muted, fontSize: "13px" }}>
+                    <span>💬</span> 156
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px", color: colors.muted, fontSize: "13px" }}>
+                    <span>↻</span> 892
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px", color: colors.muted, fontSize: "13px" }}>
+                    <span>♡</span> 2.4K
+                  </div>
+                  {/* TIPZ Button */}
+                  <div style={{
                     backgroundColor: colors.primary,
                     color: colors.bg,
-                    padding: "4px 12px",
-                    fontSize: "11px",
-                    fontWeight: 600,
+                    padding: "6px 14px",
+                    borderRadius: "20px",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    cursor: "pointer",
                   }}>
-                    [TIP]
-                  </span>
+                    <span>💲</span> TIP
+                  </div>
                 </div>
               </div>
             </TerminalReveal>
 
-            {/* Arrow 1 */}
-            <TerminalReveal delay={500}>
-              <span style={{ color: colors.primary, fontSize: "24px" }}>→</span>
-            </TerminalReveal>
-
-            {/* Step 2: Popup Modal */}
-            <TerminalReveal delay={600}>
+            {/* TIP Modal Overlay */}
+            <TerminalReveal delay={400}>
               <div style={{
                 backgroundColor: colors.surface,
-                border: `1px solid ${colors.primary}`,
-                padding: "20px",
+                border: `2px solid ${colors.primary}`,
+                borderRadius: "12px",
+                padding: "24px",
+                width: "280px",
+                boxShadow: `0 0 40px ${colors.primary}33`,
               }}>
-                <div style={{ fontSize: "12px", color: colors.primary, fontWeight: 600, marginBottom: "16px" }}>
-                  TIP @satoshi
-                </div>
+                {/* Modal Header */}
                 <div style={{
-                  backgroundColor: colors.bg,
-                  padding: "12px",
-                  marginBottom: "12px",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  color: colors.textBright,
+                  marginBottom: "20px",
                   textAlign: "center",
                 }}>
-                  <span style={{ fontSize: "32px", fontWeight: 700 }}>$5</span>
-                  <span style={{ color: colors.muted, fontSize: "12px", marginLeft: "8px" }}>USDC</span>
+                  TIP <span style={{ color: colors.primary }}>@alexcreates</span>
                 </div>
-                <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", textAlign: "center" }}>
-                  Wallet: 0x7a2f...4e3d
+
+                {/* Quick Amount Buttons */}
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "8px",
+                  marginBottom: "16px",
+                }}>
+                  {["$1", "$5", "$10", "$25"].map((amount, i) => (
+                    <div
+                      key={amount}
+                      style={{
+                        padding: "12px",
+                        textAlign: "center",
+                        fontSize: "16px",
+                        fontWeight: 600,
+                        backgroundColor: amount === "$5" ? colors.primary : colors.bg,
+                        color: amount === "$5" ? colors.bg : colors.text,
+                        border: `1px solid ${amount === "$5" ? colors.primary : colors.border}`,
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {amount}
+                    </div>
+                  ))}
                 </div>
+
+                {/* Send Button */}
                 <div style={{
                   backgroundColor: colors.primary,
                   color: colors.bg,
-                  padding: "10px",
+                  padding: "14px",
                   textAlign: "center",
-                  fontWeight: 600,
-                  fontSize: "12px",
+                  fontWeight: 700,
+                  fontSize: "14px",
+                  borderRadius: "8px",
+                  marginBottom: "16px",
+                  cursor: "pointer",
                 }}>
-                  SEND TIP →
+                  SEND $5 TIP →
                 </div>
-              </div>
-            </TerminalReveal>
 
-            {/* Arrow 2 */}
-            <TerminalReveal delay={800}>
-              <span style={{ color: colors.success, fontSize: "24px" }}>→</span>
-            </TerminalReveal>
-
-            {/* Step 3: Sent Confirmation */}
-            <TerminalReveal delay={900}>
-              <div style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.success}`,
-                padding: "20px",
-                textAlign: "center",
-              }}>
+                {/* Privacy Indicator */}
                 <div style={{
-                  fontSize: "48px",
-                  marginBottom: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  fontSize: "11px",
+                  color: colors.success,
                 }}>
-                  ✓
-                </div>
-                <div style={{ color: colors.success, fontWeight: 600, fontSize: "14px", marginBottom: "8px" }}>
-                  TIP SENT
-                </div>
-                <div style={{ fontSize: "11px", color: colors.muted, lineHeight: 1.6 }}>
-                  <div>Sender: <span style={{ color: colors.success }}>[PRIVATE]</span></div>
-                  <div>Amount: <span style={{ color: colors.success }}>[ENCRYPTED]</span></div>
-                  <div>Receiver: <span style={{ color: colors.success }}>[SHIELDED]</span></div>
+                  <span>🔒</span> Private
                 </div>
               </div>
             </TerminalReveal>
           </div>
 
-          <TerminalReveal delay={1100}>
+          {/* Stats Row */}
+          <TerminalReveal delay={600}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "16px",
+              marginBottom: "32px",
+            }}>
+              {/* 0% Fees */}
+              <div style={{
+                backgroundColor: colors.surface,
+                border: `1px solid ${colors.border}`,
+                borderRadius: "8px",
+                padding: "24px",
+                textAlign: "center",
+              }}>
+                <div style={{ fontSize: "36px", fontWeight: 700, color: colors.success, marginBottom: "4px" }}>
+                  0%
+                </div>
+                <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "1px", color: colors.primary, marginBottom: "12px" }}>
+                  FEES
+                </div>
+                <div style={{ fontSize: "12px", color: colors.muted, lineHeight: 1.5 }}>
+                  Every satoshi goes to the creator. No platform cut. Ever.
+                </div>
+              </div>
+
+              {/* 2 Min Setup */}
+              <div style={{
+                backgroundColor: colors.surface,
+                border: `1px solid ${colors.border}`,
+                borderRadius: "8px",
+                padding: "24px",
+                textAlign: "center",
+              }}>
+                <div style={{ fontSize: "36px", fontWeight: 700, color: colors.primary, marginBottom: "4px" }}>
+                  2 min
+                </div>
+                <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "1px", color: colors.primary, marginBottom: "12px" }}>
+                  SETUP
+                </div>
+                <div style={{ fontSize: "12px", color: colors.muted, lineHeight: 1.5 }}>
+                  Post a tweet. Fill out the form. You&apos;re live.
+                </div>
+              </div>
+
+              {/* 100% Private */}
+              <div style={{
+                backgroundColor: colors.surface,
+                border: `1px solid ${colors.border}`,
+                borderRadius: "8px",
+                padding: "24px",
+                textAlign: "center",
+              }}>
+                <div style={{ fontSize: "36px", fontWeight: 700, color: colors.success, marginBottom: "4px" }}>
+                  100%
+                </div>
+                <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "1px", color: colors.primary, marginBottom: "12px" }}>
+                  PRIVATE
+                </div>
+                <div style={{ fontSize: "12px", color: colors.muted, lineHeight: 1.5 }}>
+                  Sender, receiver, amount—all encrypted on-chain.
+                </div>
+              </div>
+            </div>
+          </TerminalReveal>
+
+          {/* Fee Comparison Callout */}
+          <TerminalReveal delay={800}>
+            <div style={{
+              backgroundColor: colors.bg,
+              border: `1px solid ${colors.border}`,
+              borderRadius: "8px",
+              padding: "20px",
+              marginBottom: "32px",
+            }}>
+              <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px", marginBottom: "12px" }}>
+                PLATFORM FEES COMPARISON
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "24px", flexWrap: "wrap" }}>
+                <span style={{ color: colors.error, fontSize: "13px" }}>PayPal: <strong>2.9% + $0.30</strong></span>
+                <span style={{ color: colors.error, fontSize: "13px" }}>Ko-fi: <strong>0-5%</strong></span>
+                <span style={{ color: colors.error, fontSize: "13px" }}>Buy Me a Coffee: <strong>5%</strong></span>
+                <span style={{ color: colors.success, fontSize: "13px", fontWeight: 700 }}>TIPZ: <strong>0%</strong></span>
+              </div>
+            </div>
+          </TerminalReveal>
+
+          {/* Closing Tagline */}
+          <TerminalReveal delay={1000}>
             <p style={{
               color: colors.text,
-              fontSize: "14px",
+              fontSize: "18px",
               textAlign: "center",
-              marginTop: "32px",
+              fontStyle: "italic",
             }}>
-              No trace. No trail. <span style={{ color: colors.success }}>Just support.</span>
+              &quot;Like cash in an envelope—but for the internet.&quot;
             </p>
           </TerminalReveal>
         </div>
