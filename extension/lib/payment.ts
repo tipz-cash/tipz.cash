@@ -168,30 +168,10 @@ let currentWalletType: WalletType | null = null
  * Get list of available wallet providers in the browser
  */
 export function getAvailableWallets(): WalletType[] {
-  const wallets: WalletType[] = []
-
-  if (typeof window === "undefined") return wallets
-
-  // Check for MetaMask
-  const ethereum = (window as any).ethereum
-  if (ethereum?.isMetaMask) {
-    wallets.push("metamask")
-  }
-
-  // Check for Coinbase Wallet
-  if (ethereum?.isCoinbaseWallet) {
-    wallets.push("coinbase")
-  }
-
-  // Check for Phantom (Solana)
-  if ((window as any).phantom?.solana) {
-    wallets.push("phantom")
-  }
-
-  // WalletConnect is always available as a fallback
-  wallets.push("walletconnect")
-
-  return wallets
+  // Always show MetaMask option - works with MetaMask, Rabby, and other EVM wallets
+  // The actual connection will fail gracefully if no wallet is installed
+  // Note: Content scripts run in isolated world and can't detect window.ethereum
+  return ["metamask", "walletconnect"]
 }
 
 /**
