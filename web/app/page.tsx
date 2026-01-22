@@ -1681,7 +1681,7 @@ export default function HomePage() {
               left: "10px",
               zIndex: 20,
               opacity: tweetVisible ? undefined : 0,
-              animation: tweetVisible ? "cursor-move 2.5s ease-in-out 0.3s forwards" : "none",
+              animation: tweetVisible ? "cursor-move-loop 12s ease-in-out 0.3s infinite" : "none",
               pointerEvents: "none",
             }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }}>
@@ -3191,35 +3191,39 @@ export default function HomePage() {
           to { stroke-dashoffset: -20; }
         }
 
-        /* Cursor animation with percentage-based movement */
-        /* Cursor animation - one-shot, moves to button and clicks */
-        @keyframes cursor-move {
+        /* Cursor animation - looping every 12s, synced with modal */
+        @keyframes cursor-move-loop {
           0% {
             transform: translate(0, 0);
             opacity: 0;
           }
-          8% {
+          2% {
             opacity: 1;
           }
-          /* Move to TIP button - using relative positioning */
-          35% {
+          /* Move to TIP button */
+          8% {
             transform: translate(305px, 205px);
             opacity: 1;
           }
-          /* Click TIP button */
-          45% {
+          /* Click TIP button (synced with button-click-loop at ~5%) */
+          10% {
             transform: translate(305px, 205px) scale(0.85);
           }
-          55% {
+          12% {
             transform: translate(305px, 205px) scale(1);
           }
           /* Hold position then fade */
-          80% {
+          18% {
             transform: translate(305px, 205px);
             opacity: 1;
           }
-          100% {
+          22% {
             transform: translate(305px, 205px);
+            opacity: 0;
+          }
+          /* Stay hidden for rest of loop */
+          100% {
+            transform: translate(0, 0);
             opacity: 0;
           }
         }
