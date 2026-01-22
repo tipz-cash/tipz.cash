@@ -7,7 +7,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="TipDemo"
         component={TipDemo}
-        durationInFrames={600} // 20 seconds at 30fps
+        durationInFrames={600} // 20 seconds at 30fps - smoother, more zoomed in
         fps={30}
         width={1920}
         height={1080}
