@@ -218,11 +218,163 @@ const SWAPKIT_ROUTER = "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE"
 const NEAR_INTENTS_CONTRACT = "intents.near"
 
 // ============================================================================
+// Wallet Session Persistence
+// ============================================================================
+
+interface WalletSession {
+  address: string
+  chainId: number
+  walletType: WalletType
+  connectedAt: number
+}
+
+const WALLET_SESSION_KEY = "tipz_wallet_session"
+
+/**
+ * Save wallet session to localStorage
+ */
+function saveWalletSession(session: WalletSession): void {
+  try {
+    localStorage.setItem(WALLET_SESSION_KEY, JSON.stringify(session))
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+/**
+ * Load wallet session from localStorage
+ */
+export function loadWalletSession(): WalletSession | null {
+  try {
+    const stored = localStorage.getItem(WALLET_SESSION_KEY)
+    if (!stored) return null
+    return JSON.parse(stored) as WalletSession
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Clear wallet session from localStorage
+ */
+function clearWalletSession(): void {
+  try {
+    localStorage.removeItem(WALLET_SESSION_KEY)
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+/**
+ * Restore wallet session from localStorage
+ * Attempts to reconnect via wallet bridge and validates the saved address
+ */
+export async function restoreWalletSession(): Promise<WalletState | null> {
+  const session = loadWalletSession()
+  if (!session) {
+    return null
+  }
+
+  console.log("TIPZ: Attempting to restore wallet session", { address: session.address })
+
+  try {
+    // Check if wallet is available
+    const checkResult = await walletBridgeRequest("check")
+    if (!checkResult.available) {
+      console.log("TIPZ: No wallet available, clearing session")
+      clearWalletSession()
+      return null
+    }
+
+    // Try to get accounts without prompting (check if already connected)
+    const accounts = await walletBridgeRequest("getAccounts")
+
+    if (!accounts || accounts.length === 0) {
+      console.log("TIPZ: No accounts available, clearing session")
+      clearWalletSession()
+      return null
+    }
+
+    // Validate that the saved address matches the current wallet
+    const currentAddress = accounts[0].toLowerCase()
+    if (currentAddress !== session.address.toLowerCase()) {
+      console.log("TIPZ: Wallet address changed, clearing session")
+      clearWalletSession()
+      return null
+    }
+
+    // Get current chain ID
+    const chainIdHex = await walletBridgeRequest("getChainId")
+    const chainId = parseInt(chainIdHex, 16)
+
+    currentWalletType = session.walletType
+
+    // Store bridge connection state
+    bridgeConnectedAddress = session.address
+    bridgeConnectedChainId = chainId
+
+    // Get balance via bridge
+    let balanceFormatted = "0"
+    try {
+      const balanceHex = await walletBridgeRequest("getBalance", { address: session.address })
+      const balanceWei = BigInt(balanceHex)
+      balanceFormatted = formatUnits(balanceWei, 18)
+    } catch (err) {
+      console.warn("TIPZ: Could not fetch balance during restore", err)
+    }
+
+    // Update session with current chain (might have changed)
+    saveWalletSession({
+      ...session,
+      chainId,
+      connectedAt: Date.now(),
+    })
+
+    console.log("TIPZ: Wallet session restored successfully")
+
+    return {
+      isConnected: true,
+      address: session.address,
+      chainId,
+      walletType: session.walletType,
+      balance: {
+        symbol: chainId === 137 ? "MATIC" : "ETH",
+        amount: balanceFormatted,
+        decimals: 18,
+        usdValue: null,
+      },
+    }
+  } catch (error) {
+    console.error("TIPZ: Failed to restore wallet session", error)
+    clearWalletSession()
+    return null
+  }
+}
+
+// ============================================================================
 // Global State
 // ============================================================================
 
 let currentProvider: BrowserProvider | null = null
 let currentWalletType: WalletType | null = null
+
+// Wallet bridge connection state (for when using bridge instead of direct provider)
+let bridgeConnectedAddress: string | null = null
+let bridgeConnectedChainId: number | null = null
+
+/**
+ * Check if we have an active wallet connection (either via provider or bridge)
+ */
+function isWalletConnected(): boolean {
+  return !!(currentProvider || bridgeConnectedAddress)
+}
+
+/**
+ * Get the connected address (from provider or bridge)
+ */
+function getConnectedAddress(): string | null {
+  return bridgeConnectedAddress
+}
 
 // ============================================================================
 // Wallet Connection
@@ -271,6 +423,10 @@ async function connectMetaMask(): Promise<WalletState> {
     const address = accounts[0]
     currentWalletType = "metamask"
 
+    // Store bridge connection state
+    bridgeConnectedAddress = address
+    bridgeConnectedChainId = chainId
+
     // Get balance via bridge
     let balanceFormatted = "0"
     try {
@@ -283,6 +439,14 @@ async function connectMetaMask(): Promise<WalletState> {
 
     // Get ETH price
     const ethPriceUsd = await getTokenPriceUsd("ETH", chainId)
+
+    // Save session for persistence
+    saveWalletSession({
+      address,
+      chainId,
+      walletType: "metamask",
+      connectedAt: Date.now(),
+    })
 
     return {
       isConnected: true,
@@ -412,58 +576,77 @@ export async function disconnectWallet(): Promise<void> {
   currentProvider = null
   currentWalletType = null
 
+  // Clear bridge connection state
+  bridgeConnectedAddress = null
+  bridgeConnectedChainId = null
+
   // Clear stored session
-  try {
-    localStorage.removeItem("tipz_wallet_session")
-  } catch {
-    // Ignore storage errors
-  }
+  clearWalletSession()
 }
 
 /**
  * Get the current wallet state
  */
 export async function getWalletState(): Promise<WalletState> {
-  if (!currentProvider || !currentWalletType) {
-    return {
-      isConnected: false,
-      address: null,
-      chainId: null,
-      walletType: null,
-      balance: null,
+  // Check for provider connection
+  if (currentProvider && currentWalletType) {
+    try {
+      const signer = await currentProvider.getSigner()
+      const address = await signer.getAddress()
+      const network = await currentProvider.getNetwork()
+      const chainId = Number(network.chainId)
+
+      const balance = await currentProvider.getBalance(address)
+      const balanceFormatted = formatUnits(balance, 18)
+
+      return {
+        isConnected: true,
+        address,
+        chainId,
+        walletType: currentWalletType,
+        balance: {
+          symbol: chainId === 137 ? "MATIC" : "ETH",
+          amount: balanceFormatted,
+          decimals: 18,
+          usdValue: null,
+        },
+      }
+    } catch (error) {
+      console.error("TIPZ: Error getting wallet state from provider", error)
     }
   }
 
-  try {
-    const signer = await currentProvider.getSigner()
-    const address = await signer.getAddress()
-    const network = await currentProvider.getNetwork()
-    const chainId = Number(network.chainId)
+  // Check for wallet bridge connection
+  if (bridgeConnectedAddress && currentWalletType) {
+    try {
+      const balanceHex = await walletBridgeRequest("getBalance", { address: bridgeConnectedAddress })
+      const balanceWei = BigInt(balanceHex)
+      const balanceFormatted = formatUnits(balanceWei, 18)
+      const chainId = bridgeConnectedChainId || 1
 
-    const balance = await currentProvider.getBalance(address)
-    const balanceFormatted = formatUnits(balance, 18)
+      return {
+        isConnected: true,
+        address: bridgeConnectedAddress,
+        chainId,
+        walletType: currentWalletType,
+        balance: {
+          symbol: chainId === 137 ? "MATIC" : "ETH",
+          amount: balanceFormatted,
+          decimals: 18,
+          usdValue: null,
+        },
+      }
+    } catch (error) {
+      console.error("TIPZ: Error getting wallet state from bridge", error)
+    }
+  }
 
-    return {
-      isConnected: true,
-      address,
-      chainId,
-      walletType: currentWalletType,
-      balance: {
-        symbol: chainId === 137 ? "MATIC" : "ETH",
-        amount: balanceFormatted,
-        decimals: 18,
-        usdValue: null,
-      },
-    }
-  } catch (error) {
-    console.error("TIPZ: Error getting wallet state", error)
-    return {
-      isConnected: false,
-      address: null,
-      chainId: null,
-      walletType: null,
-      balance: null,
-    }
+  return {
+    isConnected: false,
+    address: null,
+    chainId: null,
+    walletType: null,
+    balance: null,
   }
 }
 
@@ -624,24 +807,45 @@ export async function getTokenBalance(
   tokenAddress: string,
   walletAddress: string
 ): Promise<TokenBalance | null> {
-  if (!currentProvider) return null
+  // Check if we have a provider or bridge connection
+  if (!currentProvider && !bridgeConnectedAddress) return null
 
   try {
     // Native token (ETH, MATIC, etc.)
     if (tokenAddress === "0x0000000000000000000000000000000000000000") {
-      const balance = await currentProvider.getBalance(walletAddress)
-      const network = await currentProvider.getNetwork()
-      const chainId = Number(network.chainId)
+      if (currentProvider) {
+        const balance = await currentProvider.getBalance(walletAddress)
+        const network = await currentProvider.getNetwork()
+        const chainId = Number(network.chainId)
 
-      return {
-        symbol: chainId === 137 ? "MATIC" : "ETH",
-        amount: formatUnits(balance, 18),
-        decimals: 18,
-        usdValue: null,
+        return {
+          symbol: chainId === 137 ? "MATIC" : "ETH",
+          amount: formatUnits(balance, 18),
+          decimals: 18,
+          usdValue: null,
+        }
+      } else {
+        // Use wallet bridge for balance
+        const balanceHex = await walletBridgeRequest("getBalance", { address: walletAddress })
+        const balanceWei = BigInt(balanceHex)
+        const chainId = bridgeConnectedChainId || 1
+
+        return {
+          symbol: chainId === 137 ? "MATIC" : "ETH",
+          amount: formatUnits(balanceWei, 18),
+          decimals: 18,
+          usdValue: null,
+        }
       }
     }
 
-    // ERC20 token
+    // ERC20 token - requires provider for contract calls
+    // TODO: Add wallet bridge support for ERC20 balance queries
+    if (!currentProvider) {
+      console.warn("TIPZ: ERC20 balance queries require provider, skipping", tokenAddress)
+      return null
+    }
+
     const contract = new Contract(tokenAddress, ERC20_ABI, currentProvider)
     const [balance, decimals, symbol] = await Promise.all([
       contract.balanceOf(walletAddress),
@@ -807,13 +1011,21 @@ export async function executeSwap(
 ): Promise<TipTransaction> {
   console.log("TIPZ: Executing swap", { quote, destinationAddress })
 
-  if (!currentProvider) {
+  // Check if connected via provider OR wallet bridge
+  if (!currentProvider && !bridgeConnectedAddress) {
     throw new Error("Wallet not connected")
   }
 
   const txId = `tip_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  const signer = await currentProvider.getSigner()
-  const walletAddress = await signer.getAddress()
+
+  // Get wallet address - from provider or bridge connection
+  let walletAddress: string
+  if (currentProvider) {
+    const signer = await currentProvider.getSigner()
+    walletAddress = await signer.getAddress()
+  } else {
+    walletAddress = bridgeConnectedAddress!
+  }
 
   const transaction: TipTransaction = {
     id: txId,
@@ -832,10 +1044,11 @@ export async function executeSwap(
   }
 
   try {
-    // Step 1: Approve token (if not native)
-    if (quote.fromToken.address !== "0x0000000000000000000000000000000000000000") {
+    // Step 1: Approve token (if not native) - only when using provider
+    if (quote.fromToken.address !== "0x0000000000000000000000000000000000000000" && currentProvider) {
       updateStatus("approving")
 
+      const signer = await currentProvider.getSigner()
       const tokenContract = new Contract(quote.fromToken.address, ERC20_ABI, signer)
       const amountWei = parseUnits(quote.fromAmount, quote.fromToken.decimals)
 
@@ -873,14 +1086,27 @@ export async function executeSwap(
       const amountWei = parseUnits(quote.fromAmount, quote.fromToken.decimals)
 
       if (quote.fromToken.address === "0x0000000000000000000000000000000000000000") {
-        // Send native token to swap contract
-        const tx = await signer.sendTransaction({
-          to: SWAPKIT_ROUTER,
-          value: amountWei,
-          data: "0x", // Would include proper calldata in production
-        })
-        transaction.swapTxHash = tx.hash
-        await tx.wait()
+        // Send native token via wallet bridge or provider
+        if (currentProvider) {
+          const signer = await currentProvider.getSigner()
+          const tx = await signer.sendTransaction({
+            to: SWAPKIT_ROUTER,
+            value: amountWei,
+            data: "0x",
+          })
+          transaction.swapTxHash = tx.hash
+          await tx.wait()
+        } else {
+          // Use wallet bridge for transaction
+          const txHash = await walletBridgeRequest("sendTransaction", {
+            tx: {
+              to: SWAPKIT_ROUTER,
+              value: "0x" + amountWei.toString(16),
+              data: "0x",
+            }
+          })
+          transaction.swapTxHash = txHash
+        }
       } else {
         throw new Error("Swap execution failed. Please try again.")
       }
