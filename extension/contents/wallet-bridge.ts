@@ -63,16 +63,32 @@ window.addEventListener("tipz-wallet-request", async (event: CustomEvent<WalletR
         break
 
       case "forceConnect":
+        console.log("TIPZ BRIDGE: forceConnect called")
         if (!ethereum) {
           throw new Error("No wallet found. Please install MetaMask or Rabby.")
         }
-        // Force wallet to show account picker by requesting permissions
-        await ethereum.request({
+        // First, try to revoke existing permissions to force a fresh connection
+        try {
+          console.log("TIPZ BRIDGE: Revoking existing permissions...")
+          await ethereum.request({
+            method: "wallet_revokePermissions",
+            params: [{ eth_accounts: {} }]
+          })
+          console.log("TIPZ BRIDGE: Permissions revoked")
+        } catch (revokeErr) {
+          // wallet_revokePermissions might not be supported by all wallets
+          console.log("TIPZ BRIDGE: Revoke not supported or failed, continuing...", revokeErr)
+        }
+        // Now request fresh permissions - this should show account picker
+        console.log("TIPZ BRIDGE: Requesting fresh permissions...")
+        const permissionsResult = await ethereum.request({
           method: "wallet_requestPermissions",
           params: [{ eth_accounts: {} }]
         })
+        console.log("TIPZ BRIDGE: wallet_requestPermissions result:", permissionsResult)
         // Now get the newly selected accounts
         const newAccounts = await ethereum.request({ method: "eth_requestAccounts" })
+        console.log("TIPZ BRIDGE: New accounts after forceConnect:", newAccounts)
         const newChainIdHex = await ethereum.request({ method: "eth_chainId" })
         response = {
           id,
