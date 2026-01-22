@@ -62,6 +62,28 @@ window.addEventListener("tipz-wallet-request", async (event: CustomEvent<WalletR
         }
         break
 
+      case "forceConnect":
+        if (!ethereum) {
+          throw new Error("No wallet found. Please install MetaMask or Rabby.")
+        }
+        // Force wallet to show account picker by requesting permissions
+        await ethereum.request({
+          method: "wallet_requestPermissions",
+          params: [{ eth_accounts: {} }]
+        })
+        // Now get the newly selected accounts
+        const newAccounts = await ethereum.request({ method: "eth_requestAccounts" })
+        const newChainIdHex = await ethereum.request({ method: "eth_chainId" })
+        response = {
+          id,
+          success: true,
+          result: {
+            accounts: newAccounts,
+            chainId: parseInt(newChainIdHex, 16)
+          }
+        }
+        break
+
       case "getBalance":
         if (!ethereum) throw new Error("No wallet")
         const balance = await ethereum.request({
@@ -69,6 +91,19 @@ window.addEventListener("tipz-wallet-request", async (event: CustomEvent<WalletR
           params: [params.address, "latest"]
         })
         response = { id, success: true, result: balance }
+        break
+
+      case "getAccounts":
+        // Get accounts without prompting (returns empty if not connected)
+        if (!ethereum) throw new Error("No wallet")
+        const existingAccounts = await ethereum.request({ method: "eth_accounts" })
+        response = { id, success: true, result: existingAccounts }
+        break
+
+      case "getChainId":
+        if (!ethereum) throw new Error("No wallet")
+        const currentChainId = await ethereum.request({ method: "eth_chainId" })
+        response = { id, success: true, result: currentChainId }
         break
 
       case "sendTransaction":

@@ -49,7 +49,7 @@ export interface UsePaymentReturn {
   error: string | null
 
   // Actions
-  connect: (walletType: WalletType) => Promise<void>
+  connect: (walletType: WalletType, force?: boolean) => Promise<void>
   disconnect: () => Promise<void>
   selectToken: (token: SupportedToken) => void
   tip: (
@@ -281,12 +281,12 @@ export function usePayment(): UsePaymentReturn {
   }, [wallet.isConnected, wallet.address, supportedTokens])
 
   // Connect wallet
-  const connect = useCallback(async (walletType: WalletType) => {
+  const connect = useCallback(async (walletType: WalletType, force?: boolean) => {
     setIsConnecting(true)
     setError(null)
 
     try {
-      const state = await connectWallet(walletType)
+      const state = await connectWallet(walletType, force)
       setWallet(state)
 
       if (state.chainId) {
