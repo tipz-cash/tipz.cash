@@ -497,7 +497,7 @@ function StaggeredItems({
   );
 }
 
-export default function HomePage() {
+export default function V6NarrativeSnapPage() {
   const heroText = "Creators are getting screwed.";
   const { displayText, isComplete } = useTypingEffect(heroText, 35);
   const [mounted, setMounted] = useState(false);
@@ -564,6 +564,7 @@ export default function HomePage() {
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px" }}>[TIPZ]</span>
           <span style={{ color: colors.muted, fontSize: "11px" }}>v0.1.0-beta</span>
+          <span style={{ color: colors.primary, fontSize: "10px", padding: "2px 8px", border: `1px solid ${colors.primary}`, marginLeft: "8px" }}>SNAP</span>
         </div>
         <nav style={{ display: "flex", gap: "32px" }}>
           <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "12px" }}>MANIFESTO</a>
@@ -964,7 +965,7 @@ export default function HomePage() {
                   desc: "Tip button appears on your posts.",
                 },
               ]}
-              renderItem={(item, visible) => (
+              renderItem={(item, visible, index) => (
                 <div
                   key={item.step}
                   style={{
@@ -1027,7 +1028,7 @@ export default function HomePage() {
                   desc: "Connect wallet, confirm. No trace.",
                 },
               ]}
-              renderItem={(item, visible) => (
+              renderItem={(item, visible, index) => (
                 <div
                   key={item.step}
                   style={{

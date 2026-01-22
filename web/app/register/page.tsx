@@ -17,15 +17,11 @@ const colors = {
 }
 
 // Form validation helpers
-function validateHandle(handle: string, platform: "x" | "substack"): string | null {
+function validateHandle(handle: string): string | null {
   if (!handle) return "Handle is required";
-  if (platform === "x") {
-    if (handle.startsWith("@")) return "Don't include the @ symbol";
-    if (handle.length < 1 || handle.length > 15) return "Handle must be 1-15 characters";
-    if (!/^[a-zA-Z0-9_]+$/.test(handle)) return "Only letters, numbers, and underscores allowed";
-  } else {
-    if (!/^[a-zA-Z0-9-]+$/.test(handle)) return "Only letters, numbers, and hyphens allowed";
-  }
+  if (handle.startsWith("@")) return "Don't include the @ symbol";
+  if (handle.length < 1 || handle.length > 15) return "Handle must be 1-15 characters";
+  if (!/^[a-zA-Z0-9_]+$/.test(handle)) return "Only letters, numbers, and underscores allowed";
   return null;
 }
 
@@ -57,7 +53,6 @@ function getReadableErrorMessage(error: string): string {
 }
 
 export default function RegisterPage() {
-  const [platform, setPlatform] = useState<"x" | "substack">("x")
   const [handle, setHandle] = useState("")
   const [shieldedAddress, setShieldedAddress] = useState("")
   const [tweetUrl, setTweetUrl] = useState("")
@@ -72,7 +67,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
 
-    const handleError = validateHandle(handle, platform);
+    const handleError = validateHandle(handle);
     if (handleError) errors.handle = handleError;
 
     const addressError = validateShieldedAddress(shieldedAddress);
@@ -102,7 +97,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          platform,
+          platform: "x",
           handle,
           shielded_address: shieldedAddress,
           tweet_url: tweetUrl
@@ -190,51 +185,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: "24px" }}>
-            <label style={labelStyle}>Platform</label>
-            <div style={{ display: "flex", gap: "12px" }}>
-              <button
-                type="button"
-                onClick={() => setPlatform("x")}
-                style={{
-                  flex: 1,
-                  padding: "14px",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  backgroundColor: platform === "x" ? colors.accentYellow : colors.cardBg,
-                  border: `1px solid ${platform === "x" ? colors.accentYellow : colors.borderSubtle}`,
-                  borderRadius: "8px",
-                  color: platform === "x" ? colors.bgBlack : colors.textWhite,
-                  cursor: "pointer",
-                  transition: "all 200ms ease",
-                }}
-              >
-                X (Twitter)
-              </button>
-              <button
-                type="button"
-                onClick={() => setPlatform("substack")}
-                style={{
-                  flex: 1,
-                  padding: "14px",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  backgroundColor: platform === "substack" ? colors.accentYellow : colors.cardBg,
-                  border: `1px solid ${platform === "substack" ? colors.accentYellow : colors.borderSubtle}`,
-                  borderRadius: "8px",
-                  color: platform === "substack" ? colors.bgBlack : colors.textWhite,
-                  cursor: "pointer",
-                  transition: "all 200ms ease",
-                }}
-              >
-                Substack
-              </button>
-            </div>
-          </div>
-
-          <div style={{ marginBottom: "24px" }}>
-            <label style={labelStyle}>
-              {platform === "x" ? "X Handle" : "Substack Subdomain"}
-            </label>
+            <label style={labelStyle}>X Handle</label>
             <input
               type="text"
               value={handle}
@@ -244,7 +195,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                   setFieldErrors({ ...fieldErrors, handle: "" })
                 }
               }}
-              placeholder={platform === "x" ? "username (without @)" : "yourname"}
+              placeholder="username (without @)"
               style={{
                 ...inputStyle,
                 borderColor: fieldErrors.handle ? colors.errorRed : colors.borderSubtle,
@@ -258,7 +209,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                 e.currentTarget.style.borderColor = fieldErrors.handle ? colors.errorRed : colors.borderSubtle
                 e.currentTarget.style.boxShadow = "none"
                 // Validate on blur
-                const error = validateHandle(handle, platform)
+                const error = validateHandle(handle)
                 if (error) setFieldErrors(prev => ({ ...prev, handle: error }))
               }}
             />
