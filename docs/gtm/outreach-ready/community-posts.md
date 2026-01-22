@@ -25,7 +25,7 @@ We're using NEAR Intents for cross-chain swaps, so tippers can use ETH, USDC, SO
 
 Would love feedback from the community. We're here to answer questions and improve the product.
 
-Check it out: tipz.app
+Check it out: tipz.cash
 ```
 
 ---
@@ -62,7 +62,7 @@ Quick summary:
 - Automatic swap to ZEC via NEAR Intents
 - Tips arrive shielded - private by default
 
-Thought it might be worth sharing with the community: tipz.app
+Thought it might be worth sharing with the community: tipz.cash
 
 Happy to provide any info or quotes if useful.
 ```
@@ -81,7 +81,7 @@ Hey r/zcash,
 Wanted to share something we just launched: TIPZ - private micro-tipping for X/Twitter creators.
 
 How it works:
-1. Creators register their shielded address at tipz.app
+1. Creators register their shielded address at tipz.cash
 2. Tippers install our browser extension
 3. Tip button appears next to tweets
 4. Tips can be in any token - they swap to ZEC and arrive shielded
@@ -92,7 +92,7 @@ We're using NEAR Intents for cross-chain swaps, so the tipper experience is flex
 
 Would love feedback from the community. What would make this more useful? What concerns do you have?
 
-Link: tipz.app (no referral codes or anything, just the product)
+Link: tipz.cash (no referral codes or anything, just the product)
 ```
 
 ---
@@ -112,7 +112,7 @@ We launched TIPZ, a private micro-tipping platform for content creators using Zc
 Details for listing:
 - Name: TIPZ
 - Category: Application / Creator Tools
-- URL: tipz.app
+- URL: tipz.cash
 - Description: Private micro-tipping for X/Twitter creators. Any token tips automatically swap to ZEC and arrive in shielded addresses.
 - Status: Live
 

@@ -1,8 +1,14 @@
 /**
  * React hook for managing payment state
+ *
+ * This hook provides:
+ * - Wallet connection management (MetaMask, WalletConnect, Coinbase)
+ * - Token selection and balance tracking
+ * - Transaction execution and status monitoring
+ * - Real-time wallet event handling
  */
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import {
   type WalletState,
   type WalletType,
@@ -17,6 +23,9 @@ import {
   executeSwap,
   saveTransaction,
   getAvailableWallets,
+  getTokenBalance,
+  setupWalletListeners,
+  switchChain,
 } from "~lib/payment"
 
 export interface UsePaymentReturn {
@@ -32,6 +41,7 @@ export interface UsePaymentReturn {
   // Token state
   supportedTokens: SupportedToken[]
   selectedToken: SupportedToken | null
+  tokenBalances: Map<string, string>
 
   // Error state
   error: string | null
@@ -47,6 +57,8 @@ export interface UsePaymentReturn {
   ) => Promise<TipTransaction | null>
   clearError: () => void
   resetTransaction: () => void
+  refreshBalance: () => Promise<void>
+  changeChain: (chainId: number) => Promise<boolean>
 }
 
 const initialWalletState: WalletState = {
@@ -70,19 +82,23 @@ export function usePayment(): UsePaymentReturn {
 
   // Token state
   const [supportedTokens, setSupportedTokens] = useState<SupportedToken[]>([])
-  const [selectedToken, setSelectedToken] = useState<SupportedToken | null>(
-    null
-  )
+  const [selectedToken, setSelectedToken] = useState<SupportedToken | null>(null)
+  const [tokenBalances, setTokenBalances] = useState<Map<string, string>>(new Map())
 
   // Error state
   const [error, setError] = useState<string | null>(null)
 
+  // Ref for cleanup
+  const cleanupRef = useRef<(() => void) | null>(null)
+
   // Initialize - check for existing wallet connection and available wallets
   useEffect(() => {
     const init = async () => {
+      // Detect available wallets
       const wallets = getAvailableWallets()
       setAvailableWallets(wallets)
 
+      // Check if already connected
       const state = await getWalletState()
       if (state.isConnected) {
         setWallet(state)
@@ -97,7 +113,70 @@ export function usePayment(): UsePaymentReturn {
     }
 
     init()
+
+    // Cleanup on unmount
+    return () => {
+      if (cleanupRef.current) {
+        cleanupRef.current()
+      }
+    }
   }, [])
+
+  // Set up wallet event listeners when connected
+  useEffect(() => {
+    if (!wallet.isConnected) {
+      return
+    }
+
+    const handleAccountsChanged = async (accounts: string[]) => {
+      if (accounts.length > 0) {
+        const state = await getWalletState()
+        setWallet(state)
+      } else {
+        // Wallet disconnected
+        setWallet(initialWalletState)
+        setSelectedToken(null)
+        setSupportedTokens([])
+      }
+    }
+
+    const handleChainChanged = async (chainId: number) => {
+      const state = await getWalletState()
+      setWallet({ ...state, chainId })
+
+      // Load tokens for new chain
+      const tokens = await getSupportedTokens(chainId)
+      setSupportedTokens(tokens)
+
+      // Reset selected token to first available
+      if (tokens.length > 0) {
+        setSelectedToken(tokens[0])
+      } else {
+        setSelectedToken(null)
+      }
+    }
+
+    const handleDisconnect = () => {
+      setWallet(initialWalletState)
+      setSelectedToken(null)
+      setSupportedTokens([])
+      setTokenBalances(new Map())
+    }
+
+    // Set up listeners
+    cleanupRef.current = setupWalletListeners(
+      handleAccountsChanged,
+      handleChainChanged,
+      handleDisconnect
+    )
+
+    return () => {
+      if (cleanupRef.current) {
+        cleanupRef.current()
+        cleanupRef.current = null
+      }
+    }
+  }, [wallet.isConnected, wallet.walletType])
 
   // Load supported tokens when chain changes
   useEffect(() => {
@@ -113,6 +192,32 @@ export function usePayment(): UsePaymentReturn {
 
     loadTokens()
   }, [wallet.chainId])
+
+  // Load token balances when wallet or tokens change
+  useEffect(() => {
+    const loadBalances = async () => {
+      if (!wallet.isConnected || !wallet.address || supportedTokens.length === 0) {
+        return
+      }
+
+      const balances = new Map<string, string>()
+
+      for (const token of supportedTokens) {
+        try {
+          const balance = await getTokenBalance(token.address, wallet.address)
+          if (balance) {
+            balances.set(token.symbol, balance.amount)
+          }
+        } catch (err) {
+          console.error(`TIPZ: Failed to load balance for ${token.symbol}`, err)
+        }
+      }
+
+      setTokenBalances(balances)
+    }
+
+    loadBalances()
+  }, [wallet.isConnected, wallet.address, supportedTokens])
 
   // Connect wallet
   const connect = useCallback(async (walletType: WalletType) => {
@@ -147,8 +252,15 @@ export function usePayment(): UsePaymentReturn {
       setWallet(initialWalletState)
       setSelectedToken(null)
       setSupportedTokens([])
+      setTokenBalances(new Map())
       setTransaction(null)
       setTransactionStatus("idle")
+
+      // Clean up listeners
+      if (cleanupRef.current) {
+        cleanupRef.current()
+        cleanupRef.current = null
+      }
     } catch (err) {
       console.error("TIPZ: Wallet disconnection error", err)
     }
@@ -157,6 +269,45 @@ export function usePayment(): UsePaymentReturn {
   // Select token
   const selectToken = useCallback((token: SupportedToken) => {
     setSelectedToken(token)
+  }, [])
+
+  // Refresh balance
+  const refreshBalance = useCallback(async () => {
+    if (!wallet.isConnected || !wallet.address) {
+      return
+    }
+
+    const state = await getWalletState()
+    setWallet(state)
+
+    // Reload token balances
+    if (supportedTokens.length > 0) {
+      const balances = new Map<string, string>()
+
+      for (const token of supportedTokens) {
+        try {
+          const balance = await getTokenBalance(token.address, wallet.address)
+          if (balance) {
+            balances.set(token.symbol, balance.amount)
+          }
+        } catch (err) {
+          console.error(`TIPZ: Failed to refresh balance for ${token.symbol}`, err)
+        }
+      }
+
+      setTokenBalances(balances)
+    }
+  }, [wallet.isConnected, wallet.address, supportedTokens])
+
+  // Change chain
+  const changeChain = useCallback(async (chainId: number): Promise<boolean> => {
+    const success = await switchChain(chainId)
+    if (success) {
+      // Chain change will be handled by the chainChanged event listener
+      return true
+    }
+    setError(`Failed to switch to chain ${chainId}`)
+    return false
   }, [])
 
   // Execute tip
@@ -181,19 +332,30 @@ export function usePayment(): UsePaymentReturn {
         return null
       }
 
+      // Check if user has sufficient balance
+      const balance = tokenBalances.get(selectedToken.symbol)
+      if (balance && parseFloat(amount) > parseFloat(balance)) {
+        setError(`Insufficient ${selectedToken.symbol} balance`)
+        return null
+      }
+
       setError(null)
       setTransactionStatus("approving")
 
       try {
         // Get quote
+        console.log("TIPZ: Getting swap quote...")
         const quote = await getSwapQuote(
           selectedToken,
           amount,
           recipientAddress
         )
 
+        console.log("TIPZ: Quote received", quote)
+
         // Execute swap
         const tx = await executeSwap(quote, recipientAddress, (status) => {
+          console.log("TIPZ: Transaction status update", status)
           setTransactionStatus(status)
         })
 
@@ -204,6 +366,10 @@ export function usePayment(): UsePaymentReturn {
         await saveTransaction(tx)
 
         setTransaction(tx)
+
+        // Refresh balance after transaction
+        await refreshBalance()
+
         return tx
       } catch (err) {
         const message =
@@ -214,7 +380,7 @@ export function usePayment(): UsePaymentReturn {
         return null
       }
     },
-    [wallet.isConnected, selectedToken]
+    [wallet.isConnected, selectedToken, tokenBalances, refreshBalance]
   )
 
   // Clear error
@@ -237,6 +403,7 @@ export function usePayment(): UsePaymentReturn {
     transactionStatus,
     supportedTokens,
     selectedToken,
+    tokenBalances,
     error,
     connect,
     disconnect,
@@ -244,5 +411,7 @@ export function usePayment(): UsePaymentReturn {
     tip,
     clearError,
     resetTransaction,
+    refreshBalance,
+    changeChain,
   }
 }

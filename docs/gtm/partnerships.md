@@ -156,7 +156,7 @@ Private micro-tipping for creators using Zcash shielded addresses.
 - Tippers use any token via browser extension
 - Tips automatically swap and arrive shielded
 
-Website: tipz.app
+Website: tipz.cash
 Status: Live
 
 ## Proposed Integration

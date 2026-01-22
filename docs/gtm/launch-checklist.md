@@ -11,7 +11,7 @@ Pre-launch verification and launch day tasks.
 
 ### Product Readiness
 
-#### Web App (tipz.app)
+#### Web App (tipz.cash)
 - [ ] Landing page loads in <3 seconds
 - [ ] All navigation links work (Home, About, Register, FAQ)
 - [ ] All CTA buttons point to correct destinations
@@ -20,7 +20,7 @@ Pre-launch verification and launch day tasks.
 - [ ] Success state: Confirmation message displays, next steps clear
 - [ ] Error states: Invalid handle, invalid address, network error all show helpful messages
 - [ ] Mobile: Test on iPhone Safari, Android Chrome - all features accessible
-- [ ] OG image: Share tipz.app link on X, verify image/title/description appear correctly
+- [ ] OG image: Share tipz.cash link on X, verify image/title/description appear correctly
 - [ ] Favicon: Verify icon shows in browser tab
 - [ ] SSL: Confirm https:// works, no mixed content warnings
 
@@ -81,7 +81,7 @@ Pre-launch verification and launch day tasks.
 - [ ] README: Updated with current features, installation instructions
 - [ ] Registration guide: Step-by-step with screenshots for getting shielded address
 - [ ] FAQ: At least 10 common questions answered (see below for list)
-- [ ] Support: hello@tipz.app (or appropriate) set up and monitored
+- [ ] Support: hello@tipz.cash (or appropriate) set up and monitored
 
 **FAQ Must-Have Questions:**
 1. What is TIPZ?
@@ -109,8 +109,8 @@ Pre-launch verification and launch day tasks.
 
 - [ ] Sentry: Error monitoring configured, test error triggers alert
 - [ ] Analytics: Plausible/Vercel Analytics tracking page views, registrations
-- [ ] Uptime: BetterUptime or similar monitoring tipz.app every 5 min
-- [ ] Support email: hello@tipz.app receiving and forwarding correctly
+- [ ] Uptime: BetterUptime or similar monitoring tipz.cash every 5 min
+- [ ] Support email: hello@tipz.cash receiving and forwarding correctly
 - [ ] Support response: Template responses ready for common questions
 - [ ] Incident playbook: Documented at `/tipz/docs/ops/incident-response.md` (create if needed)
 
@@ -290,7 +290,7 @@ Pre-launch verification and launch day tasks.
 ### If Registration Fails
 1. **Immediate** (within 5 min):
    - Open Supabase dashboard - check connection status and error logs
-   - Test API directly: `curl https://tipz.app/api/creator?handle=testhandle`
+   - Test API directly: `curl https://tipz.cash/api/creator?handle=testhandle`
    - Check Sentry for error details
 2. **If Supabase issue**:
    - Check Supabase status page (status.supabase.com)

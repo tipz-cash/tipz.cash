@@ -8,6 +8,74 @@ import {
 } from "@/lib/rate-limit"
 
 /**
+ * Error codes for registration API responses.
+ * Used for programmatic error handling by clients.
+ */
+export const ERROR_CODES = {
+  RATE_LIMITED: "RATE_LIMITED",
+  INVALID_JSON: "INVALID_JSON",
+  MISSING_FIELDS: "MISSING_FIELDS",
+  INVALID_FIELD_TYPE: "INVALID_FIELD_TYPE",
+  INVALID_PLATFORM: "INVALID_PLATFORM",
+  INVALID_HANDLE: "INVALID_HANDLE",
+  INVALID_ADDRESS: "INVALID_ADDRESS",
+  INVALID_TWEET_URL: "INVALID_TWEET_URL",
+  TWEET_HANDLE_MISMATCH: "TWEET_HANDLE_MISMATCH",
+  DATABASE_ERROR: "DATABASE_ERROR",
+  INTERNAL_ERROR: "INTERNAL_ERROR"
+} as const
+
+type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES]
+
+/**
+ * Structured error response type.
+ */
+interface ErrorResponse {
+  error: string
+  code: ErrorCode
+  details?: Record<string, string>
+  retryAfter?: number
+}
+
+/**
+ * Create a standardized error response.
+ */
+function createErrorResponse(
+  message: string,
+  code: ErrorCode,
+  status: number,
+  headers: Record<string, string>,
+  details?: Record<string, string>
+): NextResponse<ErrorResponse> {
+  const body: ErrorResponse = { error: message, code }
+  if (details) {
+    body.details = details
+  }
+  return NextResponse.json(body, { status, headers })
+}
+
+/**
+ * Sanitize string input to prevent XSS and control characters.
+ * Removes HTML tags, control characters, and normalizes whitespace.
+ */
+function sanitizeInput(input: string): string {
+  return input
+    .replace(/<[^>]*>/g, "") // Remove HTML tags
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "") // Remove control chars (except \t, \n, \r)
+    .trim()
+}
+
+/**
+ * Validate Twitter/X handle format.
+ * Must be 1-15 alphanumeric characters or underscores.
+ */
+function isValidTwitterHandle(handle: string): boolean {
+  // Remove @ prefix if present
+  const cleanHandle = handle.replace(/^@/, "")
+  return /^[a-zA-Z0-9_]{1,15}$/.test(cleanHandle)
+}
+
+/**
  * Zcash Shielded Address Validation
  *
  * Validates that the address:
@@ -207,164 +275,199 @@ async function verifyTweet(
   }
 }
 
-/**
- * Verify ownership by tweet.
- * Currently only X platform is supported.
- */
-async function verifyOwnership(
-  platform: string,
-  verificationUrl: string,
-  handle: string,
-  shieldedAddress: string
-): Promise<TweetVerificationResult> {
-  if (platform === "x") {
-    return verifyTweet(verificationUrl, handle, shieldedAddress)
-  }
-
-  return {
-    valid: false,
-    status: "failed",
-    error: `Unsupported platform: ${platform}. Only X is currently supported.`
-  }
-}
-
 export async function POST(request: NextRequest) {
   // Apply rate limiting
   const clientIP = getClientIP(request.headers)
   const rateLimitResult = rateLimit(clientIP, RATE_LIMITS.registration)
+  const headers = rateLimitHeaders(rateLimitResult)
 
   if (!rateLimitResult.allowed) {
     return NextResponse.json(
       {
         error: "Too many registration attempts. Please try again later.",
+        code: ERROR_CODES.RATE_LIMITED,
         retryAfter: rateLimitResult.retryAfter
-      },
+      } satisfies ErrorResponse,
       {
         status: 429,
-        headers: rateLimitHeaders(rateLimitResult)
+        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) }
       }
     )
   }
 
+  // Parse request body
+  let body: Record<string, unknown>
   try {
-    const body = await request.json()
-    const { platform, handle, shielded_address, tweet_url } = body
-
-    // Validate required fields
-    if (!platform || !handle || !shielded_address || !tweet_url) {
-      return NextResponse.json(
-        { error: "Missing required fields: platform, handle, shielded_address, tweet_url" },
-        {
-          status: 400,
-          headers: rateLimitHeaders(rateLimitResult)
-        }
-      )
-    }
-
-    // Validate field types
-    if (
-      typeof platform !== "string" ||
-      typeof handle !== "string" ||
-      typeof shielded_address !== "string" ||
-      typeof tweet_url !== "string"
-    ) {
-      return NextResponse.json(
-        { error: "All fields must be strings" },
-        {
-          status: 400,
-          headers: rateLimitHeaders(rateLimitResult)
-        }
-      )
-    }
-
-    // Validate platform (X-only for now)
-    const validPlatforms = ["x"] as const
-    if (!validPlatforms.includes(platform as typeof validPlatforms[number])) {
-      return NextResponse.json(
-        { error: "Invalid platform. Only 'x' is currently supported." },
-        {
-          status: 400,
-          headers: rateLimitHeaders(rateLimitResult)
-        }
-      )
-    }
-
-    // Validate handle length and format
-    const trimmedHandle = handle.trim()
-    if (trimmedHandle.length === 0 || trimmedHandle.length > 50) {
-      return NextResponse.json(
-        { error: "Handle must be between 1 and 50 characters" },
-        {
-          status: 400,
-          headers: rateLimitHeaders(rateLimitResult)
-        }
-      )
-    }
-
-    // Validate shielded address
-    if (!isValidShieldedAddress(shielded_address)) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid Zcash shielded address. Must start with 'zs', be 78 characters, and contain only valid Base58 characters"
-        },
-        {
-          status: 400,
-          headers: rateLimitHeaders(rateLimitResult)
-        }
-      )
-    }
-
-    // Verify ownership via tweet or note depending on platform
-    const verification = await verifyOwnership(
-      platform,
-      tweet_url,
-      trimmedHandle,
-      shielded_address
+    body = await request.json()
+  } catch {
+    return createErrorResponse(
+      "Invalid JSON in request body",
+      ERROR_CODES.INVALID_JSON,
+      400,
+      headers
     )
-    if (!verification.valid) {
-      return NextResponse.json(
-        { error: verification.error },
-        {
-          status: 400,
-          headers: rateLimitHeaders(rateLimitResult)
-        }
+  }
+
+  const { platform, handle, shielded_address, tweet_url } = body
+
+  // Validate required fields
+  const missingFields: string[] = []
+  if (!platform) missingFields.push("platform")
+  if (!handle) missingFields.push("handle")
+  if (!shielded_address) missingFields.push("shielded_address")
+  if (!tweet_url) missingFields.push("tweet_url")
+
+  if (missingFields.length > 0) {
+    return createErrorResponse(
+      `Missing required fields: ${missingFields.join(", ")}`,
+      ERROR_CODES.MISSING_FIELDS,
+      400,
+      headers,
+      { missing: missingFields.join(", ") }
+    )
+  }
+
+  // Validate field types
+  const invalidTypes: string[] = []
+  if (typeof platform !== "string") invalidTypes.push("platform")
+  if (typeof handle !== "string") invalidTypes.push("handle")
+  if (typeof shielded_address !== "string") invalidTypes.push("shielded_address")
+  if (typeof tweet_url !== "string") invalidTypes.push("tweet_url")
+
+  if (invalidTypes.length > 0) {
+    return createErrorResponse(
+      `Invalid field types. Expected strings for: ${invalidTypes.join(", ")}`,
+      ERROR_CODES.INVALID_FIELD_TYPE,
+      400,
+      headers,
+      { invalid_fields: invalidTypes.join(", ") }
+    )
+  }
+
+  // Sanitize inputs
+  const sanitizedPlatform = sanitizeInput(platform).toLowerCase()
+  const sanitizedHandle = sanitizeInput(handle)
+  const sanitizedAddress = sanitizeInput(shielded_address)
+  const sanitizedTweetUrl = sanitizeInput(tweet_url)
+
+  // Validate platform
+  const validPlatforms = ["x", "substack"] as const
+  if (!validPlatforms.includes(sanitizedPlatform as typeof validPlatforms[number])) {
+    return createErrorResponse(
+      "Invalid platform. Supported platforms: x, substack",
+      ERROR_CODES.INVALID_PLATFORM,
+      400,
+      headers,
+      { provided: sanitizedPlatform, supported: "x, substack" }
+    )
+  }
+
+  // Validate handle based on platform
+  if (sanitizedPlatform === "x") {
+    if (!isValidTwitterHandle(sanitizedHandle)) {
+      return createErrorResponse(
+        "Invalid X/Twitter handle. Must be 1-15 alphanumeric characters or underscores.",
+        ERROR_CODES.INVALID_HANDLE,
+        400,
+        headers
       )
     }
+  } else if (sanitizedHandle.length === 0 || sanitizedHandle.length > 50) {
+    return createErrorResponse(
+      "Handle must be between 1 and 50 characters",
+      ERROR_CODES.INVALID_HANDLE,
+      400,
+      headers
+    )
+  }
 
-    const normalizedHandle = normalizeHandle(trimmedHandle)
+  // Validate shielded address
+  if (!isValidShieldedAddress(sanitizedAddress)) {
+    return createErrorResponse(
+      "Invalid Zcash shielded address. Must start with 'zs', be exactly 78 characters, and contain only valid Base58 characters (excludes 0, O, I, l)",
+      ERROR_CODES.INVALID_ADDRESS,
+      400,
+      headers,
+      { provided_length: String(sanitizedAddress.length), expected_length: "78" }
+    )
+  }
+
+  // Verify tweet ownership
+  const tweetVerification = await verifyTweet(
+    sanitizedTweetUrl,
+    sanitizedHandle,
+    sanitizedAddress
+  )
+
+  if (!tweetVerification.valid) {
+    const errorCode = tweetVerification.error?.includes("Tweet must be from")
+      ? ERROR_CODES.TWEET_HANDLE_MISMATCH
+      : ERROR_CODES.INVALID_TWEET_URL
+
+    return createErrorResponse(
+      tweetVerification.error || "Invalid tweet URL",
+      errorCode,
+      400,
+      headers
+    )
+  }
+
+    const normalizedHandle = normalizeHandle(sanitizedHandle)
 
     // Check if already registered
-    const { data: existing } = await supabase
-      .from("creators")
-      .select("id")
-      .eq("platform", platform)
-      .eq("handle_normalized", normalizedHandle)
-      .single()
+    let existing: { id: string } | null = null
+    try {
+      const { data, error } = await supabase
+        .from("creators")
+        .select("id")
+        .eq("platform", sanitizedPlatform)
+        .eq("handle_normalized", normalizedHandle)
+        .single()
+
+      if (error && error.code !== "PGRST116") {
+        // PGRST116 = row not found, which is expected for new registrations
+        console.error("[register] Database query error:", error)
+        return createErrorResponse(
+          "Database error while checking registration",
+          ERROR_CODES.DATABASE_ERROR,
+          500,
+          headers
+        )
+      }
+
+      existing = data
+    } catch (error) {
+      console.error("[register] Unexpected database error:", error)
+      return createErrorResponse(
+        "Unexpected database error",
+        ERROR_CODES.DATABASE_ERROR,
+        500,
+        headers
+      )
+    }
 
     if (existing) {
       // Update existing registration
       const { error: updateError } = await supabase
         .from("creators")
         .update({
-          handle: trimmedHandle,
-          shielded_address,
-          tweet_url,
+          handle: sanitizedHandle,
+          shielded_address: sanitizedAddress,
+          tweet_url: sanitizedTweetUrl,
           // TODO: Add verification_status field to track tweet verification state
-          // verification_status: verification.status,
-          // verified_at: verification.status === "verified" ? new Date().toISOString() : null,
+          // verification_status: tweetVerification.status,
+          // verified_at: tweetVerification.status === "verified" ? new Date().toISOString() : null,
           updated_at: new Date().toISOString()
         })
         .eq("id", existing.id)
 
       if (updateError) {
-        console.error("Update error:", updateError)
-        return NextResponse.json(
-          { error: "Failed to update registration" },
-          {
-            status: 500,
-            headers: rateLimitHeaders(rateLimitResult)
-          }
+        console.error("[register] Update error:", updateError)
+        return createErrorResponse(
+          "Failed to update registration. Please try again.",
+          ERROR_CODES.DATABASE_ERROR,
+          500,
+          headers
         )
       }
 
@@ -372,9 +475,11 @@ export async function POST(request: NextRequest) {
         {
           success: true,
           message: "Registration updated",
-          verification_status: verification.status
+          verification_status: tweetVerification.status,
+          handle: sanitizedHandle,
+          platform: sanitizedPlatform
         },
-        { headers: rateLimitHeaders(rateLimitResult) }
+        { status: 200, headers }
       )
     }
 
@@ -382,25 +487,35 @@ export async function POST(request: NextRequest) {
     const { error: insertError } = await supabase
       .from("creators")
       .insert({
-        platform,
-        handle: trimmedHandle,
+        platform: sanitizedPlatform,
+        handle: sanitizedHandle,
         handle_normalized: normalizedHandle,
-        shielded_address,
-        tweet_url
+        shielded_address: sanitizedAddress,
+        tweet_url: sanitizedTweetUrl
         // TODO: Add these fields when database schema is updated:
-        // verification_status: verification.status,
-        // tweet_id: verification.tweetId,
+        // verification_status: tweetVerification.status,
+        // tweet_id: tweetVerification.tweetId,
         // verified_at: null
       })
 
     if (insertError) {
-      console.error("Insert error:", insertError)
-      return NextResponse.json(
-        { error: "Failed to create registration" },
-        {
-          status: 500,
-          headers: rateLimitHeaders(rateLimitResult)
-        }
+      console.error("[register] Insert error:", insertError)
+
+      // Check for unique constraint violation (duplicate registration race condition)
+      if (insertError.code === "23505") {
+        return createErrorResponse(
+          "This handle is already registered. Please update your existing registration instead.",
+          ERROR_CODES.DATABASE_ERROR,
+          409,
+          headers
+        )
+      }
+
+      return createErrorResponse(
+        "Failed to create registration. Please try again.",
+        ERROR_CODES.DATABASE_ERROR,
+        500,
+        headers
       )
     }
 
@@ -408,15 +523,10 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         message: "Registration successful",
-        verification_status: verification.status
+        verification_status: tweetVerification.status,
+        handle: sanitizedHandle,
+        platform: sanitizedPlatform
       },
-      { headers: rateLimitHeaders(rateLimitResult) }
+      { status: 201, headers }
     )
-  } catch (error) {
-    console.error("Registration error:", error)
-    return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 }
-    )
-  }
 }

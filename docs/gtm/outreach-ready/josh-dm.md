@@ -33,7 +33,7 @@ Would love to explore integration possibilities. Could be as simple as recommend
 
 Happy to share more about our architecture or jump on a call if you're interested.
 
-tipz.app to see it in action.
+tipz.cash to see it in action.
 
 Looking forward to connecting.
 ```

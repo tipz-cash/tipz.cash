@@ -10,6 +10,11 @@
     "package": "plasmo package"
   },
   "dependencies": {
+    "ethers": "^6.13.4",
+    "@walletconnect/ethereum-provider": "^2.17.0",
+    "@swapkit/sdk": "^1.0.0-rc.162",
+    "@near-js/providers": "^0.2.2",
+    "@near-js/transactions": "^1.2.2",
     "plasmo": "0.90.5",
     "react": "18.2.0",
     "react-dom": "18.2.0"

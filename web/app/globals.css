@@ -422,6 +422,51 @@ a {
   .scroll-indicator {
     bottom: 24px;
   }
+
+  /* Mobile nav improvements */
+  nav {
+    gap: 16px !important;
+  }
+
+  /* Table responsiveness */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Card grid adjustments */
+  .card {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Stack navigation items on smaller screens */
+  header nav {
+    display: none;
+  }
+
+  /* Adjust grid layouts */
+  .grid-cols-auto {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ASCII art scaling */
+  pre {
+    font-size: 6px !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Feature cards */
+  .feature-card {
+    padding: 20px;
+  }
+
+  /* Trust badges grid */
+  .trust-badges-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -437,6 +482,63 @@ a {
 
   .heading-section {
     font-size: clamp(28px, 6vw, 40px);
+  }
+
+  /* Reduce padding on mobile */
+  .card {
+    padding: 20px;
+  }
+
+  /* Stack buttons on mobile */
+  .btn-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-group .btn {
+    width: 100%;
+  }
+
+  /* Form improvements on mobile */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS zoom */
+  }
+
+  /* Comparison table mobile view */
+  table th,
+  table td {
+    padding: 12px 8px !important;
+    font-size: 12px !important;
+  }
+
+  /* ASCII art hide on very small screens */
+  pre[style*="font-size: 10px"] {
+    font-size: 5px !important;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .btn {
+    min-height: 48px;
+  }
+
+  input, select, textarea {
+    min-height: 48px;
+  }
+
+  /* Remove hover effects on touch devices */
+  .btn:hover {
+    transform: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+
+  /* Increase tap targets */
+  a {
+    padding: 4px 0;
   }
 }
 

@@ -123,7 +123,7 @@ Saw your tweets about ZEC and figured you'd appreciate someone actually shipping
 
 Extension works on X.com—tip button shows up next to tweets from registered creators.
 
-Would love your take if you have 5 min to try it: tipz.app
+Would love your take if you have 5 min to try it: tipz.cash
 
 No pressure, just thought you'd want to know this exists.
 
@@ -150,7 +150,7 @@ Wondering if there's potential for integration or collaboration. Our users need 
 
 Happy to share more about the architecture or jump on a call if interesting.
 
-tipz.app if you want to see it in action.
+tipz.cash if you want to see it in action.
 
 [name]
 ```
@@ -176,7 +176,7 @@ How it works:
 
 Built this because we believe shielded should be the standard, not the exception. Creator income shouldn't be publicly visible.
 
-Would love feedback from the community: tipz.app
+Would love feedback from the community: tipz.cash
 
 Happy to answer questions here.
 ```
@@ -214,7 +214,7 @@ Really appreciate you checking out TIPZ, [name].
 
 If you end up mentioning it, here's some copy that might help:
 
-"TIPZ: Private tips for creators. Any token → shielded ZEC. tipz.app"
+"TIPZ: Private tips for creators. Any token → shielded ZEC. tipz.cash"
 
 Or feel free to say whatever feels authentic—genuinely just appreciate the support.
 
