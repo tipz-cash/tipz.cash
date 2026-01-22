@@ -3,7 +3,7 @@ import { createPortal } from "react-dom"
 import type { Creator } from "~lib/api"
 import { usePayment } from "~hooks/usePayment"
 import type { TransactionStatus, WalletType } from "~lib/payment"
-import { shortenAddress, formatTokenAmount, isDemoMode } from "~lib/payment"
+import { shortenAddress, formatTokenAmount, isDemoMode, blockSessionRestoration } from "~lib/payment"
 import { colors, fonts } from "~lib/theme"
 
 interface TipModalProps {
@@ -827,6 +827,8 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
 
   // Handler for changing wallet
   const handleChangeWallet = async () => {
+    // Block session restoration BEFORE disconnect to prevent race conditions
+    blockSessionRestoration()
     await disconnect()
     setForceConnect(true) // Flag that next connect should force account picker
     setView("wallet")

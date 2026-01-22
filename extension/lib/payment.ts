@@ -257,7 +257,7 @@ export function loadWalletSession(): WalletSession | null {
 /**
  * Clear wallet session from localStorage
  */
-function clearWalletSession(): void {
+export function clearWalletSession(): void {
   try {
     localStorage.removeItem(WALLET_SESSION_KEY)
   } catch {
@@ -270,6 +270,12 @@ function clearWalletSession(): void {
  * Attempts to reconnect via wallet bridge and validates the saved address
  */
 export async function restoreWalletSession(): Promise<WalletState | null> {
+  // Check if session restoration is blocked (during explicit wallet changes)
+  if (sessionRestorationBlocked) {
+    console.log("TIPZ: Session restoration blocked during reconnection")
+    return null
+  }
+
   const session = loadWalletSession()
   if (!session) {
     return null
@@ -361,6 +367,30 @@ let currentWalletType: WalletType | null = null
 // Wallet bridge connection state (for when using bridge instead of direct provider)
 let bridgeConnectedAddress: string | null = null
 let bridgeConnectedChainId: number | null = null
+
+// Session restoration blocking flag - prevents auto-restore during explicit wallet changes
+let sessionRestorationBlocked = false
+
+/**
+ * Block session restoration during explicit wallet changes
+ */
+export function blockSessionRestoration(): void {
+  sessionRestorationBlocked = true
+}
+
+/**
+ * Unblock session restoration after wallet change completes
+ */
+export function unblockSessionRestoration(): void {
+  sessionRestorationBlocked = false
+}
+
+/**
+ * Check if session restoration is currently blocked
+ */
+export function isSessionRestorationBlocked(): boolean {
+  return sessionRestorationBlocked
+}
 
 /**
  * Check if we have an active wallet connection (either via provider or bridge)
@@ -542,6 +572,16 @@ async function connectCoinbase(): Promise<WalletState> {
  */
 export async function connectWallet(walletType: WalletType, force?: boolean): Promise<WalletState> {
   console.log("TIPZ: Connecting wallet", { walletType, force })
+
+  // Clear existing state when forcing a new connection
+  if (force) {
+    console.log("TIPZ: Force connect - clearing existing state")
+    clearWalletSession()
+    bridgeConnectedAddress = null
+    bridgeConnectedChainId = null
+    currentProvider = null
+    currentWalletType = null
+  }
 
   switch (walletType) {
     case "metamask":
