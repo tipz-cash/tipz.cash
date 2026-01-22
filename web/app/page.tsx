@@ -1347,28 +1347,63 @@ export default function HomePage() {
             </p>
           </TerminalReveal>
 
-          {/* Single CTA */}
+          {/* Single CTA - Premium animated button */}
           <TerminalReveal delay={heroAnimationReady ? 200 : 99999}>
             <a
               href="/register"
-              className="cta-primary"
+              className="cta-hero"
               style={{
+                position: "relative",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "12px",
-                backgroundColor: colors.primary,
+                gap: "14px",
+                background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 50%, ${colors.primary} 100%)`,
+                backgroundSize: "200% 200%",
                 color: colors.bg,
-                padding: "18px 36px",
-                fontWeight: 700,
-                fontSize: "15px",
+                padding: "20px 44px",
+                fontWeight: 800,
+                fontSize: "16px",
                 textDecoration: "none",
-                borderRadius: "8px",
-                boxShadow: `0 0 50px ${colors.primaryGlowStrong}, 0 4px 20px rgba(0,0,0,0.3)`,
+                borderRadius: "12px",
+                border: `2px solid rgba(255,255,255,0.15)`,
+                boxShadow: `
+                  0 0 60px ${colors.primaryGlowStrong},
+                  0 0 100px ${colors.primaryGlow},
+                  inset 0 1px 0 rgba(255,255,255,0.2),
+                  0 8px 32px rgba(0,0,0,0.4)
+                `,
                 marginBottom: "48px",
+                animation: "cta-glow-pulse 3s ease-in-out infinite, cta-gradient-shift 4s ease-in-out infinite",
+                letterSpacing: "0.02em",
               }}
             >
-              Start Receiving Tipz
-              <span style={{ fontSize: "18px" }}>→</span>
+              <span style={{ position: "relative", zIndex: 1 }}>Start Receiving Tipz</span>
+              <span
+                className="cta-arrow"
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 400,
+                  display: "inline-flex",
+                  animation: "arrow-bounce 1.5s ease-in-out infinite",
+                }}
+              >
+                →
+              </span>
+              {/* Shimmer overlay */}
+              <span
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  borderRadius: "10px",
+                  background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%)",
+                  backgroundSize: "200% 100%",
+                  animation: "shimmer 2.5s ease-in-out infinite",
+                  pointerEvents: "none",
+                }}
+              />
             </a>
           </TerminalReveal>
 
@@ -3290,6 +3325,55 @@ export default function HomePage() {
           40% { clip-path: inset(40% 0 40% 0); transform: translate(2px, -2px); }
           60% { clip-path: inset(60% 0 20% 0); transform: translate(-1px, 1px); }
           80% { clip-path: inset(80% 0 0 0); transform: translate(1px, -1px); }
+        }
+
+        /* Premium CTA animations */
+        @keyframes cta-glow-pulse {
+          0%, 100% {
+            box-shadow:
+              0 0 60px rgba(245, 166, 35, 0.5),
+              0 0 100px rgba(245, 166, 35, 0.2),
+              inset 0 1px 0 rgba(255,255,255,0.2),
+              0 8px 32px rgba(0,0,0,0.4);
+          }
+          50% {
+            box-shadow:
+              0 0 80px rgba(245, 166, 35, 0.7),
+              0 0 140px rgba(245, 166, 35, 0.3),
+              inset 0 1px 0 rgba(255,255,255,0.25),
+              0 12px 40px rgba(0,0,0,0.5);
+          }
+        }
+
+        @keyframes cta-gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+
+        @keyframes arrow-bounce {
+          0%, 100% { transform: translateX(0); }
+          50% { transform: translateX(6px); }
+        }
+
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+
+        .cta-hero {
+          cursor: pointer;
+          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+          will-change: transform;
+        }
+
+        .cta-hero:hover {
+          transform: translateY(-4px) scale(1.03);
+          filter: brightness(1.1);
+        }
+
+        .cta-hero:active {
+          transform: translateY(-2px) scale(1.01);
+          filter: brightness(0.95);
         }
 
         .noise-overlay {
