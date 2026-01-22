@@ -428,6 +428,26 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                 </button>
               )}
 
+              {availableWallets.includes("rabby") && (
+                <button
+                  onClick={() => handleConnectWallet("rabby")}
+                  disabled={isConnecting}
+                  style={{
+                    ...buttonSecondaryStyle,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    opacity: isConnecting ? 0.5 : 1,
+                  }}
+                >
+                  <svg width="24" height="24" viewBox="0 0 1000 1000" fill="none">
+                    <path d="M500 1000C776.142 1000 1000 776.142 1000 500C1000 223.858 776.142 0 500 0C223.858 0 0 223.858 0 500C0 776.142 223.858 1000 500 1000Z" fill="#8697FF"/>
+                    <path d="M741.5 467.5C755.833 481.833 762.5 498.5 762.5 517.5C762.5 536.5 755.833 553.167 742.5 567.5L567.5 742.5C553.167 755.833 536.5 762.5 517.5 762.5C498.5 762.5 481.833 755.833 467.5 741.5L292.5 566.5C279.167 553.167 272.5 537.5 272.5 519.5C272.5 501.5 279.5 485.5 293.5 471.5L399.5 365.5C340.5 349.5 297.5 295.5 297.5 232C297.5 155.5 359.5 93.5 436 93.5H564C640.5 93.5 702.5 155.5 702.5 232C702.5 295.5 659.5 349.5 600.5 365.5L741.5 467.5Z" fill="white"/>
+                  </svg>
+                  Rabby
+                </button>
+              )}
+
               {availableWallets.includes("walletconnect") && (
                 <button
                   onClick={() => handleConnectWallet("walletconnect")}

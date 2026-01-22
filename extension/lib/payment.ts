@@ -60,7 +60,7 @@ async function walletBridgeRequest(method: string, params?: any): Promise<any> {
 // Types & Interfaces
 // ============================================================================
 
-export type WalletType = "metamask" | "walletconnect" | "coinbase" | "phantom"
+export type WalletType = "metamask" | "rabby" | "walletconnect" | "coinbase" | "phantom"
 
 export type TransactionStatus =
   | "idle"
@@ -214,10 +214,9 @@ let currentWalletType: WalletType | null = null
  * Get list of available wallet providers in the browser
  */
 export function getAvailableWallets(): WalletType[] {
-  // Always show MetaMask option - works with MetaMask, Rabby, and other EVM wallets
-  // The actual connection will fail gracefully if no wallet is installed
+  // Show MetaMask and Rabby options - both use the same injected provider
   // Note: Content scripts run in isolated world and can't detect window.ethereum
-  return ["metamask", "walletconnect"]
+  return ["metamask", "rabby", "walletconnect"]
 }
 
 /**
@@ -361,7 +360,8 @@ export async function connectWallet(walletType: WalletType): Promise<WalletState
 
   switch (walletType) {
     case "metamask":
-      return connectMetaMask()
+    case "rabby":
+      return connectMetaMask() // Both use the same injected provider
     case "walletconnect":
       return connectWalletConnect()
     case "coinbase":
