@@ -1420,7 +1420,7 @@ export default function HomePage() {
                 letterSpacing: "0.02em",
               }}
             >
-              <span style={{ position: "relative", zIndex: 1 }}>Start Receiving Tipz</span>
+              <span style={{ position: "relative", zIndex: 1 }}>Start Receiving TIPZ</span>
               <span
                 className="cta-arrow"
                 style={{
@@ -3038,7 +3038,7 @@ export default function HomePage() {
 
           {/* copywriting: outcome without pain point formula */}
           <TypingHeading
-            text="Keep 100% of your tipz—without the fees."
+            text="Keep 100% of your TIPZ—without the fees."
             style={{ fontSize: "44px", lineHeight: 1.2 }}
           />
 
@@ -3097,7 +3097,7 @@ export default function HomePage() {
                   borderRadius: "8px",
                 }}
               >
-                Start Receiving Private Tipz →
+                Start Receiving Private TIPZ →
               </a>
               <a
                 href="https://chromewebstore.google.com/detail/tipz"
