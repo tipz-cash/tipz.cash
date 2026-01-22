@@ -1,5 +1,9 @@
 # TIPZ Social Copy Bank
 
+**STATUS: UPDATED FOR LAUNCH**
+**Last Updated: January 2026**
+**Primary URL: tipz.cash**
+
 Ready-to-post tweets organized by category. All under 280 characters unless noted.
 
 ---
@@ -14,7 +18,7 @@ TIPZ is live.
 
 Private tips for creators. Any token. Zero trace.
 
-tipz.app
+tipz.cash
 ```
 
 **ANN-2: Soft Launch**
@@ -23,18 +27,18 @@ Finally: a way to tip creators without surveillance.
 
 No public wallets. No visible amounts. Just private support.
 
-tipz.app
+tipz.cash
 ```
 
 **ANN-3: Extension Launch**
 ```
-The TIPZ extension is now available.
+The TIPZ Chrome extension is now live.
 
-See a creator you like on X or Substack? Click, tip, done.
+See a creator you like on X? Click the tip button. Done.
 
-Private by default.
+Private by default. Any token accepted.
 
-Chrome | Firefox | Brave
+Get it: tipz.cash
 ```
 
 ### Feature Announcements
@@ -47,7 +51,7 @@ Hold [TOKEN]? Now you can tip creators privately.
 
 Swap happens automatically. Creator receives ZEC.
 
-tipz.app
+tipz.cash
 ```
 
 **ANN-5: Platform Expansion**
@@ -67,7 +71,7 @@ If you create there, you can receive private tips there.
 
 That's [NUMBER] people who can receive private tips.
 
-Join them: tipz.app
+Join them: tipz.cash
 ```
 
 **ANN-7: Milestone - Tips Sent**
@@ -164,7 +168,7 @@ Creator registration in 3 steps:
 
 1. Get a Zcash shielded address (2 min)
 2. Tweet it
-3. Register at tipz.app
+3. Register at tipz.cash
 
 Now your audience can tip you privately.
 ```
@@ -277,7 +281,7 @@ Tip in any token. Creator receives ZEC at a shielded address.
 
 No public wallets. No visible amounts. No trace.
 
-tipz.app
+tipz.cash
 ```
 
 **RSP-2: How is this private?**
@@ -502,7 +506,7 @@ Happy Data Privacy Day.
 
 Your tips should be private too.
 
-TIPZ: tipz.app
+TIPZ: tipz.cash
 ```
 
 **SEA-3: Bull Market**
@@ -511,7 +515,7 @@ Bull market means more tips.
 
 Make sure yours are private.
 
-tipz.app
+tipz.cash
 ```
 
 ---
@@ -534,3 +538,109 @@ tipz.app
 3. **End with action**: Link, CTA, or question.
 4. **Skip the jargon**: "Private tips" not "shielded z-address transactions"
 5. **Stay consistent**: "Private tips. Any asset. Zero trace."
+
+---
+
+## New Feature Copy (January 2026)
+
+### Profile Pages Feature
+**FEAT-1: Creator Profile Pages**
+```
+New: Every creator gets a tipz.cash/username profile page.
+
+Share it anywhere. Accept tips from anyone.
+
+No extension needed for your supporters to find you.
+```
+
+**FEAT-2: Profile Link CTA**
+```
+Creators: Add your TIPZ profile to your bio.
+
+tipz.cash/yourusername
+
+One link. Private tips from any visitor.
+```
+
+### Tweet Verification Feature
+**FEAT-3: Easy Onboarding**
+```
+How creators verify on TIPZ:
+
+1. Tweet your Zcash shielded address
+2. Register at tipz.cash
+3. We verify the tweet automatically
+
+No emails. No KYC. Just post and go.
+```
+
+### Any-Token Swap Feature
+**FEAT-4: Swap Simplicity**
+```
+TIPZ accepts:
+ETH, USDC, USDT, SOL, AVAX, and 20+ more tokens.
+
+You tip with what you have.
+Creator receives private ZEC.
+
+One click. We handle everything else.
+```
+
+**FEAT-5: Non-Custodial Emphasis**
+```
+We never touch your funds.
+
+When you tip on TIPZ:
+→ Your wallet sends directly
+→ Swap happens automatically
+→ ZEC arrives in creator's shielded address
+
+Non-custodial. Always.
+```
+
+### Creator Economy Angle
+**FEAT-6: Creator Freedom**
+```
+Other platforms:
+- Take 5% of your tips
+- Can freeze your account
+- Require full identity verification
+
+TIPZ:
+- 0% fees
+- Can't freeze (non-custodial)
+- No identity required
+
+Your tips. Your rules.
+```
+
+**FEAT-7: Income Privacy**
+```
+Your Patreon income is visible to their team.
+Your Ko-fi tips show on their dashboard.
+Your ETH tips are on Etherscan.
+
+Your TIPZ tips? Only you know.
+```
+
+---
+
+## Profile Page Copy
+
+### For Creator Bios
+```
+Tip me privately: tipz.cash/[handle]
+```
+
+```
+Accept private tips via TIPZ: tipz.cash/[handle]
+```
+
+```
+Support my work anonymously: tipz.cash/[handle]
+```
+
+### For Link-in-Bio Services
+**Title**: Private Tips
+**Description**: Tip me with any crypto, privately via Zcash
+**URL**: tipz.cash/[handle]

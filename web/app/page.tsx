@@ -145,6 +145,42 @@ interface FormData {
   tweet_url: string;
 }
 
+// Form validation helpers
+function validateHandle(handle: string): string | null {
+  if (!handle) return "Handle is required";
+  if (handle.startsWith("@")) return "Don't include the @ symbol";
+  if (handle.length < 1 || handle.length > 15) return "Handle must be 1-15 characters";
+  if (!/^[a-zA-Z0-9_]+$/.test(handle)) return "Only letters, numbers, and underscores allowed";
+  return null;
+}
+
+function validateShieldedAddress(address: string): string | null {
+  if (!address) return "Shielded address is required";
+  if (!address.startsWith("zs")) return "Address must start with 'zs' (shielded address)";
+  if (address.length !== 78) return `Address must be 78 characters (currently ${address.length})`;
+  return null;
+}
+
+function validateTweetUrl(url: string): string | null {
+  if (!url) return "Tweet URL is required for verification";
+  const tweetUrlPattern = /^https?:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/;
+  if (!tweetUrlPattern.test(url)) return "Invalid tweet URL format (e.g., https://x.com/user/status/123)";
+  return null;
+}
+
+// Error message mapping for API errors
+const errorMessageMap: Record<string, string> = {
+  "Handle already registered": "This handle is already registered. If this is your account, please contact support.",
+  "Invalid shielded address": "The Zcash address format is invalid. Please use a shielded (zs) address.",
+  "Tweet verification failed": "We couldn't verify your tweet. Make sure it's public and contains your shielded address.",
+  "Rate limit exceeded": "Too many attempts. Please wait a few minutes and try again.",
+  "Network error": "Connection failed. Please check your internet and try again.",
+};
+
+function getReadableErrorMessage(error: string): string {
+  return errorMessageMap[error] || error;
+}
+
 // Registration Form Component
 function RegistrationForm() {
   const [formData, setFormData] = useState<FormData>({
@@ -155,11 +191,35 @@ function RegistrationForm() {
   });
   const [status, setStatus] = useState<FormStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    const handleError = validateHandle(formData.handle);
+    if (handleError) errors.handle = handleError;
+
+    const addressError = validateShieldedAddress(formData.shielded_address);
+    if (addressError) errors.shielded_address = addressError;
+
+    const tweetError = validateTweetUrl(formData.tweet_url);
+    if (tweetError) errors.tweet_url = tweetError;
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus("submitting");
     setErrorMessage("");
+    setFieldErrors({});
+
+    // Client-side validation
+    if (!validateForm()) {
+      return;
+    }
+
+    setStatus("submitting");
 
     try {
       const response = await fetch("/api/register", {
@@ -183,7 +243,8 @@ function RegistrationForm() {
       });
     } catch (err) {
       setStatus("error");
-      setErrorMessage(err instanceof Error ? err.message : "Something went wrong");
+      const rawError = err instanceof Error ? err.message : "Something went wrong";
+      setErrorMessage(getReadableErrorMessage(rawError));
     }
   };
 
@@ -325,13 +386,32 @@ function RegistrationForm() {
             type="text"
             placeholder="yourhandle"
             value={formData.handle}
-            onChange={(e) => setFormData({ ...formData, handle: e.target.value })}
+            onChange={(e) => {
+              setFormData({ ...formData, handle: e.target.value });
+              if (fieldErrors.handle) {
+                setFieldErrors({ ...fieldErrors, handle: "" });
+              }
+            }}
             required
-            style={{ ...inputStyle, paddingLeft: "36px" }}
-            onFocus={(e) => e.currentTarget.style.borderColor = colors.primary}
-            onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
+            style={{
+              ...inputStyle,
+              paddingLeft: "36px",
+              borderColor: fieldErrors.handle ? colors.error : colors.border,
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = fieldErrors.handle ? colors.error : colors.primary}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = fieldErrors.handle ? colors.error : colors.border;
+              // Validate on blur
+              const error = validateHandle(formData.handle);
+              if (error) setFieldErrors(prev => ({ ...prev, handle: error }));
+            }}
           />
         </div>
+        {fieldErrors.handle && (
+          <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.error }}>
+            {fieldErrors.handle}
+          </p>
+        )}
       </div>
 
       {/* Shielded Address Input */}
@@ -341,23 +421,42 @@ function RegistrationForm() {
           type="text"
           placeholder="zs1..."
           value={formData.shielded_address}
-          onChange={(e) => setFormData({ ...formData, shielded_address: e.target.value })}
+          onChange={(e) => {
+            setFormData({ ...formData, shielded_address: e.target.value });
+            if (fieldErrors.shielded_address) {
+              setFieldErrors({ ...fieldErrors, shielded_address: "" });
+            }
+          }}
           required
-          style={inputStyle}
-          onFocus={(e) => e.currentTarget.style.borderColor = colors.primary}
-          onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
+          style={{
+            ...inputStyle,
+            borderColor: fieldErrors.shielded_address ? colors.error : colors.border,
+          }}
+          onFocus={(e) => e.currentTarget.style.borderColor = fieldErrors.shielded_address ? colors.error : colors.primary}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = fieldErrors.shielded_address ? colors.error : colors.border;
+            // Validate on blur
+            const error = validateShieldedAddress(formData.shielded_address);
+            if (error) setFieldErrors(prev => ({ ...prev, shielded_address: error }));
+          }}
         />
-        <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.muted }}>
-          Must start with &quot;zs&quot; and be 78 characters.{" "}
-          <a
-            href="https://z.cash/wallets/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: colors.primary, textDecoration: "underline" }}
-          >
-            Don&apos;t have a wallet?
-          </a>
-        </p>
+        {fieldErrors.shielded_address ? (
+          <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.error }}>
+            {fieldErrors.shielded_address}
+          </p>
+        ) : (
+          <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.muted }}>
+            Must start with &quot;zs&quot; and be 78 characters.{" "}
+            <a
+              href="https://z.cash/wallets/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: colors.primary, textDecoration: "underline" }}
+            >
+              Don&apos;t have a wallet?
+            </a>
+          </p>
+        )}
       </div>
 
       {/* Verification Section */}
@@ -427,12 +526,30 @@ My shielded address: ${formData.shielded_address || "[paste your address first]"
             type="url"
             placeholder="https://x.com/yourhandle/status/..."
             value={formData.tweet_url}
-            onChange={(e) => setFormData({ ...formData, tweet_url: e.target.value })}
+            onChange={(e) => {
+              setFormData({ ...formData, tweet_url: e.target.value });
+              if (fieldErrors.tweet_url) {
+                setFieldErrors({ ...fieldErrors, tweet_url: "" });
+              }
+            }}
             required
-            style={inputStyle}
-            onFocus={(e) => e.currentTarget.style.borderColor = colors.primary}
-            onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
+            style={{
+              ...inputStyle,
+              borderColor: fieldErrors.tweet_url ? colors.error : colors.border,
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = fieldErrors.tweet_url ? colors.error : colors.primary}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = fieldErrors.tweet_url ? colors.error : colors.border;
+              // Validate on blur
+              const error = validateTweetUrl(formData.tweet_url);
+              if (error) setFieldErrors(prev => ({ ...prev, tweet_url: error }));
+            }}
           />
+          {fieldErrors.tweet_url && (
+            <p style={{ margin: "8px 0 0", fontSize: "12px", color: colors.error }}>
+              {fieldErrors.tweet_url}
+            </p>
+          )}
         </div>
       </div>
 

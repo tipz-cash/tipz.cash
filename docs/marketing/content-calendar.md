@@ -27,7 +27,7 @@
 ### Day -1: Countdown
 **Platform**: X (Twitter)
 **Content**: Countdown post
-**Copy**: "Tomorrow: Private tips go live. Creators, get ready. tipz.app"
+**Copy**: "Tomorrow: Private tips go live. Creators, get ready. tipz.cash"
 **Goal**: Build anticipation
 
 ---

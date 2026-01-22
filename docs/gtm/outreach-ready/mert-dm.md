@@ -10,7 +10,7 @@
 
 - [ ] Engaged with 2-3 of his recent tweets genuinely (not obviously promotional)
 - [ ] Verified TIPZ demo is working on X.com
-- [ ] tipz.app is live and registration works
+- [ ] tipz.cash is live and registration works
 - [ ] Have a test tip ready to send if he registers
 
 ---
@@ -33,7 +33,7 @@ Extension works right on X.com - tip button shows up next to tweets.
 
 Built this because creator income shouldn't be on a public ledger. Figured you'd appreciate someone actually shipping shielded-by-default products instead of just talking about it.
 
-Would love your take if you have 5 min: tipz.app
+Would love your take if you have 5 min: tipz.cash
 
 Happy to answer any questions on the architecture - it's a fun build.
 ```
@@ -59,7 +59,7 @@ Send this follow-up:
 Really appreciate you checking it out.
 
 If you want to test the full flow:
-1. Register your handle at tipz.app (takes 30 sec)
+1. Register your handle at tipz.cash (takes 30 sec)
 2. I'll send you a test tip so you can see the shielded transaction
 
 No pressure either way - just wanted to offer.
@@ -88,7 +88,7 @@ Hey Mert - quick follow-up on TIPZ.
 
 We've had [X] creators register and sent [Y] tips in our first week. Shielded adoption growing.
 
-Offer still stands if you want to try it: tipz.app
+Offer still stands if you want to try it: tipz.cash
 
 No worries if not your thing - just wanted to close the loop.
 ```

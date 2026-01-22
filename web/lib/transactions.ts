@@ -1,11 +1,11 @@
 /**
  * Transaction Logging Module for TIPZ
  *
- * This module provides TypeScript interfaces and placeholder functions
- * for logging tip transactions. It prepares the infrastructure for
- * payment integration with Zcash shielded transactions.
+ * This module provides functions for logging and managing tip transactions
+ * using Supabase as the backend. It handles the full lifecycle of Zcash
+ * shielded transactions from creation to confirmation.
  *
- * Database Schema (Planned):
+ * Database Schema:
  *
  * Table: transactions
  * ┌─────────────────────────────────────────────────────────────────┐
@@ -76,6 +76,54 @@
  *   USING (auth.role() = 'service_role');
  * ```
  */
+
+import { supabase } from "./supabase"
+
+/**
+ * Database row type for transactions table.
+ * Maps to the actual column names in Supabase.
+ */
+interface TransactionRow {
+  id: string
+  creator_id: string | null
+  sender_address: string | null
+  recipient_address: string
+  amount_zec: number
+  amount_usd: number | null
+  tx_hash: string | null
+  status: TransactionStatus
+  confirmations: number
+  memo: string | null
+  source_platform: string
+  source_url: string | null
+  created_at: string
+  confirmed_at: string | null
+  metadata: TransactionMetadata | null
+}
+
+/**
+ * Map database row to Transaction interface.
+ * Converts snake_case columns to camelCase properties.
+ */
+function mapDbToTransaction(row: TransactionRow): Transaction {
+  return {
+    id: row.id,
+    creatorId: row.creator_id || "",
+    senderAddress: row.sender_address || undefined,
+    recipientAddress: row.recipient_address,
+    amountZec: Number(row.amount_zec),
+    amountUsd: row.amount_usd ? Number(row.amount_usd) : undefined,
+    txHash: row.tx_hash || undefined,
+    status: row.status,
+    confirmations: row.confirmations || 0,
+    memo: row.memo || undefined,
+    sourcePlatform: row.source_platform as TransactionSource,
+    sourceUrl: row.source_url || undefined,
+    createdAt: new Date(row.created_at),
+    confirmedAt: row.confirmed_at ? new Date(row.confirmed_at) : undefined,
+    metadata: row.metadata || undefined
+  }
+}
 
 /**
  * Transaction status enum.
@@ -261,11 +309,7 @@ export interface TransactionStats {
  *
  * @param input - Transaction details
  * @returns The created transaction record
- *
- * TODO: Implement with Supabase
- * - Insert into transactions table
- * - Return created record with ID
- * - Handle duplicate txHash gracefully
+ * @throws Error if database insert fails
  *
  * @example
  * ```typescript
@@ -281,43 +325,49 @@ export interface TransactionStats {
 export async function logTransaction(
   input: CreateTransactionInput
 ): Promise<Transaction> {
-  // TODO: Implement database insertion
-  // const { data, error } = await supabase
-  //   .from("transactions")
-  //   .insert({
-  //     creator_id: input.creatorId,
-  //     sender_address: input.senderAddress,
-  //     recipient_address: input.recipientAddress,
-  //     amount_zec: input.amountZec,
-  //     amount_usd: input.amountUsd,
-  //     tx_hash: input.txHash,
-  //     memo: input.memo,
-  //     source_platform: input.sourcePlatform,
-  //     source_url: input.sourceUrl,
-  //     metadata: input.metadata,
-  //     status: "pending"
-  //   })
-  //   .select()
-  //   .single()
-
-  // Placeholder implementation
-  const now = new Date()
-  return {
-    id: crypto.randomUUID(),
-    creatorId: input.creatorId,
-    senderAddress: input.senderAddress,
-    recipientAddress: input.recipientAddress,
-    amountZec: input.amountZec,
-    amountUsd: input.amountUsd,
-    txHash: input.txHash,
-    status: "pending",
-    confirmations: 0,
-    memo: input.memo,
-    sourcePlatform: input.sourcePlatform,
-    sourceUrl: input.sourceUrl,
-    createdAt: now,
-    metadata: input.metadata
+  // Validate required fields
+  if (!input.recipientAddress) {
+    throw new Error("recipientAddress is required")
   }
+  if (typeof input.amountZec !== "number" || input.amountZec <= 0) {
+    throw new Error("amountZec must be a positive number")
+  }
+  if (!input.sourcePlatform) {
+    throw new Error("sourcePlatform is required")
+  }
+
+  // Handle duplicate txHash gracefully by checking first
+  if (input.txHash) {
+    const existing = await getTransactionByHash(input.txHash)
+    if (existing) {
+      return existing
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .insert({
+      creator_id: input.creatorId,
+      sender_address: input.senderAddress || null,
+      recipient_address: input.recipientAddress,
+      amount_zec: input.amountZec,
+      amount_usd: input.amountUsd || null,
+      tx_hash: input.txHash || null,
+      memo: input.memo || null,
+      source_platform: input.sourcePlatform,
+      source_url: input.sourceUrl || null,
+      metadata: input.metadata || {},
+      status: "pending"
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error("[transactions] Insert error:", error)
+    throw new Error(`Failed to log transaction: ${error.message}`)
+  }
+
+  return mapDbToTransaction(data)
 }
 
 /**
@@ -327,67 +377,142 @@ export async function logTransaction(
  *
  * @param transactionId - The transaction ID to update
  * @param update - Fields to update
- * @returns Updated transaction record
- *
- * TODO: Implement with Supabase
- * - Update transaction by ID
- * - Set confirmed_at when status changes to confirmed
- * - Merge metadata rather than replace
+ * @returns Updated transaction record or null if not found
+ * @throws Error if database update fails
  */
 export async function updateTransactionStatus(
   transactionId: string,
   update: UpdateTransactionInput
 ): Promise<Transaction | null> {
-  // TODO: Implement database update
-  // const { data, error } = await supabase
-  //   .from("transactions")
-  //   .update({
-  //     tx_hash: update.txHash,
-  //     status: update.status,
-  //     confirmations: update.confirmations,
-  //     confirmed_at: update.confirmedAt,
-  //     metadata: update.metadata
-  //   })
-  //   .eq("id", transactionId)
-  //   .select()
-  //   .single()
+  // Build the update object
+  const updateData: Record<string, unknown> = {
+    status: update.status
+  }
 
-  console.log(`[placeholder] Updating transaction ${transactionId}:`, update)
-  return null
+  if (update.txHash !== undefined) {
+    updateData.tx_hash = update.txHash
+  }
+
+  if (update.confirmations !== undefined) {
+    updateData.confirmations = update.confirmations
+  }
+
+  // Auto-set confirmed_at when status changes to confirmed
+  if (update.status === "confirmed") {
+    updateData.confirmed_at = update.confirmedAt?.toISOString() || new Date().toISOString()
+  }
+
+  // Merge metadata if provided
+  if (update.metadata) {
+    // Fetch existing metadata first to merge
+    const { data: existing } = await supabase
+      .from("transactions")
+      .select("metadata")
+      .eq("id", transactionId)
+      .single()
+
+    const existingMetadata = (existing?.metadata as TransactionMetadata) || {}
+    updateData.metadata = { ...existingMetadata, ...update.metadata }
+  }
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .update(updateData)
+    .eq("id", transactionId)
+    .select()
+    .single()
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      // Row not found
+      return null
+    }
+    console.error("[transactions] Update error:", error)
+    throw new Error(`Failed to update transaction: ${error.message}`)
+  }
+
+  return mapDbToTransaction(data)
 }
 
 /**
- * Get transactions for a creator.
+ * Get transactions with optional filters.
  *
- * Fetches transaction history with optional filters.
+ * Fetches transaction history with filtering and pagination support.
  *
  * @param query - Query filters
  * @returns Array of transactions
- *
- * TODO: Implement with Supabase
- * - Apply filters
- * - Order by created_at DESC
- * - Implement pagination
+ * @throws Error if database query fails
  */
 export async function getTransactions(
   query: TransactionQuery
 ): Promise<Transaction[]> {
-  // TODO: Implement database query
-  // let queryBuilder = supabase
-  //   .from("transactions")
-  //   .select("*")
-  //   .order("created_at", { ascending: false })
-  //
-  // if (query.creatorId) {
-  //   queryBuilder = queryBuilder.eq("creator_id", query.creatorId)
-  // }
-  // if (query.status) {
-  //   queryBuilder = queryBuilder.eq("status", query.status)
-  // }
-  // ... apply other filters
+  let queryBuilder = supabase
+    .from("transactions")
+    .select("*")
+    .order("created_at", { ascending: false })
 
-  console.log("[placeholder] getTransactions with query:", query)
-  return []
+  // Apply filters
+  if (query.creatorId) {
+    queryBuilder = queryBuilder.eq("creator_id", query.creatorId)
+  }
+
+  if (query.status) {
+    queryBuilder = queryBuilder.eq("status", query.status)
+  }
+
+  if (query.sourcePlatform) {
+    queryBuilder = queryBuilder.eq("source_platform", query.sourcePlatform)
+  }
+
+  if (query.startDate) {
+    queryBuilder = queryBuilder.gte("created_at", query.startDate.toISOString())
+  }
+
+  if (query.endDate) {
+    queryBuilder = queryBuilder.lte("created_at", query.endDate.toISOString())
+  }
+
+  // Apply pagination
+  const limit = query.limit || 50
+  const offset = query.offset || 0
+  queryBuilder = queryBuilder.range(offset, offset + limit - 1)
+
+  const { data, error } = await queryBuilder
+
+  if (error) {
+    console.error("[transactions] Query error:", error)
+    throw new Error(`Failed to fetch transactions: ${error.message}`)
+  }
+
+  return (data || []).map(mapDbToTransaction)
+}
+
+/**
+ * Get transaction by ID.
+ *
+ * Lookup a specific transaction by its database ID.
+ *
+ * @param transactionId - Transaction UUID
+ * @returns Transaction or null if not found
+ */
+export async function getTransactionById(
+  transactionId: string
+): Promise<Transaction | null> {
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("id", transactionId)
+    .single()
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      return null
+    }
+    console.error("[transactions] Lookup error:", error)
+    return null
+  }
+
+  return mapDbToTransaction(data)
 }
 
 /**
@@ -401,51 +526,114 @@ export async function getTransactions(
 export async function getTransactionByHash(
   txHash: string
 ): Promise<Transaction | null> {
-  // TODO: Implement database query
-  // const { data, error } = await supabase
-  //   .from("transactions")
-  //   .select("*")
-  //   .eq("tx_hash", txHash)
-  //   .single()
+  if (!txHash || !isValidTxHash(txHash)) {
+    return null
+  }
 
-  console.log("[placeholder] getTransactionByHash:", txHash)
-  return null
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("tx_hash", txHash)
+    .single()
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      // Row not found
+      return null
+    }
+    console.error("[transactions] Lookup error:", error)
+    return null
+  }
+
+  return mapDbToTransaction(data)
 }
 
 /**
  * Get aggregated statistics for a creator.
  *
  * Calculates tip statistics for analytics/dashboard.
+ * Only counts confirmed transactions.
  *
  * @param creatorId - The creator's ID
  * @returns Aggregated statistics
- *
- * TODO: Implement with Supabase
- * - Use aggregate functions (SUM, COUNT, AVG, MAX)
- * - Filter by time periods for 24h/7d/30d stats
- * - Consider caching for performance
  */
 export async function getCreatorStats(
   creatorId: string
 ): Promise<TransactionStats> {
-  // TODO: Implement with actual database queries
-  // const { data: stats } = await supabase.rpc("get_creator_stats", {
-  //   p_creator_id: creatorId
-  // })
+  const now = new Date()
+  const day24h = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+  const day7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+  const day30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-  console.log("[placeholder] getCreatorStats for:", creatorId)
+  // Fetch all confirmed transactions for this creator
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("amount_zec, amount_usd, created_at")
+    .eq("creator_id", creatorId)
+    .eq("status", "confirmed")
 
-  // Return placeholder stats
+  if (error) {
+    console.error("[transactions] Stats error:", error)
+    // Return empty stats on error
+    return {
+      creatorId,
+      totalTips: 0,
+      totalZec: 0,
+      totalUsd: 0,
+      tips24h: 0,
+      tips7d: 0,
+      tips30d: 0,
+      averageTipZec: 0,
+      largestTipZec: 0
+    }
+  }
+
+  const transactions = data || []
+
+  // Calculate aggregate stats
+  let totalZec = 0
+  let totalUsd = 0
+  let largestTipZec = 0
+  let tips24h = 0
+  let tips7d = 0
+  let tips30d = 0
+
+  for (const tx of transactions) {
+    const amountZec = Number(tx.amount_zec)
+    const amountUsd = tx.amount_usd ? Number(tx.amount_usd) : 0
+    const createdAt = new Date(tx.created_at)
+
+    totalZec += amountZec
+    totalUsd += amountUsd
+
+    if (amountZec > largestTipZec) {
+      largestTipZec = amountZec
+    }
+
+    if (createdAt >= day24h) {
+      tips24h++
+    }
+    if (createdAt >= day7d) {
+      tips7d++
+    }
+    if (createdAt >= day30d) {
+      tips30d++
+    }
+  }
+
+  const totalTips = transactions.length
+  const averageTipZec = totalTips > 0 ? totalZec / totalTips : 0
+
   return {
     creatorId,
-    totalTips: 0,
-    totalZec: 0,
-    totalUsd: 0,
-    tips24h: 0,
-    tips7d: 0,
-    tips30d: 0,
-    averageTipZec: 0,
-    largestTipZec: 0
+    totalTips,
+    totalZec: Math.round(totalZec * 100000000) / 100000000, // Round to 8 decimals
+    totalUsd: Math.round(totalUsd * 100) / 100, // Round to 2 decimals
+    tips24h,
+    tips7d,
+    tips30d,
+    averageTipZec: Math.round(averageTipZec * 100000000) / 100000000,
+    largestTipZec: Math.round(largestTipZec * 100000000) / 100000000
   }
 }
 

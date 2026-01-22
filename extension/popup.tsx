@@ -87,16 +87,95 @@ function RecentTipItem({ tx }: { tx: TipTransaction }) {
   )
 }
 
+// Loading spinner component
+function LoadingSpinner({ size = 24 }: { size?: number }) {
+  return (
+    <div style={{
+      width: size,
+      height: size,
+      border: `2px solid ${colors.border}`,
+      borderTopColor: colors.primary,
+      borderRadius: "50%",
+      animation: "spin 0.8s linear infinite",
+    }}>
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+// Skeleton loader for recent tips
+function TipSkeleton() {
+  return (
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "10px 12px",
+      backgroundColor: colors.surface,
+      borderRadius: "4px",
+      border: `1px solid ${colors.border}`,
+    }}>
+      <div>
+        <div style={{
+          width: "80px",
+          height: "13px",
+          backgroundColor: colors.border,
+          borderRadius: "2px",
+          marginBottom: "6px",
+          animation: "pulse 1.5s ease-in-out infinite",
+        }} />
+        <div style={{
+          width: "50px",
+          height: "11px",
+          backgroundColor: colors.border,
+          borderRadius: "2px",
+          animation: "pulse 1.5s ease-in-out infinite",
+        }} />
+      </div>
+      <div style={{
+        width: "60px",
+        height: "13px",
+        backgroundColor: colors.border,
+        borderRadius: "2px",
+        animation: "pulse 1.5s ease-in-out infinite",
+      }} />
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 function IndexPopup() {
   const { wallet, isConnecting, connect, disconnect, availableWallets } = usePayment()
   const [recentTips, setRecentTips] = useState<TipTransaction[]>([])
   const [activeTab, setActiveTab] = useState<"home" | "history">("home")
+  const [isLoadingTips, setIsLoadingTips] = useState(true)
+  const [tipsError, setTipsError] = useState<string | null>(null)
 
   // Load recent tips on mount
   useEffect(() => {
-    getTransactionHistory().then((history) => {
-      setRecentTips(history.slice(0, 5))
-    })
+    setIsLoadingTips(true)
+    setTipsError(null)
+    getTransactionHistory()
+      .then((history) => {
+        setRecentTips(history.slice(0, 5))
+      })
+      .catch((err) => {
+        setTipsError("Failed to load tip history")
+        console.error("Error loading tips:", err)
+      })
+      .finally(() => {
+        setIsLoadingTips(false)
+      })
   }, [])
 
   const buttonPrimaryStyle: React.CSSProperties = {
@@ -228,13 +307,18 @@ function IndexPopup() {
             disabled={isConnecting}
             style={{
               ...buttonSecondaryStyle,
-              opacity: isConnecting ? 0.5 : 1,
+              opacity: isConnecting ? 0.7 : 1,
+              cursor: isConnecting ? "not-allowed" : "pointer",
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="2" y="6" width="20" height="14" rx="2"/>
-              <path d="M22 10H2M6 14h.01"/>
-            </svg>
+            {isConnecting ? (
+              <LoadingSpinner size={16} />
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="6" width="20" height="14" rx="2"/>
+                <path d="M22 10H2M6 14h.01"/>
+              </svg>
+            )}
             {isConnecting ? "Connecting..." : "Connect Wallet"}
           </button>
         )}
@@ -297,23 +381,23 @@ function IndexPopup() {
                   lineHeight: 1.5,
                   fontFamily: fonts.mono,
                 }}>
-                  Look for the <span style={{ color: colors.primary, fontWeight: 500 }}>TIP</span> button on tweets to send private tips.
+                  Look for the <span style={{ color: colors.primary, fontWeight: 500 }}>TIP</span> button on tweets and Substack articles to send private tips.
                 </p>
               </div>
             </div>
 
             {/* Recent Tips Preview */}
-            {recentTips.length > 0 && (
-              <div style={{ marginBottom: "16px" }}>
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: "10px",
-                }}>
-                  <h3 style={{ margin: 0, fontSize: "12px", fontWeight: 600, fontFamily: fonts.mono }}>
-                    Recent Tips
-                  </h3>
+            <div style={{ marginBottom: "16px" }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "10px",
+              }}>
+                <h3 style={{ margin: 0, fontSize: "12px", fontWeight: 600, fontFamily: fonts.mono }}>
+                  Recent Tips
+                </h3>
+                {recentTips.length > 0 && (
                   <button
                     onClick={() => setActiveTab("history")}
                     style={{
@@ -328,22 +412,65 @@ function IndexPopup() {
                   >
                     View all
                   </button>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {recentTips.slice(0, 2).map((tx) => (
-                    <RecentTipItem key={tx.id} tx={tx} />
-                  ))}
-                </div>
+                )}
               </div>
-            )}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {isLoadingTips ? (
+                  <>
+                    <TipSkeleton />
+                    <TipSkeleton />
+                  </>
+                ) : tipsError ? (
+                  <div style={{
+                    padding: "12px",
+                    backgroundColor: "rgba(255, 68, 68, 0.1)",
+                    border: `1px solid ${colors.error}`,
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    color: colors.error,
+                    textAlign: "center",
+                    fontFamily: fonts.mono,
+                  }}>
+                    {tipsError}
+                  </div>
+                ) : recentTips.length > 0 ? (
+                  recentTips.slice(0, 2).map((tx) => (
+                    <RecentTipItem key={tx.id} tx={tx} />
+                  ))
+                ) : (
+                  <div style={{
+                    padding: "12px",
+                    backgroundColor: colors.surface,
+                    borderRadius: "4px",
+                    border: `1px solid ${colors.border}`,
+                    fontSize: "12px",
+                    color: colors.muted,
+                    textAlign: "center",
+                    fontFamily: fonts.mono,
+                  }}>
+                    No tips yet - start tipping creators!
+                  </div>
+                )}
+              </div>
+            </div>
 
-            {/* Creators link - subtle */}
+            {/* Primary CTA */}
+            <a
+              href={`${API_URL}/design/v4-terminal#register`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={buttonPrimaryStyle}
+            >
+              Register as Creator
+            </a>
+
+            {/* Secondary link */}
             <div style={{
-              marginTop: "8px",
+              marginTop: "12px",
               textAlign: "center",
             }}>
               <a
-                href={`${API_URL}/design/v4-terminal#register`}
+                href={`${API_URL}/design/v4-terminal`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -353,7 +480,7 @@ function IndexPopup() {
                   fontFamily: fonts.mono,
                 }}
               >
-                Are you a creator? Register to receive tips
+                Learn more about TIPZ
               </a>
             </div>
           </>
@@ -363,7 +490,47 @@ function IndexPopup() {
             <h3 style={{ margin: "0 0 12px", fontSize: "12px", fontWeight: 600, fontFamily: fonts.mono }}>
               Tip History
             </h3>
-            {recentTips.length > 0 ? (
+            {isLoadingTips ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <TipSkeleton />
+                <TipSkeleton />
+                <TipSkeleton />
+              </div>
+            ) : tipsError ? (
+              <div style={{
+                padding: "16px",
+                backgroundColor: "rgba(255, 68, 68, 0.1)",
+                border: `1px solid ${colors.error}`,
+                borderRadius: "4px",
+                textAlign: "center",
+              }}>
+                <p style={{ margin: "0 0 8px", fontSize: "13px", color: colors.error, fontFamily: fonts.mono }}>
+                  {tipsError}
+                </p>
+                <button
+                  onClick={() => {
+                    setIsLoadingTips(true)
+                    setTipsError(null)
+                    getTransactionHistory()
+                      .then((history) => setRecentTips(history.slice(0, 5)))
+                      .catch(() => setTipsError("Failed to load tip history"))
+                      .finally(() => setIsLoadingTips(false))
+                  }}
+                  style={{
+                    background: "none",
+                    border: `1px solid ${colors.error}`,
+                    color: colors.error,
+                    padding: "6px 12px",
+                    borderRadius: "4px",
+                    fontSize: "11px",
+                    cursor: "pointer",
+                    fontFamily: fonts.mono,
+                  }}
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : recentTips.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {recentTips.map((tx) => (
                   <RecentTipItem key={tx.id} tx={tx} />

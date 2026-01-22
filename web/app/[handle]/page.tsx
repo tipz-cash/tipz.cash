@@ -16,6 +16,37 @@ const colors = {
   text: "#E0E0E0",
 }
 
+// Skeleton keyframes style
+const skeletonStyles = `
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`;
+
+// Skeleton component for loading state
+function Skeleton({ width, height, borderRadius = "4px", style = {} }: {
+  width: string | number;
+  height: string | number;
+  borderRadius?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <div style={{
+      width,
+      height,
+      borderRadius,
+      background: `linear-gradient(90deg, ${colors.border} 25%, ${colors.surface} 50%, ${colors.border} 75%)`,
+      backgroundSize: "200% 100%",
+      animation: "shimmer 1.5s ease-in-out infinite",
+      ...style,
+    }} />
+  );
+}
+
 interface Creator {
   id: string
   platform: string
@@ -66,23 +97,127 @@ export default function CreatorCardPage() {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: "24px",
+    padding: "24px 16px",
     fontFamily: "'JetBrains Mono', 'Monaco', 'Consolas', monospace",
   }
 
-  // Loading state
+  // Mobile responsive card style
+  const cardStyle: React.CSSProperties = {
+    maxWidth: "400px",
+    width: "100%",
+    backgroundColor: colors.surface,
+    border: `1px solid ${colors.border}`,
+    borderRadius: "12px",
+    overflow: "hidden",
+  }
+
+  // Mobile responsive content padding
+  const cardContentStyle: React.CSSProperties = {
+    padding: "clamp(24px, 6vw, 40px) clamp(20px, 5vw, 32px)",
+    textAlign: "center" as const,
+  }
+
+  // Loading state - Skeleton loader
   if (state === "loading") {
     return (
       <div style={containerStyle}>
+        <style>{skeletonStyles}</style>
         <div style={{
-          width: "32px",
-          height: "32px",
-          border: `2px solid ${colors.border}`,
-          borderTopColor: colors.primary,
-          borderRadius: "50%",
-          animation: "spin 1s linear infinite",
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          maxWidth: "400px",
+          width: "100%",
+          backgroundColor: colors.surface,
+          border: `1px solid ${colors.border}`,
+          borderRadius: "12px",
+          overflow: "hidden",
+        }}>
+          {/* Terminal header skeleton */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "12px 16px",
+            borderBottom: `1px solid ${colors.border}`,
+            backgroundColor: colors.bg,
+          }}>
+            <div style={{ display: "flex", gap: "6px" }}>
+              <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#FF5F56" }} />
+              <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#FFBD2E" }} />
+              <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27CA40" }} />
+            </div>
+            <Skeleton width={140} height={12} style={{ marginLeft: "8px" }} />
+          </div>
+
+          {/* Card content skeleton */}
+          <div style={{ padding: "40px 32px", textAlign: "center" }}>
+            {/* Avatar skeleton */}
+            <Skeleton
+              width={96}
+              height={96}
+              borderRadius="50%"
+              style={{ margin: "0 auto 20px" }}
+            />
+
+            {/* Handle skeleton */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              marginBottom: "8px",
+            }}>
+              <Skeleton width={120} height={24} />
+              <Skeleton width={20} height={20} borderRadius="50%" />
+            </div>
+
+            {/* Status text skeleton */}
+            <Skeleton
+              width={140}
+              height={13}
+              style={{ margin: "0 auto 24px" }}
+            />
+
+            {/* Address box skeleton */}
+            <div style={{
+              backgroundColor: colors.bg,
+              border: `1px solid ${colors.border}`,
+              borderRadius: "8px",
+              padding: "12px 16px",
+              marginBottom: "24px",
+            }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+              }}>
+                <Skeleton width={16} height={16} borderRadius="50%" />
+                <Skeleton width={160} height={12} />
+              </div>
+            </div>
+
+            {/* CTA Button skeleton */}
+            <Skeleton
+              width="100%"
+              height={52}
+              borderRadius="8px"
+              style={{ marginBottom: "16px" }}
+            />
+
+            {/* Footer text skeleton */}
+            <Skeleton
+              width={180}
+              height={11}
+              style={{ margin: "0 auto" }}
+            />
+          </div>
+        </div>
+
+        {/* Back link skeleton */}
+        <Skeleton
+          width={100}
+          height={13}
+          style={{ marginTop: "24px" }}
+        />
       </div>
     )
   }
