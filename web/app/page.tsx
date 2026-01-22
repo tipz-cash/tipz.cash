@@ -3038,7 +3038,9 @@ export default function HomePage() {
 
           {/* copywriting: outcome without pain point formula */}
           <TypingHeading
-            text="Keep 100% of your TIPZ—without the fees."
+            text="Keep 100% of your "
+            suffix="TIPZ."
+            suffixColor={colors.primary}
             style={{ fontSize: "44px", lineHeight: 1.2 }}
           />
 
