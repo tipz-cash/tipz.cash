@@ -265,62 +265,11 @@ async function connectMetaMask(): Promise<WalletState> {
 
 /**
  * Connect to WalletConnect
+ * NOTE: Temporarily disabled to reduce bundle size for testing.
+ * WalletConnect will be re-enabled for production.
  */
 async function connectWalletConnect(): Promise<WalletState> {
-  try {
-    // Dynamic import to avoid bundling issues
-    const { EthereumProvider } = await import("@walletconnect/ethereum-provider")
-
-    const provider = await EthereumProvider.init({
-      projectId: process.env.PLASMO_PUBLIC_WALLETCONNECT_PROJECT_ID || "tipz-extension",
-      chains: [1], // Ethereum mainnet
-      optionalChains: [137, 42161, 10],
-      showQrModal: true,
-      methods: [
-        "eth_sendTransaction",
-        "eth_signTransaction",
-        "eth_sign",
-        "personal_sign",
-        "eth_signTypedData",
-      ],
-      events: ["chainChanged", "accountsChanged"],
-    })
-
-    // Connect and show QR modal
-    await provider.connect()
-
-    const accounts = provider.accounts
-    if (!accounts || accounts.length === 0) {
-      throw new Error("No accounts found after WalletConnect connection")
-    }
-
-    const address = accounts[0]
-    const chainId = provider.chainId
-
-    // Create ethers provider
-    currentProvider = new BrowserProvider(provider as any)
-    currentWalletType = "walletconnect"
-
-    // Get native token balance
-    const balance = await currentProvider.getBalance(address)
-    const balanceFormatted = formatUnits(balance, 18)
-
-    return {
-      isConnected: true,
-      address,
-      chainId,
-      walletType: "walletconnect",
-      balance: {
-        symbol: chainId === 137 ? "MATIC" : "ETH",
-        amount: balanceFormatted,
-        decimals: 18,
-        usdValue: null,
-      },
-    }
-  } catch (error: any) {
-    console.error("TIPZ: WalletConnect connection error", error)
-    throw new Error(error.message || "Failed to connect via WalletConnect")
-  }
+  throw new Error("WalletConnect is coming soon. Please use MetaMask or Rabby for now.")
 }
 
 /**

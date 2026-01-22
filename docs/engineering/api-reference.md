@@ -84,7 +84,7 @@ Look up a single creator by platform and handle.
 **Query Parameters**:
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| platform | string | Yes | Platform identifier: `x` |
+| platform | string | Yes | Platform identifier: `x` or `substack` |
 | handle | string | Yes | Creator's handle (with or without @) |
 
 #### Example Request
@@ -143,7 +143,7 @@ Content-Type: application/json
 **Body**:
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| platform | string | Yes | `x` |
+| platform | string | Yes | `x` or `substack` |
 | handle | string | Yes | Creator's handle |
 | shielded_address | string | Yes | Zcash shielded address (zs...) |
 | tweet_url | string | Yes | Verification tweet URL |
@@ -198,7 +198,7 @@ curl -X POST "https://tipz.app/api/register" \
 
 ```json
 {
-  "error": "Invalid platform. Only 'x' is currently supported."
+  "error": "Invalid platform. Must be 'x' or 'substack'"
 }
 ```
 
@@ -230,7 +230,7 @@ curl -X POST "https://tipz.app/api/register" \
 #### Validation Rules
 
 **Platform**:
-- Must be exactly `x`
+- Must be exactly `x` or `substack`
 
 **Handle**:
 - Any non-empty string
@@ -266,7 +266,7 @@ Content-Type: application/json
 **Body**:
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| platform | string | Yes | `x` |
+| platform | string | Yes | `x` or `substack` |
 | handles | string[] | Yes | Array of handles (max 100) |
 
 #### Example Request
@@ -356,6 +356,7 @@ interface Creator {
 | Value | Description |
 |-------|-------------|
 | `x` | X (Twitter) |
+| `substack` | Substack |
 
 ---
 
@@ -464,17 +465,17 @@ async function register(data) {
 ```typescript
 // Request types
 interface CreatorLookupParams {
-  platform: 'x';
+  platform: 'x' | 'substack';
   handle: string;
 }
 
 interface BatchLookupRequest {
-  platform: 'x';
+  platform: 'x' | 'substack';
   handles: string[];
 }
 
 interface RegisterRequest {
-  platform: 'x';
+  platform: 'x' | 'substack';
   handle: string;
   shielded_address: string;
   tweet_url: string;

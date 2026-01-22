@@ -9,17 +9,12 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "TIPZ - Get Tipped. Stay Private. No Fees.",
-  description: "No account needed to tip. Zero platform fees. Tips stay private. The only tipping platform where your income isn't public knowledge.",
+  title: "TIPZ - Private Tips. Any Asset. Zero Trace.",
+  description: "Private micro-tipping for creators using Zcash shielded addresses. Tip anyone on X with any token.",
   openGraph: {
-    title: "TIPZ - Get Tipped. Stay Private. No Fees.",
-    description: "No account needed to tip. Zero fees. Tips stay private. Unlike Ko-fi or Buy Me a Coffee.",
+    title: "TIPZ - Private Tips. Any Asset. Zero Trace.",
+    description: "Private micro-tipping for creators using Zcash shielded addresses.",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "TIPZ - Get Tipped. Stay Private. No Fees.",
-    description: "No account needed to tip. Zero fees. Tips stay private.",
   },
 }
 
