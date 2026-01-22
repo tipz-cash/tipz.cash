@@ -28,6 +28,10 @@ import {
   switchChain,
   restoreWalletSession,
   loadWalletSession,
+  clearWalletSession,
+  blockSessionRestoration,
+  unblockSessionRestoration,
+  isSessionRestorationBlocked,
 } from "~lib/payment"
 
 export interface UsePaymentReturn {
@@ -130,6 +134,12 @@ export function usePayment(): UsePaymentReturn {
       const wallets = getAvailableWallets()
       setAvailableWallets(wallets)
 
+      // Skip session restoration if blocked (during wallet change flow)
+      if (isSessionRestorationBlocked()) {
+        console.log("TIPZ: Session restoration blocked, skipping init restore")
+        return
+      }
+
       // Check if we have a saved session to restore
       const savedSession = loadWalletSession()
       if (savedSession) {
@@ -185,10 +195,13 @@ export function usePayment(): UsePaymentReturn {
 
     const handleAccountsChanged = async (accounts: string[]) => {
       if (accounts.length > 0) {
+        // Clear old session FIRST before getting new state
+        clearWalletSession()
         const state = await getWalletState()
         setWallet(state)
       } else {
-        // Wallet disconnected
+        // Wallet disconnected - clear session
+        clearWalletSession()
         setWallet(initialWalletState)
         setSelectedToken(null)
         setSupportedTokens([])
@@ -212,6 +225,8 @@ export function usePayment(): UsePaymentReturn {
     }
 
     const handleDisconnect = () => {
+      // Clear session FIRST
+      clearWalletSession()
       setWallet(initialWalletState)
       setSelectedToken(null)
       setSupportedTokens([])
@@ -285,6 +300,11 @@ export function usePayment(): UsePaymentReturn {
     setIsConnecting(true)
     setError(null)
 
+    // Block session restoration during force connect to prevent race conditions
+    if (force) {
+      blockSessionRestoration()
+    }
+
     try {
       const state = await connectWallet(walletType, force)
       setWallet(state)
@@ -302,15 +322,22 @@ export function usePayment(): UsePaymentReturn {
       setError(message)
       console.error("TIPZ: Wallet connection error", err)
     } finally {
+      // Unblock session restoration after connect completes
+      if (force) {
+        unblockSessionRestoration()
+      }
       setIsConnecting(false)
     }
   }, [])
 
   // Disconnect wallet
-  // IMPORTANT: Clear React state FIRST (synchronously) to prevent race conditions,
-  // then call disconnectWallet() for async cleanup
+  // IMPORTANT: Clear localStorage FIRST (synchronously) to prevent race conditions,
+  // then clear React state and call disconnectWallet() for async cleanup
   const disconnect = useCallback(async () => {
-    // Step 1: Clear all React state synchronously FIRST
+    // Step 1: Clear localStorage FIRST to prevent session restoration race conditions
+    clearWalletSession()
+
+    // Step 2: Clear all React state synchronously
     // This ensures the UI reflects disconnected state immediately
     setWallet(initialWalletState)
     setSelectedToken(null)
@@ -325,7 +352,7 @@ export function usePayment(): UsePaymentReturn {
       cleanupRef.current = null
     }
 
-    // Step 2: Async cleanup (session storage, wallet providers, etc.)
+    // Step 3: Async cleanup (wallet providers, etc.)
     try {
       await disconnectWallet()
     } catch (err) {
