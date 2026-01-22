@@ -350,31 +350,21 @@ export async function POST(request: NextRequest) {
   const sanitizedAddress = sanitizeInput(shielded_address as string)
   const sanitizedTweetUrl = sanitizeInput(tweet_url as string)
 
-  // Validate platform
-  const validPlatforms = ["x", "substack"] as const
-  if (!validPlatforms.includes(sanitizedPlatform as typeof validPlatforms[number])) {
+  // Validate platform - only X (Twitter) is supported
+  if (sanitizedPlatform !== "x") {
     return createErrorResponse(
-      "Invalid platform. Supported platforms: x, substack",
+      "Invalid platform. Only X (Twitter) is supported.",
       ERROR_CODES.INVALID_PLATFORM,
       400,
       headers,
-      { provided: sanitizedPlatform, supported: "x, substack" }
+      { provided: sanitizedPlatform, supported: "x" }
     )
   }
 
-  // Validate handle based on platform
-  if (sanitizedPlatform === "x") {
-    if (!isValidTwitterHandle(sanitizedHandle)) {
-      return createErrorResponse(
-        "Invalid X/Twitter handle. Must be 1-15 alphanumeric characters or underscores.",
-        ERROR_CODES.INVALID_HANDLE,
-        400,
-        headers
-      )
-    }
-  } else if (sanitizedHandle.length === 0 || sanitizedHandle.length > 50) {
+  // Validate X handle
+  if (!isValidTwitterHandle(sanitizedHandle)) {
     return createErrorResponse(
-      "Handle must be between 1 and 50 characters",
+      "Invalid X/Twitter handle. Must be 1-15 alphanumeric characters or underscores.",
       ERROR_CODES.INVALID_HANDLE,
       400,
       headers
