@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { TipzLogo } from "@/components/TipzLogo";
 
 // Color palette - refined for depth and atmosphere (matching home page)
 const colors = {
@@ -256,16 +257,7 @@ export default function ManifestoPage() {
               textDecoration: "none",
             }}
           >
-            <span
-              style={{
-                color: colors.primary,
-                fontWeight: 700,
-                fontSize: "18px",
-                textShadow: `0 0 20px ${colors.primaryGlow}`,
-              }}
-            >
-              [TIPZ]
-            </span>
+            <TipzLogo size={18} color={colors.primary} glowColor={colors.primaryGlow} />
             <span style={{
               color: colors.muted,
               fontSize: "10px",
@@ -475,25 +467,9 @@ export default function ManifestoPage() {
         }} />
 
         <div style={{ maxWidth: "800px", margin: "0 auto", padding: "0 24px", position: "relative" }}>
-          <pre
-            style={{
-              color: colors.primary,
-              fontSize: "11px",
-              lineHeight: 1.2,
-              marginBottom: "40px",
-              fontFamily: "'JetBrains Mono', monospace",
-              textShadow: `0 0 20px ${colors.primaryGlow}`,
-            }}
-          >
-{`                     ██
-████████╗██╗██████╗███████╗
-╚══██╔══╝██║██╔══██╗╚═███╔╝
-   ██║   ██║██████╔╝ ███╔╝
-   ██║   ██║██╔═══╝ ███╔╝
-   ██║   ██║██║    ███╔╝
-   ╚═╝   ╚═╝╚═╝   ███████╗
-                     ██`}
-          </pre>
+          <div style={{ marginBottom: "40px" }}>
+            <TipzLogo size={48} color={colors.primary} glowColor={colors.primaryGlow} />
+          </div>
           <p style={{ color: colors.muted, fontSize: "13px", marginBottom: "8px" }}>
             Signed with conviction,
           </p>
@@ -600,7 +576,7 @@ export default function ManifestoPage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px", textShadow: `0 0 15px ${colors.primaryGlow}` }}>[TIPZ]</span>
+          <TipzLogo size={16} color={colors.primary} glowColor={colors.primaryGlow} />
           <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>v0.1.0-beta</span>
         </div>
         <div style={{ display: "flex", gap: "32px" }}>

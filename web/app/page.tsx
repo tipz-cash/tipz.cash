@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { TipzLogo } from "@/components/TipzLogo";
 
 // Color palette - refined for depth and atmosphere
 const colors = {
@@ -740,12 +741,12 @@ function AnimatedCharacter({
   char,
   index,
   isNew,
-  isTipsChar,
+  isTipzChar,
 }: {
   char: string;
   index: number;
   isNew: boolean;
-  isTipsChar: boolean;
+  isTipzChar: boolean;
 }) {
   // Handle newline characters as actual line breaks
   if (char === "\n") {
@@ -757,10 +758,10 @@ function AnimatedCharacter({
       style={{
         display: "inline-block",
         animation: isNew ? "char-enter 0.15s ease-out forwards" : "none",
-        color: isTipsChar ? colors.primary : "inherit",
+        color: isTipzChar ? colors.primary : "inherit",
         // Extra amber glow for "tipz" characters
         filter: isNew
-          ? isTipsChar
+          ? isTipzChar
             ? `drop-shadow(0 0 8px ${colors.primaryGlowStrong})`
             : `drop-shadow(0 0 4px rgba(255,255,255,0.3))`
           : "none",
@@ -828,10 +829,10 @@ function HeroTitle({
     }
   }, [isComplete, onComplete, prefersReducedMotion]);
 
-  // Find "tips" indices for highlighting
-  const tipsStartIndex = text.toLowerCase().indexOf("tips");
-  const isTipsChar = (index: number) => {
-    return tipsStartIndex !== -1 && index >= tipsStartIndex && index < tipsStartIndex + 4;
+  // Find "TIPZ" indices for highlighting
+  const tipzStartIndex = text.toLowerCase().indexOf("tipz");
+  const isTipzChar = (index: number) => {
+    return tipzStartIndex !== -1 && index >= tipzStartIndex && index < tipzStartIndex + 4;
   };
 
   // Dynamic text-shadow that intensifies as typing progresses
@@ -870,7 +871,7 @@ function HeroTitle({
               ) : (
                 <span
                   key={index}
-                  style={{ color: isTipsChar(index) ? colors.primary : "inherit" }}
+                  style={{ color: isTipzChar(index) ? colors.primary : "inherit" }}
                 >
                   {char}
                 </span>
@@ -886,7 +887,7 @@ function HeroTitle({
                 char={char}
                 index={index}
                 isNew={index === newCharIndex}
-                isTipsChar={isTipsChar(index)}
+                isTipzChar={isTipzChar(index)}
               />
             ))}
             <PremiumCursor
@@ -1215,7 +1216,7 @@ function renderWithTipzHighlight(text: string, primaryColor: string) {
 }
 
 export default function HomePage() {
-  const heroText = "Private tips for\ncreators.";
+  const heroText = "Private TIPZ for\ncreators.";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [tweetVisible, setTweetVisible] = useState(false);
   const currentChapter = useCurrentChapter();
@@ -1286,13 +1287,7 @@ export default function HomePage() {
           alignItems: "center",
         }}>
           <a href="/" style={{ display: "flex", alignItems: "center", gap: "16px", textDecoration: "none" }}>
-            <span style={{
-              color: colors.primary,
-              fontWeight: 700,
-              fontSize: "18px",
-              textShadow: `0 0 20px ${colors.primaryGlow}`,
-              letterSpacing: "-0.5px",
-            }}>[TIPZ]</span>
+            <TipzLogo size={18} color={colors.primary} glowColor={colors.primaryGlow} />
             <span style={{
               color: colors.muted,
               fontSize: "10px",
@@ -1304,6 +1299,7 @@ export default function HomePage() {
           </a>
           <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
             <ZecTicker />
+            <span style={{ color: colors.border }}>|</span>
             <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>MANIFESTO</a>
             <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>DOCS</a>
             <a
@@ -1949,11 +1945,11 @@ export default function HomePage() {
           </TerminalReveal>
 
           <TypingHeading
-            prefix="> Tipz:"
+            prefix="> TIPZ:"
             prefixColor={colors.primary}
             text=" Keep 100% of every "
             suffix="tip."
-            suffixColor={colors.primary}
+            suffixColor={colors.textBright}
             style={{ fontSize: "40px" }}
           />
 
@@ -3147,7 +3143,7 @@ export default function HomePage() {
         backgroundColor: colors.surface,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px", textShadow: `0 0 15px ${colors.primaryGlow}` }}>[TIPZ]</span>
+          <TipzLogo size={16} color={colors.primary} glowColor={colors.primaryGlow} />
           <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>v0.1.0-beta</span>
         </div>
         <div style={{ display: "flex", gap: "32px" }}>
@@ -3249,23 +3245,23 @@ export default function HomePage() {
           }
           /* Move to TIP button */
           8% {
-            transform: translate(305px, 205px);
+            transform: translate(305px, 220px);
             opacity: 1;
           }
           /* Click TIP button (synced with button-click-loop at ~5%) */
           10% {
-            transform: translate(305px, 205px) scale(0.85);
+            transform: translate(305px, 220px) scale(0.85);
           }
           12% {
-            transform: translate(305px, 205px) scale(1);
+            transform: translate(305px, 220px) scale(1);
           }
           /* Hold position then fade */
           18% {
-            transform: translate(305px, 205px);
+            transform: translate(305px, 220px);
             opacity: 1;
           }
           22% {
-            transform: translate(305px, 205px);
+            transform: translate(305px, 220px);
             opacity: 0;
           }
           /* Stay hidden for rest of loop */
