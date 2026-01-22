@@ -344,11 +344,11 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Sanitize inputs
-  const sanitizedPlatform = sanitizeInput(platform).toLowerCase()
-  const sanitizedHandle = sanitizeInput(handle)
-  const sanitizedAddress = sanitizeInput(shielded_address)
-  const sanitizedTweetUrl = sanitizeInput(tweet_url)
+  // Sanitize inputs (type assertion safe after validation above)
+  const sanitizedPlatform = sanitizeInput(platform as string).toLowerCase()
+  const sanitizedHandle = sanitizeInput(handle as string)
+  const sanitizedAddress = sanitizeInput(shielded_address as string)
+  const sanitizedTweetUrl = sanitizeInput(tweet_url as string)
 
   // Validate platform
   const validPlatforms = ["x", "substack"] as const
