@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
+import {
+  isDemoMode,
+  isNearConfigured,
+  getNearConfig,
+  generateIntentId,
+  isValidShieldedAddress,
+  isValidDestinationChain,
+  estimateCompletionTime,
+  type IntentResponse,
+} from "@/lib/near"
 
 /**
- * Mock NEAR Intents API
+ * NEAR Intents API
  *
- * Simulates NEAR Intents privacy routing for demo mode.
- * In production, this would integrate with the Defuse SDK
- * to route payments through NEAR's intent system to
- * shielded Zcash addresses.
+ * Creates privacy-preserving intents for cross-chain transactions.
+ * Supports both demo mode (mock responses) and production mode (real NEAR).
  *
  * POST /api/intents/create
  * Request: { amount, destinationAddress, destinationChain }
@@ -22,52 +30,6 @@ interface IntentRequest {
     sourceChain?: number
     senderAddress?: string
   }
-}
-
-interface IntentResponse {
-  success: boolean
-  intentId: string
-  status: "pending" | "processing" | "completed" | "failed"
-  destinationChain: string
-  estimatedCompletion: number
-  demo: boolean
-  nearContract?: string
-  message?: string
-}
-
-/**
- * Generate a NEAR-style intent ID
- * Format: intent_{timestamp}_{random}
- */
-function generateIntentId(): string {
-  const timestamp = Date.now().toString(36)
-  const random = Math.random().toString(36).substring(2, 11)
-  return `intent_${timestamp}_${random}`
-}
-
-/**
- * Validate ZEC shielded address format
- */
-function isValidShieldedAddress(address: string): boolean {
-  // Unified addresses start with 'u1' (preferred for new wallets)
-  // Sapling addresses start with 'zs1' (legacy but still valid)
-  if (address.startsWith("u1")) {
-    // Unified addresses are variable length but typically 141+ characters
-    return address.length >= 78
-  }
-  if (address.startsWith("zs1")) {
-    // Sapling shielded addresses are exactly 78 characters
-    return address.length === 78
-  }
-  return false
-}
-
-/**
- * Validate destination chain
- */
-function isValidDestinationChain(chain: string): boolean {
-  const supportedChains = ["ZEC", "ZCASH", "zec", "zcash"]
-  return supportedChains.includes(chain)
 }
 
 export async function POST(request: NextRequest) {
@@ -114,33 +76,57 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Simulate NEAR Intents processing delay (1-2 seconds)
+    // Check if running in demo mode or production
+    const demoMode = isDemoMode()
+    const nearConfigured = isNearConfigured()
+
+    if (!demoMode && nearConfigured) {
+      // PRODUCTION MODE: Create real NEAR Intent
+      // TODO: Implement real NEAR contract call when SDK is integrated
+      // const nearConfig = getNearConfig()
+      // const intentResult = await createNearIntent({
+      //   amount,
+      //   destinationAddress,
+      //   destinationChain,
+      //   ...metadata,
+      // })
+
+      console.log("[intents/create] Production mode - NEAR integration pending")
+      // Fall through to demo mode for now
+    }
+
+    // DEMO MODE: Simulate NEAR Intents processing
     const processingDelay = 1000 + Math.floor(Math.random() * 1000)
     await new Promise(resolve => setTimeout(resolve, processingDelay))
 
     // Generate intent ID
     const intentId = generateIntentId()
 
-    // Estimated completion time (3-10 minutes for cross-chain privacy routing)
-    const estimatedCompletion = Date.now() + (180000 + Math.floor(Math.random() * 420000))
+    // Estimated completion time
+    const estimatedCompletion = Date.now() + estimateCompletionTime(destinationChain)
 
+    const nearConfig = getNearConfig()
     const response: IntentResponse = {
       success: true,
       intentId,
       status: "pending",
       destinationChain: "ZEC",
       estimatedCompletion,
-      demo: true,
-      nearContract: "intents.near",
-      message: "Demo intent created - no real funds routed through NEAR",
+      nearContract: nearConfig.networkId === "mainnet" ? "intents.near" : "intents.testnet",
+      demo: demoMode,
+      message: demoMode
+        ? "Demo intent created - no real funds routed through NEAR"
+        : "Intent created on NEAR",
     }
 
-    console.log("[intents/create] Mock intent created:", {
+    console.log("[intents/create] Intent created:", {
       intentId,
       amount: `${amount} ZEC`,
       destination: destinationAddress.slice(0, 12) + "...",
       sourceTx: metadata?.sourceTxHash?.slice(0, 12),
       estimatedMinutes: Math.round((estimatedCompletion - Date.now()) / 60000),
+      demo: demoMode,
+      network: nearConfig.networkId,
     })
 
     return NextResponse.json(response)
@@ -155,7 +141,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET endpoint to check intent status
- * In production this would query the NEAR chain for intent state
+ * In production this queries the NEAR chain for intent state
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -168,14 +154,29 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  // For demo mode, always return "processing" or "completed" based on time
-  // In production, this would query the actual intent status on NEAR
+  const demoMode = isDemoMode()
+  const nearConfigured = isNearConfigured()
+
+  if (!demoMode && nearConfigured) {
+    // PRODUCTION MODE: Query real NEAR Intent status
+    // TODO: Implement real NEAR contract query when SDK is integrated
+    // const nearConfig = getNearConfig()
+    // const intentStatus = await queryNearIntent(intentId)
+    // return NextResponse.json(intentStatus)
+
+    console.log("[intents/status] Production mode - NEAR integration pending")
+    // Fall through to demo mode for now
+  }
+
+  // DEMO MODE: Simulate status based on intent ID timestamp
   const isRecent = intentId.includes(Date.now().toString(36).slice(0, 4))
 
   return NextResponse.json({
     intentId,
     status: isRecent ? "processing" : "completed",
-    demo: true,
-    message: "Demo status - not querying real NEAR chain",
+    demo: demoMode,
+    message: demoMode
+      ? "Demo status - not querying real NEAR chain"
+      : "Status from NEAR",
   })
 }

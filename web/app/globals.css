@@ -24,11 +24,18 @@
   --space-2xl: 48px;
   --space-3xl: 64px;
 
+  /* Easing curves */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-base: 200ms ease;
   --transition-slow: 300ms ease;
   --transition-entrance: 500ms ease-out;
+  --transition-spring: 400ms var(--ease-spring);
 }
 
 * {
@@ -219,8 +226,8 @@ body {
 
 .card--interactive:hover {
   border-color: rgba(244, 183, 40, 0.3);
-  box-shadow: 0 0 30px rgba(244, 183, 40, 0.05);
-  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(244, 183, 40, 0.1), 0 8px 32px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px) scale(1.01);
 }
 
 /* Loading Spinner */
@@ -299,6 +306,34 @@ body {
   }
 }
 
+/* Float animation for atmospheric orbs */
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -30px) scale(1.05);
+  }
+  50% {
+    transform: translate(-10px, -50px) scale(1);
+  }
+  75% {
+    transform: translate(-30px, -20px) scale(0.95);
+  }
+}
+
+/* Pulse glow for elements */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px currentColor;
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 40px currentColor;
+  }
+}
+
 /* Glow effect for accent elements */
 .glow {
   box-shadow: 0 0 20px rgba(244, 183, 40, 0.3);
@@ -360,35 +395,35 @@ a {
   }
 }
 
-/* Fade-in animation */
+/* Fade-in animation with spring easing */
 .fade-in {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateY(20px) scale(0.98);
+  transition: opacity 0.5s var(--ease-smooth), transform 0.5s var(--ease-spring);
 }
 
 .fade-in.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
-/* Staggered fade-in for lists */
+/* Staggered fade-in for lists with spring easing */
 .stagger-in > * {
   opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp var(--transition-entrance) ease-out forwards;
+  transform: translateY(20px) scale(0.95);
+  animation: fadeInUp 0.5s var(--ease-spring) forwards;
 }
 
 .stagger-in > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-in > *:nth-child(2) { animation-delay: 100ms; }
-.stagger-in > *:nth-child(3) { animation-delay: 200ms; }
-.stagger-in > *:nth-child(4) { animation-delay: 300ms; }
-.stagger-in > *:nth-child(5) { animation-delay: 400ms; }
+.stagger-in > *:nth-child(2) { animation-delay: 80ms; }
+.stagger-in > *:nth-child(3) { animation-delay: 150ms; }
+.stagger-in > *:nth-child(4) { animation-delay: 210ms; }
+.stagger-in > *:nth-child(5) { animation-delay: 260ms; }
 
 @keyframes fadeInUp {
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -542,6 +577,56 @@ a {
   }
 }
 
+/* Custom terminal cursor */
+.terminal-cursor {
+  display: inline-block;
+  width: 10px;
+  height: 1.2em;
+  background-color: var(--accent-yellow);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: cursor-blink 1s step-end infinite;
+  box-shadow: 0 0 8px rgba(244, 183, 40, 0.6);
+}
+
+.terminal-cursor--block {
+  width: 0.6em;
+  height: 1em;
+}
+
+.terminal-cursor--line {
+  width: 2px;
+}
+
+@keyframes cursor-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Terminal input field styling */
+.terminal-input {
+  caret-color: var(--accent-yellow);
+}
+
+.terminal-input::selection {
+  background-color: rgba(244, 183, 40, 0.3);
+  color: var(--text-white);
+}
+
+.terminal-input::-moz-selection {
+  background-color: rgba(244, 183, 40, 0.3);
+  color: var(--text-white);
+}
+
+/* Custom cursor for interactive elements */
+.cursor-terminal {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Crect x='2' y='2' width='16' height='16' fill='none' stroke='%23F4B728' stroke-width='2'/%3E%3Crect x='6' y='6' width='8' height='8' fill='%23F4B728'/%3E%3C/svg%3E") 10 10, pointer;
+}
+
 /* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -554,5 +639,10 @@ a {
 
   html {
     scroll-behavior: auto;
+  }
+
+  .terminal-cursor {
+    animation: none;
+    opacity: 1;
   }
 }

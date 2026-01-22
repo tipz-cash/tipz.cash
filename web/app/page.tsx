@@ -184,6 +184,99 @@ function useTypingEffect(text: string, speed: number = 50, delay: number = 0) {
   return { displayText, isComplete };
 }
 
+// Premium typing effect hook with human-like rhythm
+function usePremiumTypingEffect(
+  text: string,
+  options: {
+    baseSpeed?: number;
+    varianceRange?: number;
+    pauseOnSpace?: number;
+    pauseOnPunctuation?: number;
+    accelerationCurve?: boolean;
+    initialDelay?: number;
+  } = {}
+) {
+  const {
+    baseSpeed = 55,
+    varianceRange = 25,
+    pauseOnSpace = 80,
+    pauseOnPunctuation = 150,
+    accelerationCurve = true,
+    initialDelay = 400,
+  } = options;
+
+  const [displayText, setDisplayText] = useState("");
+  const [isComplete, setIsComplete] = useState(false);
+  const [newCharIndex, setNewCharIndex] = useState(-1);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setDisplayText(text);
+      setIsComplete(true);
+      return;
+    }
+
+    let index = 0;
+    setDisplayText("");
+    setIsComplete(false);
+    setNewCharIndex(-1);
+
+    const getNextDelay = (char: string, position: number) => {
+      // Base speed with random variance for organic feel
+      let delay = baseSpeed + (Math.random() - 0.5) * varianceRange * 2;
+
+      // Acceleration curve: starts 40% slower, speeds up mid-sentence
+      if (accelerationCurve) {
+        const progress = position / text.length;
+        // Slow start, fast middle, slight deceleration at end
+        const curveMultiplier =
+          progress < 0.2
+            ? 1.4 - progress * 2 // 1.4 -> 1.0 in first 20%
+            : progress > 0.8
+            ? 0.95 + (progress - 0.8) * 0.5 // slight slowdown at end
+            : 1.0;
+        delay *= curveMultiplier;
+      }
+
+      // Natural pauses on word boundaries
+      if (char === " ") {
+        delay += pauseOnSpace;
+      }
+
+      // Dramatic pauses on punctuation
+      if ([",", ".", "!", "?", ";", ":"].includes(char)) {
+        delay += pauseOnPunctuation;
+      }
+
+      return delay;
+    };
+
+    const typeNextChar = () => {
+      if (index < text.length) {
+        const currentChar = text[index];
+        setDisplayText(text.slice(0, index + 1));
+        setNewCharIndex(index);
+        index++;
+
+        const delay = getNextDelay(currentChar, index);
+        setTimeout(typeNextChar, delay);
+      } else {
+        setIsComplete(true);
+        setNewCharIndex(-1);
+      }
+    };
+
+    const startTimer = setTimeout(() => {
+      typeNextChar();
+    }, initialDelay);
+
+    return () => clearTimeout(startTimer);
+  }, [text, baseSpeed, varianceRange, pauseOnSpace, pauseOnPunctuation, accelerationCurve, initialDelay, prefersReducedMotion]);
+
+  return { displayText, isComplete, newCharIndex };
+}
+
 // Intersection Observer hook for scroll animations
 function useInView(threshold = 0.2) {
   const ref = useRef<HTMLDivElement>(null);
@@ -515,6 +608,7 @@ function CodeBlockReveal({
 }
 
 // Cursor component with glow effect
+// Enhanced Cursor component with spring entrance and dynamic glow
 function Cursor({ visible }: { visible: boolean }) {
   const [show, setShow] = useState(true);
 
@@ -536,6 +630,219 @@ function Cursor({ visible }: { visible: boolean }) {
     >
       █
     </span>
+  );
+}
+
+// Premium cursor with spring entrance and dynamic glow intensity
+function PremiumCursor({
+  visible,
+  typingComplete = false,
+  intensity = 1,
+}: {
+  visible: boolean;
+  typingComplete?: boolean;
+  intensity?: number;
+}) {
+  const [show, setShow] = useState(true);
+  const [entered, setEntered] = useState(false);
+
+  // Spring entrance
+  useEffect(() => {
+    if (visible && !entered) {
+      // Small delay for spring entrance
+      const timer = setTimeout(() => setEntered(true), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [visible, entered]);
+
+  // Faster blink while typing (400ms), relaxes after (530ms)
+  useEffect(() => {
+    const blinkSpeed = typingComplete ? 530 : 400;
+    const interval = setInterval(() => setShow((s) => !s), blinkSpeed);
+    return () => clearInterval(interval);
+  }, [typingComplete]);
+
+  if (!visible) return null;
+
+  // Dynamic glow based on intensity (0.15 → 0.40)
+  const glowOpacity = 0.15 + intensity * 0.25;
+  const glowSpread = 10 + intensity * 20;
+
+  return (
+    <span
+      className="typing-cursor-premium"
+      style={{
+        display: "inline-block",
+        color: colors.primary,
+        // Minimum opacity 0.3 for softer blink
+        opacity: show ? 1 : 0.3,
+        textShadow: show
+          ? `0 0 ${glowSpread}px rgba(245, 166, 35, ${glowOpacity}), 0 0 ${glowSpread * 2}px rgba(245, 166, 35, ${glowOpacity * 0.6})`
+          : "none",
+        transition: "opacity 0.1s ease, text-shadow 0.2s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        transform: entered ? "scaleY(1) translateY(0)" : "scaleY(0.6) translateY(4px)",
+        transformOrigin: "bottom",
+      }}
+    >
+      █
+    </span>
+  );
+}
+
+// Animated character component for micro drop-in animation
+function AnimatedCharacter({
+  char,
+  index,
+  isNew,
+  isTipsChar,
+}: {
+  char: string;
+  index: number;
+  isNew: boolean;
+  isTipsChar: boolean;
+}) {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        animation: isNew ? "char-enter 0.15s ease-out forwards" : "none",
+        color: isTipsChar ? colors.primary : "inherit",
+        // Extra amber glow for "tipz" characters
+        filter: isNew
+          ? isTipsChar
+            ? `drop-shadow(0 0 8px ${colors.primaryGlowStrong})`
+            : `drop-shadow(0 0 4px rgba(255,255,255,0.3))`
+          : "none",
+        transition: "filter 0.3s ease",
+      }}
+    >
+      {char === " " ? "\u00A0" : char}
+    </span>
+  );
+}
+
+// HeroTitle component - orchestrates the entire premium typing animation
+function HeroTitle({
+  text,
+  isMobile,
+  onComplete,
+}: {
+  text: string;
+  isMobile: boolean;
+  onComplete: () => void;
+}) {
+  const [containerVisible, setContainerVisible] = useState(false);
+  const [glowIntensity, setGlowIntensity] = useState(0);
+  const [completionFlash, setCompletionFlash] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const { displayText, isComplete, newCharIndex } = usePremiumTypingEffect(text, {
+    baseSpeed: 55,
+    varianceRange: 25,
+    pauseOnSpace: 80,
+    pauseOnPunctuation: 150,
+    accelerationCurve: true,
+    initialDelay: prefersReducedMotion ? 0 : 400,
+  });
+
+  // Container entrance (100ms delay, fades in)
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setContainerVisible(true);
+      return;
+    }
+    const timer = setTimeout(() => setContainerVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, [prefersReducedMotion]);
+
+  // Dynamic glow intensity based on typing progress
+  useEffect(() => {
+    if (text.length > 0) {
+      setGlowIntensity(displayText.length / text.length);
+    }
+  }, [displayText, text]);
+
+  // Completion flash effect
+  useEffect(() => {
+    if (isComplete && !prefersReducedMotion) {
+      setCompletionFlash(true);
+      const flashTimer = setTimeout(() => setCompletionFlash(false), 400);
+      const completeTimer = setTimeout(() => onComplete(), 200);
+      return () => {
+        clearTimeout(flashTimer);
+        clearTimeout(completeTimer);
+      };
+    } else if (isComplete) {
+      onComplete();
+    }
+  }, [isComplete, onComplete, prefersReducedMotion]);
+
+  // Find "tips" indices for highlighting
+  const tipsStartIndex = text.toLowerCase().indexOf("tips");
+  const isTipsChar = (index: number) => {
+    return tipsStartIndex !== -1 && index >= tipsStartIndex && index < tipsStartIndex + 4;
+  };
+
+  // Dynamic text-shadow that intensifies as typing progresses
+  const baseGlow = 40 + glowIntensity * 40; // 40px → 80px
+  const flashGlow = completionFlash ? 100 : baseGlow;
+
+  return (
+    <div
+      style={{
+        opacity: containerVisible ? 1 : 0,
+        transform: containerVisible ? "translateY(0)" : "translateY(8px)",
+        transition: prefersReducedMotion
+          ? "none"
+          : "opacity 0.4s ease-out, transform 0.4s ease-out",
+      }}
+    >
+      <h1
+        style={{
+          fontSize: isMobile ? "clamp(32px, 8vw, 48px)" : "clamp(48px, 5vw, 72px)",
+          fontWeight: 800,
+          letterSpacing: "-0.035em",
+          lineHeight: 1.1,
+          margin: 0,
+          color: colors.textBright,
+          whiteSpace: "nowrap",
+          textShadow: `0 0 ${flashGlow}px ${colors.primaryGlow}, 0 0 ${flashGlow / 2}px rgba(255,255,255,0.1)`,
+          transition: completionFlash ? "text-shadow 0.15s ease-out" : "text-shadow 0.3s ease",
+        }}
+      >
+        {prefersReducedMotion ? (
+          // Reduced motion: show text directly with tipz highlighted
+          <>
+            {text.split("").map((char, index) => (
+              <span
+                key={index}
+                style={{ color: isTipsChar(index) ? colors.primary : "inherit" }}
+              >
+                {char}
+              </span>
+            ))}
+          </>
+        ) : (
+          // Full animation: character-by-character with effects
+          <>
+            {displayText.split("").map((char, index) => (
+              <AnimatedCharacter
+                key={index}
+                char={char}
+                index={index}
+                isNew={index === newCharIndex}
+                isTipsChar={isTipsChar(index)}
+              />
+            ))}
+            <PremiumCursor
+              visible={!isComplete}
+              typingComplete={isComplete}
+              intensity={glowIntensity}
+            />
+          </>
+        )}
+      </h1>
+    </div>
   );
 }
 
@@ -834,19 +1141,42 @@ function StaticDemoPreview() {
   );
 }
 
+// Helper to render text with "tipz" in primary color
+function renderWithTipzHighlight(text: string, primaryColor: string) {
+  const tipzIndex = text.toLowerCase().indexOf("tipz");
+  if (tipzIndex === -1) return text;
+
+  const before = text.slice(0, tipzIndex);
+  const tipz = text.slice(tipzIndex, tipzIndex + 4);
+  const after = text.slice(tipzIndex + 4);
+
+  return (
+    <>
+      {before}
+      <span style={{ color: primaryColor }}>{tipz}</span>
+      {after}
+    </>
+  );
+}
+
 export default function HomePage() {
   const heroText = "Private tips for creators.";
-  const { displayText, isComplete } = useTypingEffect(heroText, 50);
-  const [mounted, setMounted] = useState(false);
+  const [heroAnimationReady, setHeroAnimationReady] = useState(false);
+  const [tweetVisible, setTweetVisible] = useState(false);
   const currentChapter = useCurrentChapter();
   const { ref: codeRef1, isInView: codeInView1 } = useInView(0.15);
   const isMobile = useIsMobile(768);
   const parallaxOffset = useParallax(0.3);
   const parallaxOffsetSlow = useParallax(0.15);
 
+  // Gate button/modal animations until tweet is visible
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (heroAnimationReady) {
+      // Tweet becomes visible 400ms after heroAnimationReady
+      const timer = setTimeout(() => setTweetVisible(true), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [heroAnimationReady]);
 
   const contentPadding: React.CSSProperties = {
     padding: "0 48px",
@@ -988,43 +1318,31 @@ export default function HomePage() {
         }}>
           {/* Main headline - full width, centered */}
           <div style={{ marginBottom: "24px", maxWidth: "900px" }}>
-            <TerminalReveal delay={100}>
-              <h1 style={{
-                fontSize: isMobile ? "clamp(32px, 8vw, 48px)" : "clamp(48px, 5vw, 72px)",
-                fontWeight: 800,
-                letterSpacing: "-0.035em",
-                lineHeight: 1.1,
-                margin: 0,
-                color: colors.textBright,
-                textShadow: `0 0 80px ${colors.primaryGlow}, 0 0 40px rgba(255,255,255,0.1)`,
-              }}>
-                {mounted ? displayText : heroText}
-                <Cursor visible={mounted && !isComplete} />
-              </h1>
-            </TerminalReveal>
+            <HeroTitle
+              text={heroText}
+              isMobile={isMobile}
+              onComplete={() => setHeroAnimationReady(true)}
+            />
           </div>
 
-          {/* Sub-copy - stats as proof points with color highlights */}
-          <TerminalReveal delay={600}>
+          {/* Sub-copy - punchy alliterative format */}
+          <TerminalReveal delay={heroAnimationReady ? 0 : 99999}>
             <p style={{
-              fontSize: "20px",
+              fontSize: "14px",
               lineHeight: 1.7,
               marginBottom: "32px",
-              letterSpacing: "-0.01em",
+              letterSpacing: "0.02em",
             }}>
-              <span style={{ color: colors.success, fontWeight: 600 }}>0%</span>
-              <span style={{ color: colors.muted }}> fees</span>
-              <span style={{ color: colors.border, margin: "0 12px" }}>·</span>
-              <span style={{ color: colors.primary, fontWeight: 600 }}>2 min</span>
-              <span style={{ color: colors.muted }}> setup</span>
-              <span style={{ color: colors.border, margin: "0 12px" }}>·</span>
-              <span style={{ color: colors.success, fontWeight: 600 }}>100%</span>
-              <span style={{ color: colors.muted }}> private</span>
+              <span style={{ color: colors.success, fontWeight: 600 }}>No fees.</span>
+              <span style={{ color: colors.border, margin: "0 12px" }}></span>
+              <span style={{ color: colors.primary, fontWeight: 600 }}>No signup.</span>
+              <span style={{ color: colors.border, margin: "0 12px" }}></span>
+              <span style={{ color: colors.success, fontWeight: 600 }}>No trace.</span>
             </p>
           </TerminalReveal>
 
           {/* Single CTA */}
-          <TerminalReveal delay={800}>
+          <TerminalReveal delay={heroAnimationReady ? 200 : 99999}>
             <a
               href="/register"
               className="cta-primary"
@@ -1043,7 +1361,7 @@ export default function HomePage() {
                 marginBottom: "48px",
               }}
             >
-              Start Receiving Tips
+              Start Receiving Tipz
               <span style={{ fontSize: "18px" }}>→</span>
             </a>
           </TerminalReveal>
@@ -1074,7 +1392,7 @@ export default function HomePage() {
             }} />
 
             {/* Tweet Card - Authentic X/Twitter Design */}
-            <TerminalReveal delay={300}>
+            <TerminalReveal delay={heroAnimationReady ? 400 : 99999}>
               <div style={{
                 backgroundColor: "#000000",
                 border: `1px solid rgb(47, 51, 54)`,
@@ -1198,7 +1516,7 @@ export default function HomePage() {
                     gap: "5px",
                     cursor: "pointer",
                     boxShadow: `0 0 20px ${colors.primaryGlow}`,
-                    animation: "button-click 4s ease-in-out 1s infinite",
+                    animation: tweetVisible ? "button-click 0.6s ease-in-out 1.4s forwards" : "none",
                   }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
@@ -1221,7 +1539,10 @@ export default function HomePage() {
               width: "300px",
               boxShadow: `0 24px 48px rgba(0,0,0,0.5), 0 0 40px ${colors.primaryGlow}`,
               zIndex: 10,
-              animation: "modal-popup 4s ease-out 1s infinite",
+              opacity: 0,
+              animation: tweetVisible
+                ? "modal-popup 0.8s ease-out 1.8s forwards, float-subtle 6s ease-in-out 2.6s infinite"
+                : "none",
             }}>
                 {/* Compact Header */}
                 <div style={{
@@ -1318,7 +1639,8 @@ export default function HomePage() {
               top: "10px",
               left: "10px",
               zIndex: 20,
-              animation: "cursor-move 4s ease-in-out 1s infinite",
+              opacity: tweetVisible ? undefined : 0,
+              animation: tweetVisible ? "cursor-move 2.5s ease-in-out 0.3s forwards" : "none",
               pointerEvents: "none",
             }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }}>
@@ -1539,10 +1861,10 @@ export default function HomePage() {
           </TerminalReveal>
 
           <TypingHeading
-            prefix=">"
-            prefixColor={colors.success}
-            text="TIPZ—Private tips that "
-            suffix="actually work."
+            prefix="> Tipz:"
+            prefixColor={colors.primary}
+            text=" Keep 100% of every "
+            suffix="tip."
             suffixColor={colors.primary}
             style={{ fontSize: "40px" }}
           />
@@ -1553,8 +1875,8 @@ export default function HomePage() {
             alignItems: "center",
             justifyContent: "center",
             gap: "24px",
-            marginTop: "48px",
-            marginBottom: "48px",
+            marginTop: "32px",
+            marginBottom: "32px",
             position: "relative",
           }}>
             {/* Left Supporting Stat - 2 Min Setup */}
@@ -1613,7 +1935,7 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `2px solid ${colors.success}`,
                 borderRadius: "16px",
-                padding: "48px 56px",
+                padding: "32px 40px",
                 textAlign: "center",
                 position: "relative",
                 overflow: "hidden",
@@ -1633,7 +1955,7 @@ export default function HomePage() {
                   animation: "pulse-glow 3s ease-in-out infinite",
                 }} />
                 <div style={{
-                  fontSize: "120px",
+                  fontSize: "80px",
                   fontWeight: 800,
                   color: colors.success,
                   lineHeight: 0.9,
@@ -1722,7 +2044,7 @@ export default function HomePage() {
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: "24px",
-              marginBottom: "32px",
+              marginBottom: "20px",
             }}>
               {/* Fee Comparison - Left Column */}
               <div style={{
@@ -1840,120 +2162,144 @@ export default function HomePage() {
                 <div style={{
                   display: "flex",
                   flexDirection: "column",
-                  alignItems: "center",
+                  alignItems: "flex-start",
                   gap: "4px",
+                  paddingLeft: "20px",
                 }}>
                   {/* You */}
                   <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{
-                      width: "48px",
-                      height: "48px",
-                      borderRadius: "50%",
-                      backgroundColor: colors.bg,
-                      border: `2px solid ${colors.border}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth="1.5">
-                        <circle cx="12" cy="8" r="4" />
-                        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-                      </svg>
+                    {/* Icon container with consistent width to align with shield */}
+                    <div style={{ width: "56px", display: "flex", justifyContent: "center" }}>
+                      <div style={{
+                        width: "48px",
+                        height: "48px",
+                        borderRadius: "50%",
+                        backgroundColor: colors.bg,
+                        border: `2px solid ${colors.border}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth="1.5">
+                          <circle cx="12" cy="8" r="4" />
+                          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                        </svg>
+                      </div>
                     </div>
                     <div>
                       <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px" }}>YOU</div>
-                      <div style={{ fontSize: "12px", color: colors.text }}>Send $5</div>
+                      <div style={{ fontSize: "12px", color: colors.text }}>Send $5 in any token</div>
+                      <div style={{ fontSize: "10px", color: colors.muted, marginTop: "2px" }}>ETH · USDC · SOL · 50+</div>
                     </div>
                   </div>
 
                   {/* Arrow down */}
-                  <div style={{
-                    width: "2px",
-                    height: "16px",
-                    background: `linear-gradient(180deg, ${colors.border}, ${colors.primary})`,
-                  }} />
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <div style={{ width: "56px", display: "flex", justifyContent: "center" }}>
+                      <div style={{
+                        width: "2px",
+                        height: "16px",
+                        background: `linear-gradient(180deg, ${colors.border}, ${colors.primary})`,
+                      }} />
+                    </div>
+                    <div style={{ width: "140px" }} />
+                  </div>
 
                   {/* Shield */}
                   <div style={{
                     display: "flex",
                     alignItems: "center",
                     gap: "12px",
-                    position: "relative",
                   }}>
-                    <div style={{
-                      position: "absolute",
-                      left: "50%",
-                      top: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: "80px",
-                      height: "80px",
-                      borderRadius: "50%",
-                      background: `radial-gradient(circle, ${colors.primaryGlowStrong} 0%, transparent 70%)`,
-                      animation: "pulse-glow 2s ease-in-out infinite",
-                    }} />
-                    <div style={{
-                      width: "56px",
-                      height: "56px",
-                      borderRadius: "50%",
-                      background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`,
-                      border: `2px solid ${colors.primary}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: `0 0 25px ${colors.primaryGlowStrong}`,
-                      position: "relative",
-                      zIndex: 1,
-                    }}>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.bg} strokeWidth="2">
-                        <rect x="5" y="11" width="14" height="10" rx="2" fill={colors.bg} stroke="none" />
-                        <path d="M8 11V7a4 4 0 1 1 8 0v4" strokeLinecap="round" />
-                        <circle cx="12" cy="16" r="1.5" fill={colors.primary} />
-                      </svg>
+                    {/* Shield icon container with glow behind it */}
+                    <div style={{ position: "relative" }}>
+                      {/* Glow - positioned behind the shield icon */}
+                      <div style={{
+                        position: "absolute",
+                        left: "50%",
+                        top: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "100px",
+                        height: "100px",
+                        borderRadius: "50%",
+                        background: `radial-gradient(circle, ${colors.primaryGlowStrong} 0%, transparent 70%)`,
+                        animation: "pulse-glow 2s ease-in-out infinite",
+                        zIndex: 0,
+                      }} />
+                      <div style={{
+                        width: "56px",
+                        height: "56px",
+                        borderRadius: "50%",
+                        background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`,
+                        border: `2px solid ${colors.primary}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: `0 0 25px ${colors.primaryGlowStrong}`,
+                        position: "relative",
+                        zIndex: 1,
+                      }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.bg} strokeWidth="2">
+                          <rect x="5" y="11" width="14" height="10" rx="2" fill={colors.bg} stroke="none" />
+                          <path d="M8 11V7a4 4 0 1 1 8 0v4" strokeLinecap="round" />
+                          <circle cx="12" cy="16" r="1.5" fill={colors.primary} />
+                        </svg>
+                      </div>
                     </div>
                     <div>
                       <div style={{ fontSize: "11px", color: colors.primary, letterSpacing: "1px", fontWeight: 600 }}>SHIELDED</div>
-                      <div style={{ fontSize: "10px", color: colors.muted }}>encrypted</div>
+                      <div style={{ fontSize: "10px", color: colors.muted }}>auto-swapped · encrypted</div>
                     </div>
                   </div>
 
                   {/* Arrow down */}
-                  <div style={{
-                    width: "2px",
-                    height: "16px",
-                    background: `linear-gradient(180deg, ${colors.primary}, ${colors.success})`,
-                  }} />
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <div style={{ width: "56px", display: "flex", justifyContent: "center" }}>
+                      <div style={{
+                        width: "2px",
+                        height: "16px",
+                        background: `linear-gradient(180deg, ${colors.primary}, ${colors.success})`,
+                      }} />
+                    </div>
+                    <div style={{ width: "140px" }} />
+                  </div>
 
                   {/* Creator */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px", position: "relative" }}>
-                    <div style={{
-                      position: "absolute",
-                      left: "12px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      width: "60px",
-                      height: "60px",
-                      borderRadius: "50%",
-                      background: `radial-gradient(circle, ${colors.successGlow} 0%, transparent 70%)`,
-                    }} />
-                    <div style={{
-                      width: "48px",
-                      height: "48px",
-                      borderRadius: "50%",
-                      backgroundColor: colors.bg,
-                      border: `2px solid ${colors.success}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: `0 0 15px ${colors.successGlow}`,
-                      position: "relative",
-                    }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill={colors.success}>
-                        <path d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z" />
-                      </svg>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    {/* Icon container with consistent width and glow */}
+                    <div style={{ width: "56px", display: "flex", justifyContent: "center", position: "relative" }}>
+                      <div style={{
+                        position: "absolute",
+                        left: "50%",
+                        top: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "70px",
+                        height: "70px",
+                        borderRadius: "50%",
+                        background: `radial-gradient(circle, ${colors.successGlow} 0%, transparent 70%)`,
+                        zIndex: 0,
+                      }} />
+                      <div style={{
+                        width: "48px",
+                        height: "48px",
+                        borderRadius: "50%",
+                        backgroundColor: colors.bg,
+                        border: `2px solid ${colors.success}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: `0 0 15px ${colors.successGlow}`,
+                        position: "relative",
+                        zIndex: 1,
+                      }}>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill={colors.success}>
+                          <path d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z" />
+                        </svg>
+                      </div>
                     </div>
                     <div>
                       <div style={{ fontSize: "11px", color: colors.success, letterSpacing: "1px", fontWeight: 600 }}>CREATOR</div>
-                      <div style={{ fontSize: "12px", color: colors.success, fontWeight: 700 }}>Gets $5</div>
+                      <div style={{ fontSize: "12px", color: colors.success, fontWeight: 700 }}>Gets $5 in ZEC</div>
                     </div>
                   </div>
                 </div>
@@ -1977,57 +2323,6 @@ export default function HomePage() {
             </div>
           </TerminalReveal>
 
-          {/* Closing Tagline - Hero Treatment */}
-          <TerminalReveal delay={1200}>
-            <div style={{
-              textAlign: "center",
-              padding: "48px 0",
-              marginTop: "24px",
-              borderTop: `1px solid ${colors.border}`,
-              position: "relative",
-            }}>
-              {/* Subtle glow behind text */}
-              <div style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: "400px",
-                height: "100px",
-                background: `radial-gradient(ellipse, ${colors.primaryGlow} 0%, transparent 70%)`,
-                opacity: 0.3,
-                pointerEvents: "none",
-              }} />
-              <p style={{
-                color: colors.muted,
-                fontSize: "16px",
-                margin: "0 0 8px",
-                fontWeight: 400,
-                position: "relative",
-              }}>
-                Think of it as
-              </p>
-              <p style={{
-                color: colors.primary,
-                fontSize: "32px",
-                fontWeight: 700,
-                margin: "0 0 8px",
-                letterSpacing: "-0.02em",
-                position: "relative",
-              }}>
-                cash in an envelope
-              </p>
-              <p style={{
-                color: colors.muted,
-                fontSize: "16px",
-                margin: 0,
-                fontWeight: 400,
-                position: "relative",
-              }}>
-                for the internet.
-              </p>
-            </div>
-          </TerminalReveal>
         </div>
       </SnapSection>
 
@@ -2659,7 +2954,7 @@ export default function HomePage() {
 
           {/* copywriting: outcome without pain point formula */}
           <TypingHeading
-            text="Keep 100% of your tips—without the fees."
+            text="Keep 100% of your tipz—without the fees."
             style={{ fontSize: "44px", lineHeight: 1.2 }}
           />
 
@@ -2718,7 +3013,7 @@ export default function HomePage() {
                   borderRadius: "8px",
                 }}
               >
-                Start Receiving Private Tips →
+                Start Receiving Private Tipz →
               </a>
               <a
                 href="https://chromewebstore.google.com/detail/tipz"
@@ -2794,6 +3089,30 @@ export default function HomePage() {
           60% { transform: translateY(-5px); }
         }
 
+        /* Character entrance animation for premium typing */
+        @keyframes char-enter {
+          0% {
+            opacity: 0;
+            transform: translateY(-3px) scale(1.1);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        /* Cursor spring entrance */
+        @keyframes cursor-enter {
+          0% {
+            opacity: 0;
+            transform: scaleY(0.6) translateY(4px);
+          }
+          100% {
+            opacity: 1;
+            transform: scaleY(1) translateY(0);
+          }
+        }
+
         /* GPU-accelerated pulse glow using filter */
         @keyframes pulse-glow {
           0%, 100% {
@@ -2832,28 +3151,29 @@ export default function HomePage() {
         }
 
         /* Cursor animation with percentage-based movement */
+        /* Cursor animation - one-shot, moves to button and clicks */
         @keyframes cursor-move {
           0% {
             transform: translate(0, 0);
             opacity: 0;
           }
-          10% {
+          8% {
             opacity: 1;
           }
           /* Move to TIP button - using relative positioning */
-          45% {
+          35% {
             transform: translate(305px, 205px);
             opacity: 1;
           }
           /* Click TIP button */
-          50% {
+          45% {
             transform: translate(305px, 205px) scale(0.85);
           }
           55% {
             transform: translate(305px, 205px) scale(1);
           }
-          /* Hold position */
-          85% {
+          /* Hold position then fade */
+          80% {
             transform: translate(305px, 205px);
             opacity: 1;
           }
@@ -2863,36 +3183,36 @@ export default function HomePage() {
           }
         }
 
-        /* GPU-optimized button click using transform only */
+        /* GPU-optimized button click - one-shot animation */
         @keyframes button-click {
-          0%, 45% {
+          0% {
             transform: scale(1);
             filter: drop-shadow(0 0 20px rgba(245, 166, 35, 0.4));
           }
-          50% {
+          40% {
             transform: scale(0.92);
             filter: drop-shadow(0 0 35px rgba(245, 166, 35, 0.9));
           }
-          60%, 100% {
+          70%, 100% {
             transform: scale(1);
             filter: drop-shadow(0 0 25px rgba(245, 166, 35, 0.5));
           }
         }
 
-        /* Modal popup with spring-like overshoot */
+        /* Modal popup with spring-like overshoot - one-shot animation */
         @keyframes modal-popup {
-          0%, 52% {
+          0% {
             opacity: 0;
             transform: rotate(3deg) scale(0.85) translateY(20px);
           }
-          68% {
+          60% {
             opacity: 1;
             transform: rotate(3deg) scale(1.04) translateY(-2px);
           }
-          78% {
+          80% {
             transform: rotate(3deg) scale(0.99) translateY(1px);
           }
-          85%, 100% {
+          100% {
             opacity: 1;
             transform: rotate(3deg) scale(1) translateY(0);
           }
