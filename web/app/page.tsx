@@ -39,6 +39,9 @@ const ASCII_LOGO = `
                      ██
 `;
 
+// Compact logo for mobile
+const ASCII_LOGO_MOBILE = `[TIPZ]`;
+
 // Typing effect hook
 function useTypingEffect(text: string, speed: number = 50) {
   const [displayText, setDisplayText] = useState("");
@@ -596,17 +599,27 @@ export default function HomePage() {
   const heroText = "Get tipped. Stay private. No fees.";
   const { displayText, isComplete } = useTypingEffect(heroText, 40);
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const registerRef = useRef<HTMLDivElement>(null);
   const howItWorksRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
+
+    // Check for mobile on mount and resize
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
     // Check for hash on mount to scroll to registration
     if (typeof window !== "undefined" && window.location.hash === "#register") {
       setTimeout(() => {
         registerRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 500);
     }
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const scrollToRegister = () => {
@@ -662,39 +675,34 @@ export default function HomePage() {
             <span style={{ color: colors.muted, fontSize: "12px" }}>
               v0.1.0-beta
             </span>
-            <span style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted, fontSize: "12px" }}>
-              <img src="/zec/brandmark-yellow.svg" alt="Zcash" style={{ width: "14px", height: "14px" }} />
-              ZEC
-            </span>
+            {!isMobile && (
+              <span style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted, fontSize: "12px" }}>
+                <img src="/zec/brandmark-yellow.svg" alt="Zcash" style={{ width: "14px", height: "14px" }} />
+                ZEC
+              </span>
+            )}
           </div>
-          <nav style={{ display: "flex", gap: "24px" }}>
-            <a
-              href="/manifesto"
+
+          {/* Mobile menu button */}
+          {isMobile ? (
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
               style={{
+                background: "none",
+                border: "none",
                 color: colors.muted,
-                textDecoration: "none",
-                fontSize: "12px",
-                letterSpacing: "0.5px",
-                transition: "color 0.2s",
+                fontSize: "20px",
+                cursor: "pointer",
+                padding: "8px",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = colors.primary)
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = colors.muted)
-              }
+              aria-label="Toggle menu"
             >
-              MANIFESTO
-            </a>
-            {[
-              { label: "GITHUB", href: "https://github.com/tipz-app" },
-              { label: "EXTENSION", href: "https://chromewebstore.google.com/detail/tipz" },
-            ].map((item) => (
+              {menuOpen ? "✕" : "☰"}
+            </button>
+          ) : (
+            <nav style={{ display: "flex", gap: "24px" }}>
               <a
-                key={item.label}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/manifesto"
                 style={{
                   color: colors.muted,
                   textDecoration: "none",
@@ -709,33 +717,109 @@ export default function HomePage() {
                   (e.currentTarget.style.color = colors.muted)
                 }
               >
-                {item.label}
+                MANIFESTO
               </a>
-            ))}
-          </nav>
+              {[
+                { label: "GITHUB", href: "https://github.com/tipz-app" },
+                { label: "EXTENSION", href: "https://chromewebstore.google.com/detail/tipz" },
+              ].map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: colors.muted,
+                    textDecoration: "none",
+                    fontSize: "12px",
+                    letterSpacing: "0.5px",
+                    transition: "color 0.2s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colors.primary)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colors.muted)
+                  }
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          )}
         </div>
+
+        {/* Mobile menu dropdown */}
+        {isMobile && menuOpen && (
+          <nav style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "16px",
+            padding: "16px 24px",
+            borderTop: borderStyle,
+            backgroundColor: colors.bg,
+          }}>
+            <a
+              href="/manifesto"
+              style={{ color: colors.muted, textDecoration: "none", fontSize: "14px" }}
+              onClick={() => setMenuOpen(false)}
+            >
+              MANIFESTO
+            </a>
+            <a
+              href="https://github.com/tipz-app"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: colors.muted, textDecoration: "none", fontSize: "14px" }}
+            >
+              GITHUB
+            </a>
+            <a
+              href="https://chromewebstore.google.com/detail/tipz"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: colors.muted, textDecoration: "none", fontSize: "14px" }}
+            >
+              EXTENSION
+            </a>
+          </nav>
+        )}
       </header>
 
       {/* Hero Section */}
       <section
         style={{
-          padding: "80px 0",
+          padding: isMobile ? "48px 0" : "80px 0",
           borderBottom: borderStyle,
         }}
       >
         <div style={maxWidthStyle}>
-          {/* ASCII Logo */}
-          <pre
-            style={{
-              color: colors.primary,
-              fontSize: "10px",
-              lineHeight: 1.2,
-              marginBottom: "32px",
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
-          >
-            {ASCII_LOGO}
-          </pre>
+          {/* ASCII Logo - responsive */}
+          {isMobile ? (
+            <div
+              style={{
+                color: colors.primary,
+                fontSize: "28px",
+                fontWeight: 700,
+                marginBottom: "24px",
+                fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
+              {ASCII_LOGO_MOBILE}
+            </div>
+          ) : (
+            <pre
+              style={{
+                color: colors.primary,
+                fontSize: "10px",
+                lineHeight: 1.2,
+                marginBottom: "32px",
+                fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
+              {ASCII_LOGO}
+            </pre>
+          )}
 
           {/* Typing effect headline */}
           <div style={{ marginBottom: "24px" }}>
@@ -758,19 +842,26 @@ export default function HomePage() {
           </p>
 
           {/* Dual CTA Buttons - Creators + Tippers */}
-          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "16px" }}>
+          <div style={{
+            display: "flex",
+            gap: "16px",
+            flexWrap: "wrap",
+            marginBottom: "16px",
+            flexDirection: isMobile ? "column" : "row",
+          }}>
             <button
               onClick={scrollToRegister}
               style={{
                 backgroundColor: colors.primary,
                 color: colors.bg,
                 border: "none",
-                padding: "14px 28px",
+                padding: isMobile ? "16px 24px" : "14px 28px",
                 fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "15px",
+                fontSize: isMobile ? "16px" : "15px",
                 fontWeight: 600,
                 cursor: "pointer",
                 transition: "all 0.2s",
+                width: isMobile ? "100%" : "auto",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = colors.primaryHover;
@@ -789,14 +880,16 @@ export default function HomePage() {
                 backgroundColor: colors.primary,
                 color: colors.bg,
                 border: "none",
-                padding: "14px 28px",
+                padding: isMobile ? "16px 24px" : "14px 28px",
                 fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "15px",
+                fontSize: isMobile ? "16px" : "15px",
                 fontWeight: 600,
                 cursor: "pointer",
                 transition: "all 0.2s",
                 textDecoration: "none",
                 display: "inline-block",
+                width: isMobile ? "100%" : "auto",
+                textAlign: "center",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = colors.primaryHover;
@@ -900,7 +993,9 @@ export default function HomePage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gridTemplateColumns: isMobile
+                ? "repeat(2, 1fr)"
+                : "repeat(auto-fit, minmax(180px, 1fr))",
               gap: "1px",
               backgroundColor: colors.border,
               border: borderStyle,
@@ -953,7 +1048,7 @@ export default function HomePage() {
         ref={howItWorksRef}
         id="how-it-works"
         style={{
-          padding: "64px 0",
+          padding: isMobile ? "48px 0" : "64px 0",
           borderBottom: borderStyle,
         }}
       >
@@ -973,9 +1068,9 @@ export default function HomePage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "24px",
-              marginBottom: "64px",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: isMobile ? "16px" : "24px",
+              marginBottom: isMobile ? "48px" : "64px",
             }}
           >
             {[
@@ -1051,8 +1146,8 @@ export default function HomePage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "24px",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: isMobile ? "16px" : "24px",
             }}
           >
             {[
@@ -1197,8 +1292,8 @@ export default function HomePage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              gap: "24px",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: isMobile ? "16px" : "24px",
             }}
           >
             {features.map((feature) => (
@@ -1283,13 +1378,16 @@ export default function HomePage() {
             style={{
               maxWidth: "700px",
               margin: "0 auto",
+              overflowX: isMobile ? "auto" : "visible",
+              WebkitOverflowScrolling: "touch",
             }}
           >
             <table
               style={{
                 width: "100%",
                 borderCollapse: "collapse",
-                fontSize: "14px",
+                fontSize: isMobile ? "12px" : "14px",
+                minWidth: isMobile ? "500px" : "auto",
               }}
             >
               <thead>
@@ -1383,7 +1481,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <section
         style={{
-          padding: "80px 0",
+          padding: isMobile ? "48px 0" : "80px 0",
           borderBottom: borderStyle,
           textAlign: "center",
         }}
@@ -1409,19 +1507,28 @@ export default function HomePage() {
             Be one of the first creators accepting shielded tips. Zero platform fees.
             Self-custody by default. No KYC required.
           </p>
-          <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
+          <div style={{
+            display: "flex",
+            gap: "16px",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            flexDirection: isMobile ? "column" : "row",
+            maxWidth: isMobile ? "300px" : "none",
+            margin: "0 auto",
+          }}>
             <button
               onClick={scrollToRegister}
               style={{
                 backgroundColor: colors.primary,
                 color: colors.bg,
                 border: "none",
-                padding: "16px 32px",
+                padding: isMobile ? "16px 24px" : "16px 32px",
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: "16px",
                 fontWeight: 600,
                 cursor: "pointer",
                 transition: "all 0.2s",
+                width: isMobile ? "100%" : "auto",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = colors.primaryHover;
@@ -1440,13 +1547,15 @@ export default function HomePage() {
                 backgroundColor: "transparent",
                 color: colors.text,
                 border: borderStyle,
-                padding: "16px 32px",
+                padding: isMobile ? "16px 24px" : "16px 32px",
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: "16px",
                 cursor: "pointer",
                 transition: "all 0.2s",
                 textDecoration: "none",
                 display: "inline-block",
+                width: isMobile ? "100%" : "auto",
+                textAlign: "center",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = colors.primary;
@@ -1466,7 +1575,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer
         style={{
-          padding: "32px 0",
+          padding: isMobile ? "24px 0" : "32px 0",
           backgroundColor: colors.bg,
         }}
       >
@@ -1474,10 +1583,11 @@ export default function HomePage() {
           style={{
             ...maxWidthStyle,
             display: "flex",
+            flexDirection: isMobile ? "column" : "row",
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: isMobile ? "flex-start" : "center",
             flexWrap: "wrap",
-            gap: "16px",
+            gap: isMobile ? "24px" : "16px",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -1492,9 +1602,10 @@ export default function HomePage() {
           <div
             style={{
               display: "flex",
-              gap: "24px",
+              gap: isMobile ? "16px" : "24px",
               color: colors.muted,
               fontSize: "12px",
+              flexWrap: "wrap",
             }}
           >
             <a
@@ -1533,11 +1644,18 @@ export default function HomePage() {
             </a>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", color: colors.muted, fontSize: "11px" }}>
-            <span style={{ color: colors.success }}>●</span> All systems
-            operational |
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            color: colors.muted,
+            fontSize: "11px",
+            flexWrap: "wrap",
+          }}>
+            <span style={{ color: colors.success }}>●</span>
+            {isMobile ? "Operational" : "All systems operational"} |
             <img src="/zec/brandmark-yellow.svg" alt="Zcash" style={{ width: "12px", height: "12px" }} />
-            Powered by Zcash + NEAR Intents
+            {isMobile ? "ZEC + NEAR" : "Powered by Zcash + NEAR Intents"}
           </div>
         </div>
       </footer>
