@@ -146,6 +146,24 @@ const DEFAULT_CONFIG: PaymentConfig = {
   maxTipUsd: 1000,
 }
 
+/**
+ * Demo mode flag - indicates the app is using mock APIs
+ * In demo mode:
+ * - Swap quotes are simulated using real CoinGecko prices
+ * - Transactions are mocked (no real funds transferred)
+ * - NEAR Intents are simulated
+ *
+ * Set PLASMO_PUBLIC_DEMO_MODE=false in production
+ */
+export const DEMO_MODE = process.env.PLASMO_PUBLIC_DEMO_MODE !== "false"
+
+/**
+ * Check if demo mode is enabled
+ */
+export function isDemoMode(): boolean {
+  return DEMO_MODE
+}
+
 // Chain configurations for adding networks
 const CHAIN_CONFIGS: Record<number, {
   chainId: string

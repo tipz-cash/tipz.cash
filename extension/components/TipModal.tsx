@@ -3,7 +3,7 @@ import { createPortal } from "react-dom"
 import type { Creator } from "~lib/api"
 import { usePayment } from "~hooks/usePayment"
 import type { TransactionStatus, WalletType } from "~lib/payment"
-import { shortenAddress, formatTokenAmount } from "~lib/payment"
+import { shortenAddress, formatTokenAmount, isDemoMode } from "~lib/payment"
 import { colors, fonts } from "~lib/theme"
 
 interface TipModalProps {
@@ -197,7 +197,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       // Small delay to allow animation
       setTimeout(() => {
         setView("amount")
-        setCustomAmount("")
+        setCustomAmountUsd("")
         resetTransaction()
       }, 200)
     }
@@ -342,7 +342,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-          <TerminalHeader title="[TIPZ] // ERROR" onClose={handleClose} />
+          <TerminalHeader title="Error" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", marginBottom: "24px" }}>
               <div style={{
@@ -384,7 +384,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-          <TerminalHeader title="[TIPZ] // CONNECT_WALLET" onClose={handleClose} />
+          <TerminalHeader title="Connect Wallet" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
               <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 600 }}>
@@ -523,7 +523,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       <div style={overlayStyle}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-          <TerminalHeader title="[TIPZ] // PROCESSING" onClose={handleClose} />
+          <TerminalHeader title="Processing..." onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               {/* Spinner */}
@@ -630,7 +630,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-          <TerminalHeader title="[TIPZ] // SUCCESS" onClose={handleClose} />
+          <TerminalHeader title="Tip Sent" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               <div style={{
@@ -683,10 +683,25 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                 fontSize: "12px",
                 animation: "modalFadeIn 0.3s ease-out 0.25s both",
               }}>
-                Delivered privately via shielded transfer.
+                {isDemoMode() ? "Demo transaction" : "Delivered privately"}
               </p>
 
-              {transaction?.txHash && (
+              {isDemoMode() && (
+                <div style={{
+                  marginTop: "12px",
+                  padding: "6px 12px",
+                  backgroundColor: "rgba(245, 166, 35, 0.1)",
+                  border: `1px solid ${colors.primary}`,
+                  borderRadius: "4px",
+                  fontSize: "11px",
+                  color: colors.primary,
+                  animation: "modalFadeIn 0.3s ease-out 0.3s both",
+                }}>
+                  Demo Mode - No real funds transferred
+                </div>
+              )}
+
+              {transaction?.txHash && !isDemoMode() && (
                 <a
                   href={`https://explorer.zcha.in/transactions/${transaction.txHash}`}
                   target="_blank"
@@ -732,7 +747,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
           ...modalStyle,
           animation: "shake 0.5s ease-out, modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
         }} onClick={(e) => e.stopPropagation()}>
-          <TerminalHeader title="[TIPZ] // ERROR" onClose={handleClose} />
+          <TerminalHeader title="Error" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               <div style={{
@@ -814,214 +829,21 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
         <TerminalHeader title={`Tip @${handle}`} onClose={handleClose} />
         <div style={modalContentStyle}>
-          {/* Header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-            <div>
-              <h2 style={{ margin: "0 0 4px", fontSize: "16px", fontWeight: 600 }}>
-                Tip @{handle}
-              </h2>
-              <p style={{ margin: 0, color: colors.muted, fontSize: "12px" }}>
-                Send a private tip
-              </p>
-            </div>
-            <button
-              onClick={handleClose}
-              style={{
-                background: "none",
-                border: "none",
-                color: colors.muted,
-                cursor: "pointer",
-                padding: "4px",
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6L6 18M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-
-          {/* Wallet Connection Status */}
-          {wallet.isConnected ? (
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "12px",
-              backgroundColor: colors.surface,
-              borderRadius: "4px",
-              marginBottom: "16px",
-              border: `1px solid ${colors.border}`,
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <div style={{
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  backgroundColor: colors.success,
-                }}/>
-                <span style={{ fontSize: "12px", color: colors.muted }}>
-                  {shortenAddress(wallet.address || "", 6)}
-                </span>
-              </div>
-              <button
-                onClick={disconnect}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: colors.muted,
-                  cursor: "pointer",
-                  fontSize: "12px",
-                  fontFamily: fonts.mono,
-                }}
-              >
-                Disconnect
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setView("wallet")}
-              style={{
-                ...buttonSecondaryStyle,
-                marginBottom: "16px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="2" y="6" width="20" height="14" rx="2"/>
-                <path d="M22 10H2M6 14h.01"/>
-              </svg>
-              Connect Wallet
-            </button>
-          )}
-
           {/* Amount Selection - USD Denominated */}
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontSize: "12px", color: colors.muted }}>
-              Amount
-            </label>
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {TIP_AMOUNTS_USD.map((amount) => (
-                <button
-                  key={amount}
-                  onClick={() => {
-                    setSelectedAmountUsd(amount)
-                    setCustomAmountUsd("")
-                  }}
-                  style={amountButtonStyle(selectedAmountUsd === amount && !customAmountUsd)}
-                >
-                  ${amount}
-                </button>
-              ))}
-            </div>
+          <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "20px" }}>
+            {TIP_AMOUNTS_USD.map((amount) => (
+              <button
+                key={amount}
+                onClick={() => {
+                  setSelectedAmountUsd(amount)
+                  setCustomAmountUsd("")
+                }}
+                style={amountButtonStyle(selectedAmountUsd === amount && !customAmountUsd)}
+              >
+                ${amount}
+              </button>
+            ))}
           </div>
-
-          {/* Custom Amount Input */}
-          <div style={{ marginBottom: "16px" }}>
-            <input
-              type="number"
-              placeholder="Custom amount ($)"
-              value={customAmountUsd}
-              onChange={(e) => setCustomAmountUsd(e.target.value)}
-              min="0.01"
-              step="0.01"
-              style={{
-                width: "100%",
-                padding: "12px",
-                fontSize: "13px",
-                backgroundColor: colors.bg,
-                color: colors.textWhite,
-                border: `1px solid ${colors.border}`,
-                borderRadius: "4px",
-                boxSizing: "border-box",
-                fontFamily: fonts.mono,
-              }}
-            />
-          </div>
-
-          {/* Asset Selector - Pay From */}
-          {wallet.isConnected && supportedTokens.length > 0 && (
-            <div style={{ marginBottom: "20px" }}>
-              <label style={{ display: "block", marginBottom: "8px", fontSize: "12px", color: colors.muted }}>
-                Pay from
-              </label>
-              <div style={{ position: "relative" }}>
-                <button
-                  onClick={() => setShowAssetDropdown(!showAssetDropdown)}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    fontSize: "13px",
-                    backgroundColor: colors.surface,
-                    color: colors.textWhite,
-                    border: `1px solid ${colors.border}`,
-                    borderRadius: "4px",
-                    fontFamily: fonts.mono,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <span>
-                    {selectedToken?.symbol || "Select asset"}
-                    {selectedToken && tokenBalances.get(selectedToken.symbol) && (
-                      <span style={{ color: colors.muted }}> · {parseFloat(tokenBalances.get(selectedToken.symbol) || "0").toFixed(4)}</span>
-                    )}
-                  </span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M6 9l6 6 6-6"/>
-                  </svg>
-                </button>
-                {showAssetDropdown && (
-                  <div style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    right: 0,
-                    marginTop: "4px",
-                    backgroundColor: colors.surface,
-                    border: `1px solid ${colors.border}`,
-                    borderRadius: "4px",
-                    zIndex: 10,
-                    maxHeight: "200px",
-                    overflowY: "auto",
-                  }}>
-                    {supportedTokens.map((token) => (
-                      <button
-                        key={token.symbol}
-                        onClick={() => {
-                          selectToken(token)
-                          setShowAssetDropdown(false)
-                        }}
-                        style={{
-                          width: "100%",
-                          padding: "12px 16px",
-                          fontSize: "13px",
-                          backgroundColor: selectedToken?.symbol === token.symbol ? colors.bg : "transparent",
-                          color: colors.textWhite,
-                          border: "none",
-                          borderBottom: `1px solid ${colors.border}`,
-                          fontFamily: fonts.mono,
-                          cursor: "pointer",
-                          textAlign: "left",
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <span>{token.symbol}</span>
-                        <span style={{ color: colors.muted }}>
-                          {parseFloat(tokenBalances.get(token.symbol) || "0").toFixed(4)}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Error Display */}
           {error && (
@@ -1061,10 +883,91 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
               cursor: !currentAmountUsd || currentAmountUsd <= 0 ? "not-allowed" : "pointer",
             }}
           >
-            {wallet.isConnected
-              ? `Send $${currentAmountUsd} tip`
-              : "Connect Wallet to Tip"}
+            Send ${currentAmountUsd} tip
           </button>
+
+          {/* Collapsed Asset Selector */}
+          {wallet.isConnected && supportedTokens.length > 0 && (
+            <div style={{ marginTop: "16px", position: "relative" }}>
+              <button
+                onClick={() => setShowAssetDropdown(!showAssetDropdown)}
+                style={{
+                  width: "100%",
+                  padding: "8px 0",
+                  background: "none",
+                  border: "none",
+                  color: colors.muted,
+                  fontSize: "12px",
+                  fontFamily: fonts.mono,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "4px",
+                }}
+              >
+                Paying from {selectedToken?.symbol || "..."} · {selectedToken ? parseFloat(tokenBalances.get(selectedToken.symbol) || "0").toFixed(2) : "0.00"}
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  style={{
+                    transform: showAssetDropdown ? "rotate(90deg)" : "rotate(0deg)",
+                    transition: "transform 0.15s ease",
+                  }}
+                >
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </button>
+              {showAssetDropdown && (
+                <div style={{
+                  position: "absolute",
+                  bottom: "100%",
+                  left: 0,
+                  right: 0,
+                  marginBottom: "4px",
+                  backgroundColor: colors.surface,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: "4px",
+                  zIndex: 10,
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                }}>
+                  {supportedTokens.map((token) => (
+                    <button
+                      key={token.symbol}
+                      onClick={() => {
+                        selectToken(token)
+                        setShowAssetDropdown(false)
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "12px 16px",
+                        fontSize: "13px",
+                        backgroundColor: selectedToken?.symbol === token.symbol ? colors.bg : "transparent",
+                        color: colors.textWhite,
+                        border: "none",
+                        borderBottom: `1px solid ${colors.border}`,
+                        fontFamily: fonts.mono,
+                        cursor: "pointer",
+                        textAlign: "left",
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <span>{token.symbol}</span>
+                      <span style={{ color: colors.muted }}>
+                        {parseFloat(tokenBalances.get(token.symbol) || "0").toFixed(4)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Privacy Notice */}
           <p style={{
@@ -1073,7 +976,11 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
             color: colors.muted,
             textAlign: "center",
           }}>
-            Delivered privately via shielded transfer
+            {isDemoMode() ? (
+              <span style={{ color: colors.primary }}>Demo Mode</span>
+            ) : (
+              "Delivered privately"
+            )}
           </p>
         </div>
       </div>
