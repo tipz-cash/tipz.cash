@@ -242,6 +242,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
   }
 
   const handleConnectWallet = async (walletType: WalletType) => {
+    console.log("TIPZ: handleConnectWallet called", { walletType, forceConnect })
     await connect(walletType, forceConnect)
     setForceConnect(false) // Reset flag after connecting
     if (!error) {
@@ -827,9 +828,11 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
 
   // Handler for changing wallet
   const handleChangeWallet = async () => {
+    console.log("TIPZ: handleChangeWallet called - blocking session restoration")
     // Block session restoration BEFORE disconnect to prevent race conditions
     blockSessionRestoration()
     await disconnect()
+    console.log("TIPZ: Disconnected, setting forceConnect=true")
     setForceConnect(true) // Flag that next connect should force account picker
     setView("wallet")
   }
