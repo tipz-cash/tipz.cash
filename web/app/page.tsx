@@ -701,6 +701,11 @@ function AnimatedCharacter({
   isNew: boolean;
   isTipsChar: boolean;
 }) {
+  // Handle newline characters as actual line breaks
+  if (char === "\n") {
+    return <br />;
+  }
+
   return (
     <span
       style={{
@@ -813,14 +818,18 @@ function HeroTitle({
         {prefersReducedMotion ? (
           // Reduced motion: show text directly with tipz highlighted
           <>
-            {text.split("").map((char, index) => (
-              <span
-                key={index}
-                style={{ color: isTipsChar(index) ? colors.primary : "inherit" }}
-              >
-                {char}
-              </span>
-            ))}
+            {text.split("").map((char, index) =>
+              char === "\n" ? (
+                <br key={index} />
+              ) : (
+                <span
+                  key={index}
+                  style={{ color: isTipsChar(index) ? colors.primary : "inherit" }}
+                >
+                  {char}
+                </span>
+              )
+            )}
           </>
         ) : (
           // Full animation: character-by-character with effects
