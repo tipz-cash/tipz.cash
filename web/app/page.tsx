@@ -805,7 +805,7 @@ function HeroTitle({
           lineHeight: 1.1,
           margin: 0,
           color: colors.textBright,
-          whiteSpace: "nowrap",
+          whiteSpace: "pre-line",
           textShadow: `0 0 ${flashGlow}px ${colors.primaryGlow}, 0 0 ${flashGlow / 2}px rgba(255,255,255,0.1)`,
           transition: completionFlash ? "text-shadow 0.15s ease-out" : "text-shadow 0.3s ease",
         }}
@@ -1160,7 +1160,7 @@ function renderWithTipzHighlight(text: string, primaryColor: string) {
 }
 
 export default function HomePage() {
-  const heroText = "Private tips for creators.";
+  const heroText = "Private tips for\ncreators.";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [tweetVisible, setTweetVisible] = useState(false);
   const currentChapter = useCurrentChapter();
@@ -1332,12 +1332,9 @@ export default function HomePage() {
               lineHeight: 1.7,
               marginBottom: "32px",
               letterSpacing: "0.02em",
+              color: colors.muted,
             }}>
-              <span style={{ color: colors.success, fontWeight: 600 }}>No fees.</span>
-              <span style={{ color: colors.border, margin: "0 12px" }}></span>
-              <span style={{ color: colors.primary, fontWeight: 600 }}>No signup.</span>
-              <span style={{ color: colors.border, margin: "0 12px" }}></span>
-              <span style={{ color: colors.success, fontWeight: 600 }}>No trace.</span>
+              No fees. No signup. No trace.
             </p>
           </TerminalReveal>
 
@@ -3137,8 +3134,8 @@ export default function HomePage() {
         }
 
         @keyframes float-subtle {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
+          0%, 100% { transform: rotate(3deg) translateY(0); }
+          50% { transform: rotate(3deg) translateY(-8px); }
         }
 
         @keyframes float-subtle-reverse {
