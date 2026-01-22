@@ -374,6 +374,52 @@ function useTypingOnView(text: string, speed: number = 35) {
   return { ref, displayText, isComplete, hasStarted };
 }
 
+// ZEC price ticker component
+function ZecTicker() {
+  const [price, setPrice] = useState<number | null>(null);
+  const [change, setChange] = useState<number>(0);
+
+  useEffect(() => {
+    async function fetchPrice() {
+      try {
+        const res = await fetch("/api/zec-price");
+        const data = await res.json();
+        setPrice(data.price);
+        setChange(data.change24h);
+      } catch {
+        setPrice(27.50);
+      }
+    }
+    fetchPrice();
+    const interval = setInterval(fetchPrice, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (price === null) return null;
+
+  const isPositive = change >= 0;
+  const changeColor = isPositive ? colors.success : colors.error;
+
+  return (
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      fontSize: "11px",
+      fontFamily: "'JetBrains Mono', monospace",
+      color: colors.muted,
+    }}>
+      <span style={{ color: colors.primary }}>ZEC</span>
+      <span style={{ color: colors.textBright }}>
+        ${price.toFixed(2)}
+      </span>
+      <span style={{ color: changeColor }}>
+        {isPositive ? "+" : ""}{change.toFixed(1)}%
+      </span>
+    </div>
+  );
+}
+
 // Typing heading component for chapter titles
 function TypingHeading({
   prefix,
@@ -1257,6 +1303,7 @@ export default function HomePage() {
             }}>BETA</span>
           </a>
           <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
+            <ZecTicker />
             <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>MANIFESTO</a>
             <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>DOCS</a>
             <a
