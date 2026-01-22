@@ -2,19 +2,27 @@
 
 import { useEffect, useState, useRef } from "react";
 
-// Color palette
+// Color palette - refined for depth and atmosphere
 const colors = {
-  bg: "#0A0A0A",
-  surface: "#1A1A1A",
-  surfaceLight: "#222222",
+  bg: "#08090a",
+  bgGradientStart: "#08090a",
+  bgGradientEnd: "#0d1117",
+  surface: "#12141a",
+  surfaceHover: "#1a1d24",
+  surfaceLight: "#1e2128",
   primary: "#F5A623",
   primaryHover: "#FFB84D",
-  success: "#00FF00",
-  error: "#FF4444",
-  muted: "#888888",
-  border: "#333333",
-  text: "#E0E0E0",
-  textBright: "#FFFFFF",
+  primaryGlow: "rgba(245, 166, 35, 0.15)",
+  primaryGlowStrong: "rgba(245, 166, 35, 0.3)",
+  success: "#22C55E",
+  successGlow: "rgba(34, 197, 94, 0.2)",
+  error: "#EF4444",
+  errorGlow: "rgba(239, 68, 68, 0.15)",
+  muted: "#6B7280",
+  border: "#2a2f38",
+  borderHover: "#3d4450",
+  text: "#D1D5DB",
+  textBright: "#F9FAFB",
 };
 
 const chapters = [
@@ -424,7 +432,7 @@ function Cursor({ visible }: { visible: boolean }) {
   return <span style={{ color: colors.primary, opacity: show ? 1 : 0 }}>█</span>;
 }
 
-// Chapter Indicator
+// Chapter Indicator - Enhanced with glow
 function ChapterIndicator({ currentChapter }: { currentChapter: number }) {
   return (
     <div
@@ -436,7 +444,7 @@ function ChapterIndicator({ currentChapter }: { currentChapter: number }) {
         zIndex: 50,
         display: "flex",
         flexDirection: "column",
-        gap: "12px",
+        gap: "16px",
       }}
     >
       {chapters.map((chapter, index) => (
@@ -446,28 +454,34 @@ function ChapterIndicator({ currentChapter }: { currentChapter: number }) {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "8px",
+            gap: "12px",
             textDecoration: "none",
-            transition: "all 0.3s ease-out",
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         >
           <span
             style={{
               fontSize: "10px",
+              fontWeight: 600,
+              letterSpacing: "1px",
               color: index === currentChapter ? colors.primary : colors.muted,
               opacity: index === currentChapter ? 1 : 0,
-              transition: "opacity 0.3s ease-out",
+              transform: index === currentChapter ? "translateX(0)" : "translateX(10px)",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               whiteSpace: "nowrap",
+              textShadow: index === currentChapter ? `0 0 10px ${colors.primaryGlow}` : "none",
             }}
           >
             {chapter.num}
           </span>
           <div
             style={{
-              width: index === currentChapter ? "24px" : "8px",
-              height: "2px",
+              width: index === currentChapter ? "32px" : "8px",
+              height: index === currentChapter ? "3px" : "2px",
               backgroundColor: index === currentChapter ? colors.primary : colors.border,
-              transition: "all 0.3s ease-out",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              boxShadow: index === currentChapter ? `0 0 10px ${colors.primaryGlow}` : "none",
+              borderRadius: "2px",
             }}
           />
         </a>
@@ -586,23 +600,27 @@ export default function HomePage() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: colors.bg,
+        background: `linear-gradient(180deg, ${colors.bgGradientStart} 0%, ${colors.bgGradientEnd} 50%, ${colors.bgGradientStart} 100%)`,
         color: colors.text,
         fontFamily: "'JetBrains Mono', monospace",
         overflowY: "auto",
         scrollSnapType: "y proximity",
         scrollBehavior: "smooth",
         height: "100vh",
+        position: "relative",
       }}
     >
-      {/* Fixed Header */}
+      {/* Atmospheric overlays */}
+      <div className="noise-overlay" />
+      <div className="scanlines" />
+      {/* Fixed Header - Enhanced */}
       <header style={{
         position: "fixed",
         top: 0,
         left: 0,
         right: 0,
-        backgroundColor: `${colors.bg}ee`,
-        backdropFilter: "blur(8px)",
+        backgroundColor: `${colors.bg}f0`,
+        backdropFilter: "blur(12px)",
         zIndex: 100,
         borderBottom: `1px solid ${colors.border}`,
       }}>
@@ -615,13 +633,38 @@ export default function HomePage() {
           alignItems: "center",
         }}>
           <a href="/" style={{ display: "flex", alignItems: "center", gap: "16px", textDecoration: "none" }}>
-            <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px" }}>[TIPZ]</span>
-            <span style={{ color: colors.muted, fontSize: "11px" }}>v0.1.0-beta</span>
+            <span style={{
+              color: colors.primary,
+              fontWeight: 700,
+              fontSize: "18px",
+              textShadow: `0 0 20px ${colors.primaryGlow}`,
+              letterSpacing: "-0.5px",
+            }}>[TIPZ]</span>
+            <span style={{
+              color: colors.muted,
+              fontSize: "10px",
+              letterSpacing: "1px",
+              padding: "2px 6px",
+              border: `1px solid ${colors.border}`,
+              borderRadius: "2px",
+            }}>BETA</span>
           </a>
-          <nav style={{ display: "flex", gap: "32px" }}>
-            <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "12px" }}>MANIFESTO</a>
-            <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "12px" }}>DOCS</a>
-            <a href="/register" style={{ color: colors.primary, textDecoration: "none", fontSize: "12px", fontWeight: 600 }}>REGISTER</a>
+          <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
+            <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>MANIFESTO</a>
+            <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>DOCS</a>
+            <a
+              href="/register"
+              className="cta-primary"
+              style={{
+                color: colors.bg,
+                backgroundColor: colors.primary,
+                textDecoration: "none",
+                fontSize: "11px",
+                letterSpacing: "1px",
+                fontWeight: 600,
+                padding: "8px 16px",
+              }}
+            >REGISTER</a>
           </nav>
         </div>
       </header>
@@ -643,12 +686,31 @@ export default function HomePage() {
             </div>
           </TerminalReveal>
 
-          <div style={{ marginBottom: "48px" }}>
-            <span style={{ color: colors.success, fontSize: "32px" }}>{">"}</span>{" "}
-            <span style={{ fontSize: "44px", fontWeight: 600 }}>
-              {mounted ? displayText : heroText}
-              <Cursor visible={mounted && !isComplete} />
-            </span>
+          <div style={{ marginBottom: "48px", position: "relative" }}>
+            {/* Background glow effect */}
+            <div style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "600px",
+              height: "200px",
+              background: `radial-gradient(ellipse, ${colors.primaryGlow} 0%, transparent 70%)`,
+              pointerEvents: "none",
+              zIndex: 0,
+            }} />
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <span style={{ color: colors.success, fontSize: "36px", textShadow: `0 0 30px ${colors.successGlow}` }}>{">"}</span>{" "}
+              <span style={{
+                fontSize: "48px",
+                fontWeight: 700,
+                letterSpacing: "-0.02em",
+                textShadow: `0 0 40px ${colors.primaryGlow}`,
+              }}>
+                {mounted ? displayText : heroText}
+                <Cursor visible={mounted && !isComplete} />
+              </span>
+            </div>
           </div>
 
           <div style={{
@@ -686,20 +748,23 @@ export default function HomePage() {
             }}>
               <a
                 href="/register"
+                className="cta-primary"
                 style={{
                   backgroundColor: colors.primary,
                   color: colors.bg,
                   padding: "16px 32px",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: "14px",
                   textDecoration: "none",
                   fontFamily: "'JetBrains Mono', monospace",
+                  boxShadow: `0 0 20px ${colors.primaryGlow}`,
                 }}
               >
                 Start Receiving Tips →
               </a>
               <a
                 href="#how-it-works"
+                className="cta-secondary"
                 style={{
                   backgroundColor: "transparent",
                   color: colors.text,
@@ -722,18 +787,38 @@ export default function HomePage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "24px",
-              padding: "16px 24px",
+              gap: "32px",
+              padding: "20px 32px",
               backgroundColor: colors.surface,
               border: `1px solid ${colors.border}`,
               borderRadius: "4px",
               fontSize: "13px",
+              position: "relative",
+              overflow: "hidden",
             }}>
-              <span style={{ color: colors.text }}>127 creators</span>
-              <span style={{ color: colors.border }}>|</span>
-              <span style={{ color: colors.text }}>$4,200+ tipped</span>
-              <span style={{ color: colors.border }}>|</span>
-              <span style={{ color: colors.success, fontWeight: 600 }}>$0 in fees</span>
+              {/* Animated border glow */}
+              <div style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: "1px",
+                background: `linear-gradient(90deg, transparent, ${colors.primary}40, transparent)`,
+              }} />
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ color: colors.primary, fontSize: "18px", fontWeight: 700 }}>127</span>
+                <span style={{ color: colors.muted, fontSize: "12px", letterSpacing: "1px" }}>CREATORS</span>
+              </div>
+              <div style={{ width: "1px", height: "24px", backgroundColor: colors.border }} />
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ color: colors.primary, fontSize: "18px", fontWeight: 700 }}>$4,200+</span>
+                <span style={{ color: colors.muted, fontSize: "12px", letterSpacing: "1px" }}>TIPPED</span>
+              </div>
+              <div style={{ width: "1px", height: "24px", backgroundColor: colors.border }} />
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ color: colors.success, fontSize: "18px", fontWeight: 700 }}>$0</span>
+                <span style={{ color: colors.muted, fontSize: "12px", letterSpacing: "1px" }}>IN FEES</span>
+              </div>
             </div>
           </TerminalReveal>
 
@@ -842,12 +927,37 @@ export default function HomePage() {
               border: `1px solid ${colors.error}`,
               padding: "24px",
               marginBottom: "32px",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
-            <div style={{ color: colors.error, fontWeight: 600, marginBottom: "16px", fontSize: "12px" }}>
-              PUBLIC BLOCKCHAIN DATA
+            {/* Danger glow effect */}
+            <div style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `radial-gradient(ellipse at top, ${colors.errorGlow} 0%, transparent 60%)`,
+              pointerEvents: "none",
+            }} />
+            {/* Animated scan line */}
+            <div style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "2px",
+              background: colors.error,
+              opacity: 0.5,
+              animation: "scanline 3s linear infinite",
+            }} />
+            <div style={{ color: colors.error, fontWeight: 600, marginBottom: "16px", fontSize: "12px", letterSpacing: "2px", position: "relative" }}>
+              ⚠ PUBLIC BLOCKCHAIN DATA
             </div>
-            <CodeBlockReveal lines={publicBlockchainLines} isInView={codeInView1} lineDelay={80} />
+            <div style={{ position: "relative" }}>
+              <CodeBlockReveal lines={publicBlockchainLines} isInView={codeInView1} lineDelay={80} />
+            </div>
           </div>
 
           <TerminalReveal delay={700}>
@@ -887,13 +997,15 @@ export default function HomePage() {
             style={{ fontSize: "40px" }}
           />
 
-          {/* Tweet + Modal Visual Side by Side */}
+          {/* Tweet + Modal Visual - Dramatic Overlap */}
           <div style={{
             display: "flex",
-            gap: "24px",
+            gap: "-40px",
             alignItems: "flex-start",
-            marginTop: "32px",
-            marginBottom: "48px",
+            marginTop: "48px",
+            marginBottom: "64px",
+            justifyContent: "center",
+            position: "relative",
           }}>
             {/* Mock Tweet */}
             <TerminalReveal delay={200}>
@@ -979,7 +1091,7 @@ export default function HomePage() {
               </div>
             </TerminalReveal>
 
-            {/* TIP Modal Overlay */}
+            {/* TIP Modal Overlay - Overlapping */}
             <TerminalReveal delay={400}>
               <div style={{
                 backgroundColor: colors.surface,
@@ -987,7 +1099,12 @@ export default function HomePage() {
                 borderRadius: "12px",
                 padding: "24px",
                 width: "280px",
-                boxShadow: `0 0 40px ${colors.primary}33`,
+                boxShadow: `0 0 60px ${colors.primaryGlowStrong}, 0 20px 60px rgba(0,0,0,0.5)`,
+                marginLeft: "-60px",
+                marginTop: "40px",
+                position: "relative",
+                zIndex: 10,
+                animation: "pulse-glow 3s ease-in-out infinite",
               }}>
                 {/* Modal Header */}
                 <div style={{
@@ -1066,17 +1183,32 @@ export default function HomePage() {
               marginBottom: "32px",
             }}>
               {/* 0% Fees */}
-              <div style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`,
-                borderRadius: "8px",
-                padding: "24px",
-                textAlign: "center",
-              }}>
-                <div style={{ fontSize: "36px", fontWeight: 700, color: colors.success, marginBottom: "4px" }}>
+              <div
+                className="card-hover"
+                style={{
+                  backgroundColor: colors.surface,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: "8px",
+                  padding: "24px",
+                  textAlign: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: "2px",
+                    background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
+                  }}
+                />
+                <div className="glow-success" style={{ fontSize: "40px", fontWeight: 700, color: colors.success, marginBottom: "4px" }}>
                   0%
                 </div>
-                <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "1px", color: colors.primary, marginBottom: "12px" }}>
+                <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "2px", color: colors.primary, marginBottom: "12px" }}>
                   FEES
                 </div>
                 <div style={{ fontSize: "12px", color: colors.muted, lineHeight: 1.5 }}>
@@ -1085,17 +1217,32 @@ export default function HomePage() {
               </div>
 
               {/* 2 Min Setup */}
-              <div style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`,
-                borderRadius: "8px",
-                padding: "24px",
-                textAlign: "center",
-              }}>
-                <div style={{ fontSize: "36px", fontWeight: 700, color: colors.primary, marginBottom: "4px" }}>
+              <div
+                className="card-hover"
+                style={{
+                  backgroundColor: colors.surface,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: "8px",
+                  padding: "24px",
+                  textAlign: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: "2px",
+                    background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+                  }}
+                />
+                <div className="glow-text" style={{ fontSize: "40px", fontWeight: 700, color: colors.primary, marginBottom: "4px" }}>
                   2 min
                 </div>
-                <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "1px", color: colors.primary, marginBottom: "12px" }}>
+                <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "2px", color: colors.primary, marginBottom: "12px" }}>
                   SETUP
                 </div>
                 <div style={{ fontSize: "12px", color: colors.muted, lineHeight: 1.5 }}>
@@ -1104,17 +1251,32 @@ export default function HomePage() {
               </div>
 
               {/* 100% Private */}
-              <div style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`,
-                borderRadius: "8px",
-                padding: "24px",
-                textAlign: "center",
-              }}>
-                <div style={{ fontSize: "36px", fontWeight: 700, color: colors.success, marginBottom: "4px" }}>
+              <div
+                className="card-hover"
+                style={{
+                  backgroundColor: colors.surface,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: "8px",
+                  padding: "24px",
+                  textAlign: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: "2px",
+                    background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
+                  }}
+                />
+                <div className="glow-success" style={{ fontSize: "40px", fontWeight: 700, color: colors.success, marginBottom: "4px" }}>
                   100%
                 </div>
-                <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "1px", color: colors.primary, marginBottom: "12px" }}>
+                <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "2px", color: colors.primary, marginBottom: "12px" }}>
                   PRIVATE
                 </div>
                 <div style={{ fontSize: "12px", color: colors.muted, lineHeight: 1.5 }}>
@@ -1145,28 +1307,52 @@ export default function HomePage() {
             </div>
           </TerminalReveal>
 
-          {/* Privacy Simple */}
+          {/* Privacy Simple - Glowing Success */}
           <TerminalReveal delay={1000}>
             <div style={{
               backgroundColor: colors.surface,
-              border: `1px solid ${colors.success}`,
+              border: `2px solid ${colors.success}`,
               borderRadius: "8px",
-              padding: "24px",
+              padding: "32px",
               marginBottom: "32px",
               textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
+              boxShadow: `0 0 40px ${colors.successGlow}, inset 0 0 60px ${colors.successGlow}`,
             }}>
+              {/* Success glow gradient */}
               <div style={{
-                fontSize: "14px",
-                color: colors.text,
-                marginBottom: "12px",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: `radial-gradient(ellipse at center, ${colors.successGlow} 0%, transparent 70%)`,
+                pointerEvents: "none",
+              }} />
+              <div style={{
+                fontSize: "18px",
+                color: colors.textBright,
+                marginBottom: "16px",
+                position: "relative",
+                fontWeight: 500,
               }}>
-                Your tip → <span style={{ color: colors.primary }}>auto-shields</span> → Creator receives
+                Your tip → <span style={{ color: colors.primary, fontWeight: 700 }}>auto-shields</span> → <span style={{ color: colors.success }}>Creator receives</span>
               </div>
               <div style={{
-                fontSize: "13px",
+                fontSize: "14px",
                 color: colors.muted,
+                position: "relative",
               }}>
-                No public record. Like Venmo, but private.
+                No public record. Like Venmo, but <span style={{ color: colors.success, fontWeight: 600 }}>private</span>.
+              </div>
+              {/* Lock icon */}
+              <div style={{
+                marginTop: "20px",
+                fontSize: "28px",
+                position: "relative",
+              }}>
+                🔒
               </div>
             </div>
           </TerminalReveal>
@@ -1322,27 +1508,40 @@ export default function HomePage() {
               renderItem={(item, visible) => (
                 <div
                   key={item.step}
+                  className="card-hover"
                   style={{
                     backgroundColor: colors.surface,
                     border: `1px solid ${colors.border}`,
-                    padding: "20px",
+                    padding: "24px",
                     opacity: visible ? 1 : 0,
                     transform: visible ? "translateY(0)" : "translateY(12px)",
-                    transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
+                    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                    position: "relative",
+                    overflow: "hidden",
                   }}
                 >
                   <div style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "3px",
+                    height: "100%",
+                    backgroundColor: colors.primary,
+                    opacity: 0.5,
+                  }} />
+                  <div style={{
                     color: colors.primary,
-                    fontSize: "24px",
+                    fontSize: "28px",
                     fontWeight: 700,
-                    marginBottom: "8px",
+                    marginBottom: "12px",
+                    textShadow: `0 0 20px ${colors.primaryGlow}`,
                   }}>
                     {item.step}
                   </div>
-                  <h4 style={{ fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
+                  <h4 style={{ fontSize: "14px", fontWeight: 600, marginBottom: "8px", color: colors.textBright }}>
                     {item.title}
                   </h4>
-                  <p style={{ fontSize: "12px", color: colors.muted, margin: 0, lineHeight: 1.4 }}>
+                  <p style={{ fontSize: "12px", color: colors.muted, margin: 0, lineHeight: 1.5 }}>
                     {item.desc}
                   </p>
                 </div>
@@ -1385,27 +1584,40 @@ export default function HomePage() {
               renderItem={(item, visible) => (
                 <div
                   key={item.step}
+                  className="card-hover"
                   style={{
                     backgroundColor: colors.surface,
                     border: `1px solid ${colors.border}`,
-                    padding: "20px",
+                    padding: "24px",
                     opacity: visible ? 1 : 0,
                     transform: visible ? "translateY(0)" : "translateY(12px)",
-                    transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
+                    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                    position: "relative",
+                    overflow: "hidden",
                   }}
                 >
                   <div style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "3px",
+                    height: "100%",
+                    backgroundColor: colors.primary,
+                    opacity: 0.5,
+                  }} />
+                  <div style={{
                     color: colors.primary,
-                    fontSize: "24px",
+                    fontSize: "28px",
                     fontWeight: 700,
-                    marginBottom: "8px",
+                    marginBottom: "12px",
+                    textShadow: `0 0 20px ${colors.primaryGlow}`,
                   }}>
                     {item.step}
                   </div>
-                  <h4 style={{ fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
+                  <h4 style={{ fontSize: "14px", fontWeight: 600, marginBottom: "8px", color: colors.textBright }}>
                     {item.title}
                   </h4>
-                  <p style={{ fontSize: "12px", color: colors.muted, margin: 0, lineHeight: 1.4 }}>
+                  <p style={{ fontSize: "12px", color: colors.muted, margin: 0, lineHeight: 1.5 }}>
                     {item.desc}
                   </p>
                 </div>
@@ -1586,18 +1798,17 @@ export default function HomePage() {
             <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
               <a
                 href="/register"
+                className="cta-primary"
                 style={{
                   backgroundColor: colors.primary,
                   color: colors.bg,
                   padding: "18px 40px",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: "16px",
                   textDecoration: "none",
                   fontFamily: "'JetBrains Mono', monospace",
-                  transition: "background-color 0.2s ease-out",
+                  boxShadow: `0 0 30px ${colors.primaryGlow}`,
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.primaryHover}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.primary}
               >
                 Start Receiving Tips →
               </a>
@@ -1605,6 +1816,7 @@ export default function HomePage() {
                 href="https://chromewebstore.google.com/detail/tipz"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="cta-secondary"
                 style={{
                   backgroundColor: "transparent",
                   color: colors.text,
@@ -1614,15 +1826,6 @@ export default function HomePage() {
                   fontSize: "16px",
                   textDecoration: "none",
                   fontFamily: "'JetBrains Mono', monospace",
-                  transition: "all 0.2s ease-out",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = colors.primary;
-                  e.currentTarget.style.color = colors.primary;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = colors.border;
-                  e.currentTarget.style.color = colors.text;
                 }}
               >
                 Get Extension (Free)
@@ -1632,37 +1835,157 @@ export default function HomePage() {
         </div>
       </SnapSection>
 
-      {/* Footer */}
+      {/* Footer - Enhanced */}
       <footer style={{
-        padding: "32px 48px",
+        padding: "40px 48px",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         borderTop: `1px solid ${colors.border}`,
         fontSize: "12px",
+        backgroundColor: colors.surface,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700 }}>[TIPZ]</span>
-          <span style={{ color: colors.muted }}>v0.1.0-beta</span>
+          <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px", textShadow: `0 0 15px ${colors.primaryGlow}` }}>[TIPZ]</span>
+          <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>v0.1.0-beta</span>
         </div>
         <div style={{ display: "flex", gap: "32px" }}>
-          <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none" }}>Manifesto</a>
-          <a href="/docs" style={{ color: colors.muted, textDecoration: "none" }}>Docs</a>
-          <a href="https://github.com/tipz-app" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none" }}>GitHub</a>
-          <a href="https://x.com/tipz_cash" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none" }}>X</a>
+          <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>MANIFESTO</a>
+          <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>DOCS</a>
+          <a href="https://github.com/tipz-app" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>GITHUB</a>
+          <a href="https://x.com/tipz_cash" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>X</a>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", color: colors.muted }}>
-          <span style={{ color: colors.success }}>●</span>
-          <span>Private by default</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", color: colors.muted }}>
+          <span style={{
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            backgroundColor: colors.success,
+            boxShadow: `0 0 10px ${colors.success}`,
+            animation: "pulse-glow 2s ease-in-out infinite",
+          }} />
+          <span style={{ fontSize: "11px", letterSpacing: "1px" }}>PRIVATE BY DEFAULT</span>
         </div>
       </footer>
 
-      {/* Animations */}
+      {/* Animations and Effects */}
       <style>{`
         @keyframes bounce {
           0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
           40% { transform: translateY(-10px); }
           60% { transform: translateY(-5px); }
+        }
+
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(245, 166, 35, 0.2); }
+          50% { box-shadow: 0 0 40px rgba(245, 166, 35, 0.4); }
+        }
+
+        @keyframes scanline {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
+        }
+
+        @keyframes flicker {
+          0%, 100% { opacity: 1; }
+          92% { opacity: 1; }
+          93% { opacity: 0.8; }
+          94% { opacity: 1; }
+          97% { opacity: 0.9; }
+          98% { opacity: 1; }
+        }
+
+        @keyframes glitch-1 {
+          0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+          20% { clip-path: inset(20% 0 60% 0); transform: translate(-2px, 2px); }
+          40% { clip-path: inset(40% 0 40% 0); transform: translate(2px, -2px); }
+          60% { clip-path: inset(60% 0 20% 0); transform: translate(-1px, 1px); }
+          80% { clip-path: inset(80% 0 0 0); transform: translate(1px, -1px); }
+        }
+
+        .noise-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          pointer-events: none;
+          z-index: 1000;
+          opacity: 0.03;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        .scanlines {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          pointer-events: none;
+          z-index: 999;
+          background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.1) 2px,
+            rgba(0, 0, 0, 0.1) 4px
+          );
+          opacity: 0.15;
+        }
+
+        .cta-primary {
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cta-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 0 30px rgba(245, 166, 35, 0.4), 0 10px 40px rgba(245, 166, 35, 0.2);
+        }
+
+        .cta-primary::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          transition: left 0.5s;
+        }
+
+        .cta-primary:hover::before {
+          left: 100%;
+        }
+
+        .cta-secondary {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cta-secondary:hover {
+          transform: translateY(-2px);
+          border-color: #F5A623 !important;
+          color: #F5A623 !important;
+          box-shadow: 0 0 20px rgba(245, 166, 35, 0.2);
+        }
+
+        .card-hover {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-hover:hover {
+          transform: translateY(-4px);
+          border-color: #3d4450 !important;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .glow-text {
+          text-shadow: 0 0 20px rgba(245, 166, 35, 0.5);
+        }
+
+        .glow-success {
+          text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
         }
       `}</style>
     </div>
