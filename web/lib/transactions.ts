@@ -80,6 +80,17 @@
 import { supabase } from "./supabase"
 
 /**
+ * Get supabase client or throw if not configured.
+ * Call at the start of any function that needs database access.
+ */
+function getSupabase() {
+  if (!supabase) {
+    throw new Error("Database not configured. Set SUPABASE_URL and SUPABASE_SERVICE_KEY.")
+  }
+  return supabase
+}
+
+/**
  * Database row type for transactions table.
  * Maps to the actual column names in Supabase.
  */
@@ -344,7 +355,8 @@ export async function logTransaction(
     }
   }
 
-  const { data, error } = await supabase
+  const db = getSupabase()
+  const { data, error } = await db
     .from("transactions")
     .insert({
       creator_id: input.creatorId,
@@ -384,6 +396,8 @@ export async function updateTransactionStatus(
   transactionId: string,
   update: UpdateTransactionInput
 ): Promise<Transaction | null> {
+  const db = getSupabase()
+
   // Build the update object
   const updateData: Record<string, unknown> = {
     status: update.status
@@ -405,7 +419,7 @@ export async function updateTransactionStatus(
   // Merge metadata if provided
   if (update.metadata) {
     // Fetch existing metadata first to merge
-    const { data: existing } = await supabase
+    const { data: existing } = await db
       .from("transactions")
       .select("metadata")
       .eq("id", transactionId)
@@ -415,7 +429,7 @@ export async function updateTransactionStatus(
     updateData.metadata = { ...existingMetadata, ...update.metadata }
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("transactions")
     .update(updateData)
     .eq("id", transactionId)
@@ -446,7 +460,8 @@ export async function updateTransactionStatus(
 export async function getTransactions(
   query: TransactionQuery
 ): Promise<Transaction[]> {
-  let queryBuilder = supabase
+  const db = getSupabase()
+  let queryBuilder = db
     .from("transactions")
     .select("*")
     .order("created_at", { ascending: false })
@@ -498,7 +513,8 @@ export async function getTransactions(
 export async function getTransactionById(
   transactionId: string
 ): Promise<Transaction | null> {
-  const { data, error } = await supabase
+  const db = getSupabase()
+  const { data, error } = await db
     .from("transactions")
     .select("*")
     .eq("id", transactionId)
@@ -530,7 +546,8 @@ export async function getTransactionByHash(
     return null
   }
 
-  const { data, error } = await supabase
+  const db = getSupabase()
+  const { data, error } = await db
     .from("transactions")
     .select("*")
     .eq("tx_hash", txHash)
@@ -560,13 +577,15 @@ export async function getTransactionByHash(
 export async function getCreatorStats(
   creatorId: string
 ): Promise<TransactionStats> {
+  const db = getSupabase()
+
   const now = new Date()
   const day24h = new Date(now.getTime() - 24 * 60 * 60 * 1000)
   const day7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
   const day30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
   // Fetch all confirmed transactions for this creator
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("transactions")
     .select("amount_zec, amount_usd, created_at")
     .eq("creator_id", creatorId)
