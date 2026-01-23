@@ -209,7 +209,7 @@ export default function CreatorCardPage() {
   const [creator, setCreator] = useState<Creator | null>(null)
   const [extensionInstalled, setExtensionInstalled] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [animPhase, setAnimPhase] = useState<AnimPhase>("hidden")
+  const [animPhase, setAnimPhase] = useState<AnimPhase>("complete") // Start visible, animate if JS works
   const [isButtonHovered, setIsButtonHovered] = useState(false)
   const [copied, setCopied] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
@@ -268,17 +268,16 @@ export default function CreatorCardPage() {
     }
   }, [handle])
 
-  // Orchestrated animation sequence
+  // Animation sequence runs on mount for found state (content always visible as fallback)
+  const [hasAnimated, setHasAnimated] = useState(false)
   useEffect(() => {
-    if (state !== "found" || animPhase !== "hidden") return
+    if (state !== "found" || hasAnimated || prefersReducedMotion) return
 
-    // Skip animation for reduced motion
-    if (prefersReducedMotion) {
-      setAnimPhase("complete")
-      return
-    }
+    // Reset to hidden, then animate
+    setAnimPhase("hidden")
+    setHasAnimated(true)
 
-    // Phase 1: Atmosphere (0ms)
+    // Phase 1: Atmosphere (50ms)
     const t1 = setTimeout(() => setAnimPhase("atmosphere"), 50)
     // Phase 2: Card reveal (300ms)
     const t2 = setTimeout(() => setAnimPhase("card"), 300)
@@ -293,7 +292,7 @@ export default function CreatorCardPage() {
       clearTimeout(t3)
       clearTimeout(t4)
     }
-  }, [state, animPhase, prefersReducedMotion])
+  }, [state, hasAnimated, prefersReducedMotion])
 
   // Button configuration
   const getButtonConfig = () => {
@@ -767,6 +766,38 @@ export default function CreatorCardPage() {
             </span>
           </div>
 
+          {/* Value proposition - why tip here */}
+          <div style={{
+            padding: "20px",
+            background: `linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(245, 166, 35, 0.05) 100%)`,
+            border: `1px solid rgba(34, 197, 94, 0.2)`,
+            borderRadius: "12px",
+            marginBottom: "24px",
+          }}>
+            <div style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "20px",
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "1px",
+              marginBottom: "12px",
+            }}>
+              <span style={{ color: colors.success }}>✓ 0% FEES</span>
+              <span style={{ color: colors.primary }}>✓ PRIVATE</span>
+              <span style={{ color: colors.text }}>✓ INSTANT</span>
+            </div>
+            <p style={{
+              color: colors.muted,
+              fontSize: "12px",
+              margin: 0,
+              textAlign: "center",
+              lineHeight: 1.5,
+            }}>
+              100% of your tip goes directly to @{creator?.handle}. No middlemen, no tracking.
+            </p>
+          </div>
+
           {/* Hero CTA Button */}
           <button
             onClick={buttonConfig.action || undefined}
@@ -820,43 +851,18 @@ export default function CreatorCardPage() {
             )}
           </button>
 
-          {/* How it works - tipper focused */}
-          <div style={{
-            marginTop: "28px",
+          {/* How to tip - instruction */}
+          <p style={{
+            color: colors.muted,
+            fontSize: "11px",
+            marginTop: "16px",
             marginBottom: "24px",
-            padding: "16px 20px",
-            background: "rgba(255, 255, 255, 0.02)",
-            border: `1px solid ${colors.surfaceBorder}`,
-            borderRadius: "12px",
-            opacity: animPhase === "complete" ? 1 : 0,
-            transition: prefersReducedMotion ? "none" : "opacity 0.4s ease",
-            transitionDelay: "0.4s",
+            textAlign: "center",
           }}>
-            <p style={{
-              color: colors.text,
-              fontSize: "13px",
-              margin: "0 0 12px",
-              lineHeight: 1.5,
-            }}>
-              {extensionInstalled
-                ? "Click above to send a private tip. Takes 10 seconds."
-                : "Add the free extension, then tip with one click."}
-            </p>
-            <div style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "16px",
-              fontSize: "10px",
-              color: colors.muted,
-              letterSpacing: "1px",
-            }}>
-              <span style={{ color: colors.success }}>✓ 0% FEES</span>
-              <span>•</span>
-              <span>PRIVATE</span>
-              <span>•</span>
-              <span>UNTRACEABLE</span>
-            </div>
-          </div>
+            {extensionInstalled
+              ? "Click above to send a private tip. Takes 10 seconds."
+              : "Add the free Chrome extension, then tip with one click."}
+          </p>
 
           {/* Address section */}
           <div style={{
@@ -908,7 +914,7 @@ export default function CreatorCardPage() {
         </div>
       </div>
 
-      {/* Back to home */}
+      {/* Back to home - always visible */}
       <a
         href="/"
         style={{
@@ -919,9 +925,6 @@ export default function CreatorCardPage() {
           display: "flex",
           alignItems: "center",
           gap: "8px",
-          opacity: animPhase === "complete" ? 1 : 0,
-          transition: prefersReducedMotion ? "none" : "opacity 0.4s ease",
-          transitionDelay: "0.6s",
         }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
