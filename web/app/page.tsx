@@ -2018,7 +2018,7 @@ export default function HomePage() {
           <TypingHeading
             prefix=">"
             prefixColor={colors.primary}
-            text="What if creators kept everything?"
+            text="What if you kept everything?"
             style={{ fontSize: isMobile ? "32px" : "40px" }}
           />
 
@@ -2029,7 +2029,7 @@ export default function HomePage() {
               marginTop: "-16px",
               marginBottom: "40px",
             }}>
-              No fees. No surveillance. Just support.
+              Every dollar. Every tip. Every time.
             </p>
           </TerminalReveal>
 
@@ -2529,7 +2529,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <div style={{ fontSize: "10px", color: colors.success, letterSpacing: "1px", fontWeight: 600 }}>STEP 3: DELIVERED</div>
-                      <div style={{ fontSize: "12px", color: colors.success, fontWeight: 700 }}>100% to creator</div>
+                      <div style={{ fontSize: "12px", color: colors.success, fontWeight: 700 }}>100% to you</div>
                     </div>
                   </div>
                 </div>
@@ -2580,7 +2580,7 @@ export default function HomePage() {
           </TerminalReveal>
 
           <TypingHeading
-            text="Trusted by 127+ creators."
+            text="Join 127+ creators keeping 100%."
             style={{ marginBottom: "48px" }}
           />
 
@@ -2738,7 +2738,7 @@ export default function HomePage() {
                   alignItems: "center",
                   gap: "8px",
                 }}>
-                  <span style={{ opacity: 0.5 }}>//</span> FOR CREATORS
+                  <span style={{ opacity: 0.5 }}>//</span> START EARNING
                   <span style={{ fontSize: "11px", opacity: 0.6, fontWeight: 400 }}>• 3 steps</span>
                 </h3>
               </TerminalReveal>
