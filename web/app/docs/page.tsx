@@ -161,6 +161,17 @@ export default function DocsPage() {
           </Link>
           <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
             <Link
+              href="/creators"
+              style={{
+                color: colors.muted,
+                textDecoration: "none",
+                fontSize: "11px",
+                letterSpacing: "1px",
+              }}
+            >
+              CREATORS
+            </Link>
+            <Link
               href="/manifesto"
               style={{
                 color: colors.muted,

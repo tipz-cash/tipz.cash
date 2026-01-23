@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TipzLogo } from "@/components/TipzLogo";
+// Plain [TIPZ] text logo used throughout
 import { CreatorCard, SkeletonCard } from "@/components/CreatorCard";
 import { colors } from "@/lib/colors";
 import { animationKeyframes } from "@/lib/animations";
@@ -159,7 +159,13 @@ export default function CreatorsPage() {
               href="/"
               style={{ display: "flex", alignItems: "center", gap: "16px", textDecoration: "none" }}
             >
-              <TipzLogo size={18} color={colors.primary} glowColor={colors.primaryGlow} />
+              <span style={{
+                color: colors.primary,
+                fontWeight: 700,
+                fontSize: "18px",
+                fontFamily: "'JetBrains Mono', monospace",
+                textShadow: `0 0 20px ${colors.primaryGlow}`,
+              }}>[TIPZ]</span>
               <span
                 style={{
                   color: colors.muted,
