@@ -82,85 +82,89 @@ export async function GET() {
   // Check environment configuration
   const envCheck = checkEnvironment()
   if (!envCheck.configured) {
-    health.status = "unhealthy"
+    health.status = "degraded"
     health.checks.environment = {
       status: "misconfigured",
       missing_vars: envCheck.missing
     }
-    // Return early if env is misconfigured - database checks will fail anyway
-    return NextResponse.json(health, {
-      status: 503,
-      headers: {
-        "Cache-Control": "no-cache, no-store, must-revalidate"
-      }
-    })
   }
 
   // Check database connectivity (creators table)
-  try {
-    const dbStart = Date.now()
+  if (!supabase) {
+    health.checks.database = {
+      status: "disconnected",
+      error: "Supabase client not configured"
+    }
+    health.checks.transactions_table = {
+      status: "disconnected",
+      error: "Supabase client not configured"
+    }
+  } else {
+    try {
+      const dbStart = Date.now()
 
-    const { error } = await supabase
-      .from("creators")
-      .select("id", { count: "exact", head: true })
-      .limit(1)
+      const { error } = await supabase
+        .from("creators")
+        .select("id", { count: "exact", head: true })
+        .limit(1)
 
-    const dbLatency = Date.now() - dbStart
+      const dbLatency = Date.now() - dbStart
 
-    if (error) {
+      if (error) {
+        health.status = "unhealthy"
+        health.checks.database = {
+          status: "disconnected",
+          error: error.message
+        }
+      } else {
+        health.checks.database = {
+          status: "connected",
+          latency_ms: dbLatency
+        }
+      }
+    } catch (error) {
       health.status = "unhealthy"
       health.checks.database = {
         status: "disconnected",
-        error: error.message
-      }
-    } else {
-      health.checks.database = {
-        status: "connected",
-        latency_ms: dbLatency
+        error: error instanceof Error ? error.message : "Unknown database error"
       }
     }
-  } catch (error) {
-    health.status = "unhealthy"
-    health.checks.database = {
-      status: "disconnected",
-      error: error instanceof Error ? error.message : "Unknown database error"
-    }
-  }
 
-  // Check transactions table accessibility
-  try {
-    const txStart = Date.now()
+    // Check transactions table accessibility
+    try {
+      const txStart = Date.now()
 
-    const { error } = await supabase
-      .from("transactions")
-      .select("id", { count: "exact", head: true })
-      .limit(1)
+      const { error } = await supabase
+        .from("transactions")
+        .select("id", { count: "exact", head: true })
+        .limit(1)
 
-    const txLatency = Date.now() - txStart
+      const txLatency = Date.now() - txStart
 
-    if (error) {
-      // Transactions table not existing is degraded, not unhealthy
-      // (it might not have been created yet via migration)
+      if (error) {
+        // Transactions table not existing is degraded, not unhealthy
+        // (it might not have been created yet via migration)
+        if (health.status === "healthy") {
+          health.status = "degraded"
+        }
+        health.checks.transactions_table = {
+          status: "disconnected",
+          error: error.message
+        }
+      } else {
+        health.checks.transactions_table = {
+          status: "connected",
+          latency_ms: txLatency
+        }
+      }
+    } catch (error) {
       if (health.status === "healthy") {
         health.status = "degraded"
       }
       health.checks.transactions_table = {
         status: "disconnected",
-        error: error.message
+        error: error instanceof Error ? error.message : "Unknown database error"
       }
-    } else {
-      health.checks.transactions_table = {
-        status: "connected",
-        latency_ms: txLatency
-      }
-    }
-  } catch (error) {
-    if (health.status === "healthy") {
-      health.status = "degraded"
-    }
-    health.checks.transactions_table = {
-      status: "disconnected",
-      error: error instanceof Error ? error.message : "Unknown database error"
     }
   }
 

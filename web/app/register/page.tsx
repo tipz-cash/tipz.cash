@@ -67,6 +67,7 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [registeredHandle, setRegisteredHandle] = useState("")
 
   // Calculate progress for progress bar (signup-flow-cro: show progress in multi-step)
   const getProgress = () => {
@@ -127,6 +128,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
         throw new Error(data.error || "Registration failed")
       }
 
+      setRegisteredHandle(handle)  // Save for success screen before clearing
       setMessage({ type: "success", text: "Registration successful! You can now receive tips." })
       setHandle("")
       setShieldedAddress("")
@@ -644,9 +646,9 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                       alignItems: "center",
                       justifyContent: "space-between",
                     }}>
-                      <span>tipz.cash/{handle || "yourhandle"}</span>
+                      <span>tipz.cash/{registeredHandle || handle || "yourhandle"}</span>
                       <button
-                        onClick={() => navigator.clipboard.writeText(`https://tipz.cash/${handle}`)}
+                        onClick={() => navigator.clipboard.writeText(`https://tipz.cash/${registeredHandle || handle}`)}
                         style={{
                           padding: "6px 12px",
                           fontSize: "11px",

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { createPortal } from "react-dom"
 import type { Creator } from "~lib/api"
 import { usePayment } from "~hooks/usePayment"
@@ -152,6 +152,39 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [showAssetDropdown, setShowAssetDropdown] = useState(false)
   const [forceConnect, setForceConnect] = useState(false)
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  // Handle keyboard navigation and focus trap
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleClose()
+        return
+      }
+
+      // Focus trap
+      if (e.key === "Tab" && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault()
+          lastElement?.focus()
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement?.focus()
+        }
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [isOpen])
 
   // Handle opening animation
   useEffect(() => {
@@ -288,6 +321,13 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     animation: isClosing ? "modalSlideOut 0.2s ease-out forwards" : "modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
   }
 
+  // ARIA props for accessibility
+  const modalAriaProps = {
+    role: "dialog" as const,
+    "aria-modal": true,
+    "aria-labelledby": "tipz-modal-title",
+  }
+
   const modalContentStyle: React.CSSProperties = {
     padding: "20px",
   }
@@ -345,7 +385,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     return renderInPortal(
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
-        <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={modalStyle} onClick={(e) => e.stopPropagation()} {...modalAriaProps}>
           <TerminalHeader title="Error" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", marginBottom: "24px" }}>
@@ -365,7 +405,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                   <path d="M12 8v4M12 16h.01"/>
                 </svg>
               </div>
-              <h2 style={{ margin: "0 0 8px", fontSize: "16px", fontWeight: 600 }}>
+              <h2 id="tipz-modal-title" style={{ margin: "0 0 8px", fontSize: "16px", fontWeight: 600 }}>
                 Creator Not Registered
               </h2>
               <p style={{ margin: 0, color: colors.muted, fontSize: "13px", lineHeight: "1.5" }}>
@@ -387,11 +427,11 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     return renderInPortal(
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
-        <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={modalStyle} onClick={(e) => e.stopPropagation()} {...modalAriaProps}>
           <TerminalHeader title="Connect Wallet" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-              <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 600 }}>
+              <h2 id="tipz-modal-title" style={{ margin: 0, fontSize: "16px", fontWeight: 600 }}>
                 Connect Wallet
               </h2>
               <button
@@ -526,7 +566,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     return renderInPortal(
       <div style={overlayStyle}>
         <style>{animationStyles}</style>
-        <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={modalStyle} onClick={(e) => e.stopPropagation()} {...modalAriaProps} aria-busy="true">
           <TerminalHeader title="Processing..." onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
@@ -540,9 +580,9 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                 borderRightColor: colors.primary,
                 margin: "0 auto 24px",
                 animation: "spin 0.8s cubic-bezier(0.5, 0.15, 0.5, 0.85) infinite",
-              }}/>
+              }} role="progressbar" aria-label="Processing transaction"/>
 
-              <h2 style={{
+              <h2 id="tipz-modal-title" style={{
                 margin: "0 0 8px",
                 fontSize: "16px",
                 fontWeight: 600,
@@ -633,7 +673,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
     return renderInPortal(
       <div style={overlayStyle} onClick={handleClose}>
         <style>{animationStyles}</style>
-        <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={modalStyle} onClick={(e) => e.stopPropagation()} {...modalAriaProps}>
           <TerminalHeader title="Tip Sent" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
@@ -648,7 +688,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                 margin: "0 auto 16px",
                 border: `1px solid ${colors.success}`,
                 animation: "successPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
-              }}>
+              }} aria-hidden="true">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2.5">
                   <path
                     d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
@@ -665,7 +705,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                 </svg>
               </div>
 
-              <h2 style={{
+              <h2 id="tipz-modal-title" style={{
                 margin: "0 0 8px",
                 fontSize: "16px",
                 fontWeight: 600,
@@ -750,7 +790,7 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
         <div style={{
           ...modalStyle,
           animation: "shake 0.5s ease-out, modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-        }} onClick={(e) => e.stopPropagation()}>
+        }} onClick={(e) => e.stopPropagation()} {...modalAriaProps} role="alertdialog">
           <TerminalHeader title="Error" onClose={handleClose} />
           <div style={modalContentStyle}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
@@ -765,14 +805,14 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
                 margin: "0 auto 16px",
                 border: `1px solid ${colors.error}`,
                 animation: "successPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
-              }}>
+              }} aria-hidden="true">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={colors.error} strokeWidth="2">
                   <circle cx="12" cy="12" r="10"/>
                   <path d="M15 9l-6 6M9 9l6 6"/>
                 </svg>
               </div>
 
-              <h2 style={{
+              <h2 id="tipz-modal-title" style={{
                 margin: "0 0 8px",
                 fontSize: "16px",
                 fontWeight: 600,
@@ -841,8 +881,11 @@ export function TipModal({ creator, handle, isOpen, onClose }: TipModalProps) {
   return renderInPortal(
     <div style={overlayStyle} onClick={handleClose}>
       <style>{animationStyles}</style>
-      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+      <div ref={modalRef} style={modalStyle} onClick={(e) => e.stopPropagation()} {...modalAriaProps}>
         <TerminalHeader title={`Tip @${handle}`} onClose={handleClose} />
+        <h2 id="tipz-modal-title" className="sr-only" style={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)" }}>
+          Tip @{handle}
+        </h2>
         <div style={modalContentStyle}>
           {/* Connected Wallet Info */}
           {wallet.isConnected && wallet.address && (

@@ -20,6 +20,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // If Supabase is not configured, return all as not found
+    if (!supabase) {
+      const results: Record<string, { found: boolean }> = {}
+      for (const handle of handles) {
+        results[handle] = { found: false }
+      }
+      return NextResponse.json({ results })
+    }
+
     const normalizedHandles = handles.map(normalizeHandle)
 
     const { data, error } = await supabase
