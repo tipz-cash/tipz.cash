@@ -1,7 +1,8 @@
 const API_BASE = process.env.PLASMO_PUBLIC_API_URL || "http://localhost:3000"
 
-// DEV MODE: Set to true to show TIP button on ALL tweets for testing
-const DEV_MODE = true
+// DEV MODE: Set PLASMO_PUBLIC_DEV_MODE=true to show TIP button on ALL tweets for testing
+// In production, set to false or omit the env var
+const DEV_MODE = process.env.PLASMO_PUBLIC_DEV_MODE === "true"
 
 // Mock creator for testing wallet connection
 const MOCK_CREATOR: Creator = {
@@ -27,22 +28,32 @@ export interface BatchLookupResult {
   results: Record<string, LookupResult>
 }
 
+/**
+ * Normalize handle by removing @ prefix and converting to lowercase
+ */
+function normalizeHandle(handle: string): string {
+  return handle.toLowerCase().replace(/^@/, "")
+}
+
 export async function lookupCreator(
   platform: string,
   handle: string
 ): Promise<LookupResult> {
+  // Normalize handle (strip @ prefix)
+  const normalizedHandle = normalizeHandle(handle)
+
   // In DEV_MODE, return mock creator for ALL handles
   if (DEV_MODE) {
-    console.log("TIPZ [DEV]: Returning mock creator for", handle)
+    console.log("TIPZ [DEV]: Returning mock creator for", normalizedHandle)
     return {
       found: true,
-      creator: { ...MOCK_CREATOR, handle }
+      creator: { ...MOCK_CREATOR, handle: normalizedHandle }
     }
   }
 
   try {
     const res = await fetch(
-      `${API_BASE}/api/creator?platform=${encodeURIComponent(platform)}&handle=${encodeURIComponent(handle)}`
+      `${API_BASE}/api/creator?platform=${encodeURIComponent(platform)}&handle=${encodeURIComponent(normalizedHandle)}`
     )
     if (!res.ok) {
       return { found: false }
@@ -58,11 +69,14 @@ export async function batchLookupCreators(
   platform: string,
   handles: string[]
 ): Promise<BatchLookupResult> {
+  // Normalize all handles (strip @ prefix)
+  const normalizedHandles = handles.map(normalizeHandle)
+
   try {
     const res = await fetch(`${API_BASE}/api/creators/batch`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ platform, handles })
+      body: JSON.stringify({ platform, handles: normalizedHandles })
     })
     if (!res.ok) {
       return { results: {} }

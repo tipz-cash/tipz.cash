@@ -6,6 +6,10 @@ import {
   getClientIP,
   RATE_LIMITS
 } from "@/lib/rate-limit"
+import {
+  verifyTweetContent,
+  isTwitterApiConfigured
+} from "@/lib/twitter-api"
 
 /**
  * Error codes for registration API responses.
@@ -186,22 +190,15 @@ function parseTweetUrl(url: string): {
 /**
  * Verify tweet ownership and content.
  *
- * Current implementation (Phase 1):
- * - Validates URL format
- * - Verifies handle matches
- * - Returns "pending" status for later API verification
- *
- * TODO: Phase 2 - Twitter API Integration
- * - Use Twitter API v2 to fetch tweet content
- * - Verify tweet contains required text (e.g., "TIPZ" or shielded address)
- * - Check tweet is not deleted
- * - Verify tweet timestamp is recent (within last 24 hours)
- * - Store verification proof (tweet content hash)
- *
- * TODO: Phase 3 - Enhanced Verification
- * - Add webhook for tweet deletion detection
- * - Implement periodic re-verification
- * - Add challenge-response verification option
+ * Implementation:
+ * 1. Validates URL format
+ * 2. Verifies handle matches URL path
+ * 3. If Twitter API is configured, verifies tweet content:
+ *    - Tweet exists and is not deleted
+ *    - Author matches expected handle
+ *    - Contains "TIPZ" keyword
+ *    - Contains shielded address (or first/last 8 chars)
+ *    - Posted within 48 hours
  *
  * @param tweetUrl - Full URL to the verification tweet
  * @param handle - The handle being registered
@@ -225,7 +222,7 @@ async function verifyTweet(
     }
   }
 
-  // Verify the tweet is from the handle being registered
+  // Verify the tweet is from the handle being registered (URL path check)
   const expectedHandle = normalizeHandle(handle)
 
   if (parsed.handle !== expectedHandle) {
@@ -236,38 +233,27 @@ async function verifyTweet(
     }
   }
 
-  // TODO: Twitter API verification
-  // When implementing, add the following checks:
-  //
-  // 1. Fetch tweet via Twitter API v2:
-  //    GET /2/tweets/:id?expansions=author_id&tweet.fields=text,created_at
-  //
-  // 2. Verify author_id matches the handle's user_id
-  //
-  // 3. Check tweet text contains required content:
-  //    - Must contain "TIPZ" or similar identifier
-  //    - Optionally contain the shielded address (first/last 8 chars)
-  //    - Example: "Registering for TIPZ tips! My address: zs1abc...xyz78"
-  //
-  // 4. Verify tweet is recent (created within last 24-48 hours)
-  //
-  // 5. Store verification metadata:
-  //    - Tweet ID
-  //    - Verification timestamp
-  //    - Content hash for audit trail
-  //
-  // Example implementation:
-  // const twitterApiKey = process.env.TWITTER_BEARER_TOKEN
-  // if (twitterApiKey) {
-  //   const response = await fetch(
-  //     `https://api.twitter.com/2/tweets/${parsed.tweetId}?expansions=author_id&tweet.fields=text,created_at`,
-  //     { headers: { Authorization: `Bearer ${twitterApiKey}` } }
-  //   )
-  //   const tweet = await response.json()
-  //   // Verify content...
-  // }
+  // If Twitter API is configured, verify tweet content
+  if (isTwitterApiConfigured()) {
+    console.log("[register] Twitter API configured, verifying tweet content")
 
-  // For now, return pending status - URL is valid but content not verified
+    const apiResult = await verifyTweetContent(
+      parsed.tweetId,
+      handle,
+      shieldedAddress
+    )
+
+    return {
+      valid: apiResult.valid,
+      status: apiResult.status,
+      tweetId: parsed.tweetId,
+      error: apiResult.error,
+      verifiedAt: apiResult.status === "verified" ? new Date().toISOString() : undefined
+    }
+  }
+
+  // Twitter API not configured - return pending status for manual review
+  console.log("[register] Twitter API not configured, returning pending status")
   return {
     valid: true,
     status: "pending",
@@ -404,6 +390,16 @@ export async function POST(request: NextRequest) {
 
     const normalizedHandle = normalizeHandle(sanitizedHandle)
 
+    // If Supabase is not configured, return an error
+    if (!supabase) {
+      return createErrorResponse(
+        "Database not configured. Please contact support.",
+        ERROR_CODES.DATABASE_ERROR,
+        503,
+        headers
+      )
+    }
+
     // Check if already registered
     let existing: { id: string } | null = null
     try {
@@ -444,9 +440,9 @@ export async function POST(request: NextRequest) {
           handle: sanitizedHandle,
           shielded_address: sanitizedAddress,
           tweet_url: sanitizedTweetUrl,
-          // TODO: Add verification_status field to track tweet verification state
-          // verification_status: tweetVerification.status,
-          // verified_at: tweetVerification.status === "verified" ? new Date().toISOString() : null,
+          verification_status: tweetVerification.status,
+          tweet_id: tweetVerification.tweetId,
+          verified_at: tweetVerification.verifiedAt || null,
           updated_at: new Date().toISOString()
         })
         .eq("id", existing.id)
@@ -481,11 +477,10 @@ export async function POST(request: NextRequest) {
         handle: sanitizedHandle,
         handle_normalized: normalizedHandle,
         shielded_address: sanitizedAddress,
-        tweet_url: sanitizedTweetUrl
-        // TODO: Add these fields when database schema is updated:
-        // verification_status: tweetVerification.status,
-        // tweet_id: tweetVerification.tweetId,
-        // verified_at: null
+        tweet_url: sanitizedTweetUrl,
+        verification_status: tweetVerification.status,
+        tweet_id: tweetVerification.tweetId,
+        verified_at: tweetVerification.verifiedAt || null
       })
 
     if (insertError) {
