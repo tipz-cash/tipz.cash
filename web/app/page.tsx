@@ -1843,8 +1843,9 @@ export default function HomePage() {
                   lineHeight: 1.5,
                   margin: "0 0 20px 0",
                   position: "relative",
+                  fontStyle: "italic",
                 }}>
-                  Platforms and payment processors take up to 38% of every tip.
+                  &ldquo;For every $5 tip, creators lose almost $2.&rdquo;
                 </p>
 
                 {/* Animated progress bar */}
@@ -1856,7 +1857,7 @@ export default function HomePage() {
                     fontSize: "11px",
                   }}>
                     <span style={{ color: colors.muted }}>FEE EXTRACTION</span>
-                    <span style={{ color: colors.error, fontWeight: 700 }}>38% LOST</span>
+                    <span style={{ color: colors.error, fontWeight: 700 }}>39% LOST</span>
                   </div>
                   <div style={{
                     height: "8px",
@@ -1865,13 +1866,75 @@ export default function HomePage() {
                     overflow: "hidden",
                   }}>
                     <div style={{
-                      width: "38%",
+                      width: "39%",
                       height: "100%",
                       background: `linear-gradient(90deg, ${colors.error}, ${colors.error}80)`,
                       borderRadius: "4px",
                       animation: "bar-fill 1s ease-out 0.5s both",
                       transformOrigin: "left",
                     }} />
+                  </div>
+                </div>
+
+                {/* $5 Tip Breakdown box */}
+                <div style={{
+                  background: `${colors.error}08`,
+                  border: `1px solid ${colors.error}30`,
+                  borderRadius: "6px",
+                  padding: "12px",
+                  marginBottom: "12px",
+                }}>
+                  <div style={{
+                    fontSize: "9px",
+                    color: colors.error,
+                    letterSpacing: "1.5px",
+                    marginBottom: "10px",
+                    fontWeight: 600,
+                  }}>
+                    $5 TIP BREAKDOWN
+                  </div>
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr auto auto",
+                    gap: "4px 8px",
+                    fontSize: "11px",
+                    fontFamily: "var(--font-mono)",
+                  }}>
+                    <span style={{ color: colors.muted }}>You send</span>
+                    <span style={{ color: colors.muted, fontSize: "9px" }}></span>
+                    <span style={{ color: colors.textBright, textAlign: "right" }}>$5.00</span>
+
+                    <span style={{ color: colors.muted }}>Platform tax</span>
+                    <span style={{ color: colors.muted, fontSize: "9px" }}>30%</span>
+                    <span style={{ color: colors.error, textAlign: "right" }}>−$1.50</span>
+
+                    <span style={{ color: colors.muted }}>Fixed fee</span>
+                    <span style={{ color: colors.muted, fontSize: "9px" }}>flat</span>
+                    <span style={{ color: colors.error, textAlign: "right" }}>−$0.30</span>
+
+                    <span style={{ color: colors.muted }}>Processing</span>
+                    <span style={{ color: colors.muted, fontSize: "9px" }}>2.9%</span>
+                    <span style={{ color: colors.error, textAlign: "right" }}>−$0.15</span>
+
+                    <span style={{
+                      color: colors.muted,
+                      borderTop: `1px solid ${colors.error}30`,
+                      paddingTop: "6px",
+                      marginTop: "4px",
+                    }}>Creator gets</span>
+                    <span style={{
+                      borderTop: `1px solid ${colors.error}30`,
+                      paddingTop: "6px",
+                      marginTop: "4px",
+                    }}></span>
+                    <span style={{
+                      color: colors.error,
+                      fontWeight: 700,
+                      textAlign: "right",
+                      borderTop: `1px solid ${colors.error}30`,
+                      paddingTop: "6px",
+                      marginTop: "4px",
+                    }}>$3.05</span>
                   </div>
                 </div>
 
@@ -1882,7 +1945,7 @@ export default function HomePage() {
                   position: "relative",
                   marginTop: "auto",
                 }}>
-                  Micropayments don&apos;t work when fees eat the tip.
+                  Three layers of fees. One broken system.
                 </p>
               </div>
             </TerminalReveal>
@@ -1964,6 +2027,41 @@ export default function HomePage() {
                   }} />
                 </div>
 
+                {/* Exposed on-chain data box */}
+                <div style={{
+                  background: `${colors.error}08`,
+                  border: `1px solid ${colors.error}30`,
+                  borderRadius: "6px",
+                  padding: "12px",
+                  marginBottom: "12px",
+                }}>
+                  <div style={{
+                    fontSize: "9px",
+                    color: colors.error,
+                    letterSpacing: "1.5px",
+                    marginBottom: "10px",
+                    fontWeight: 600,
+                  }}>
+                    EXPOSED ON-CHAIN
+                  </div>
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "auto 1fr",
+                    gap: "6px 12px",
+                    fontSize: "11px",
+                    fontFamily: "var(--font-mono)",
+                  }}>
+                    <span style={{ color: colors.muted }}>Your wallet</span>
+                    <span style={{ color: colors.error }}>0x8f3...a2d</span>
+                    <span style={{ color: colors.muted }}>Their wallet</span>
+                    <span style={{ color: colors.error }}>0x2b1...9c4</span>
+                    <span style={{ color: colors.muted }}>Amount</span>
+                    <span style={{ color: colors.error }}>$50.00</span>
+                    <span style={{ color: colors.muted }}>Timestamp</span>
+                    <span style={{ color: colors.error }}>Jan 23, 2026</span>
+                  </div>
+                </div>
+
                 <p style={{
                   color: colors.muted,
                   fontSize: "13px",
@@ -2028,7 +2126,7 @@ export default function HomePage() {
               marginTop: "-16px",
               marginBottom: "40px",
             }}>
-              Every dollar. Every tip. Every time.
+              Every dollar. Every tip. Completely private.
             </p>
           </TerminalReveal>
 
@@ -2062,18 +2160,18 @@ export default function HomePage() {
                   left: 0,
                   right: 0,
                   height: "2px",
-                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
                 }} />
                 <div style={{
                   fontSize: isMobile ? "36px" : "44px",
                   fontWeight: 800,
-                  color: colors.primary,
+                  color: colors.success,
                   lineHeight: 1,
                   marginBottom: "8px",
-                  textShadow: `0 0 30px ${colors.primaryGlow}`,
+                  textShadow: `0 0 30px ${colors.successGlow}`,
                   fontFamily: "'JetBrains Mono', monospace",
                 }}>
-                  2m
+                  2min
                 </div>
                 <div style={{
                   fontSize: "10px",
@@ -2188,36 +2286,7 @@ export default function HomePage() {
                     lineHeight: 1.5,
                     position: "relative",
                   }}>
-                    Every cent goes to the creator.
-                  </div>
-
-                  {/* Competitor comparison mini-table */}
-                  <div style={{
-                    marginTop: "16px",
-                    padding: "12px",
-                    background: colors.bg,
-                    borderRadius: "6px",
-                    position: "relative",
-                  }}>
-                    <div style={{ fontSize: "9px", color: colors.muted, letterSpacing: "1px", marginBottom: "8px" }}>
-                      VS. COMPETITORS
-                    </div>
-                    {[
-                      { name: "Patreon", fee: "-8% to -12%" },
-                      { name: "Ko-fi", fee: "-5%" },
-                      { name: "PayPal", fee: "-2.9% + $0.30" },
-                    ].map((comp) => (
-                      <div key={comp.name} style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        fontSize: "10px",
-                        color: colors.muted,
-                        marginBottom: "4px",
-                      }}>
-                        <span>{comp.name}</span>
-                        <span style={{ color: colors.error }}>{comp.fee}</span>
-                      </div>
-                    ))}
+                    Every satisfying cent goes to you.
                   </div>
                 </div>
               </div>
@@ -2275,114 +2344,14 @@ export default function HomePage() {
             </TerminalReveal>
           </div>
 
-          {/* Side-by-side: Fee Comparison + Privacy Pipeline */}
+          {/* Privacy Pipeline */}
           <TerminalReveal delay={800}>
             <div style={{
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-              gap: "24px",
+              maxWidth: "480px",
+              margin: "0 auto",
               marginBottom: "20px",
             }}>
-              {/* Fee Comparison - Left Column */}
-              <div style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: "28px",
-                position: "relative",
-                overflow: "hidden",
-              }}>
-                <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginBottom: "20px" }}>
-                  PLATFORM FEES ON $100
-                </div>
-
-                {/* Animated fee bars */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  {[
-                    { name: "PayPal", fee: "-$3.20", gets: "$96.80", width: "32%", delay: "0s" },
-                    { name: "Ko-fi", fee: "-$5.00", gets: "$95.00", width: "50%", delay: "0.15s" },
-                    { name: "Patreon", fee: "-$12.00", gets: "$88.00", width: "100%", delay: "0.3s" },
-                  ].map((platform) => (
-                    <div key={platform.name} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <div style={{ width: "55px", fontSize: "11px", color: colors.muted }}>{platform.name}</div>
-                      <div style={{ flex: 1, position: "relative", height: "24px", backgroundColor: colors.bg, borderRadius: "4px", overflow: "hidden" }}>
-                        <div style={{
-                          position: "absolute",
-                          left: 0,
-                          top: 0,
-                          bottom: 0,
-                          width: platform.width,
-                          background: `linear-gradient(90deg, ${colors.error} 0%, ${colors.error}80 100%)`,
-                          display: "flex",
-                          alignItems: "center",
-                          paddingLeft: "8px",
-                          fontSize: "10px",
-                          fontWeight: 600,
-                          color: colors.textBright,
-                          transformOrigin: "left",
-                          animation: `bar-fill 0.6s ease-out ${platform.delay} both`,
-                        }}>
-                          {platform.fee}
-                        </div>
-                      </div>
-                      <div style={{
-                        width: "55px",
-                        textAlign: "right",
-                        fontSize: "12px",
-                        color: colors.error,
-                        fontWeight: 600,
-                        animation: `number-fade 0.4s ease-out ${platform.delay} both`,
-                      }}>{platform.gets}</div>
-                    </div>
-                  ))}
-
-                  {/* TIPZ - Hero row */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "12px" }}>
-                    <div style={{ width: "55px", fontSize: "12px", color: colors.primary, fontWeight: 700 }}>TIPZ</div>
-                    <div style={{
-                      flex: 1,
-                      position: "relative",
-                      height: "36px",
-                      backgroundColor: colors.bg,
-                      borderRadius: "4px",
-                      overflow: "hidden",
-                      border: `2px solid ${colors.success}`,
-                      boxShadow: `0 0 20px ${colors.successGlow}`,
-                    }}>
-                      <div style={{
-                        position: "absolute",
-                        left: 0,
-                        top: 0,
-                        bottom: 0,
-                        right: 0,
-                        background: `linear-gradient(90deg, ${colors.success}30 0%, ${colors.success}15 100%)`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        color: colors.success,
-                        letterSpacing: "2px",
-                        transformOrigin: "left",
-                        animation: "bar-fill-success 0.8s ease-out 0.5s both",
-                      }}>
-                        $0 FEES
-                      </div>
-                    </div>
-                    <div style={{
-                      width: "55px",
-                      textAlign: "right",
-                      fontSize: "16px",
-                      color: colors.success,
-                      fontWeight: 700,
-                      textShadow: `0 0 20px ${colors.successGlow}`,
-                      animation: "number-fade 0.4s ease-out 0.7s both",
-                    }}>$100</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Privacy Pipeline - Right Column */}
+              {/* Privacy Pipeline */}
               <div style={{
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
@@ -2392,7 +2361,7 @@ export default function HomePage() {
                 overflow: "hidden",
               }}>
                 <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginBottom: "20px", textAlign: "center" }}>
-                  HOW YOUR TIP STAYS PRIVATE
+                  HOW YOU RECEIVE TIPS PRIVATELY
                 </div>
 
                 {/* Animated vertical pipeline */}
@@ -2424,7 +2393,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "1px" }}>STEP 1</div>
-                      <div style={{ fontSize: "12px", color: colors.text }}>Send in any token</div>
+                      <div style={{ fontSize: "12px", color: colors.text }}>Supporter tips in any token</div>
                     </div>
                   </div>
 
@@ -2528,7 +2497,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <div style={{ fontSize: "10px", color: colors.success, letterSpacing: "1px", fontWeight: 600 }}>STEP 3: DELIVERED</div>
-                      <div style={{ fontSize: "12px", color: colors.success, fontWeight: 700 }}>100% to you</div>
+                      <div style={{ fontSize: "12px", color: colors.success, fontWeight: 700 }}>Arrives 100% private</div>
                     </div>
                   </div>
                 </div>
