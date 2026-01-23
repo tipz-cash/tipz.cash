@@ -2,28 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { TipzLogo } from "@/components/TipzLogo";
-
-// Color palette - matching main site
-const colors = {
-  bg: "#08090a",
-  pageBg: "#050505",
-  surface: "#12141a",
-  surfaceHover: "#1a1d24",
-  primary: "#F5A623",
-  primaryHover: "#FFB84D",
-  primaryGlow: "rgba(245, 166, 35, 0.15)",
-  success: "#22C55E",
-  successGlow: "rgba(34, 197, 94, 0.2)",
-  muted: "#6B7280",
-  border: "#2a2f38",
-  borderHover: "#3d4450",
-  text: "#D1D5DB",
-  textBright: "#F9FAFB",
-  cardBg: "rgba(255, 255, 255, 0.02)",
-  cardBorder: "rgba(255, 255, 255, 0.06)",
-  cardBorderHover: "rgba(245, 166, 35, 0.3)",
-  goldGlow: "rgba(245, 166, 35, 0.1)",
-};
+import { CreatorCard, SkeletonCard } from "@/components/CreatorCard";
+import { colors } from "@/lib/colors";
+import { animationKeyframes } from "@/lib/animations";
 
 interface Creator {
   id: string;
@@ -40,15 +21,6 @@ interface ApiResponse {
   offset: number;
   hasMore: boolean;
   isDemo?: boolean;
-}
-
-// Generate a consistent hue from a string
-function hashToHue(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return Math.abs(hash % 360);
 }
 
 // ZEC Ticker component (simplified version)
@@ -72,165 +44,6 @@ function ZecTicker() {
     <span style={{ color: colors.muted, fontSize: "11px", letterSpacing: "1px" }}>
       ZEC {price ? `$${price.toFixed(2)}` : "—"}
     </span>
-  );
-}
-
-// Creator Card Component
-function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const hue = hashToHue(creator.handle);
-
-  return (
-    <a
-      href={`/${creator.handle}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{
-        position: "relative",
-        background: colors.cardBg,
-        backdropFilter: "blur(12px)",
-        border: `1px solid ${isHovered ? colors.cardBorderHover : colors.cardBorder}`,
-        borderRadius: "16px",
-        padding: "32px 24px",
-        textDecoration: "none",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "16px",
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        cursor: "pointer",
-        transform: isHovered ? "translateY(-8px) scale(1.02)" : "translateY(0) scale(1)",
-        boxShadow: isHovered
-          ? `0 20px 40px rgba(0, 0, 0, 0.4), 0 0 60px ${colors.goldGlow}, inset 0 1px 0 rgba(255, 255, 255, 0.1)`
-          : "none",
-        opacity: 0,
-        animation: `fadeInUp 0.5s ease forwards`,
-        animationDelay: `${index * 0.05}s`,
-      }}
-    >
-      {/* Avatar */}
-      <div
-        style={{
-          width: "72px",
-          height: "72px",
-          borderRadius: "50%",
-          background: `hsl(${hue}, 50%, 35%)`,
-          border: `3px solid rgba(245, 166, 35, 0.6)`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "28px",
-          fontWeight: 700,
-          color: "#fff",
-          textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-          textTransform: "uppercase",
-        }}
-      >
-        {creator.handle[0]}
-      </div>
-
-      {/* Handle */}
-      <h3
-        style={{
-          color: colors.textBright,
-          fontSize: "16px",
-          fontWeight: 600,
-          margin: 0,
-          fontFamily: "monospace",
-        }}
-      >
-        @{creator.handle}
-      </h3>
-
-      {/* Verified badge */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          padding: "4px 12px",
-          background: "rgba(34, 197, 94, 0.1)",
-          borderRadius: "100px",
-          fontSize: "11px",
-          fontWeight: 600,
-          color: colors.success,
-          letterSpacing: "0.5px",
-        }}
-      >
-        <span
-          style={{
-            width: "6px",
-            height: "6px",
-            borderRadius: "50%",
-            background: colors.success,
-            boxShadow: `0 0 8px ${colors.success}`,
-          }}
-        />
-        SHIELDED
-      </div>
-
-      {/* CTA */}
-      <span
-        style={{
-          color: colors.muted,
-          fontSize: "12px",
-          marginTop: "8px",
-          transition: "color 0.2s, transform 0.2s",
-          transform: isHovered ? "translateX(4px)" : "translateX(0)",
-        }}
-      >
-        View Card {isHovered ? "→" : ""}
-      </span>
-    </a>
-  );
-}
-
-// Skeleton Card for loading state
-function SkeletonCard({ index }: { index: number }) {
-  return (
-    <div
-      style={{
-        background: colors.cardBg,
-        border: `1px solid ${colors.cardBorder}`,
-        borderRadius: "16px",
-        padding: "32px 24px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "16px",
-        animation: `fadeInUp 0.5s ease forwards, shimmer 1.5s infinite`,
-        animationDelay: `${index * 0.05}s`,
-        opacity: 0,
-      }}
-    >
-      {/* Avatar skeleton */}
-      <div
-        style={{
-          width: "72px",
-          height: "72px",
-          borderRadius: "50%",
-          background: colors.border,
-        }}
-      />
-      {/* Handle skeleton */}
-      <div
-        style={{
-          width: "100px",
-          height: "20px",
-          borderRadius: "4px",
-          background: colors.border,
-        }}
-      />
-      {/* Badge skeleton */}
-      <div
-        style={{
-          width: "80px",
-          height: "24px",
-          borderRadius: "100px",
-          background: colors.border,
-        }}
-      />
-    </div>
   );
 }
 
@@ -290,37 +103,7 @@ export default function CreatorsPage() {
     <>
       {/* Global styles and keyframes */}
       <style jsx global>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes shimmer {
-          0% {
-            opacity: 0.5;
-          }
-          50% {
-            opacity: 0.8;
-          }
-          100% {
-            opacity: 0.5;
-          }
-        }
-
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.4;
-          }
-        }
+        ${animationKeyframes}
 
         html {
           background: ${colors.pageBg};

@@ -7,7 +7,11 @@ import {
   isValidShieldedAddress,
   isValidDestinationChain,
   estimateCompletionTime,
+  createNearIntent,
+  queryNearIntent,
+  parseNearError,
   type IntentResponse,
+  type CreateIntentRequest,
 } from "@/lib/near"
 
 /**
@@ -82,17 +86,42 @@ export async function POST(request: NextRequest) {
 
     if (!demoMode && nearConfigured) {
       // PRODUCTION MODE: Create real NEAR Intent
-      // TODO: Implement real NEAR contract call when SDK is integrated
-      // const nearConfig = getNearConfig()
-      // const intentResult = await createNearIntent({
-      //   amount,
-      //   destinationAddress,
-      //   destinationChain,
-      //   ...metadata,
-      // })
+      try {
+        console.log("[intents/create] Production mode - creating NEAR intent")
 
-      console.log("[intents/create] Production mode - NEAR integration pending")
-      // Fall through to demo mode for now
+        const intentRequest: CreateIntentRequest = {
+          amount,
+          sourceChain: metadata?.sourceChain || 1, // Default to Ethereum
+          sourceToken: "native",
+          sourceTxHash: metadata?.sourceTxHash,
+          senderAddress: metadata?.senderAddress,
+          destinationChain,
+          destinationAddress,
+        }
+
+        const intentResult = await createNearIntent(intentRequest)
+
+        console.log("[intents/create] NEAR intent created:", {
+          intentId: intentResult.intentId,
+          amount: `${amount} ZEC`,
+          destination: destinationAddress.slice(0, 12) + "...",
+          nearTxHash: intentResult.nearTxHash?.slice(0, 16),
+          estimatedMinutes: Math.round(
+            (intentResult.estimatedCompletion - Date.now()) / 60000
+          ),
+        })
+
+        return NextResponse.json(intentResult)
+      } catch (nearError) {
+        console.error("[intents/create] NEAR error:", nearError)
+
+        // Parse the error and return a helpful message
+        const errorMessage = parseNearError(nearError)
+        return NextResponse.json(
+          { error: errorMessage, nearError: true },
+          { status: 500 }
+        )
+      }
     }
 
     // DEMO MODE: Simulate NEAR Intents processing
@@ -119,7 +148,7 @@ export async function POST(request: NextRequest) {
         : "Intent created on NEAR",
     }
 
-    console.log("[intents/create] Intent created:", {
+    console.log("[intents/create] Demo intent created:", {
       intentId,
       amount: `${amount} ZEC`,
       destination: destinationAddress.slice(0, 12) + "...",
@@ -159,13 +188,26 @@ export async function GET(request: NextRequest) {
 
   if (!demoMode && nearConfigured) {
     // PRODUCTION MODE: Query real NEAR Intent status
-    // TODO: Implement real NEAR contract query when SDK is integrated
-    // const nearConfig = getNearConfig()
-    // const intentStatus = await queryNearIntent(intentId)
-    // return NextResponse.json(intentStatus)
+    try {
+      console.log("[intents/status] Production mode - querying NEAR intent")
 
-    console.log("[intents/status] Production mode - NEAR integration pending")
-    // Fall through to demo mode for now
+      const intentStatus = await queryNearIntent(intentId)
+
+      console.log("[intents/status] NEAR intent status:", {
+        intentId,
+        status: intentStatus.status,
+        solver: intentStatus.solver,
+      })
+
+      return NextResponse.json(intentStatus)
+    } catch (nearError) {
+      console.error("[intents/status] NEAR error:", nearError)
+      const errorMessage = parseNearError(nearError)
+      return NextResponse.json(
+        { error: errorMessage, nearError: true },
+        { status: 500 }
+      )
+    }
   }
 
   // DEMO MODE: Simulate status based on intent ID timestamp
