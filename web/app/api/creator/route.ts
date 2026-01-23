@@ -13,6 +13,11 @@ export async function GET(request: NextRequest) {
     )
   }
 
+  // If Supabase is not configured, return not found
+  if (!supabase) {
+    return NextResponse.json({ found: false })
+  }
+
   const normalizedHandle = normalizeHandle(handle)
 
   const { data, error } = await supabase

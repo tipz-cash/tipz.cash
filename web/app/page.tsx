@@ -1300,6 +1300,7 @@ export default function HomePage() {
           <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
             <ZecTicker />
             <span style={{ color: colors.border }}>|</span>
+            <a href="/creators" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>CREATORS</a>
             <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>MANIFESTO</a>
             <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>DOCS</a>
             <a

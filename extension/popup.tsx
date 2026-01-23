@@ -43,7 +43,7 @@ function StatusIndicator({ isActive }: { isActive: boolean }) {
         backgroundColor: isActive ? colors.success : colors.error,
       }}/>
       <span style={{ fontSize: "11px", color: colors.muted, fontFamily: fonts.mono }}>
-        {isActive ? "Active" : "Inactive"}
+        {isActive ? "Connected" : "Not Connected"}
       </span>
     </div>
   )
@@ -255,7 +255,7 @@ function IndexPopup() {
               v0.1.0
             </span>
           </div>
-          <StatusIndicator isActive={true} />
+          <StatusIndicator isActive={wallet.isConnected} />
         </div>
 
         {/* Wallet Connection */}
