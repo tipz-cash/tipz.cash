@@ -225,11 +225,24 @@ export default function CreatorCardPage() {
     return () => mediaQuery.removeEventListener("change", handler)
   }, [])
 
-  // Check for extension and mobile
+  // Check for extension and mobile, with dynamic detection for Install Interceptor
   useEffect(() => {
-    const marker = document.getElementById('tipz-extension-installed')
-    setExtensionInstalled(!!marker)
+    const checkExtension = () => {
+      const marker = document.getElementById('tipz-extension-installed')
+      setExtensionInstalled(!!marker)
+    }
+
+    // Initial check
+    checkExtension()
     setIsMobile(/iPhone|iPad|Android/i.test(navigator.userAgent))
+
+    // Watch for extension marker being injected dynamically (Install Interceptor)
+    const observer = new MutationObserver(() => {
+      checkExtension()
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    return () => observer.disconnect()
   }, [])
 
   // Fetch creator data
@@ -304,7 +317,15 @@ export default function CreatorCardPage() {
     }
     return {
       text: "ADD EXTENSION TO TIP",
-      action: () => window.open('https://chromewebstore.google.com/detail/tipz/pkfmgpniebpokpjojomhaaajgcdkbfpc', '_blank'),
+      action: () => {
+        // Save pending tip for Install Interceptor
+        sessionStorage.setItem('tipz_pending_tip', JSON.stringify({
+          handle: creator?.handle || handle,
+          platform: 'x',
+          timestamp: Date.now()
+        }));
+        window.open('https://chromewebstore.google.com/detail/tipz/pkfmgpniebpokpjojomhaaajgcdkbfpc', '_blank');
+      },
       disabled: false,
     }
   }
