@@ -299,14 +299,14 @@ export default function CreatorCardPage() {
   const getButtonConfig = () => {
     if (isMobile) {
       return {
-        text: "Visit on Desktop to Tip",
+        text: "Open on Desktop to Tip",
         action: null,
         disabled: true,
       }
     }
     if (extensionInstalled) {
       return {
-        text: "SEND TIP NOW",
+        text: "SEND A TIP",
         action: () => {
           window.dispatchEvent(new CustomEvent('tipz-open-modal', {
             detail: { handle: creator?.handle || handle }
@@ -316,7 +316,7 @@ export default function CreatorCardPage() {
       }
     }
     return {
-      text: "ADD EXTENSION TO TIP",
+      text: "GET STARTED — IT'S FREE",
       action: () => {
         // Save pending tip for Install Interceptor
         sessionStorage.setItem('tipz_pending_tip', JSON.stringify({
@@ -481,12 +481,14 @@ export default function CreatorCardPage() {
               margin: 0,
               lineHeight: 1.6,
             }}>
-              This creator hasn't joined TIPZ yet. Let them know they can receive private tips!
+              This creator hasn't joined yet. Tag them on X and let them know they can receive private, fee-free tips!
             </p>
           </div>
 
           <a
-            href="/"
+            href={`https://x.com/intent/tweet?text=Hey%20@${handle}%20you%20should%20join%20@tipz_cash%20to%20receive%20private%2C%20fee-free%20tips!`}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               display: "block",
               width: "100%",
@@ -498,9 +500,29 @@ export default function CreatorCardPage() {
               fontSize: "14px",
               fontWeight: 600,
               letterSpacing: "1px",
+              marginBottom: "12px",
             }}
           >
-            LEARN ABOUT TIPZ
+            INVITE THEM ON X
+          </a>
+
+          <a
+            href="/creators"
+            style={{
+              display: "block",
+              width: "100%",
+              padding: "18px",
+              backgroundColor: "transparent",
+              color: colors.muted,
+              textDecoration: "none",
+              borderRadius: "14px",
+              fontSize: "13px",
+              fontWeight: 500,
+              letterSpacing: "1px",
+              border: `1px solid ${colors.border}`,
+            }}
+          >
+            BROWSE OTHER CREATORS
           </a>
 
           <p style={{
@@ -798,19 +820,43 @@ export default function CreatorCardPage() {
             )}
           </button>
 
-          {/* Tagline */}
-          <p style={{
-            color: colors.muted,
-            fontSize: "11px",
+          {/* How it works - tipper focused */}
+          <div style={{
             marginTop: "28px",
             marginBottom: "24px",
-            letterSpacing: "2px",
+            padding: "16px 20px",
+            background: "rgba(255, 255, 255, 0.02)",
+            border: `1px solid ${colors.surfaceBorder}`,
+            borderRadius: "12px",
             opacity: animPhase === "complete" ? 1 : 0,
             transition: prefersReducedMotion ? "none" : "opacity 0.4s ease",
             transitionDelay: "0.4s",
           }}>
-            0% FEES • PRIVATE • UNLINKABLE
-          </p>
+            <p style={{
+              color: colors.text,
+              fontSize: "13px",
+              margin: "0 0 12px",
+              lineHeight: 1.5,
+            }}>
+              {extensionInstalled
+                ? "Click above to send a private tip. Takes 10 seconds."
+                : "Add the free extension, then tip with one click."}
+            </p>
+            <div style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "16px",
+              fontSize: "10px",
+              color: colors.muted,
+              letterSpacing: "1px",
+            }}>
+              <span style={{ color: colors.success }}>✓ 0% FEES</span>
+              <span>•</span>
+              <span>PRIVATE</span>
+              <span>•</span>
+              <span>UNTRACEABLE</span>
+            </div>
+          </div>
 
           {/* Address section */}
           <div style={{
