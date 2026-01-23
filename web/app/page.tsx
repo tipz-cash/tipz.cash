@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { TipzLogo } from "@/components/TipzLogo";
+// Plain [TIPZ] text logo used throughout
 
 // Color palette - refined for depth and atmosphere
 const colors = {
@@ -28,7 +28,7 @@ const colors = {
 
 const chapters = [
   { id: "hero", num: "01", title: "THE PROMISE" },
-  { id: "broken", num: "02", title: "WHY IT'S BROKEN" },
+  { id: "broken", num: "02", title: "WHY TIPPING IS BROKEN" },
   { id: "solution", num: "03", title: "THE SOLUTION" },
   { id: "proof", num: "04", title: "PROOF" },
   { id: "how-it-works", num: "05", title: "HOW IT WORKS" },
@@ -474,7 +474,7 @@ function TypingHeading({
         setIsComplete(true);
         clearInterval(timer);
       }
-    }, 40);
+    }, 25);
 
     return () => clearInterval(timer);
   }, [hasTriggered, text]);
@@ -1223,7 +1223,6 @@ export default function HomePage() {
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [tweetVisible, setTweetVisible] = useState(false);
   const currentChapter = useCurrentChapter();
-  const { ref: codeRef1, isInView: codeInView1 } = useInView(0.15);
   const isMobile = useIsMobile(768);
   const parallaxOffset = useParallax(0.3);
   const parallaxOffsetSlow = useParallax(0.15);
@@ -1243,15 +1242,6 @@ export default function HomePage() {
     margin: "0 auto",
     width: "100%",
   };
-
-  const publicBlockchainLines = [
-    "Sender:   0x7a2f...4e3d",
-    "Receiver: 0x9b1c...8f2a",
-    "Amount:   $50.00 USDC",
-    "Time:     2024-01-15 14:32:01",
-    "Status:   PUBLIC ❌",
-  ];
-
 
   return (
     <div
@@ -1289,7 +1279,13 @@ export default function HomePage() {
           alignItems: "center",
         }}>
           <a href="/" style={{ display: "flex", alignItems: "center", gap: "16px", textDecoration: "none" }}>
-            <TipzLogo size={18} color={colors.primary} glowColor={colors.primaryGlow} />
+            <span style={{
+              color: colors.primary,
+              fontWeight: 700,
+              fontSize: "18px",
+              fontFamily: "'JetBrains Mono', monospace",
+              textShadow: `0 0 20px ${colors.primaryGlow}`,
+            }}>[TIPZ]</span>
             <span style={{
               color: colors.muted,
               fontSize: "10px",
@@ -1317,7 +1313,7 @@ export default function HomePage() {
                 fontWeight: 600,
                 padding: "8px 16px",
               }}
-            >REGISTER</a>
+            >START EARNING</a>
           </nav>
         </div>
       </header>
@@ -1389,7 +1385,7 @@ export default function HomePage() {
               letterSpacing: "0.02em",
               color: colors.muted,
             }}>
-              No fees. No signup. No trace.
+              No Fees. No Friction. No Trace.
             </p>
           </TerminalReveal>
 
@@ -1409,22 +1405,21 @@ export default function HomePage() {
                   background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
                   backgroundSize: "200% 200%",
                   color: colors.bg,
-                  padding: "22px 52px",
-                  fontWeight: 800,
-                  fontSize: "17px",
+                  padding: "18px 40px",
+                  fontWeight: 700,
+                  fontSize: "15px",
                   textDecoration: "none",
                   borderRadius: "14px",
                   border: "none",
                   boxShadow: `
-                    0 0 80px ${colors.primaryGlowStrong},
-                    0 0 120px ${colors.primaryGlow},
+                    0 0 40px ${colors.primaryGlowStrong},
+                    0 0 60px ${colors.primaryGlow},
                     inset 0 2px 0 rgba(255,255,255,0.25),
                     inset 0 -2px 0 rgba(0,0,0,0.1),
                     0 10px 40px rgba(0,0,0,0.5)
                   `,
                   animation: "cta-gradient-shift 4s ease-in-out infinite",
                   letterSpacing: "0.04em",
-                  textTransform: "uppercase",
                 }}
               >
                 {/* Inner highlight */}
@@ -1440,22 +1435,8 @@ export default function HomePage() {
                 }} />
 
                 <span style={{ position: "relative", zIndex: 1, fontFamily: "'JetBrains Mono', monospace" }}>
-                  Start Receiving TIPZ
+                  Start Earning TIPZ
                 </span>
-                <span
-                  className="cta-arrow"
-                  style={{
-                    fontSize: "22px",
-                    fontWeight: 400,
-                    display: "inline-flex",
-                    animation: "arrow-bounce 1.5s ease-in-out infinite",
-                    position: "relative",
-                    zIndex: 1,
-                  }}
-                >
-                  →
-                </span>
-
               </a>
             </div>
           </TerminalReveal>
@@ -1784,14 +1765,14 @@ export default function HomePage() {
                 animation: "pulse 1.5s ease-in-out infinite",
                 boxShadow: `0 0 10px ${colors.error}`,
               }} />
-              CHAPTER 02: WHY IT&apos;S BROKEN
+              CHAPTER 02: WHY TIPPING IS BROKEN
             </div>
           </TerminalReveal>
 
           <TypingHeading
             prefix=">"
             prefixColor={colors.error}
-            text="Your generosity is being taxed."
+            text="Your income is taxed. Your privacy is exposed."
             style={{ fontSize: isMobile ? "32px" : "40px" }}
           />
 
@@ -1802,7 +1783,6 @@ export default function HomePage() {
               marginTop: "-16px",
               marginBottom: "40px",
             }}>
-              Every tip you send loses 30-40% to middlemen.
             </p>
           </TerminalReveal>
 
@@ -1865,7 +1845,7 @@ export default function HomePage() {
                   position: "relative",
                   fontStyle: "italic",
                 }}>
-                  &ldquo;A $1 tip costs 30¢+ in fees.&rdquo;
+                  &ldquo;Traditional rails devour 30% of your income.&rdquo;
                 </p>
 
                 {/* Animated progress bar */}
@@ -1963,7 +1943,7 @@ export default function HomePage() {
                   position: "relative",
                   fontStyle: "italic",
                 }}>
-                  &ldquo;Every transaction is public forever.&rdquo;
+                  &ldquo;Public tipping doxxes your entire wallet history.&rdquo;
                 </p>
 
                 {/* Exposed indicator */}
@@ -1992,168 +1972,8 @@ export default function HomePage() {
                   position: "relative",
                   marginTop: "auto",
                 }}>
-                  Your wallet, their wallet, the amount—indexed forever.
+                  Your wallet, their wallet, and the amount—indexed forever.
                 </p>
-              </div>
-            </TerminalReveal>
-          </div>
-
-          {/* Visual proof blocks - Transaction Autopsy + Blockchain Exposed */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-            gap: "20px",
-            marginTop: "24px",
-          }}>
-            {/* Transaction Autopsy */}
-            <TerminalReveal delay={500}>
-              <div style={{
-                backgroundColor: colors.bg,
-                border: `1px solid ${colors.error}`,
-                borderRadius: "8px",
-                padding: "24px",
-                position: "relative",
-                overflow: "hidden",
-                height: "100%",
-              }}>
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: `radial-gradient(ellipse at top, ${colors.errorGlow} 0%, transparent 60%)`,
-                  pointerEvents: "none",
-                }} />
-
-                {/* INEFFICIENT watermark */}
-                <div style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%) rotate(-12deg)",
-                  fontSize: "32px",
-                  fontWeight: 900,
-                  color: colors.error,
-                  opacity: 0.08,
-                  letterSpacing: "8px",
-                  whiteSpace: "nowrap",
-                  pointerEvents: "none",
-                }}>
-                  INEFFICIENT
-                </div>
-
-                <div style={{ color: colors.error, fontWeight: 600, marginBottom: "16px", fontSize: "11px", letterSpacing: "2px", position: "relative" }}>
-                  TRANSACTION AUTOPSY
-                </div>
-                <div style={{ position: "relative", fontFamily: "'JetBrains Mono', monospace", fontSize: "13px", lineHeight: 2 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: colors.textBright }}>
-                    <span>Tip amount</span>
-                    <span>$1.00</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: colors.muted, position: "relative" }}>
-                    <span>Platform fee (5%)</span>
-                    <span style={{ color: colors.error, textDecoration: "line-through", opacity: 0.7 }}>-$0.05</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: colors.muted, position: "relative" }}>
-                    <span>Payment processing</span>
-                    <span style={{ color: colors.error, textDecoration: "line-through", opacity: 0.7 }}>-$0.30</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: colors.muted, position: "relative" }}>
-                    <span>Currency conversion</span>
-                    <span style={{ color: colors.error, textDecoration: "line-through", opacity: 0.7 }}>-$0.03</span>
-                  </div>
-                  <div style={{
-                    borderTop: `1px solid ${colors.border}`,
-                    marginTop: "12px",
-                    paddingTop: "12px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    color: colors.textBright,
-                    fontWeight: 600,
-                  }}>
-                    <span>Creator receives</span>
-                    <span style={{
-                      color: colors.error,
-                      fontWeight: 700,
-                      fontSize: "15px",
-                      animation: "shake 0.5s ease-in-out",
-                      animationDelay: "1.5s",
-                      animationFillMode: "both",
-                    }}>$0.62</span>
-                  </div>
-                </div>
-              </div>
-            </TerminalReveal>
-
-            {/* Public blockchain - Exposed */}
-            <TerminalReveal delay={600}>
-              <div
-                ref={codeRef1}
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.error}`,
-                  borderRadius: "8px",
-                  padding: "24px",
-                  position: "relative",
-                  overflow: "hidden",
-                  height: "100%",
-                }}
-              >
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: `radial-gradient(ellipse at top, ${colors.errorGlow} 0%, transparent 60%)`,
-                  pointerEvents: "none",
-                }} />
-
-                {/* PUBLICLY INDEXED stamp */}
-                <div style={{
-                  position: "absolute",
-                  top: "45%",
-                  right: "10px",
-                  transform: "rotate(-12deg)",
-                  padding: "4px 12px",
-                  border: `2px solid ${colors.error}`,
-                  borderRadius: "4px",
-                  fontSize: "9px",
-                  fontWeight: 900,
-                  color: colors.error,
-                  letterSpacing: "1px",
-                  opacity: 0,
-                  animation: "stampIn 0.5s ease-out 1.5s forwards",
-                  pointerEvents: "none",
-                }}>
-                  PUBLICLY INDEXED
-                </div>
-
-                <div style={{
-                  color: colors.error,
-                  fontWeight: 600,
-                  marginBottom: "16px",
-                  fontSize: "11px",
-                  letterSpacing: "2px",
-                  position: "relative",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}>
-                  <span style={{
-                    display: "inline-block",
-                    width: "6px",
-                    height: "6px",
-                    background: colors.error,
-                    borderRadius: "50%",
-                    animation: "blink 1s step-end infinite",
-                  }} />
-                  EXPOSED ON-CHAIN
-                </div>
-                <div style={{ position: "relative" }}>
-                  <CodeBlockReveal lines={publicBlockchainLines} isInView={codeInView1} lineDelay={80} />
-                </div>
               </div>
             </TerminalReveal>
           </div>
@@ -3125,7 +2945,7 @@ export default function HomePage() {
           <TypingHeading
             prefix="{}"
             prefixColor={colors.primary}
-            text="Pay with ETH, USDC, or SOL. We handle the rest."
+            text="Receive TIPZ from any token and from any chain."
           />
 
           <TerminalReveal delay={200}>
@@ -3135,7 +2955,7 @@ export default function HomePage() {
               lineHeight: 1.8,
               marginBottom: "48px",
             }}>
-              Don't have Zcash? No problem. Send any token—we convert it to a private tip automatically.
+              Don't limit your income. Fans can send funds from multiple networks (ETH, SOL, USDC), but you always receive shielded ZEC. We handle the complexity.
             </p>
           </TerminalReveal>
 
@@ -3426,27 +3246,22 @@ export default function HomePage() {
                   position: "relative",
                   background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`,
                   color: colors.bg,
-                  padding: "20px 44px",
+                  padding: "16px 36px",
                   fontWeight: 700,
-                  fontSize: "15px",
+                  fontSize: "14px",
                   textDecoration: "none",
                   fontFamily: "'JetBrains Mono', monospace",
                   boxShadow: `
-                    0 0 50px ${colors.primaryGlowStrong},
-                    0 0 80px ${colors.primaryGlow},
+                    0 0 30px ${colors.primaryGlowStrong},
+                    0 0 50px ${colors.primaryGlow},
                     inset 0 1px 0 rgba(255,255,255,0.2),
                     0 8px 24px rgba(0,0,0,0.4)
                   `,
                   borderRadius: "12px",
                   letterSpacing: "0.03em",
-                  textTransform: "uppercase",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "12px",
                 }}
               >
-                Start Receiving TIPZ
-                <span style={{ fontSize: "18px" }}>→</span>
+                Start Earning TIPZ
               </a>
               <a
                 href="https://chromewebstore.google.com/detail/tipz"
@@ -3500,7 +3315,7 @@ export default function HomePage() {
         backgroundColor: colors.surface,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <TipzLogo size={16} color={colors.primary} glowColor={colors.primaryGlow} />
+          <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px", fontFamily: "'JetBrains Mono', monospace", textShadow: `0 0 15px ${colors.primaryGlow}` }}>[TIPZ]</span>
           <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>v0.1.0-beta</span>
         </div>
         <div style={{ display: "flex", gap: "32px" }}>
@@ -3787,9 +3602,9 @@ export default function HomePage() {
           50% { background-position: 100% 50%; }
         }
 
-        @keyframes arrow-bounce {
-          0%, 100% { transform: translateX(0); }
-          50% { transform: translateX(6px); }
+        @keyframes arrow-entrance {
+          0% { transform: translateX(-8px); opacity: 0; }
+          100% { transform: translateX(0); opacity: 1; }
         }
 
         @keyframes shimmer {
