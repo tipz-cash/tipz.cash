@@ -1843,9 +1843,8 @@ export default function HomePage() {
                   lineHeight: 1.5,
                   margin: "0 0 20px 0",
                   position: "relative",
-                  fontStyle: "italic",
                 }}>
-                  &ldquo;Traditional rails devour 30% of your income.&rdquo;
+                  Platforms and payment processors take up to 38% of every tip.
                 </p>
 
                 {/* Animated progress bar */}
