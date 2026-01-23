@@ -268,31 +268,8 @@ export default function CreatorCardPage() {
     }
   }, [handle])
 
-  // Animation sequence runs on mount for found state (content always visible as fallback)
-  const [hasAnimated, setHasAnimated] = useState(false)
-  useEffect(() => {
-    if (state !== "found" || hasAnimated || prefersReducedMotion) return
-
-    // Reset to hidden, then animate
-    setAnimPhase("hidden")
-    setHasAnimated(true)
-
-    // Phase 1: Atmosphere (50ms)
-    const t1 = setTimeout(() => setAnimPhase("atmosphere"), 50)
-    // Phase 2: Card reveal (300ms)
-    const t2 = setTimeout(() => setAnimPhase("card"), 300)
-    // Phase 3: Content (700ms)
-    const t3 = setTimeout(() => setAnimPhase("content"), 700)
-    // Phase 4: Complete (1200ms)
-    const t4 = setTimeout(() => setAnimPhase("complete"), 1200)
-
-    return () => {
-      clearTimeout(t1)
-      clearTimeout(t2)
-      clearTimeout(t3)
-      clearTimeout(t4)
-    }
-  }, [state, hasAnimated, prefersReducedMotion])
+  // Animation disabled - content always visible for reliability
+  // animPhase stays "complete" so all opacity checks pass
 
   // Button configuration
   const getButtonConfig = () => {
