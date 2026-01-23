@@ -504,9 +504,21 @@ async function connectMetaMask(force?: boolean): Promise<WalletState> {
 
 /**
  * Connect to WalletConnect
- * NOTE: WalletConnect SDK has bundling issues with the current toolchain.
- * Using direct browser wallet injection (MetaMask/Rabby) for now.
- * TODO: Re-enable once WalletConnect v2 bundling issues are resolved.
+ *
+ * KNOWN LIMITATION (MVP):
+ * WalletConnect v2 SDK has bundling issues with Plasmo's build system.
+ * The SDK uses Node.js APIs (crypto, buffer) that require polyfills which
+ * conflict with Plasmo's Parcel bundler configuration.
+ *
+ * Current workaround: Fall back to injected wallet (MetaMask/Rabby).
+ * This covers the majority of desktop browser extension users.
+ *
+ * Future fix options:
+ * 1. Wait for WalletConnect SDK to improve browser compatibility
+ * 2. Use a custom build config with manual polyfills
+ * 3. Implement a web-based wallet connection flow via popup
+ *
+ * Tracked: https://github.com/AceCentre/Plasmo/issues/xyz (placeholder)
  */
 async function connectWalletConnect(): Promise<WalletState> {
   // For now, try to use the injected provider (works with MetaMask, Rabby, etc.)
@@ -515,7 +527,10 @@ async function connectWalletConnect(): Promise<WalletState> {
     console.log("TIPZ: WalletConnect requested, falling back to injected provider")
     return connectMetaMask() // Use injected provider
   }
-  throw new Error("WalletConnect QR modal coming soon. Please install MetaMask or Rabby browser extension.")
+  throw new Error(
+    "WalletConnect mobile scanning is not yet supported in this extension. " +
+    "Please install MetaMask or Rabby browser extension to connect your wallet."
+  )
 }
 
 /**
