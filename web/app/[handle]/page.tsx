@@ -345,6 +345,139 @@ const responsiveStyles = `
     text-align: center;
   }
 
+  /* Mobile-specific layout (edge-to-edge) */
+  .tipz-mobile {
+    padding: 0;
+    justify-content: flex-start;
+  }
+
+  .tipz-mobile .tipz-card {
+    max-width: 100%;
+    border-radius: 0;
+    min-height: 100dvh;
+  }
+
+  .tipz-mobile .tipz-card-content {
+    padding: 0;
+    text-align: left;
+  }
+
+  .tipz-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .tipz-mobile-logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: ${colors.primary};
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px ${colors.primaryGlow};
+  }
+
+  .tipz-mobile-back {
+    color: ${colors.muted};
+    font-size: 11px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .tipz-mobile-profile {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 16px;
+  }
+
+  .tipz-mobile .tipz-avatar-wrap {
+    width: 60px;
+    height: 60px;
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .tipz-mobile .tipz-avatar-ring {
+    inset: -3px;
+    border-width: 1.5px;
+  }
+
+  .tipz-mobile .tipz-avatar {
+    border-width: 2px;
+  }
+
+  .tipz-mobile .tipz-avatar-letter {
+    font-size: 24px;
+  }
+
+  .tipz-mobile-profile-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tipz-mobile .tipz-handle {
+    font-size: 18px;
+    margin: 0 0 8px;
+    text-align: left;
+  }
+
+  .tipz-mobile .tipz-verified {
+    display: inline-flex;
+    padding: 4px 10px;
+    gap: 5px;
+    margin: 0;
+  }
+
+  .tipz-mobile .tipz-verified-text {
+    font-size: 8px;
+  }
+
+  .tipz-mobile-content {
+    padding: 0 16px 16px;
+  }
+
+  .tipz-mobile .tipz-value-box {
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .tipz-mobile .tipz-benefits {
+    gap: 8px;
+    font-size: 9px;
+    justify-content: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .tipz-mobile .tipz-value-text {
+    font-size: 10px;
+    text-align: left;
+  }
+
+  .tipz-mobile .tipz-cta {
+    font-size: 14px;
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .tipz-mobile .tipz-instruction {
+    font-size: 9px;
+    margin: 12px 0 16px;
+    text-align: left;
+  }
+
+  .tipz-mobile .tipz-address {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .tipz-mobile .tipz-address-text {
+    font-size: 9px;
+  }
+
   /* Desktop enhancements */
   @media (min-width: 480px) {
     .tipz-page {
@@ -675,6 +808,103 @@ export default function CreatorCardPage() {
   }
 
   // Found - Creator profile
+  // Mobile layout: edge-to-edge, inline avatar + handle
+  if (isMobile) {
+    return (
+      <>
+        <style>{responsiveStyles}</style>
+        <div className="tipz-page tipz-mobile">
+          <div className="tipz-card">
+            <div className="tipz-card-content">
+              {/* Header with back + logo */}
+              <div className="tipz-mobile-header">
+                <a href="/" className="tipz-mobile-back">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                  </svg>
+                  Back
+                </a>
+                <div className="tipz-mobile-logo">TIPZ</div>
+              </div>
+
+              {/* Profile: inline avatar + handle */}
+              <div className="tipz-mobile-profile">
+                <div className="tipz-avatar-wrap">
+                  <div className="tipz-avatar-ring" />
+                  <div className="tipz-avatar" style={{ backgroundColor: getAvatarColor(creator?.handle || handle) }}>
+                    <span className="tipz-avatar-letter">
+                      {creator?.handle?.[0] || "?"}
+                    </span>
+                  </div>
+                </div>
+                <div className="tipz-mobile-profile-info">
+                  <h1 className="tipz-handle">@{creator?.handle}</h1>
+                  <div className="tipz-verified">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={colors.verified} strokeWidth="2.5">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                      <polyline points="9 12 11 14 15 10" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="tipz-verified-text">VERIFIED</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="tipz-mobile-content">
+                <div className="tipz-value-box">
+                  <div className="tipz-benefits">
+                    <span className="tipz-benefit" style={{ color: colors.success }}>0% FEES</span>
+                    <span className="tipz-benefit" style={{ color: colors.muted }}>•</span>
+                    <span className="tipz-benefit" style={{ color: colors.primary }}>PRIVATE</span>
+                    <span className="tipz-benefit" style={{ color: colors.muted }}>•</span>
+                    <span className="tipz-benefit" style={{ color: colors.text }}>INSTANT</span>
+                  </div>
+                  <p className="tipz-value-text">
+                    100% goes to @{creator?.handle}
+                  </p>
+                </div>
+
+                <button
+                  onClick={buttonConfig.action || undefined}
+                  disabled={buttonConfig.disabled}
+                  className="tipz-cta"
+                >
+                  {buttonConfig.text}
+                  {!buttonConfig.disabled && <span>→</span>}
+                </button>
+
+                <p className="tipz-instruction">
+                  {extensionInstalled
+                    ? "Tap to send a private tip."
+                    : "Add the free Chrome extension to tip."}
+                </p>
+
+                <div className="tipz-address">
+                  <code className="tipz-address-text">
+                    {truncateAddress(creator?.shielded_address || "")}
+                  </code>
+                  <button onClick={copyAddress} className="tipz-copy-btn" title="Copy address">
+                    {copied ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  // Desktop layout: centered card
   return (
     <>
       <style>{responsiveStyles}</style>
