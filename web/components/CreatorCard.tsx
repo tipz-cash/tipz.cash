@@ -55,8 +55,13 @@ export function CreatorCard({ creator, index }: CreatorCardProps) {
           alignItems: "center",
           textDecoration: "none",
           cursor: "pointer",
-          background: colors.cardBg,
-          border: `1px solid ${isHovered ? colors.cardBorderHover : colors.cardBorder}`,
+          background: "rgba(26, 26, 26, 0.6)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          borderTop: "1px solid rgba(255, 215, 0, 0.4)",
+          borderLeft: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : "rgba(255, 255, 255, 0.08)"}`,
+          borderRight: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : "rgba(255, 255, 255, 0.08)"}`,
+          borderBottom: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : "rgba(0, 0, 0, 0.3)"}`,
           borderRadius: "16px",
           padding: "32px 24px",
           opacity: 0,
@@ -65,8 +70,8 @@ export function CreatorCard({ creator, index }: CreatorCardProps) {
           transition: "all 0.25s ease",
           transform: isHovered ? "translateY(-4px)" : "translateY(0)",
           boxShadow: isHovered
-            ? `0 16px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px ${colors.cardBorderHover}`
-            : "0 4px 12px rgba(0, 0, 0, 0.2)",
+            ? `0 16px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.15)`
+            : "0 4px 16px rgba(0, 0, 0, 0.3)",
         }}
       >
         {/* Avatar with gold ring on hover */}
@@ -121,35 +126,38 @@ export function CreatorCard({ creator, index }: CreatorCardProps) {
           @{creator.handle}
         </h3>
 
-        {/* Shielded badge - minimal */}
+        {/* Shielded badge - gold shield icon */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             gap: "6px",
-            padding: "4px 12px",
-            background: "rgba(34, 197, 94, 0.08)",
-            border: "1px solid rgba(34, 197, 94, 0.15)",
-            borderRadius: "100px",
-            fontSize: "10px",
-            fontWeight: 600,
-            color: colors.success,
-            letterSpacing: "0.5px",
             marginBottom: "16px",
           }}
         >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="#FFD700"
+            stroke="none"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M9 12l2 2 4-4" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
           <span
             style={{
-              width: "5px",
-              height: "5px",
-              borderRadius: "50%",
-              background: colors.success,
+              fontSize: "10px",
+              fontWeight: 600,
+              color: "#FFD700",
+              letterSpacing: "0.5px",
             }}
-          />
-          SHIELDED
+          >
+            SHIELDED
+          </span>
         </div>
 
-        {/* View CTA - subtle */}
+        {/* Tip CTA */}
         <div
           style={{
             display: "flex",
@@ -161,7 +169,7 @@ export function CreatorCard({ creator, index }: CreatorCardProps) {
             transition: "color 0.25s ease",
           }}
         >
-          View
+          Tip
           <span
             style={{
               transition: "transform 0.2s ease",
