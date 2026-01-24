@@ -3645,6 +3645,7 @@ export default function HomePage() {
                       backgroundColor: colors.surface,
                       border: `1px solid ${colors.border}`,
                       padding: "20px",
+                      minHeight: "88px",
                       opacity: visible ? 1 : 0,
                       transform: visible ? "translateY(0)" : "translateY(12px)",
                       transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -3749,6 +3750,7 @@ export default function HomePage() {
                       backgroundColor: colors.surface,
                       border: `1px solid ${colors.border}`,
                       padding: "20px",
+                      minHeight: "88px",
                       opacity: visible ? 1 : 0,
                       transform: visible ? "translateY(0)" : "translateY(12px)",
                       transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -3969,77 +3971,83 @@ export default function HomePage() {
                   animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
                 }} />
 
-                {/* Layer 1: Realistic Dark-Mode X Tweet */}
+                {/* Layer 1: Realistic Dark-Mode Substack Newsletter */}
                 <div style={{
                   position: "absolute",
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -45%)",
                   width: "340px",
-                  background: "#000",
-                  border: "1px solid #2f3336",
-                  borderRadius: "16px",
+                  background: "#121212",
+                  border: "1px solid #333",
+                  borderRadius: "12px",
                   overflow: "hidden",
                   boxShadow: "0 25px 60px rgba(0, 0, 0, 0.5)",
                 }}>
-                  {/* Tweet Header */}
+                  {/* Header Bar */}
                   <div style={{
                     display: "flex",
-                    alignItems: "flex-start",
-                    gap: "12px",
-                    padding: "16px 16px 0",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "12px 16px",
+                    borderBottom: "1px solid #333",
                   }}>
-                    {/* Profile Picture */}
-                    <div style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      background: "linear-gradient(135deg, #1a1a2e 0%, #334155 100%)",
-                      flexShrink: 0,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "18px",
-                      fontWeight: 700,
-                      color: "#fff",
-                    }}>
-                      N
-                    </div>
-                    {/* Name, Handle, Timestamp */}
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <span style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 700 }}>Naval</span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#1d9bf0">
-                          <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 9.33 1.75 10.57 1.75 12s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.66 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z" />
-                        </svg>
-                        <span style={{ color: "#71767b", fontSize: "15px" }}>@naval</span>
-                        <span style={{ color: "#71767b", fontSize: "15px" }}>·</span>
-                        <span style={{ color: "#71767b", fontSize: "15px" }}>2m</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      {/* Publication icon */}
+                      <div style={{
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "4px",
+                        background: "linear-gradient(135deg, #1a1a2e 0%, #334155 100%)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        color: "#fff",
+                      }}>
+                        P
                       </div>
+                      <span style={{ color: "#e5e5e5", fontSize: "14px", fontWeight: 600 }}>The Privacy Stack</span>
                     </div>
-                    {/* Three-dot menu */}
-                    <div style={{ color: "#71767b", fontSize: "18px", cursor: "pointer" }}>···</div>
+                    <button style={{
+                      background: "transparent",
+                      border: "1px solid #555",
+                      borderRadius: "16px",
+                      padding: "4px 12px",
+                      color: "#888",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                    }}>
+                      Subscribe
+                    </button>
                   </div>
 
-                  {/* Tweet Text */}
+                  {/* Article Title - Serif editorial style */}
                   <div style={{
-                    padding: "8px 16px 12px",
-                    color: "#e7e9ea",
-                    fontSize: "15px",
-                    lineHeight: 1.4,
+                    padding: "20px 16px 12px",
                   }}>
-                    Financial privacy isn't about hiding. It's about not having to explain yourself to anyone.
+                    <h2 style={{
+                      color: "#e5e5e5",
+                      fontSize: "22px",
+                      fontWeight: 700,
+                      lineHeight: 1.3,
+                      margin: 0,
+                      fontFamily: "Georgia, 'Times New Roman', serif",
+                    }}>
+                      Financial Privacy in the Age of Surveillance
+                    </h2>
                   </div>
 
-                  {/* Image with QR Watermark */}
+                  {/* Cover Image with QR Watermark */}
                   <div style={{
                     position: "relative",
-                    margin: "0 16px 16px",
-                    borderRadius: "16px",
+                    margin: "0 16px",
+                    borderRadius: "8px",
                     overflow: "hidden",
-                    aspectRatio: "16/10",
+                    aspectRatio: "16/9",
                   }}>
-                    {/* Sharp background image - moody tech aesthetic */}
+                    {/* Abstract moody gradient background */}
                     <div style={{
                       position: "absolute",
                       inset: 0,
@@ -4052,38 +4060,37 @@ export default function HomePage() {
                           #0f172a 100%
                         )
                       `,
-                      opacity: 0.85,
                     }} />
                     {/* Geometric accents for depth */}
                     <div style={{
                       position: "absolute",
-                      top: "10%",
-                      left: "8%",
-                      width: "80px",
-                      height: "80px",
+                      top: "15%",
+                      left: "10%",
+                      width: "70px",
+                      height: "70px",
                       background: "radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)",
                       borderRadius: "50%",
                     }} />
                     <div style={{
                       position: "absolute",
-                      bottom: "15%",
-                      left: "25%",
-                      width: "50px",
-                      height: "50px",
+                      bottom: "20%",
+                      left: "30%",
+                      width: "45px",
+                      height: "45px",
                       background: "radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%)",
                       borderRadius: "50%",
                     }} />
                     <div style={{
                       position: "absolute",
-                      top: "30%",
-                      right: "40%",
-                      width: "40px",
-                      height: "40px",
+                      top: "35%",
+                      right: "35%",
+                      width: "35px",
+                      height: "35px",
                       background: "radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%)",
                       borderRadius: "50%",
                     }} />
 
-                    {/* Layer 2: Subtle QR Watermark (No Box) */}
+                    {/* QR Watermark */}
                     <div style={{
                       position: "absolute",
                       bottom: "8px",
@@ -4092,7 +4099,6 @@ export default function HomePage() {
                       flexDirection: "column",
                       alignItems: "center",
                     }}>
-                      {/* Small white QR Code - subtle watermark */}
                       <div style={{
                         width: "28px",
                         height: "28px",
@@ -4117,7 +4123,6 @@ export default function HomePage() {
                           }} />
                         ))}
                       </div>
-                      {/* Gold URL text - smaller */}
                       <div style={{
                         color: "#FFD700",
                         fontSize: "6px",
@@ -4127,31 +4132,54 @@ export default function HomePage() {
                         textShadow: "0 1px 3px rgba(0, 0, 0, 0.8)",
                         letterSpacing: "0.2px",
                       }}>
-                        tipz.cash/naval
+                        tipz.cash/privacystack
                       </div>
                     </div>
                   </div>
 
-                  {/* Tweet Actions Row */}
+                  {/* Meta Info */}
+                  <div style={{
+                    padding: "12px 16px 8px",
+                    color: "#888",
+                    fontSize: "12px",
+                  }}>
+                    Dec 15, 2024 • 8 min read
+                  </div>
+
+                  {/* Article Excerpt */}
+                  <div style={{
+                    padding: "0 16px 16px",
+                    color: "#aaa",
+                    fontSize: "14px",
+                    lineHeight: 1.6,
+                  }}>
+                    The question isn't whether you have something to hide. It's whether you have the right to choose what you reveal...
+                  </div>
+
+                  {/* Engagement Row - Real Substack actions */}
                   <div style={{
                     display: "flex",
-                    justifyContent: "space-between",
-                    padding: "0 16px 16px",
-                    maxWidth: "280px",
+                    alignItems: "center",
+                    gap: "20px",
+                    padding: "12px 16px",
+                    borderTop: "1px solid #333",
                   }}>
-                    {[
-                      { icon: "M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01z", count: "42" },
-                      { icon: "M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z", count: "12" },
-                      { icon: "M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91z", count: "238" },
-                      { icon: "M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z", count: "1.2K" },
-                    ].map((action, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#71767b">
-                          <path d={action.icon} />
-                        </svg>
-                        <span style={{ color: "#71767b", fontSize: "13px" }}>{action.count}</span>
-                      </div>
-                    ))}
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#888", fontSize: "13px" }}>
+                      <span>♡</span>
+                      <span>847</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#888", fontSize: "13px" }}>
+                      <span>💬</span>
+                      <span>23</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#888", fontSize: "13px" }}>
+                      <span>🔄</span>
+                      <span>12</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#888", fontSize: "13px", marginLeft: "auto" }}>
+                      <span>🔗</span>
+                      <span>Share</span>
+                    </div>
                   </div>
                 </div>
 
