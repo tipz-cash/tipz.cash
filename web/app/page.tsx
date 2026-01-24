@@ -32,9 +32,10 @@ const chapters = [
   { id: "solution", num: "03", title: "THE SOLUTION" },
   { id: "proof", num: "04", title: "PROOF" },
   { id: "how-it-works", num: "05", title: "HOW IT WORKS" },
-  { id: "any-token", num: "06", title: "ANY TOKEN" },
-  { id: "faq", num: "07", title: "FAQ" },
-  { id: "join", num: "08", title: "JOIN" },
+  { id: "creator-tools", num: "06", title: "CREATOR TOOLS" },
+  { id: "any-token", num: "07", title: "ANY TOKEN" },
+  { id: "faq", num: "08", title: "FAQ" },
+  { id: "join", num: "09", title: "JOIN" },
 ];
 
 // Check for reduced motion preference
@@ -2187,7 +2188,7 @@ export default function HomePage() {
                   color: colors.muted,
                   lineHeight: 1.4,
                 }}>
-                  Tweet → Form → Done
+                  Tweet → Done
                 </div>
               </div>
             </TerminalReveal>
@@ -2683,7 +2684,7 @@ export default function HomePage() {
           </TerminalReveal>
 
           <TypingHeading
-            text="Two minutes to set up."
+            text="Two minutes to go live."
             style={{ marginBottom: "48px" }}
           />
 
@@ -2706,7 +2707,7 @@ export default function HomePage() {
                   alignItems: "center",
                   gap: "8px",
                 }}>
-                  <span style={{ opacity: 0.5 }}>//</span> START EARNING
+                  <span style={{ opacity: 0.5 }}>//</span> FOR CREATORS
                   <span style={{ fontSize: "11px", opacity: 0.6, fontWeight: 400 }}>• 3 steps</span>
                 </h3>
               </TerminalReveal>
@@ -2717,20 +2718,20 @@ export default function HomePage() {
                 items={[
                   {
                     step: "01",
-                    title: "Download Zashi",
-                    desc: "Free wallet app for private payments. Takes 30 seconds.",
+                    title: "Get a wallet",
+                    desc: "Download Zashi (free). Copy your shielded address.",
                     icon: "/icons/wallet.svg",
                   },
                   {
                     step: "02",
-                    title: "Register your address",
-                    desc: "Paste your wallet address here. Verify ownership with a tweet.",
+                    title: "Tweet to verify",
+                    desc: "One tweet links your address to your handle.",
                     icon: "/icons/link.svg",
                   },
                   {
                     step: "03",
-                    title: "Get paid",
-                    desc: "TIP button goes live on your X posts. Tips arrive instantly.",
+                    title: "Share your link",
+                    desc: "tipz.cash/yourname is live. Bio, tweets, anywhere.",
                     icon: "/icons/coins.svg",
                   },
                 ]}
@@ -2817,20 +2818,20 @@ export default function HomePage() {
                 items={[
                   {
                     step: "01",
-                    title: "Install extension",
-                    desc: "Add TIPZ to Chrome. No account needed.",
-                    icon: "/icons/puzzle.svg",
+                    title: "Click the link",
+                    desc: "No app. No signup. Just click.",
+                    icon: "/icons/link.svg",
                   },
                   {
                     step: "02",
-                    title: "Browse X",
-                    desc: "TIP buttons appear on registered creators' posts.",
-                    icon: "/icons/eye.svg",
+                    title: "Choose amount",
+                    desc: "$1, $5, $10, $25 — pay with any token.",
+                    icon: "/icons/coins.svg",
                   },
                   {
                     step: "03",
-                    title: "Send privately",
-                    desc: "One click to tip. Your support stays between you and the creator.",
+                    title: "Send",
+                    desc: "Connect wallet, confirm. 100% goes to them.",
                     icon: "/icons/lock.svg",
                   },
                 ]}
@@ -2896,7 +2897,159 @@ export default function HomePage() {
         </div>
       </SnapSection>
 
-      {/* Chapter 6: Any Token */}
+      {/* Chapter 6: Creator Tools */}
+      <SnapSection id="creator-tools" style={{ padding: "0 48px" }}>
+        <div style={contentPadding}>
+          <TerminalReveal delay={0}>
+            <div style={{
+              fontSize: "11px",
+              color: colors.muted,
+              letterSpacing: "2px",
+              marginBottom: "32px",
+            }}>
+              CHAPTER 06: CREATOR TOOLS
+            </div>
+          </TerminalReveal>
+
+          <TypingHeading
+            text="Level up with the extension."
+            style={{ marginBottom: "16px" }}
+          />
+
+          <TerminalReveal delay={100}>
+            <p style={{
+              color: colors.muted,
+              fontSize: "16px",
+              lineHeight: 1.6,
+              marginBottom: "32px",
+            }}>
+              You don't need this to receive tips.<br />
+              But it makes your life easier.
+            </p>
+          </TerminalReveal>
+
+          <TerminalReveal delay={200}>
+            <div style={{
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.border}`,
+              borderRadius: "12px",
+              padding: "32px",
+              marginBottom: "32px",
+            }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                {/* Feature 1: Tip notifications */}
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
+                  <div style={{
+                    fontSize: "20px",
+                    width: "32px",
+                    textAlign: "center",
+                  }}>⚡</div>
+                  <div>
+                    <div style={{
+                      color: colors.primary,
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      marginBottom: "4px",
+                    }}>
+                      Tip notifications
+                    </div>
+                    <div style={{
+                      color: colors.muted,
+                      fontSize: "13px",
+                    }}>
+                      Know when tips are sent to you
+                    </div>
+                  </div>
+                </div>
+
+                {/* Feature 2: Auto-link posts */}
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
+                  <div style={{
+                    fontSize: "20px",
+                    width: "32px",
+                    textAlign: "center",
+                  }}>🔗</div>
+                  <div>
+                    <div style={{
+                      color: colors.primary,
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      marginBottom: "4px",
+                    }}>
+                      Auto-link posts
+                    </div>
+                    <div style={{
+                      color: colors.muted,
+                      fontSize: "13px",
+                    }}>
+                      Add your tip link to tweets
+                    </div>
+                  </div>
+                </div>
+
+                {/* Feature 3: Watch-only */}
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
+                  <div style={{
+                    fontSize: "20px",
+                    width: "32px",
+                    textAlign: "center",
+                  }}>🔒</div>
+                  <div>
+                    <div style={{
+                      color: colors.primary,
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      marginBottom: "4px",
+                    }}>
+                      Watch-only
+                    </div>
+                    <div style={{
+                      color: colors.muted,
+                      fontSize: "13px",
+                    }}>
+                      Never touches your wallet keys
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TerminalReveal>
+
+          <TerminalReveal delay={300}>
+            <div style={{ textAlign: "center" }}>
+              <a
+                href="https://chrome.google.com/webstore"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "12px 24px",
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: "6px",
+                  color: colors.textBright,
+                  textDecoration: "none",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  transition: "all 0.2s ease",
+                }}
+              >
+                Add to Chrome →
+              </a>
+              <p style={{
+                color: colors.muted,
+                fontSize: "12px",
+                marginTop: "16px",
+              }}>
+                Free. Open source. Optional.
+              </p>
+            </div>
+          </TerminalReveal>
+        </div>
+      </SnapSection>
+
+      {/* Chapter 7: Any Token */}
       <SnapSection id="any-token" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
@@ -2906,7 +3059,7 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 06: ANY TOKEN
+              CHAPTER 07: ANY TOKEN
             </div>
           </TerminalReveal>
 
@@ -3070,7 +3223,7 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 07: FAQ
+              CHAPTER 08: FAQ
             </div>
           </TerminalReveal>
 
@@ -3120,10 +3273,10 @@ export default function HomePage() {
                 padding: "24px",
               }}>
                 <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright, marginBottom: "12px" }}>
-                  What if I don&apos;t have TIPZ set up?
+                  What if I&apos;m not registered?
                 </div>
                 <div style={{ fontSize: "13px", color: colors.muted, lineHeight: 1.6 }}>
-                  The TIP button only appears for registered creators. No missed tips, no confusion.
+                  Your tip page won&apos;t exist yet. Register in 2 minutes to go live.
                 </div>
               </div>
 
@@ -3155,7 +3308,7 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 08: JOIN THE MOVEMENT
+              CHAPTER 09: JOIN THE MOVEMENT
             </div>
           </TerminalReveal>
 
@@ -3229,34 +3382,7 @@ export default function HomePage() {
                   letterSpacing: "0.03em",
                 }}
               >
-                Start Earning TIPZ
-              </a>
-              <a
-                href="https://chromewebstore.google.com/detail/tipz"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cta-secondary"
-                style={{
-                  backgroundColor: "transparent",
-                  color: colors.text,
-                  padding: "20px 44px",
-                  border: `1px solid ${colors.borderHover}`,
-                  fontWeight: 500,
-                  fontSize: "15px",
-                  textDecoration: "none",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  borderRadius: "12px",
-                  letterSpacing: "0.02em",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "10px",
-                }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ opacity: 0.7 }}>
-                  <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  <path d="M9 12l2 2 4-4" />
-                </svg>
-                Get Extension (Free)
+                Start Earning TIPZ →
               </a>
             </div>
           </TerminalReveal>
