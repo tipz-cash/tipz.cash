@@ -187,38 +187,151 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
           </div>
         </div>
 
-        {/* Wallet not connected - show connect options */}
-        {!walletState.isConnected ? (
-          <WalletConnect
-            walletState={walletState}
-            isConnecting={isConnecting}
-            isAvailable={isAvailable}
-            detectedWallet={detectedWallet}
-            error={walletError}
-            onConnect={connect}
-            onDisconnect={disconnect}
-            isMobile={isMobile}
+        {/* Amount Selection - always visible */}
+        <div style={{ marginBottom: tokens.space.md }}>
+          <AmountSelector
+            selectedAmount={selectedAmount}
+            customAmount={customAmount}
+            onSelect={setAmount}
+            zecPrice={zecPrice}
+            disabled={!walletState.isConnected}
           />
+        </div>
+
+        {/* Message Trench - always visible */}
+        <div style={{ marginBottom: tokens.space.md }}>
+          <MessageTrench
+            value={privateMessage}
+            onChange={setPrivateMessage}
+            disabled={!walletState.isConnected}
+          />
+        </div>
+
+        {/* Wallet not connected - show connect button in place of send button */}
+        {!walletState.isConnected ? (
+          <div style={{ textAlign: "center" }}>
+            <p
+              style={{
+                color: tokens.colors.textMuted,
+                fontSize: "13px",
+                fontFamily: tokens.font.sans,
+                marginBottom: tokens.space.md,
+              }}
+            >
+              Connect wallet to tip
+            </p>
+
+            {/* Gold Connect Button */}
+            <button
+              onClick={() => connect()}
+              disabled={isConnecting}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: tokens.space.sm,
+                padding: "14px 20px",
+                background: isConnecting
+                  ? "rgba(255, 255, 255, 0.1)"
+                  : `linear-gradient(135deg, #FFD700 0%, #FFA500 100%)`,
+                border: "none",
+                borderRadius: tokens.radius.md,
+                color: isConnecting ? tokens.colors.textMuted : tokens.colors.bg,
+                fontSize: "15px",
+                fontWeight: 700,
+                fontFamily: tokens.font.sans,
+                letterSpacing: "0.5px",
+                cursor: isConnecting ? "not-allowed" : "pointer",
+                boxShadow: isConnecting
+                  ? "none"
+                  : "inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 4px 12px rgba(255, 215, 0, 0.3)",
+                transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
+              }}
+            >
+              {isConnecting ? (
+                <>
+                  <div
+                    style={{
+                      width: "14px",
+                      height: "14px",
+                      border: `2px solid rgba(0, 0, 0, 0.2)`,
+                      borderTopColor: tokens.colors.bg,
+                      borderRadius: "50%",
+                      animation: "spin 1s linear infinite",
+                    }}
+                  />
+                  <span>Connecting...</span>
+                </>
+              ) : (
+                <>
+                  <span>Connect Wallet</span>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </>
+              )}
+            </button>
+
+            {/* No wallet help link */}
+            <a
+              href="https://rabby.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-block",
+                marginTop: tokens.space.md,
+                color: tokens.colors.textMuted,
+                fontSize: "12px",
+                fontFamily: tokens.font.sans,
+                textDecoration: "none",
+              }}
+            >
+              No wallet? Get one →
+            </a>
+
+            {/* Wallet error */}
+            {walletError && (
+              <div
+                style={{
+                  marginTop: tokens.space.md,
+                  padding: `${tokens.space.sm}px ${tokens.space.md}px`,
+                  background: tokens.colors.errorMuted,
+                  border: `1px solid ${tokens.colors.errorBorder}`,
+                  borderRadius: tokens.radius.sm,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: tokens.space.sm,
+                }}
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke={tokens.colors.error}
+                  strokeWidth="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <p style={{ color: tokens.colors.error, fontSize: "12px", margin: 0, fontFamily: tokens.font.sans }}>
+                  {walletError}
+                </p>
+              </div>
+            )}
+          </div>
         ) : (
           <>
-            {/* Amount Selection */}
-            <div style={{ marginBottom: tokens.space.md }}>
-              <AmountSelector
-                selectedAmount={selectedAmount}
-                customAmount={customAmount}
-                onSelect={setAmount}
-                zecPrice={zecPrice}
-              />
-            </div>
-
-            {/* Message Trench */}
-            <div style={{ marginBottom: tokens.space.md }}>
-              <MessageTrench
-                value={privateMessage}
-                onChange={setPrivateMessage}
-              />
-            </div>
-
             {/* Token Selector - separate row above button */}
             <div style={{ marginBottom: tokens.space.md, position: "relative", zIndex: 10 }}>
               <TokenSelector
@@ -324,68 +437,68 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 </p>
               </div>
             )}
-
-            {/* Trust Footer - signal green icons, centered */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: tokens.space.lg,
-                marginTop: tokens.space.lg,
-                paddingTop: tokens.space.md,
-                borderTop: `1px solid rgba(255, 255, 255, 0.1)`,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke={tokens.colors.signalGreen}
-                  strokeWidth="2"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                <span style={{ color: tokens.colors.textSecondary, fontSize: "12px", fontFamily: tokens.font.sans }}>
-                  Private
-                </span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke={tokens.colors.signalGreen}
-                  strokeWidth="2"
-                >
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                </svg>
-                <span style={{ color: tokens.colors.textSecondary, fontSize: "12px", fontFamily: tokens.font.sans }}>
-                  Instant
-                </span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke={tokens.colors.signalGreen}
-                  strokeWidth="2"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="4" y1="4" x2="20" y2="20" />
-                </svg>
-                <span style={{ color: tokens.colors.textSecondary, fontSize: "12px", fontFamily: tokens.font.sans }}>
-                  0% fees
-                </span>
-              </div>
-            </div>
           </>
         )}
+
+        {/* Trust Footer - always visible */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: tokens.space.lg,
+            marginTop: tokens.space.lg,
+            paddingTop: tokens.space.md,
+            borderTop: `1px solid rgba(255, 255, 255, 0.1)`,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={tokens.colors.signalGreen}
+              strokeWidth="2"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            <span style={{ color: tokens.colors.textSecondary, fontSize: "12px", fontFamily: tokens.font.sans }}>
+              Private
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={tokens.colors.signalGreen}
+              strokeWidth="2"
+            >
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+            <span style={{ color: tokens.colors.textSecondary, fontSize: "12px", fontFamily: tokens.font.sans }}>
+              Instant
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={tokens.colors.signalGreen}
+              strokeWidth="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="4" y1="4" x2="20" y2="20" />
+            </svg>
+            <span style={{ color: tokens.colors.textSecondary, fontSize: "12px", fontFamily: tokens.font.sans }}>
+              0% fees
+            </span>
+          </div>
+        </div>
       </div>
 
       <style>{keyframes}</style>
