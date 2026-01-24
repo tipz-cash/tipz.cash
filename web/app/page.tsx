@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 // Plain [TIPZ] text logo used throughout
 
 // Color palette - refined for depth and atmosphere
@@ -595,6 +596,1227 @@ function TerminalReveal({
   );
 }
 
+// Animated tip notification that triggers on scroll
+function TipNotification() {
+  const { ref, isInView } = useInView(0.3);
+  const [stage, setStage] = useState(0); // 0: hidden, 1: pop-in, 2: header, 3: amount, 4: subtitle, 5: complete
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (!isInView) return;
+    if (prefersReducedMotion) {
+      setStage(5);
+      return;
+    }
+
+    // Staggered animation timeline
+    const timers = [
+      setTimeout(() => setStage(1), 1200),  // Pop-in starts
+      setTimeout(() => setStage(2), 1400),  // Header fades in
+      setTimeout(() => setStage(3), 1700),  // Amount bounces in
+      setTimeout(() => setStage(4), 2100),  // Subtitle fades in
+      setTimeout(() => setStage(5), 2400),  // All complete, glow starts
+    ];
+
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [isInView, prefersReducedMotion]);
+
+  const shouldAnimate = !prefersReducedMotion;
+
+  return (
+    <div
+      ref={ref}
+      className={stage >= 5 ? "tip-notification-glow" : ""}
+      style={{
+        position: "absolute",
+        top: "12%",
+        right: "-8%",
+        background: "linear-gradient(145deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 165, 0, 0.15) 100%)",
+        backdropFilter: "blur(20px)",
+        border: "1px solid rgba(255, 215, 0, 0.5)",
+        borderRadius: "16px",
+        padding: "16px 22px",
+        zIndex: 10,
+        opacity: shouldAnimate ? (stage >= 1 ? 1 : 0) : 1,
+        transform: shouldAnimate
+          ? stage === 0
+            ? "scale(0.8) translateY(-20px)"
+            : stage === 1
+              ? "scale(1.08) translateY(4px)"
+              : "scale(1) translateY(0)"
+          : "none",
+        transition: shouldAnimate
+          ? stage === 1
+            ? "opacity 0.3s ease-out, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)"
+            : "opacity 0.2s ease-out, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+          : "none",
+      }}
+    >
+      {/* Header */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        marginBottom: "8px",
+        opacity: shouldAnimate ? (stage >= 2 ? 1 : 0) : 1,
+        transform: shouldAnimate ? (stage >= 2 ? "translateY(0)" : "translateY(8px)") : "none",
+        transition: "opacity 0.3s ease-out, transform 0.3s ease-out",
+      }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFD700" stroke="none">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+        <span style={{ color: "#FFD700", fontSize: "10px", fontWeight: 700, letterSpacing: "1px" }}>
+          TIP RECEIVED
+        </span>
+      </div>
+
+      {/* Amount with shimmer */}
+      <div
+        className={stage >= 3 ? "tip-amount-shimmer" : ""}
+        style={{
+          color: "#fff",
+          fontSize: "28px",
+          fontWeight: 800,
+          lineHeight: 1,
+          opacity: shouldAnimate ? (stage >= 3 ? 1 : 0) : 1,
+          transform: shouldAnimate
+            ? stage < 3
+              ? "scale(0.5)"
+              : stage === 3
+                ? "scale(1.15)"
+                : "scale(1)"
+            : "none",
+          transition: stage === 3
+            ? "opacity 0.2s ease-out, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)"
+            : "opacity 0.2s ease-out, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        }}
+      >
+        +$25.00
+      </div>
+
+      {/* Subtitle */}
+      <div style={{
+        color: "rgba(255, 255, 255, 0.5)",
+        fontSize: "10px",
+        marginTop: "6px",
+        opacity: shouldAnimate ? (stage >= 4 ? 1 : 0) : 1,
+        transform: shouldAnimate ? (stage >= 4 ? "translateY(0)" : "translateY(6px)") : "none",
+        transition: "opacity 0.3s ease-out, transform 0.3s ease-out",
+      }}>
+        Shielded • Just now
+      </div>
+    </div>
+  );
+}
+
+// Iron Man Morph - Hero animation that transforms link preview into payment terminal
+// 4-phase animation: Tweet → Card → Processing → Receipt
+function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: number }) {
+  // 4-phase animation: 0=tweet, 1=card, 2=processing, 3=receipt
+  const [phase, setPhase] = useState(0);
+  const [sendButtonClicked, setSendButtonClicked] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  // Animation timeline - 4 phases matching TippingFlow timing
+  // 0=tweet with link preview, 1=expanded payment card, 2=processing tunnel, 3=shielded receipt
+  useEffect(() => {
+    if (!isVisible || prefersReducedMotion) return;
+
+    const timeline = [
+      { phase: 0, delay: 0 },       // Tweet + link preview (2.5s) - click happens
+      { phase: 1, delay: 2500 },    // Payment card expanded (3s) - user selects amount
+      { phase: 2, delay: 5500 },    // Processing tunnel (2s) - transaction in progress
+      { phase: 3, delay: 7500 },    // Shielded receipt (3.5s) - success state
+      { phase: 0, delay: 11000 },   // Loop reset
+    ];
+
+    const timers = timeline.map(({ phase: p, delay }) =>
+      setTimeout(() => setPhase(p), delay)
+    );
+
+    // Button click effect just before processing phase
+    const clickTimer = setTimeout(() => setSendButtonClicked(true), 5200);
+    const clickResetTimer = setTimeout(() => setSendButtonClicked(false), 5500);
+
+    // Continuous loop (11 second cycle)
+    const loopInterval = setInterval(() => {
+      timeline.forEach(({ phase: p, delay }) => {
+        setTimeout(() => setPhase(p), delay);
+      });
+      // Re-trigger button click effect each loop
+      setTimeout(() => setSendButtonClicked(true), 5200);
+      setTimeout(() => setSendButtonClicked(false), 5500);
+    }, 11000);
+
+    return () => {
+      timers.forEach(t => clearTimeout(t));
+      clearTimeout(clickTimer);
+      clearTimeout(clickResetTimer);
+      clearInterval(loopInterval);
+    };
+  }, [isVisible, prefersReducedMotion]);
+
+  const shouldAnimate = !prefersReducedMotion;
+
+  // Spring animation config
+  const springConfig = { type: "spring" as const, stiffness: 120, damping: 20 };
+
+  // Scaled dimensions
+  const baseWidth = 460;
+  const baseHeight = 580;
+  const tweetWidth = 400;
+  const cardWidth = 340;
+
+  const width = baseWidth * scale;
+  const height = baseHeight * scale;
+
+  // Glass card styles - EXACT match to TippingFlow
+  const glassCard = {
+    background: "rgba(26, 26, 26, 0.6)",
+    backdropFilter: "blur(24px) saturate(150%)",
+    WebkitBackdropFilter: "blur(24px) saturate(150%)",
+    borderTop: "1px solid rgba(255, 215, 0, 0.5)",
+    borderLeft: "none",
+    borderRight: "none",
+    borderBottom: "1px solid rgba(0, 0, 0, 0.8)",
+    boxShadow: scale < 1
+      ? "0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)"
+      : "0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+    borderRadius: `${24 * scale}px`,
+  };
+
+  // Avatar color for Naval
+  const avatarColor = "#4a5568";
+
+  return (
+    <div style={{
+      position: "relative",
+      width: `${width}px`,
+      height: `${height}px`,
+    }}>
+      {/* Background Tweet Layer */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: phase >= 1 ? 0.3 : 1,
+          filter: phase >= 1 ? "blur(12px)" : "none",
+          transform: phase >= 1 ? "scale(0.95)" : "scale(1)",
+          transition: shouldAnimate ? "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)" : "none",
+        }}
+      >
+        {/* Tweet Thread Container - Single connected card */}
+        <div style={{
+          backgroundColor: "#000000",
+          border: "1px solid rgb(47, 51, 54)",
+          borderRadius: `${16 * scale}px`,
+          padding: `${16 * scale}px`,
+          width: `${tweetWidth * scale}px`,
+          boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+        }}>
+          {/* Tweet 1: The Hook */}
+          <div style={{ display: "flex", gap: `${12 * scale}px` }}>
+            {/* Avatar Column with Thread Line */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+              <div style={{
+                width: `${40 * scale}px`,
+                height: `${40 * scale}px`,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #1a1a2e 0%, #334155 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: `${18 * scale}px`,
+                fontWeight: 700,
+                color: "#FFFFFF",
+              }}>
+                N
+              </div>
+              {/* Thread Line connecting to Tweet 2 */}
+              <div style={{
+                width: `${2 * scale}px`,
+                flex: 1,
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                marginTop: `${4 * scale}px`,
+                minHeight: `${60 * scale}px`,
+              }} />
+            </div>
+            {/* Tweet 1 Content */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px` }}>
+                  <span style={{ fontWeight: 700, fontSize: `${15 * scale}px`, color: "#E7E9EA" }}>Naval</span>
+                  <svg width={18 * scale} height={18 * scale} viewBox="0 0 22 22" fill="none">
+                    <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681.132-.637.075-1.299-.165-1.903.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="#1D9BF0"/>
+                  </svg>
+                </div>
+                <svg width={20 * scale} height={20 * scale} viewBox="0 0 24 24" fill="#E7E9EA" style={{ opacity: 0.6 }}>
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px`, color: "rgb(113, 118, 123)", fontSize: `${15 * scale}px` }}>
+                <span>@naval</span>
+                <span>·</span>
+                <span>3h</span>
+              </div>
+              <p style={{ fontSize: `${15 * scale}px`, lineHeight: 1.5, color: "#E7E9EA", margin: `${12 * scale}px 0 ${12 * scale}px 0` }}>
+                Privacy is the only luxury they can't inflate.
+              </p>
+              {/* Engagement Bar - on Tweet 1 */}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingTop: `${12 * scale}px`,
+                borderTop: "1px solid rgb(47, 51, 54)",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: `${6 * scale}px`, color: "rgb(113, 118, 123)", fontSize: `${13 * scale}px` }}>
+                  <svg width={18 * scale} height={18 * scale} viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/>
+                  </svg>
+                  <span>1.2K</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: `${6 * scale}px`, color: "rgb(113, 118, 123)", fontSize: `${13 * scale}px` }}>
+                  <svg width={18 * scale} height={18 * scale} viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/>
+                  </svg>
+                  <span>4.8K</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: `${6 * scale}px`, color: "rgb(113, 118, 123)", fontSize: `${13 * scale}px` }}>
+                  <svg width={18 * scale} height={18 * scale} viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>
+                  </svg>
+                  <span>32K</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: `${6 * scale}px`, color: "rgb(113, 118, 123)", fontSize: `${13 * scale}px` }}>
+                  <svg width={18 * scale} height={18 * scale} viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/>
+                  </svg>
+                  <span>2.1M</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tweet 2: The Delivery */}
+          <div style={{ display: "flex", gap: `${12 * scale}px`, marginTop: `${4 * scale}px` }}>
+            {/* Avatar */}
+            <div style={{
+              width: `${40 * scale}px`,
+              height: `${40 * scale}px`,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #1a1a2e 0%, #334155 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: `${18 * scale}px`,
+              fontWeight: 700,
+              color: "#FFFFFF",
+              flexShrink: 0,
+            }}>
+              N
+            </div>
+            {/* Tweet 2 Content */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px` }}>
+                <span style={{ fontWeight: 700, fontSize: `${15 * scale}px`, color: "#E7E9EA" }}>Naval</span>
+                <svg width={18 * scale} height={18 * scale} viewBox="0 0 22 22" fill="none">
+                  <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681.132-.637.075-1.299-.165-1.903.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="#1D9BF0"/>
+                </svg>
+                <span style={{ color: "rgb(113, 118, 123)", fontSize: `${15 * scale}px` }}>·</span>
+                <span style={{ color: "rgb(113, 118, 123)", fontSize: `${15 * scale}px` }}>3h</span>
+              </div>
+              <p style={{ fontSize: `${15 * scale}px`, lineHeight: 1.5, color: "#E7E9EA", margin: `${8 * scale}px 0 ${12 * scale}px 0` }}>
+                Shielded tips open here 👇
+              </p>
+
+              {/* Link Preview Card (click effect on phase 1) - Wall-to-Wall Dense Terminal */}
+              <motion.div
+                style={{
+                  position: "relative",
+                  background: "rgba(18, 18, 18, 0.95)",
+                  borderRadius: `${10 * scale}px`,
+                  width: "100%",
+                  height: `${(tweetWidth - 32) / 1.91 * scale}px`,
+                  cursor: "pointer",
+                  overflow: "hidden",
+                  boxShadow: `inset 0 1px 0 0 rgba(255, 235, 160, 0.25), 0 8px 24px rgba(0, 0, 0, 0.4)`,
+                }}
+                animate={{
+                  scale: phase === 1 ? [1, 0.98, 1] : 1,
+                  opacity: phase === 1 ? [1, 0.9, 1] : 1,
+                }}
+                transition={{
+                  duration: 0.15,
+                  times: [0, 0.5, 1],
+                }}
+              >
+                {/* Wall-to-Wall Dense Content */}
+                <div style={{
+                  position: "relative",
+                  height: "100%",
+                  padding: `${12 * scale}px`,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}>
+                  {/* Top Section: Identity + Trust */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: `${3 * scale}px` }}>
+                    {/* Row 1 - Identity: Avatar + Handle (MASSIVE HEADLINE) */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: `${8 * scale}px`,
+                    }}>
+                      {/* Avatar - Squircle */}
+                      <div style={{
+                        width: `${24 * scale}px`,
+                        height: `${24 * scale}px`,
+                        borderRadius: `${6 * scale}px`,
+                        background: "linear-gradient(135deg, hsl(220, 50%, 35%) 0%, hsl(220, 60%, 25%) 100%)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: `${12 * scale}px`,
+                        fontWeight: 800,
+                        color: "#FFFFFF",
+                        flexShrink: 0,
+                        boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+                      }}>
+                        N
+                      </div>
+
+                      {/* @naval - EXTRA BOLD HEADLINE */}
+                      <div style={{
+                        fontSize: `${20 * scale}px`,
+                        fontWeight: 800,
+                        color: "#FFFFFF",
+                        fontFamily: "'JetBrains Mono', monospace",
+                        letterSpacing: "-1px",
+                      }}>
+                        @naval
+                      </div>
+                    </div>
+
+                    {/* Row 2 - Trust: The Green Points (wider spacing) */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: `${14 * scale}px`,
+                      marginLeft: `${32 * scale}px`,
+                    }}>
+                      {/* Shield - Private */}
+                      <div style={{ display: "flex", alignItems: "center", gap: `${3 * scale}px` }}>
+                        <svg width={8 * scale} height={8 * scale} viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                        <span style={{ fontSize: `${7 * scale}px`, fontWeight: 600, color: "#10B981", fontFamily: "'JetBrains Mono', monospace" }}>
+                          Private
+                        </span>
+                      </div>
+
+                      {/* Lightning - Instant */}
+                      <div style={{ display: "flex", alignItems: "center", gap: `${3 * scale}px` }}>
+                        <svg width={8 * scale} height={8 * scale} viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5">
+                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                        </svg>
+                        <span style={{ fontSize: `${7 * scale}px`, fontWeight: 600, color: "#10B981", fontFamily: "'JetBrains Mono', monospace" }}>
+                          Instant
+                        </span>
+                      </div>
+
+                      {/* Ban/Circle - 0% fees */}
+                      <div style={{ display: "flex", alignItems: "center", gap: `${3 * scale}px` }}>
+                        <svg width={8 * scale} height={8 * scale} viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5">
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                        </svg>
+                        <span style={{ fontSize: `${7 * scale}px`, fontWeight: 600, color: "#10B981", fontFamily: "'JetBrains Mono', monospace" }}>
+                          0% fees
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Section: Controls - 4-Stack Layout */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: `${5 * scale}px` }}>
+                    {/* Row 1 - Chips: FULL WIDTH KEYBOARD */}
+                    <div style={{
+                      display: "flex",
+                      width: "100%",
+                      gap: `${4 * scale}px`,
+                    }}>
+                      {[
+                        { amount: "$1", selected: false },
+                        { amount: "$5", selected: true },
+                        { amount: "$10", selected: false },
+                        { amount: "$25", selected: false },
+                      ].map((chip) => (
+                        <div
+                          key={chip.amount}
+                          style={{
+                            flex: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            height: `${28 * scale}px`,
+                            borderRadius: `${4 * scale}px`,
+                            fontSize: `${10 * scale}px`,
+                            fontWeight: 700,
+                            fontFamily: "'JetBrains Mono', monospace",
+                            ...(chip.selected
+                              ? {
+                                  backgroundColor: "#FFFFFF",
+                                  color: "#050505",
+                                  boxShadow: "0 0 16px rgba(255, 215, 0, 0.5), 0 0 6px rgba(255, 215, 0, 0.3)",
+                                }
+                              : {
+                                  backgroundColor: "rgba(255, 255, 255, 0.06)",
+                                  boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+                                  color: "rgba(255, 255, 255, 0.5)",
+                                }),
+                          }}
+                        >
+                          {chip.amount}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Row 2 - Private Note: MESSAGE TRENCH */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      height: `${26 * scale}px`,
+                      backgroundColor: "rgba(0, 0, 0, 0.4)",
+                      borderRadius: `${4 * scale}px`,
+                      padding: `0 ${8 * scale}px`,
+                      boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.3)",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                    }}>
+                      {/* Left: Placeholder text */}
+                      <span style={{
+                        color: "rgba(255, 255, 255, 0.4)",
+                        fontSize: `${7 * scale}px`,
+                        fontFamily: "'JetBrains Mono', monospace",
+                      }}>
+                        Add a private note...
+                      </span>
+
+                      {/* Right: ENCRYPTED badge */}
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: `${2 * scale}px`,
+                        padding: `${2 * scale}px ${4 * scale}px`,
+                        background: "rgba(0, 255, 148, 0.1)",
+                        borderRadius: `${3 * scale}px`,
+                      }}>
+                        <svg width={6 * scale} height={6 * scale} viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        <span style={{
+                          color: "#10B981",
+                          fontSize: `${5 * scale}px`,
+                          fontWeight: 700,
+                          fontFamily: "'JetBrains Mono', monospace",
+                          letterSpacing: "0.5px",
+                        }}>
+                          ENCRYPTED
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Row 3 - Token Selector: NETWORK DROPDOWN */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      height: `${26 * scale}px`,
+                      backgroundColor: "rgba(255, 255, 255, 0.06)",
+                      borderRadius: `${4 * scale}px`,
+                      padding: `0 ${8 * scale}px`,
+                      boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                    }}>
+                      {/* Left: ETH Token */}
+                      <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px` }}>
+                        {/* ETH Diamond Icon */}
+                        <div style={{
+                          width: `${12 * scale}px`,
+                          height: `${12 * scale}px`,
+                          borderRadius: "50%",
+                          background: "linear-gradient(135deg, #627EEA 0%, #3C3C3D 100%)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}>
+                          <svg width={7 * scale} height={7 * scale} viewBox="0 0 256 417" fill="none">
+                            <path fill="#fff" fillOpacity="0.6" d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z"/>
+                            <path fill="#fff" d="M127.962 0L0 212.32l127.962 75.639V154.158z"/>
+                          </svg>
+                        </div>
+                        <span style={{
+                          color: "#FFFFFF",
+                          fontSize: `${8 * scale}px`,
+                          fontWeight: 600,
+                          fontFamily: "'JetBrains Mono', monospace",
+                        }}>
+                          ETH
+                        </span>
+                      </div>
+
+                      {/* Right: Balance + Chevron */}
+                      <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px` }}>
+                        <span style={{
+                          color: "rgba(255, 255, 255, 0.5)",
+                          fontSize: `${6 * scale}px`,
+                          fontFamily: "'JetBrains Mono', monospace",
+                        }}>
+                          0.0998
+                        </span>
+                        <svg width={8 * scale} height={8 * scale} viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2">
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Row 4 - Send Button: FULL WIDTH ANCHOR */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      height: `${28 * scale}px`,
+                      background: "linear-gradient(180deg, #FCD34D 0%, #F59E0B 50%, #D97706 100%)",
+                      borderRadius: `${4 * scale}px`,
+                      fontSize: `${9 * scale}px`,
+                      fontWeight: 700,
+                      color: "#050505",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      boxShadow: "inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 4px 12px rgba(255, 215, 0, 0.5)",
+                    }}>
+                      Send $5.00
+                    </div>
+                  </div>
+                </div>
+
+                {/* Domain Badge - Twitter-style, fades out on expand */}
+                <motion.div
+                  style={{
+                    position: "absolute",
+                    bottom: `${6 * scale}px`,
+                    left: `${6 * scale}px`,
+                    background: "rgba(0, 0, 0, 0.75)",
+                    borderRadius: `${10 * scale}px`,
+                    padding: `${3 * scale}px ${8 * scale}px`,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: `${4 * scale}px`,
+                  }}
+                  animate={{
+                    opacity: phase === 0 ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <svg width={10 * scale} height={10 * scale} viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  </svg>
+                  <span style={{
+                    color: "rgba(255, 255, 255, 0.9)",
+                    fontSize: `${9 * scale}px`,
+                    fontWeight: 500,
+                    fontFamily: "system-ui, -apple-system, sans-serif",
+                  }}>
+                    tipz.cash
+                  </span>
+                </motion.div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Payment Card - visible in phases 1, 2, 3 (stays in place through entire flow) */}
+      <motion.div
+        style={{
+          position: "absolute",
+          bottom: `${40 * scale}px`,
+          right: "0px",
+          width: `${cardWidth * scale}px`,
+          ...glassCard,
+          padding: `${16 * scale}px`,
+          transformOrigin: "top left",
+          zIndex: 10,
+          pointerEvents: "none",
+        }}
+        initial={{ scale: 0.1, opacity: 0 }}
+        animate={{
+          scale: phase >= 1 ? 1 : 0.1,
+          opacity: phase >= 1 ? 1 : 0,
+        }}
+        transition={shouldAnimate ? springConfig : { duration: 0 }}
+      >
+        {/* Header: Avatar + Handle + Shield Badge - Compact style */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: `${8 * scale}px`,
+          marginBottom: `${10 * scale}px`,
+          paddingBottom: `${8 * scale}px`,
+          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+          opacity: phase >= 1 && phase <= 2 ? 1 : 0,
+          transform: phase >= 1 && phase <= 2 ? "translateX(0)" : "translateX(-30px)",
+          transition: shouldAnimate ? "all 0.3s ease-out 0.1s" : "none",
+        }}>
+          {/* Avatar - squircle with inner glow */}
+          <div style={{
+            width: `${48 * scale}px`,
+            height: `${48 * scale}px`,
+            borderRadius: "22%",
+            backgroundColor: avatarColor,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+            flexShrink: 0,
+          }}>
+            <span style={{
+              fontSize: `${18 * scale}px`,
+              color: "#FFFFFF",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              fontFamily: "'JetBrains Mono', monospace",
+            }}>
+              N
+            </span>
+          </div>
+          {/* Handle + Shield */}
+          <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px` }}>
+            <span style={{
+              color: "#FFFFFF",
+              fontSize: `${16 * scale}px`,
+              fontWeight: 700,
+              fontFamily: "'JetBrains Mono', monospace",
+            }}>
+              @naval
+            </span>
+            {/* Gold shield badge */}
+            <svg width={12 * scale} height={12 * scale} viewBox="0 0 24 24" fill="#FFD700" stroke="none">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M9 12l2 2 4-4" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Amount Selector Pills - Full width keyboard style */}
+        <div style={{
+          display: "flex",
+          gap: `${6 * scale}px`,
+          width: "100%",
+          marginBottom: `${10 * scale}px`,
+          opacity: phase >= 1 && phase <= 2 ? 1 : 0,
+          transform: phase >= 1 && phase <= 2 ? "translateX(0)" : "translateX(-30px)",
+          transition: shouldAnimate ? "all 0.3s ease-out 0.15s" : "none",
+        }}>
+          {[1, 5, 10, 25].map((amount) => {
+            const isSelected = amount === 5;
+            return (
+              <div
+                key={amount}
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: `${44 * scale}px`,
+                  background: isSelected ? "#FFFFFF" : "rgba(255, 255, 255, 0.06)",
+                  border: isSelected ? "none" : "none",
+                  borderRadius: `${8 * scale}px`,
+                  color: isSelected ? "#050505" : "rgba(255, 255, 255, 0.5)",
+                  fontSize: `${15 * scale}px`,
+                  fontWeight: 700,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  boxShadow: isSelected ? "0 0 20px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)" : "inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+                }}
+              >
+                ${amount}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Message Trench - Matching OG style */}
+        <div style={{
+          width: "100%",
+          height: `${40 * scale}px`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: `0 ${12 * scale}px`,
+          background: "rgba(0, 0, 0, 0.4)",
+          borderRadius: `${8 * scale}px`,
+          border: "1px solid rgba(255, 255, 255, 0.05)",
+          boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.3)",
+          marginBottom: `${10 * scale}px`,
+          opacity: phase >= 1 && phase <= 2 ? 1 : 0,
+          transform: phase >= 1 && phase <= 2 ? "translateX(0)" : "translateX(-30px)",
+          transition: shouldAnimate ? "all 0.3s ease-out 0.2s" : "none",
+        }}>
+          <span style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: `${13 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>
+            Add a private note...
+          </span>
+          {/* ENCRYPTED badge */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: `${3 * scale}px`,
+            padding: `${3 * scale}px ${6 * scale}px`,
+            background: "rgba(0, 255, 148, 0.1)",
+            borderRadius: `${6 * scale}px`,
+            flexShrink: 0,
+          }}>
+            <svg width={8 * scale} height={8 * scale} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <span style={{ color: "#00FF94", fontSize: `${7 * scale}px`, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.5px" }}>
+              ENCRYPTED
+            </span>
+          </div>
+        </div>
+
+        {/* Token Selector - Matching OG style */}
+        <div style={{
+          width: "100%",
+          height: `${40 * scale}px`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: `0 ${12 * scale}px`,
+          background: "rgba(255, 255, 255, 0.06)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: `${8 * scale}px`,
+          boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+          marginBottom: `${10 * scale}px`,
+          opacity: phase >= 1 && phase <= 2 ? 1 : 0,
+          transform: phase >= 1 && phase <= 2 ? "translateX(0)" : "translateX(-30px)",
+          transition: shouldAnimate ? "all 0.3s ease-out 0.25s" : "none",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: `${8 * scale}px` }}>
+            {/* ETH logo */}
+            <div style={{
+              width: `${24 * scale}px`,
+              height: `${24 * scale}px`,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #627EEA 0%, #3C3C3D 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <svg width={10 * scale} height={10 * scale} viewBox="0 0 256 417" fill="none">
+                <path fill="#fff" fillOpacity="0.6" d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z"/>
+                <path fill="#fff" d="M127.962 0L0 212.32l127.962 75.639V154.158z"/>
+              </svg>
+            </div>
+            <span style={{ color: "#FFFFFF", fontSize: `${14 * scale}px`, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>
+              ETH
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: `${6 * scale}px` }}>
+            <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${10 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>
+              0.0998
+            </span>
+            <svg width={12 * scale} height={12 * scale} viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Send Button - Matching OG style with vertical gold gradient */}
+        <motion.div
+          style={{
+            opacity: phase >= 1 && phase <= 2 ? 1 : 0,
+            transform: phase >= 1 && phase <= 2 ? "translateX(0)" : "translateX(-30px)",
+            transition: shouldAnimate ? "opacity 0.3s ease-out 0.3s, transform 0.3s ease-out 0.3s" : "none",
+          }}
+          animate={{
+            scale: sendButtonClicked ? 0.95 : 1,
+          }}
+          transition={{ duration: 0.1 }}
+        >
+          <button
+            style={{
+              width: "100%",
+              height: `${44 * scale}px`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: sendButtonClicked
+                ? "linear-gradient(180deg, #E5C240 0%, #D98F0A 50%, #C06A05 100%)"
+                : "linear-gradient(180deg, #FCD34D 0%, #F59E0B 50%, #D97706 100%)",
+              border: "none",
+              borderRadius: `${8 * scale}px`,
+              color: "#050505",
+              fontSize: `${15 * scale}px`,
+              fontWeight: 700,
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.5px",
+              boxShadow: sendButtonClicked
+                ? "inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(255, 215, 0, 0.3)"
+                : "inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 8px 24px rgba(255, 215, 0, 0.5)",
+              transition: "background 0.1s ease, box-shadow 0.1s ease",
+            }}
+          >
+            Send $5.00
+          </button>
+        </motion.div>
+
+        {/* Trust Footer - Compact style */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: `${12 * scale}px`,
+          marginTop: `${10 * scale}px`,
+          paddingTop: `${8 * scale}px`,
+          borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+          opacity: phase >= 1 && phase <= 2 ? 1 : 0,
+          transform: phase >= 1 && phase <= 2 ? "translateX(0)" : "translateX(-30px)",
+          transition: shouldAnimate ? "all 0.3s ease-out 0.35s" : "none",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: `${3 * scale}px` }}>
+            <svg width={10 * scale} height={10 * scale} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: `${9 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>Private</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: `${3 * scale}px` }}>
+            <svg width={10 * scale} height={10 * scale} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+            <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: `${9 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>Instant</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: `${3 * scale}px` }}>
+            <svg width={10 * scale} height={10 * scale} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="4" y1="4" x2="20" y2="20" />
+            </svg>
+            <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: `${9 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>0% fees</span>
+          </div>
+        </div>
+
+        {/* Processing Overlay - Phase 2: The Private Tunnel */}
+        <AnimatePresence>
+          {phase === 2 && (
+            <motion.div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(5, 5, 5, 0.98)",
+                borderRadius: `${24 * scale}px`,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {/* Vertical Light Beam (behind shield) */}
+              <motion.div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: "2px",
+                  height: "100%",
+                  background: "linear-gradient(to bottom, transparent, rgba(255, 215, 0, 0.3), transparent)",
+                }}
+                animate={{ opacity: [0.3, 0.8, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              />
+
+              {/* Hero Shield with Cryptex Rings */}
+              <div style={{
+                width: `${80 * scale}px`,
+                height: `${80 * scale}px`,
+                position: "relative",
+                marginBottom: `${16 * scale}px`,
+              }}>
+                {/* Outer rotating ring (clockwise) */}
+                <motion.svg
+                  style={{
+                    position: "absolute",
+                    inset: `${-6 * scale}px`,
+                    width: `${92 * scale}px`,
+                    height: `${92 * scale}px`,
+                  }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                  viewBox="0 0 92 92"
+                >
+                  <circle
+                    cx="46"
+                    cy="46"
+                    r="42"
+                    fill="none"
+                    stroke="rgba(255, 215, 0, 0.3)"
+                    strokeWidth="1"
+                    strokeDasharray="6 10"
+                  />
+                </motion.svg>
+
+                {/* Inner rotating ring (counter-clockwise) */}
+                <motion.svg
+                  style={{
+                    position: "absolute",
+                    inset: `${4 * scale}px`,
+                    width: `${72 * scale}px`,
+                    height: `${72 * scale}px`,
+                  }}
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                  viewBox="0 0 72 72"
+                >
+                  <circle
+                    cx="36"
+                    cy="36"
+                    r="32"
+                    fill="none"
+                    stroke="rgba(255, 215, 0, 0.3)"
+                    strokeWidth="1"
+                    strokeDasharray="4 6"
+                  />
+                </motion.svg>
+
+                {/* Shield container with breathing glow */}
+                <motion.div
+                  style={{
+                    position: "absolute",
+                    inset: `${12 * scale}px`,
+                    borderRadius: "50%",
+                    background: "radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.03))",
+                    border: "2px solid #FFD700",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                  }}
+                  animate={{ boxShadow: ["0 0 20px rgba(255, 215, 0, 0.2)", "0 0 40px rgba(255, 215, 0, 0.4)", "0 0 20px rgba(255, 215, 0, 0.2)"] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  {/* Radar sweep overlay */}
+                  <motion.div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "conic-gradient(from 0deg, transparent 0deg, rgba(255, 215, 0, 0.3) 30deg, transparent 60deg)",
+                      opacity: 0.5,
+                    }}
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  />
+
+                  {/* Shield Icon */}
+                  <svg
+                    width={28 * scale}
+                    height={28 * scale}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#FFD700"
+                    strokeWidth="1.5"
+                    style={{ position: "relative", zIndex: 1 }}
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M9 12l2 2 4-4" stroke="#00FF94" strokeWidth="2" />
+                  </svg>
+                </motion.div>
+              </div>
+
+              {/* Status Text */}
+              <motion.div
+                style={{ textAlign: "center" }}
+                animate={{ opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <div style={{
+                  color: "#FFFFFF",
+                  fontSize: `${12 * scale}px`,
+                  fontWeight: 600,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "0.5px",
+                  marginBottom: `${4 * scale}px`,
+                }}>
+                  Establishing Secure Channel...
+                </div>
+                <div style={{
+                  color: "rgba(255, 255, 255, 0.5)",
+                  fontSize: `${9 * scale}px`,
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>
+                  Your identity is being scrubbed
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Success Content - Phase 3: The Shielded Receipt (slides in from right) */}
+        <AnimatePresence>
+          {phase === 3 && (
+            <motion.div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: `${16 * scale}px`,
+                textAlign: "center" as const,
+              }}
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              {/* Locking Shield Animation */}
+              <div
+                style={{
+                  width: `${56 * scale}px`,
+                  height: `${56 * scale}px`,
+                  marginBottom: `${12 * scale}px`,
+                  position: "relative",
+                }}
+              >
+                <svg
+                  width={56 * scale}
+                  height={56 * scale}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  style={{ filter: "drop-shadow(0 0 12px rgba(255, 215, 0, 0.5))" }}
+                >
+                  <path
+                    d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                    fill="rgba(255, 215, 0, 0.15)"
+                    stroke="#FFD700"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M9 11V8a3 3 0 0 1 6 0v3"
+                    fill="none"
+                    stroke="#FFD700"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                  <rect x="8" y="11" width="8" height="6" rx="1" fill="#FFD700" />
+                </svg>
+              </div>
+
+              {/* PAYMENT SECURE Header */}
+              <div style={{
+                color: "#FFD700",
+                fontSize: `${10 * scale}px`,
+                fontWeight: 700,
+                fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: "3px",
+                textTransform: "uppercase",
+                marginBottom: `${4 * scale}px`,
+              }}>
+                PAYMENT SECURE
+              </div>
+              <div style={{
+                color: "rgba(255, 255, 255, 0.6)",
+                fontSize: `${9 * scale}px`,
+                fontFamily: "'JetBrains Mono', monospace",
+                marginBottom: `${12 * scale}px`,
+              }}>
+                to <span style={{ color: "#FFFFFF" }}>@naval</span>
+              </div>
+
+              {/* Receipt Table */}
+              <div style={{
+                width: "100%",
+                background: "rgba(0, 0, 0, 0.3)",
+                borderRadius: `${8 * scale}px`,
+                padding: `${10 * scale}px`,
+                marginBottom: `${10 * scale}px`,
+                border: "1px solid rgba(255, 255, 255, 0.05)",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: `${6 * scale}px` }}>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    AMOUNT SENT
+                  </span>
+                  <span style={{ color: "#FFFFFF", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>
+                    $5.00
+                  </span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: `${6 * scale}px` }}>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    NETWORK FEE
+                  </span>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>
+                    $0.01
+                  </span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: `${6 * scale}px` }}>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    PLATFORM FEE
+                  </span>
+                  <span style={{ color: "#00FF94", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>
+                    $0.00
+                  </span>
+                </div>
+                <div style={{ height: "1px", background: "rgba(255, 255, 255, 0.1)", margin: `${6 * scale}px 0` }} />
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    PRIVACY
+                  </span>
+                  <span style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: `${3 * scale}px`,
+                    padding: `${2 * scale}px ${6 * scale}px`,
+                    background: "rgba(0, 255, 148, 0.15)",
+                    borderRadius: `${3 * scale}px`,
+                    color: "#00FF94",
+                    fontSize: `${7 * scale}px`,
+                    fontWeight: 700,
+                    fontFamily: "'JetBrains Mono', monospace",
+                    letterSpacing: "1px",
+                  }}>
+                    <svg width={6 * scale} height={6 * scale} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                    SEALED
+                  </span>
+                </div>
+              </div>
+
+              {/* Savings Note */}
+              <div style={{
+                color: "rgba(255, 255, 255, 0.4)",
+                fontSize: `${7 * scale}px`,
+                fontFamily: "'JetBrains Mono', monospace",
+              }}>
+                You saved ~$0.45 in processing fees.
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
+}
+
 // Code block line-by-line reveal
 function CodeBlockReveal({
   lines,
@@ -884,21 +2106,41 @@ function HeroTitle({
           </>
         ) : (
           // Full animation: character-by-character with effects
+          // Don't render trailing newlines to prevent cursor flash on empty line
           <>
-            {displayText.split("").map((char, index) => (
-              <AnimatedCharacter
-                key={index}
-                char={char}
-                index={index}
-                isNew={index === newCharIndex}
-                isTipzChar={isTipzChar(index)}
-              />
-            ))}
+            {(() => {
+              const chars = displayText.split("");
+              // Find if there are trailing newlines
+              let renderUpTo = chars.length;
+              while (renderUpTo > 0 && chars[renderUpTo - 1] === "\n") {
+                renderUpTo--;
+              }
+              return chars.slice(0, renderUpTo).map((char, index) => (
+                <AnimatedCharacter
+                  key={index}
+                  char={char}
+                  index={index}
+                  isNew={index === newCharIndex}
+                  isTipzChar={isTipzChar(index)}
+                />
+              ));
+            })()}
             <PremiumCursor
               visible={!isComplete}
               typingComplete={isComplete}
               intensity={glowIntensity}
             />
+            {/* Render trailing newlines after cursor */}
+            {(() => {
+              const chars = displayText.split("");
+              let trailingStart = chars.length;
+              while (trailingStart > 0 && chars[trailingStart - 1] === "\n") {
+                trailingStart--;
+              }
+              return chars.slice(trailingStart).map((_, index) => (
+                <br key={`trailing-${index}`} />
+              ));
+            })()}
           </>
         )}
       </h1>
@@ -1083,124 +2325,6 @@ function StaggeredItems({
   );
 }
 
-// Static demo preview for mobile - shows the tip modal without animation
-function StaticDemoPreview() {
-  return (
-    <div style={{
-      position: "relative",
-      marginTop: "40px",
-    }}>
-      {/* Glow behind the graphic */}
-      <div style={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: "300px",
-        height: "300px",
-        borderRadius: "50%",
-        background: `radial-gradient(circle, ${colors.primaryGlowStrong} 0%, transparent 60%)`,
-        filter: "blur(40px)",
-        opacity: 0.5,
-        zIndex: 0,
-      }} />
-
-      {/* Static modal preview */}
-      <div style={{
-        backgroundColor: colors.surface,
-        border: `1px solid ${colors.border}`,
-        borderRadius: "16px",
-        padding: "20px",
-        width: "100%",
-        maxWidth: "280px",
-        margin: "0 auto",
-        boxShadow: `0 16px 40px rgba(0,0,0,0.5), 0 0 30px ${colors.primaryGlow}`,
-        zIndex: 1,
-        position: "relative",
-      }}>
-        {/* Header */}
-        <div style={{
-          fontSize: "12px",
-          color: colors.muted,
-          marginBottom: "12px",
-          textAlign: "center",
-        }}>
-          Tip <span style={{ color: colors.textBright, fontWeight: 600 }}>@alexcreates</span>
-        </div>
-
-        {/* Amount */}
-        <div style={{
-          textAlign: "center",
-          marginBottom: "16px",
-        }}>
-          <span style={{
-            fontSize: "40px",
-            fontWeight: 800,
-            color: colors.textBright,
-            letterSpacing: "-0.02em",
-          }}>
-            $5
-          </span>
-        </div>
-
-        {/* Amount Selection */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "6px",
-          marginBottom: "16px",
-        }}>
-          {["$1", "$5", "$10", "$25"].map((amount) => (
-            <div
-              key={amount}
-              style={{
-                padding: "10px 6px",
-                textAlign: "center",
-                fontSize: "13px",
-                fontWeight: 600,
-                backgroundColor: amount === "$5" ? colors.primary : colors.bg,
-                color: amount === "$5" ? colors.bg : colors.text,
-                border: `1px solid ${amount === "$5" ? colors.primary : colors.border}`,
-                borderRadius: "6px",
-              }}
-            >
-              {amount}
-            </div>
-          ))}
-        </div>
-
-        {/* Send CTA */}
-        <button style={{
-          width: "100%",
-          backgroundColor: colors.primary,
-          color: colors.bg,
-          padding: "14px 20px",
-          fontSize: "15px",
-          fontWeight: 700,
-          borderRadius: "10px",
-          border: "none",
-          boxShadow: `0 4px 16px ${colors.primaryGlow}`,
-        }}>
-          Send $5 →
-        </button>
-
-        {/* Trust Signals */}
-        <div style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "12px",
-          fontSize: "11px",
-          marginTop: "10px",
-        }}>
-          <span style={{ color: colors.success }}>✓ 0% fees</span>
-          <span style={{ color: colors.muted }}>🔒 Private</span>
-          <span style={{ color: colors.muted }}>⚡ Instant</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Helper to render text with "tipz" in primary color
 function renderWithTipzHighlight(text: string, primaryColor: string) {
   const tipzIndex = text.toLowerCase().indexOf("tipz");
@@ -1220,13 +2344,14 @@ function renderWithTipzHighlight(text: string, primaryColor: string) {
 }
 
 export default function HomePage() {
-  const heroText = "Private TIPZ for\ncreators.";
+  const heroText = "Private TIPZ\nfor creators";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [tweetVisible, setTweetVisible] = useState(false);
   const currentChapter = useCurrentChapter();
   const isMobile = useIsMobile(768);
   const parallaxOffset = useParallax(0.3);
   const parallaxOffsetSlow = useParallax(0.15);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   // Gate button/modal animations until tweet is visible
   useEffect(() => {
@@ -1331,7 +2456,7 @@ export default function HomePage() {
           overflow: "hidden",
           pointerEvents: "none",
         }}>
-          {/* Subtle gradient orb - top right with parallax */}
+          {/* Subtle gradient orb - top right with parallax + idle float */}
           <div style={{
             position: "absolute",
             top: "-10%",
@@ -1344,6 +2469,7 @@ export default function HomePage() {
             opacity: 0.6,
             transform: `translateY(${parallaxOffset}px)`,
             willChange: "transform",
+            animation: prefersReducedMotion ? "none" : "idle-float 6s ease-in-out infinite",
           }} />
           {/* Grid pattern overlay with slower parallax */}
           <div style={{
@@ -1361,375 +2487,118 @@ export default function HomePage() {
           maxWidth: "1200px",
           margin: "0 auto",
           display: "flex",
-          flexDirection: "column",
+          flexDirection: isMobile ? "column" : "row",
           alignItems: "center",
-          textAlign: "center",
+          justifyContent: "space-between",
+          gap: isMobile ? "32px" : "64px",
           position: "relative",
           zIndex: 1,
-          paddingTop: "40px",
+          paddingTop: isMobile ? "40px" : "20px",
         }}>
-          {/* Main headline - full width, centered */}
-          <div style={{ marginBottom: "24px", maxWidth: "900px" }}>
-            <HeroTitle
-              text={heroText}
-              isMobile={isMobile}
-              onComplete={() => setHeroAnimationReady(true)}
-            />
-          </div>
-
-          {/* Sub-copy - punchy alliterative format */}
-          <TerminalReveal delay={heroAnimationReady ? 0 : 99999}>
-            <p style={{
-              fontSize: "14px",
-              lineHeight: 1.7,
-              marginBottom: "32px",
-              letterSpacing: "0.02em",
-              color: colors.muted,
-            }}>
-              No Fees. No Friction. No Trace.
-            </p>
-          </TerminalReveal>
-
-          {/* Single CTA - Premium animated button */}
-          <TerminalReveal delay={heroAnimationReady ? 200 : 99999}>
-            <div style={{ position: "relative", marginBottom: "48px" }}>
-
-
-              <a
-                href="/register"
-                className="cta-hero"
-                style={{
-                  position: "relative",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "16px",
-                  background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
-                  backgroundSize: "200% 200%",
-                  color: colors.bg,
-                  padding: "18px 40px",
-                  fontWeight: 700,
-                  fontSize: "15px",
-                  textDecoration: "none",
-                  borderRadius: "14px",
-                  border: "none",
-                  boxShadow: `
-                    0 0 40px ${colors.primaryGlowStrong},
-                    0 0 60px ${colors.primaryGlow},
-                    inset 0 2px 0 rgba(255,255,255,0.25),
-                    inset 0 -2px 0 rgba(0,0,0,0.1),
-                    0 10px 40px rgba(0,0,0,0.5)
-                  `,
-                  animation: "cta-gradient-shift 4s ease-in-out infinite",
-                  letterSpacing: "0.04em",
-                }}
-              >
-                {/* Inner highlight */}
-                <span style={{
-                  position: "absolute",
-                  top: "1px",
-                  left: "2px",
-                  right: "2px",
-                  height: "50%",
-                  borderRadius: "12px 12px 100% 100%",
-                  background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%)",
-                  pointerEvents: "none",
-                }} />
-
-                <span style={{ position: "relative", zIndex: 1, fontFamily: "'JetBrains Mono', monospace" }}>
-                  Start Earning TIPZ
-                </span>
-              </a>
-            </div>
-          </TerminalReveal>
-
-          {/* Visual Demo - centered below CTA */}
-          {isMobile ? (
-            <StaticDemoPreview />
-          ) : (
+          {/* Left side: Copy + CTA */}
           <div style={{
-            position: "relative",
-            marginTop: "20px",
-            transform: "rotate(-2deg)",
-            transformOrigin: "center center",
+            flex: 1,
+            maxWidth: isMobile ? "100%" : "500px",
+            textAlign: isMobile ? "center" : "left",
           }}>
-            {/* Glow behind the graphic */}
-            <div style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "500px",
-              height: "500px",
-              borderRadius: "50%",
-              background: `radial-gradient(circle, ${colors.primaryGlowStrong} 0%, transparent 60%)`,
-              filter: "blur(60px)",
-              opacity: 0.6,
-              zIndex: 0,
-            }} />
+            {/* Main headline */}
+            <div style={{ marginBottom: "24px" }}>
+              <HeroTitle
+                text={heroText}
+                isMobile={isMobile}
+                onComplete={() => setHeroAnimationReady(true)}
+              />
+            </div>
 
-            {/* Tweet Card - Authentic X/Twitter Design */}
-            <TerminalReveal delay={heroAnimationReady ? 400 : 99999}>
-              <div style={{
-                backgroundColor: "#000000",
-                border: `1px solid rgb(47, 51, 54)`,
-                borderRadius: "16px",
-                padding: "16px",
-                transform: "rotate(2deg)",
-                width: "380px",
-                position: "relative",
-                zIndex: 1,
-                boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
-                animation: "float-subtle 6s ease-in-out infinite",
-                textAlign: "left",
+            {/* Sub-copy */}
+            <TerminalReveal delay={heroAnimationReady ? 0 : 99999}>
+              <p style={{
+                fontSize: "14px",
+                lineHeight: 1.7,
+                marginBottom: "32px",
+                letterSpacing: "0.02em",
+                color: colors.muted,
               }}>
-                {/* Tweet Header */}
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                  {/* Avatar */}
-                  <div style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: "#FFFFFF",
-                    flexShrink: 0,
-                  }}>
-                    A
-                  </div>
-
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {/* Name row with X logo */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
-                        <span style={{ fontWeight: 700, fontSize: "15px", color: "#E7E9EA" }}>Alex Chen</span>
-                        <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
-                          <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681.132-.637.075-1.299-.165-1.903.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="#1D9BF0"/>
-                        </svg>
-                      </div>
-                      {/* X Logo */}
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="#E7E9EA" style={{ opacity: 0.6 }}>
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                      </svg>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "rgb(113, 118, 123)", fontSize: "15px" }}>
-                      <span>@alexcreates</span>
-                      <span>·</span>
-                      <span>2h</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tweet Content */}
-                <div style={{ marginTop: "12px", marginBottom: "12px" }}>
-                  <p style={{ fontSize: "15px", lineHeight: 1.4, color: "#E7E9EA", margin: 0 }}>
-                    Just dropped a 50-part thread on building your first SaaS.
-                  </p>
-                  <p style={{ fontSize: "15px", lineHeight: 1.4, color: "#E7E9EA", margin: "8px 0 0 0" }}>
-                    3 years of learnings, distilled into actionable steps. 🧵
-                  </p>
-                </div>
-
-                {/* Tweet Metrics Row */}
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  color: "rgb(113, 118, 123)",
-                  fontSize: "13px",
-                  marginBottom: "12px",
-                }}>
-                  <span>4:32 PM</span>
-                  <span>·</span>
-                  <span>Jan 21, 2025</span>
-                  <span>·</span>
-                  <span style={{ color: "#E7E9EA", fontWeight: 500 }}>1.2M</span>
-                  <span>Views</span>
-                </div>
-
-                {/* Tweet Actions */}
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  paddingTop: "12px",
-                  borderTop: `1px solid rgb(47, 51, 54)`,
-                }}>
-                  {/* Reply */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "rgb(113, 118, 123)", fontSize: "13px", cursor: "pointer" }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/>
-                    </svg>
-                    <span>156</span>
-                  </div>
-                  {/* Repost */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "rgb(113, 118, 123)", fontSize: "13px", cursor: "pointer" }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/>
-                    </svg>
-                    <span>892</span>
-                  </div>
-                  {/* Like */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "rgb(113, 118, 123)", fontSize: "13px", cursor: "pointer" }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>
-                    </svg>
-                    <span>2.4K</span>
-                  </div>
-                  {/* TIPZ Button - Highlighted with click animation */}
-                  <div style={{
-                    backgroundColor: colors.primary,
-                    color: colors.bg,
-                    padding: "6px 14px",
-                    borderRadius: "100px",
-                    fontSize: "13px",
-                    fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "5px",
-                    cursor: "pointer",
-                    boxShadow: `0 0 20px ${colors.primaryGlow}`,
-                    animation: tweetVisible ? "button-click-loop 12s ease-in-out 1.4s infinite" : "none",
-                  }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
-                    </svg>
-                    TIP
-                  </div>
-                </div>
-              </div>
+                No fees. No friction. No trace.
+              </p>
             </TerminalReveal>
 
-            {/* TIP Modal - Animated popup after cursor click */}
-            <div style={{
-              position: "absolute",
-              top: "60px",
-              right: "-80px",
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.border}`,
-              borderRadius: "20px",
-              padding: "24px",
-              width: "300px",
-              boxShadow: `0 24px 48px rgba(0,0,0,0.5), 0 0 40px ${colors.primaryGlow}`,
-              zIndex: 10,
-              opacity: 0,
-              animation: tweetVisible
-                ? "modal-loop 12s ease-in-out 1.8s infinite"
-                : "none",
-            }}>
-                {/* Compact Header */}
-                <div style={{
-                  fontSize: "13px",
-                  color: colors.muted,
-                  marginBottom: "16px",
-                  textAlign: "center",
-                }}>
-                  Tip <span style={{ color: colors.textBright, fontWeight: 600 }}>@alexcreates</span>
-                </div>
-
-                {/* Prominent Amount Display */}
-                <div style={{
-                  textAlign: "center",
-                  marginBottom: "20px",
-                }}>
+            {/* CTA Button */}
+            <TerminalReveal delay={heroAnimationReady ? 200 : 99999}>
+              <div style={{ position: "relative", marginBottom: isMobile ? "0" : "0" }}>
+                <a
+                  href="/register"
+                  className="cta-hero"
+                  style={{
+                    position: "relative",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "16px",
+                    background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
+                    backgroundSize: "200% 200%",
+                    color: colors.bg,
+                    padding: "18px 40px",
+                    fontWeight: 700,
+                    fontSize: "15px",
+                    textDecoration: "none",
+                    borderRadius: "14px",
+                    border: "none",
+                    boxShadow: `
+                      0 0 40px ${colors.primaryGlowStrong},
+                      0 0 60px ${colors.primaryGlow},
+                      inset 0 2px 0 rgba(255,255,255,0.25),
+                      inset 0 -2px 0 rgba(0,0,0,0.1),
+                      0 10px 40px rgba(0,0,0,0.5)
+                    `,
+                    animation: "cta-gradient-shift 4s ease-in-out infinite",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  {/* Inner highlight */}
                   <span style={{
-                    fontSize: "48px",
-                    fontWeight: 800,
-                    color: colors.textBright,
-                    letterSpacing: "-0.02em",
-                  }}>
-                    $5
-                  </span>
-                </div>
+                    position: "absolute",
+                    top: "1px",
+                    left: "2px",
+                    right: "2px",
+                    height: "50%",
+                    borderRadius: "12px 12px 100% 100%",
+                    background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%)",
+                    pointerEvents: "none",
+                  }} />
 
-                {/* Amount Selection */}
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(4, 1fr)",
-                  gap: "8px",
-                  marginBottom: "20px",
-                }}>
-                  {["$1", "$5", "$10", "$25"].map((amount) => (
-                    <div
-                      key={amount}
-                      style={{
-                        padding: "12px 8px",
-                        textAlign: "center",
-                        fontSize: "14px",
-                        fontWeight: 600,
-                        backgroundColor: amount === "$5" ? colors.primary : colors.bg,
-                        color: amount === "$5" ? colors.bg : colors.text,
-                        border: `1px solid ${amount === "$5" ? colors.primary : colors.border}`,
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        transition: "all 0.2s",
-                      }}
-                    >
-                      {amount}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Send CTA */}
-                <button style={{
-                  width: "100%",
-                  backgroundColor: colors.primary,
-                  color: colors.bg,
-                  padding: "16px 24px",
-                  fontSize: "16px",
-                  fontWeight: 700,
-                  borderRadius: "12px",
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: `0 4px 20px ${colors.primaryGlow}`,
-                }}>
-                  Send $5 →
-                </button>
-
-                {/* Consolidated Trust Signals */}
-                <div style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: "16px",
-                  fontSize: "12px",
-                  marginTop: "12px",
-                }}>
-                  <span style={{ color: colors.success }}>✓ 0% fees</span>
-                  <span style={{ color: colors.muted, display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                    <img src="/icons/lock.svg" alt="" style={{ width: "12px", height: "12px", opacity: 0.7, filter: "invert(1)" }} />
-                    Private
+                  <span style={{ position: "relative", zIndex: 1, fontFamily: "'JetBrains Mono', monospace" }}>
+                    Start Earning TIPZ
                   </span>
-                  <span style={{ color: colors.muted, display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                    <img src="/icons/zap.svg" alt="" style={{ width: "12px", height: "12px", opacity: 0.7, filter: "invert(1)" }} />
-                    Instant
-                  </span>
-                </div>
+                </a>
               </div>
-
-            {/* Animated Cursor */}
-            <div style={{
-              position: "absolute",
-              top: "10px",
-              left: "10px",
-              zIndex: 20,
-              opacity: tweetVisible ? undefined : 0,
-              animation: tweetVisible ? "cursor-move-loop 12s ease-in-out 0.3s infinite" : "none",
-              pointerEvents: "none",
-            }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }}>
-                <path
-                  d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.48 0 .72-.58.38-.92L6.35 2.85a.5.5 0 0 0-.85.36Z"
-                  fill="#FFFFFF"
-                  stroke="#000000"
-                  strokeWidth="1.5"
-                />
-              </svg>
-            </div>
+            </TerminalReveal>
           </div>
-          )}
+
+          {/* Right side: Demo Animation */}
+          <TerminalReveal delay={heroAnimationReady ? 400 : 99999}>
+            <div style={{
+              position: "relative",
+              flexShrink: 0,
+            }}>
+              {/* Glow behind the graphic */}
+              <div style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: isMobile ? "300px" : "500px",
+                height: isMobile ? "300px" : "500px",
+                borderRadius: "50%",
+                background: `radial-gradient(circle, ${colors.primaryGlowStrong} 0%, transparent 60%)`,
+                filter: "blur(60px)",
+                zIndex: 0,
+                animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
+              }} />
+
+              {/* Iron Man Morph Animation - scaled for mobile */}
+              <IronManMorph isVisible={tweetVisible} scale={isMobile ? 0.6 : 1} />
+            </div>
+          </TerminalReveal>
         </div>
       </SnapSection>
 
@@ -1815,7 +2684,7 @@ export default function HomePage() {
                   inset: -1,
                   borderRadius: "12px",
                   background: `linear-gradient(135deg, ${colors.error}20, transparent, ${colors.error}10)`,
-                  animation: "pulse-glow 3s ease-in-out infinite",
+                  animation: prefersReducedMotion ? "none" : "idle-border-glow 3s ease-in-out infinite",
                   pointerEvents: "none",
                 }} />
 
@@ -1826,7 +2695,12 @@ export default function HomePage() {
                   marginBottom: "16px",
                   position: "relative",
                 }}>
-                  <span style={{ color: colors.error, fontSize: "16px" }}>&#9888;</span>
+                  <span style={{
+                    color: colors.error,
+                    fontSize: "16px",
+                    display: "inline-block",
+                    animation: prefersReducedMotion ? "none" : "idle-breathe 2s ease-in-out infinite",
+                  }}>&#9888;</span>
                   <span style={{
                     fontSize: "10px",
                     color: colors.error,
@@ -1986,7 +2860,12 @@ export default function HomePage() {
                   marginBottom: "16px",
                   position: "relative",
                 }}>
-                  <span style={{ color: colors.error, fontSize: "16px" }}>&#9888;</span>
+                  <span style={{
+                    color: colors.error,
+                    fontSize: "16px",
+                    display: "inline-block",
+                    animation: prefersReducedMotion ? "none" : "idle-breathe 2s ease-in-out infinite 0.5s",
+                  }}>&#9888;</span>
                   <span style={{
                     fontSize: "10px",
                     color: colors.error,
@@ -2198,29 +3077,27 @@ export default function HomePage() {
               <div style={{
                 position: "relative",
               }}>
-                {/* Floating ring/halo effect */}
+                {/* Floating ring/halo effect with slow rotation */}
                 <div style={{
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)",
                   width: "180px",
                   height: "180px",
                   borderRadius: "50%",
                   border: `1px solid ${colors.success}30`,
-                  animation: "ringPulse 3s ease-in-out infinite",
+                  animation: prefersReducedMotion ? "none" : "idle-spin-slow 20s linear infinite, ringPulse 3s ease-in-out infinite",
                   pointerEvents: "none",
                 }} />
                 <div style={{
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)",
                   width: "220px",
                   height: "220px",
                   borderRadius: "50%",
                   border: `1px solid ${colors.success}15`,
-                  animation: "ringPulse 3s ease-in-out infinite 0.5s",
+                  animation: prefersReducedMotion ? "none" : "idle-spin-slow-reverse 15s linear infinite, ringPulse 3s ease-in-out infinite 0.5s",
                   pointerEvents: "none",
                 }} />
 
@@ -2235,15 +3112,17 @@ export default function HomePage() {
                   boxShadow: `0 0 60px ${colors.successGlow}, 0 20px 40px rgba(0,0,0,0.4)`,
                   zIndex: 2,
                 }}>
-                  {/* Metallic shine overlay */}
+                  {/* Metallic shine overlay with sweep */}
                   <div style={{
                     position: "absolute",
                     top: 0,
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    background: `linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)`,
+                    background: `linear-gradient(90deg, transparent 0%, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%, transparent 100%)`,
+                    backgroundSize: "200% 100%",
                     pointerEvents: "none",
+                    animation: prefersReducedMotion ? "none" : "idle-shine-sweep 8s ease-in-out infinite",
                   }} />
 
                   {/* Glow effect */}
@@ -2268,6 +3147,7 @@ export default function HomePage() {
                     position: "relative",
                     letterSpacing: "-0.05em",
                     fontFamily: "'JetBrains Mono', monospace",
+                    animation: prefersReducedMotion ? "none" : "idle-text-glow-pulse 3s ease-in-out infinite",
                   }}>
                     0%
                   </div>
@@ -2592,6 +3472,8 @@ export default function HomePage() {
                     fontSize: "18px",
                     fontWeight: 700,
                     color: "white",
+                    boxShadow: "0 0 15px rgba(102, 126, 234, 0.3)",
+                    animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
                   }}>M</div>
                   <div>
                     <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>@marcus_dev</div>
@@ -2631,6 +3513,8 @@ export default function HomePage() {
                     fontSize: "18px",
                     fontWeight: 700,
                     color: "white",
+                    boxShadow: "0 0 15px rgba(240, 147, 251, 0.3)",
+                    animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite 0.5s",
                   }}>S</div>
                   <div>
                     <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>@sarah_writes</div>
@@ -2653,15 +3537,33 @@ export default function HomePage() {
               borderRadius: "8px",
             }}>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: "28px", fontWeight: 800, color: colors.primary, marginBottom: "4px" }}>127+</div>
+                <div style={{
+                  fontSize: "28px",
+                  fontWeight: 800,
+                  color: colors.primary,
+                  marginBottom: "4px",
+                  animation: prefersReducedMotion ? "none" : "idle-brightness-pulse 3s ease-in-out infinite",
+                }}>127+</div>
                 <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px" }}>CREATORS REGISTERED</div>
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: "28px", fontWeight: 800, color: colors.success, marginBottom: "4px" }}>0%</div>
+                <div style={{
+                  fontSize: "28px",
+                  fontWeight: 800,
+                  color: colors.success,
+                  marginBottom: "4px",
+                  animation: prefersReducedMotion ? "none" : "idle-brightness-pulse 3s ease-in-out infinite 0.3s",
+                }}>0%</div>
                 <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px" }}>PLATFORM FEES</div>
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: "28px", fontWeight: 800, color: colors.success, marginBottom: "4px" }}>100%</div>
+                <div style={{
+                  fontSize: "28px",
+                  fontWeight: 800,
+                  color: colors.success,
+                  marginBottom: "4px",
+                  animation: prefersReducedMotion ? "none" : "idle-brightness-pulse 3s ease-in-out infinite 0.6s",
+                }}>100%</div>
                 <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px" }}>PRIVATE</div>
               </div>
             </div>
@@ -2757,7 +3659,9 @@ export default function HomePage() {
                       left: 0,
                       width: "3px",
                       height: "100%",
-                      backgroundColor: colors.primary,
+                      background: `linear-gradient(180deg, ${colors.primary}, ${colors.primaryHover}, ${colors.primary})`,
+                      backgroundSize: "100% 200%",
+                      animation: prefersReducedMotion ? "none" : "idle-gradient-shift 6s ease-in-out infinite",
                     }} />
                     <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
                       <div style={{
@@ -2766,6 +3670,7 @@ export default function HomePage() {
                         fontWeight: 700,
                         textShadow: `0 0 20px ${colors.primaryGlow}`,
                         minWidth: "36px",
+                        animation: prefersReducedMotion ? "none" : "idle-glow-pulse 3s ease-in-out infinite",
                       }}>
                         {item.step}
                       </div>
@@ -2778,6 +3683,7 @@ export default function HomePage() {
                               width: "18px",
                               height: "18px",
                               filter: "invert(70%) sepia(50%) saturate(500%) hue-rotate(5deg) brightness(100%)",
+                              animation: prefersReducedMotion ? "none" : "idle-rotate 4s ease-in-out infinite",
                             }}
                           />
                           <h4 style={{ fontSize: "16px", fontWeight: 600, color: colors.textBright, margin: 0 }}>
@@ -2857,7 +3763,9 @@ export default function HomePage() {
                       left: 0,
                       width: "3px",
                       height: "100%",
-                      backgroundColor: colors.success,
+                      background: `linear-gradient(180deg, ${colors.success}, #4ADE80, ${colors.success})`,
+                      backgroundSize: "100% 200%",
+                      animation: prefersReducedMotion ? "none" : "idle-gradient-shift 6s ease-in-out infinite",
                     }} />
                     <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
                       <div style={{
@@ -2866,6 +3774,7 @@ export default function HomePage() {
                         fontWeight: 700,
                         textShadow: `0 0 20px ${colors.successGlow}`,
                         minWidth: "36px",
+                        animation: prefersReducedMotion ? "none" : "idle-glow-pulse 3s ease-in-out infinite",
                       }}>
                         {item.step}
                       </div>
@@ -2878,6 +3787,7 @@ export default function HomePage() {
                               width: "18px",
                               height: "18px",
                               filter: "invert(60%) sepia(80%) saturate(400%) hue-rotate(90deg) brightness(95%)",
+                              animation: prefersReducedMotion ? "none" : "idle-rotate 4s ease-in-out infinite",
                             }}
                           />
                           <h4 style={{ fontSize: "16px", fontWeight: 600, color: colors.textBright, margin: 0 }}>
@@ -2897,7 +3807,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
 
-      {/* Chapter 6: Creator Tools */}
+      {/* Chapter 6: Command Center - Apple-Style Minimal */}
       <SnapSection id="creator-tools" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
@@ -2907,145 +3817,349 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 06: CREATOR TOOLS
+              CHAPTER 06: COMMAND CENTER
             </div>
           </TerminalReveal>
 
-          <TypingHeading
-            text="Level up with the extension."
-            style={{ marginBottom: "16px" }}
-          />
+          {/* Split layout: Minimal Copy left, Hero Visual right */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1.2fr",
+            gap: "80px",
+            alignItems: "center",
+          }}>
+            {/* Left: Minimal Copy */}
+            <div>
+              <TypingHeading
+                text="Your income, on autopilot."
+                style={{ marginBottom: "20px", fontSize: "clamp(32px, 4vw, 42px)" }}
+              />
 
-          <TerminalReveal delay={100}>
-            <p style={{
-              color: colors.muted,
-              fontSize: "16px",
-              lineHeight: 1.6,
-              marginBottom: "32px",
-            }}>
-              You don't need this to receive tips.<br />
-              But it makes your life easier.
-            </p>
-          </TerminalReveal>
+              <TerminalReveal delay={100}>
+                <p style={{
+                  color: colors.muted,
+                  fontSize: "18px",
+                  lineHeight: 1.6,
+                  marginBottom: "36px",
+                }}>
+                  We auto-stamp your content. You watch the tips roll in.
+                </p>
+              </TerminalReveal>
 
-          <TerminalReveal delay={200}>
-            <div style={{
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.border}`,
-              borderRadius: "12px",
-              padding: "32px",
-              marginBottom: "32px",
-            }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                {/* Feature 1: Tip notifications */}
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
-                  <div style={{
-                    fontSize: "20px",
-                    width: "32px",
-                    textAlign: "center",
-                  }}>⚡</div>
-                  <div>
-                    <div style={{
-                      color: colors.primary,
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      marginBottom: "4px",
-                    }}>
-                      Tip notifications
-                    </div>
-                    <div style={{
-                      color: colors.muted,
-                      fontSize: "13px",
-                    }}>
-                      Know when tips are sent to you
-                    </div>
+              {/* Feature Deck - Horizontal Row */}
+              <TerminalReveal delay={200}>
+                <div style={{
+                  display: "flex",
+                  gap: "24px",
+                  marginBottom: "40px",
+                }}>
+                  {/* Auto-QR */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFD700"
+                      strokeWidth="2"
+                      style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite" }}
+                    >
+                      <rect x="3" y="3" width="7" height="7"/>
+                      <rect x="14" y="3" width="7" height="7"/>
+                      <rect x="3" y="14" width="7" height="7"/>
+                      <rect x="14" y="14" width="7" height="7"/>
+                    </svg>
+                    <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 500 }}>
+                      Auto-QR
+                    </span>
+                  </div>
+
+                  {/* Instant Alerts */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFD700"
+                      strokeWidth="2"
+                      style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.3s" }}
+                    >
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 500 }}>
+                      Instant Alerts
+                    </span>
+                  </div>
+
+                  {/* Revenue Analytics */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFD700"
+                      strokeWidth="2"
+                      style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.6s" }}
+                    >
+                      <path d="M18 20V10M12 20V4M6 20v-6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 500 }}>
+                      Revenue Analytics
+                    </span>
                   </div>
                 </div>
+              </TerminalReveal>
 
-                {/* Feature 2: Auto-link posts */}
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
-                  <div style={{
-                    fontSize: "20px",
-                    width: "32px",
-                    textAlign: "center",
-                  }}>🔗</div>
-                  <div>
-                    <div style={{
-                      color: colors.primary,
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      marginBottom: "4px",
-                    }}>
-                      Auto-link posts
-                    </div>
-                    <div style={{
-                      color: colors.muted,
-                      fontSize: "13px",
-                    }}>
-                      Add your tip link to tweets
-                    </div>
-                  </div>
-                </div>
-
-                {/* Feature 3: Watch-only */}
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
-                  <div style={{
-                    fontSize: "20px",
-                    width: "32px",
-                    textAlign: "center",
-                  }}>🔒</div>
-                  <div>
-                    <div style={{
-                      color: colors.primary,
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      marginBottom: "4px",
-                    }}>
-                      Watch-only
-                    </div>
-                    <div style={{
-                      color: colors.muted,
-                      fontSize: "13px",
-                    }}>
-                      Never touches your wallet keys
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {/* CTA Button */}
+              <TerminalReveal delay={300}>
+                <a
+                  href="https://chrome.google.com/webstore"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    padding: "16px 32px",
+                    background: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+                    borderRadius: "8px",
+                    color: "#050505",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    letterSpacing: "0.5px",
+                    boxShadow: "0 4px 24px rgba(255, 215, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  INSTALL COMMAND CENTER
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </a>
+                <p style={{
+                  color: colors.muted,
+                  fontSize: "12px",
+                  marginTop: "16px",
+                }}>
+                  100% Free. Open Source. No Setup Fees.
+                </p>
+              </TerminalReveal>
             </div>
-          </TerminalReveal>
 
-          <TerminalReveal delay={300}>
-            <div style={{ textAlign: "center" }}>
-              <a
-                href="https://chrome.google.com/webstore"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "12px 24px",
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: "6px",
-                  color: colors.textBright,
-                  textDecoration: "none",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  transition: "all 0.2s ease",
-                }}
-              >
-                Add to Chrome →
-              </a>
-              <p style={{
-                color: colors.muted,
-                fontSize: "12px",
-                marginTop: "16px",
+            {/* Right: "The Augmented Tweet" - Realistic X Post */}
+            <TerminalReveal delay={150}>
+              <div style={{
+                position: "relative",
+                height: "480px",
               }}>
-                Free. Open source. Optional.
-              </p>
-            </div>
-          </TerminalReveal>
+                {/* Subtle background glow */}
+                <div style={{
+                  position: "absolute",
+                  top: "40%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: "350px",
+                  height: "350px",
+                  background: "radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%)",
+                  borderRadius: "50%",
+                  filter: "blur(50px)",
+                  animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
+                }} />
+
+                {/* Layer 1: Realistic Dark-Mode X Tweet */}
+                <div style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -45%)",
+                  width: "340px",
+                  background: "#000",
+                  border: "1px solid #2f3336",
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  boxShadow: "0 25px 60px rgba(0, 0, 0, 0.5)",
+                }}>
+                  {/* Tweet Header */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "12px",
+                    padding: "16px 16px 0",
+                  }}>
+                    {/* Profile Picture */}
+                    <div style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg, #1a1a2e 0%, #334155 100%)",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "#fff",
+                    }}>
+                      N
+                    </div>
+                    {/* Name, Handle, Timestamp */}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <span style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 700 }}>Naval</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#1d9bf0">
+                          <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 9.33 1.75 10.57 1.75 12s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.66 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z" />
+                        </svg>
+                        <span style={{ color: "#71767b", fontSize: "15px" }}>@naval</span>
+                        <span style={{ color: "#71767b", fontSize: "15px" }}>·</span>
+                        <span style={{ color: "#71767b", fontSize: "15px" }}>2m</span>
+                      </div>
+                    </div>
+                    {/* Three-dot menu */}
+                    <div style={{ color: "#71767b", fontSize: "18px", cursor: "pointer" }}>···</div>
+                  </div>
+
+                  {/* Tweet Text */}
+                  <div style={{
+                    padding: "8px 16px 12px",
+                    color: "#e7e9ea",
+                    fontSize: "15px",
+                    lineHeight: 1.4,
+                  }}>
+                    Financial privacy isn't about hiding. It's about not having to explain yourself to anyone.
+                  </div>
+
+                  {/* Image with QR Watermark */}
+                  <div style={{
+                    position: "relative",
+                    margin: "0 16px 16px",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                    aspectRatio: "16/10",
+                  }}>
+                    {/* Sharp background image - moody tech aesthetic */}
+                    <div style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: `
+                        linear-gradient(135deg,
+                          #0f172a 0%,
+                          #1e293b 25%,
+                          #334155 50%,
+                          #1e293b 75%,
+                          #0f172a 100%
+                        )
+                      `,
+                      opacity: 0.85,
+                    }} />
+                    {/* Geometric accents for depth */}
+                    <div style={{
+                      position: "absolute",
+                      top: "10%",
+                      left: "8%",
+                      width: "80px",
+                      height: "80px",
+                      background: "radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)",
+                      borderRadius: "50%",
+                    }} />
+                    <div style={{
+                      position: "absolute",
+                      bottom: "15%",
+                      left: "25%",
+                      width: "50px",
+                      height: "50px",
+                      background: "radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%)",
+                      borderRadius: "50%",
+                    }} />
+                    <div style={{
+                      position: "absolute",
+                      top: "30%",
+                      right: "40%",
+                      width: "40px",
+                      height: "40px",
+                      background: "radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%)",
+                      borderRadius: "50%",
+                    }} />
+
+                    {/* Layer 2: Subtle QR Watermark (No Box) */}
+                    <div style={{
+                      position: "absolute",
+                      bottom: "8px",
+                      right: "8px",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}>
+                      {/* Small white QR Code - subtle watermark */}
+                      <div style={{
+                        width: "28px",
+                        height: "28px",
+                        display: "grid",
+                        gridTemplateColumns: "repeat(7, 1fr)",
+                        gridTemplateRows: "repeat(7, 1fr)",
+                        gap: "0.5px",
+                        opacity: 0.85,
+                        filter: "drop-shadow(0 1px 4px rgba(0, 0, 0, 0.6))",
+                      }}>
+                        {[
+                          1,1,1,0,1,1,1,
+                          1,0,1,0,1,0,1,
+                          1,1,1,0,1,1,1,
+                          0,0,0,0,0,0,0,
+                          1,1,1,0,1,0,1,
+                          1,0,1,0,0,1,0,
+                          1,1,1,0,1,1,1,
+                        ].map((cell, i) => (
+                          <div key={i} style={{
+                            background: cell ? "#fff" : "transparent",
+                          }} />
+                        ))}
+                      </div>
+                      {/* Gold URL text - smaller */}
+                      <div style={{
+                        color: "#FFD700",
+                        fontSize: "6px",
+                        fontFamily: "monospace",
+                        fontWeight: 600,
+                        marginTop: "2px",
+                        textShadow: "0 1px 3px rgba(0, 0, 0, 0.8)",
+                        letterSpacing: "0.2px",
+                      }}>
+                        tipz.cash/naval
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tweet Actions Row */}
+                  <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "0 16px 16px",
+                    maxWidth: "280px",
+                  }}>
+                    {[
+                      { icon: "M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01z", count: "42" },
+                      { icon: "M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z", count: "12" },
+                      { icon: "M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91z", count: "238" },
+                      { icon: "M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z", count: "1.2K" },
+                    ].map((action, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#71767b">
+                          <path d={action.icon} />
+                        </svg>
+                        <span style={{ color: "#71767b", fontSize: "13px" }}>{action.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Layer 3: Floating Notification Toast - Animated on scroll */}
+                <TipNotification />
+              </div>
+            </TerminalReveal>
+          </div>
         </div>
       </SnapSection>
 
@@ -3116,17 +4230,29 @@ export default function HomePage() {
                   <img
                     src="/icons/eth.svg"
                     alt="ETH"
-                    style={{ width: "40px", height: "40px" }}
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      animation: prefersReducedMotion ? "none" : "idle-float-small 3s ease-in-out infinite",
+                    }}
                   />
                   <img
                     src="/icons/usdc.svg"
                     alt="USDC"
-                    style={{ width: "40px", height: "40px" }}
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      animation: prefersReducedMotion ? "none" : "idle-float-small 3s ease-in-out infinite 0.3s",
+                    }}
                   />
                   <img
                     src="/icons/sol.svg"
                     alt="SOL"
-                    style={{ width: "40px", height: "40px" }}
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      animation: prefersReducedMotion ? "none" : "idle-float-small 3s ease-in-out infinite 0.6s",
+                    }}
                   />
                 </div>
                 <div style={{ fontSize: "13px", color: colors.textBright, fontWeight: 500 }}>ETH, USDC, SOL</div>
@@ -3140,7 +4266,10 @@ export default function HomePage() {
                 gap: "12px",
                 color: colors.primary,
               }}>
-                <span style={{ fontSize: "20px", opacity: 0.6 }}>→</span>
+                <span style={{
+                  fontSize: "20px",
+                  animation: prefersReducedMotion ? "none" : "idle-arrow-pulse 2s ease-in-out infinite",
+                }}>→</span>
                 <div style={{
                   padding: "12px 20px",
                   border: `2px solid ${colors.primary}`,
@@ -3150,6 +4279,7 @@ export default function HomePage() {
                   letterSpacing: "1px",
                   backgroundColor: `${colors.primary}10`,
                   boxShadow: `0 0 20px ${colors.primaryGlow}`,
+                  animation: prefersReducedMotion ? "none" : "idle-glow-pulse 2.5s ease-in-out infinite",
                 }}>
                   <img
                     src="/icons/zap.svg"
@@ -3164,7 +4294,10 @@ export default function HomePage() {
                   />
                   AUTO-SWAP
                 </div>
-                <span style={{ fontSize: "20px", opacity: 0.6 }}>→</span>
+                <span style={{
+                  fontSize: "20px",
+                  animation: prefersReducedMotion ? "none" : "idle-arrow-pulse 2s ease-in-out infinite 0.5s",
+                }}>→</span>
               </div>
 
               {/* Output - Private ZEC tip */}
@@ -3179,6 +4312,7 @@ export default function HomePage() {
                   justifyContent: "center",
                   margin: "0 auto 12px",
                   boxShadow: "0 0 30px rgba(244, 183, 40, 0.3)",
+                  animation: prefersReducedMotion ? "none" : "idle-glow-pulse 3s ease-in-out infinite",
                 }}>
                   <img
                     src="/zec/brandmark-black.svg"
@@ -3186,6 +4320,7 @@ export default function HomePage() {
                     style={{
                       width: "32px",
                       height: "32px",
+                      animation: prefersReducedMotion ? "none" : "idle-zec-rotate 8s linear infinite",
                     }}
                   />
                 </div>
@@ -3243,6 +4378,7 @@ export default function HomePage() {
                 border: `1px solid ${colors.border}`,
                 borderRadius: "8px",
                 padding: "24px",
+                animation: prefersReducedMotion ? "none" : "idle-float-micro 6s ease-in-out infinite",
               }}>
                 <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright, marginBottom: "12px" }}>
                   Do I need to understand crypto?
@@ -3257,6 +4393,7 @@ export default function HomePage() {
                 border: `1px solid ${colors.border}`,
                 borderRadius: "8px",
                 padding: "24px",
+                animation: prefersReducedMotion ? "none" : "idle-float-micro 6s ease-in-out infinite 0.5s",
               }}>
                 <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright, marginBottom: "12px" }}>
                   How do I convert tips to cash?
@@ -3271,6 +4408,7 @@ export default function HomePage() {
                 border: `1px solid ${colors.border}`,
                 borderRadius: "8px",
                 padding: "24px",
+                animation: prefersReducedMotion ? "none" : "idle-float-micro 6s ease-in-out infinite 1s",
               }}>
                 <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright, marginBottom: "12px" }}>
                   What if I&apos;m not registered?
@@ -3285,6 +4423,7 @@ export default function HomePage() {
                 border: `1px solid ${colors.border}`,
                 borderRadius: "8px",
                 padding: "24px",
+                animation: prefersReducedMotion ? "none" : "idle-float-micro 6s ease-in-out infinite 1.5s",
               }}>
                 <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright, marginBottom: "12px" }}>
                   Is this legal?
@@ -3345,15 +4484,25 @@ export default function HomePage() {
             }}>
               <div style={{ textAlign: "center" }}>
                 <div style={{ color: colors.error, fontWeight: 600, marginBottom: "4px" }}>Ko-fi</div>
-                <div style={{ color: colors.muted }}>-5%</div>
+                <div style={{
+                  color: colors.muted,
+                  animation: prefersReducedMotion ? "none" : "idle-pulse-red 3s ease-in-out infinite",
+                }}>-5%</div>
               </div>
               <div style={{ textAlign: "center" }}>
                 <div style={{ color: colors.error, fontWeight: 600, marginBottom: "4px" }}>PayPal</div>
-                <div style={{ color: colors.muted }}>-3%</div>
+                <div style={{
+                  color: colors.muted,
+                  animation: prefersReducedMotion ? "none" : "idle-pulse-red 3s ease-in-out infinite 0.3s",
+                }}>-3%</div>
               </div>
               <div style={{ textAlign: "center" }}>
                 <div style={{ color: colors.success, fontWeight: 700, marginBottom: "4px" }}>TIPZ</div>
-                <div style={{ color: colors.success, fontWeight: 700 }}>$0</div>
+                <div style={{
+                  color: colors.success,
+                  fontWeight: 700,
+                  animation: prefersReducedMotion ? "none" : "idle-pulse-green 3s ease-in-out infinite",
+                }}>$0</div>
               </div>
             </div>
           </TerminalReveal>
@@ -3390,9 +4539,9 @@ export default function HomePage() {
           {/* signup-flow-cro: trust signals near CTA */}
           <TerminalReveal delay={500}>
             <div style={{ display: "flex", justifyContent: "center", gap: "24px", fontSize: "12px", color: colors.muted }}>
-              <span>✓ No credit card</span>
-              <span>✓ 2 min setup</span>
-              <span>✓ Forever free</span>
+              <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite" }}>✓ No credit card</span>
+              <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite 0.3s" }}>✓ 2 min setup</span>
+              <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite 0.6s" }}>✓ Forever free</span>
             </div>
           </TerminalReveal>
         </div>
@@ -3704,6 +4853,187 @@ export default function HomePage() {
         @keyframes shimmer {
           0% { background-position: 200% 0; }
           100% { background-position: -200% 0; }
+        }
+
+        /* Tip notification glow pulse */
+        .tip-notification-glow {
+          animation: tip-glow-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes tip-glow-pulse {
+          0%, 100% {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.2);
+          }
+          50% {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.5);
+          }
+        }
+
+        /* Tip amount shimmer effect */
+        .tip-amount-shimmer {
+          background: linear-gradient(
+            90deg,
+            #fff 0%,
+            #fff 40%,
+            #FFD700 50%,
+            #fff 60%,
+            #fff 100%
+          );
+          background-size: 200% 100%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          animation: tip-shimmer 2s ease-in-out infinite;
+          animation-delay: 0.5s;
+        }
+
+        @keyframes tip-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+
+        /* Iron Man Morph Animations */
+        .iron-man-link-pulse {
+          animation: iron-man-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes iron-man-pulse {
+          0%, 100% { opacity: 0.8; }
+          50% { opacity: 1; text-shadow: 0 0 8px rgba(29, 155, 240, 0.5); }
+        }
+
+        .iron-man-shield-lock {
+          animation: iron-man-shield-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes iron-man-shield-glow {
+          0%, 100% {
+            filter: drop-shadow(0 0 8px rgba(252, 211, 77, 0.3));
+          }
+          50% {
+            filter: drop-shadow(0 0 20px rgba(252, 211, 77, 0.6));
+          }
+        }
+
+        .iron-man-shackle {
+          animation: iron-man-shackle-drop 0.5s ease-out 0.3s forwards;
+        }
+
+        @keyframes iron-man-shackle-drop {
+          0% {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-10px);
+          }
+          60% {
+            opacity: 1;
+            transform: translateX(-50%) translateY(2px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
+        }
+
+        /* === IDLE ANIMATIONS === */
+        /* Gentle floating for background orbs */
+        @keyframes idle-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+
+        /* Smaller float for tokens */
+        @keyframes idle-float-small {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+
+        /* Very subtle float for FAQ cards */
+        @keyframes idle-float-micro {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-2px); }
+        }
+
+        /* Gentle rotation for icons */
+        @keyframes idle-rotate {
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(3deg); }
+        }
+
+        /* Slow spin for halos */
+        @keyframes idle-spin-slow {
+          from { transform: translate(-50%, -50%) rotate(0deg); }
+          to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Slow spin reverse */
+        @keyframes idle-spin-slow-reverse {
+          from { transform: translate(-50%, -50%) rotate(360deg); }
+          to { transform: translate(-50%, -50%) rotate(0deg); }
+        }
+
+        /* Glow pulse for text and borders */
+        @keyframes idle-glow-pulse {
+          0%, 100% { opacity: 0.7; }
+          50% { opacity: 1; }
+        }
+
+        /* Scale breathing for icons */
+        @keyframes idle-breathe {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+
+        /* Subtle brightness pulse for numbers */
+        @keyframes idle-brightness-pulse {
+          0%, 100% { filter: brightness(1); }
+          50% { filter: brightness(1.15); }
+        }
+
+        /* Text shadow glow pulse for 0% */
+        @keyframes idle-text-glow-pulse {
+          0%, 100% { text-shadow: 0 0 40px rgba(34, 197, 94, 0.4); }
+          50% { text-shadow: 0 0 70px rgba(34, 197, 94, 0.7); }
+        }
+
+        /* Gradient position shift for accent bars */
+        @keyframes idle-gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+
+        /* Metallic shine sweep */
+        @keyframes idle-shine-sweep {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+
+        /* Red pulse for competitor fees */
+        @keyframes idle-pulse-red {
+          0%, 100% { color: #EF4444; }
+          50% { color: #F87171; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+        }
+
+        /* Green pulse for TIPZ fees */
+        @keyframes idle-pulse-green {
+          0%, 100% { color: #22C55E; }
+          50% { color: #4ADE80; text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+        }
+
+        /* Border glow breathing */
+        @keyframes idle-border-glow {
+          0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
+          50% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.4); }
+        }
+
+        /* ZEC logo rotation with glow */
+        @keyframes idle-zec-rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        /* Arrow opacity pulse */
+        @keyframes idle-arrow-pulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
         }
 
         .cta-hero {
