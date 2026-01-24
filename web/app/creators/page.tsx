@@ -253,7 +253,7 @@ export default function CreatorsPage() {
                 letterSpacing: "-1px",
               }}
             >
-              SUPPORT A CREATOR
+              TIP A CREATOR
             </h1>
             <p
               style={{
@@ -263,7 +263,7 @@ export default function CreatorsPage() {
                 fontFamily: "monospace",
               }}
             >
-              One click. Zero fees. 100% goes to them.
+              Private. Zero fees. 100% goes to them.
             </p>
 
             {/* Demo mode indicator */}

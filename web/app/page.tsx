@@ -1772,7 +1772,7 @@ export default function HomePage() {
           <TypingHeading
             prefix=">"
             prefixColor={colors.error}
-            text="Your income is taxed. Your privacy is exposed."
+            text="Tips are taxed and tracked."
             style={{ fontSize: isMobile ? "32px" : "40px" }}
           />
 
