@@ -19,10 +19,10 @@ Feature priorities and technical milestones.
 - [x] Tip modal UI
 
 ### Known Gaps
-- [ ] Payment integration (SwapKit/NEAR Intents)
+- [x] Payment integration (SwapKit/NEAR Intents) - NEAR SDK integrated
 - [ ] Real Twitter API verification
-- [ ] Wallet connection
-- [ ] Transaction execution
+- [x] Wallet connection - Extension wallet bridge implemented
+- [x] Transaction execution - API endpoints ready (demo mode by default)
 - [ ] Rate limiting
 - [ ] Error monitoring
 
@@ -40,17 +40,18 @@ Feature priorities and technical milestones.
 **Effort**: Large
 
 Tasks:
-- [ ] Integrate SwapKit SDK
-- [ ] Implement token selection UI
-- [ ] Add wallet connection (MetaMask, WalletConnect)
-- [ ] Build transaction confirmation flow
-- [ ] Handle swap execution
-- [ ] Add success/error states
+- [x] Integrate SwapKit SDK - Using NEAR Intents instead
+- [x] Implement token selection UI - Extension TipModal complete
+- [x] Add wallet connection (MetaMask, WalletConnect) - Wallet bridge implemented
+- [x] Build transaction confirmation flow - Multi-step UI in TipModal
+- [x] Handle swap execution - /api/swap/execute endpoint ready
+- [x] Add success/error states - Full state machine in extension
 
 Technical notes:
-- SwapKit SDK handles DEX routing
-- NEAR Intents for cross-chain
-- Final destination: Zcash shielded pool
+- NEAR Intents SDK integrated (near-api-js)
+- Demo mode for testing (NEAR_DEMO_MODE=true)
+- Production mode with NEAR_ACCOUNT_ID + NEAR_PRIVATE_KEY
+- Final destination: Zcash shielded pool via NEAR routing
 
 #### Twitter API Verification
 **Priority**: P0
@@ -255,11 +256,11 @@ Technical:
 **Rationale**: Faster setup, built-in auth if needed, generous free tier
 **Trade-offs**: Vendor lock-in, less control
 
-### Why SwapKit?
-**Date**: Planning phase
-**Decision**: Use SwapKit for cross-chain swaps
-**Rationale**: Supports multiple DEXs, good documentation, active development
-**Trade-offs**: Dependency on external service, swap fees
+### Why NEAR Intents?
+**Date**: 2025-01-23
+**Decision**: Use NEAR Intents for cross-chain swaps (replacing SwapKit)
+**Rationale**: Better cross-chain privacy routing, direct Zcash shielded support, decentralized solver network
+**Trade-offs**: Dependency on NEAR network, requires NEAR account for API signing
 
 ---
 
@@ -267,7 +268,7 @@ Technical:
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| SwapKit API changes | High | Pin versions, monitor changelog |
+| NEAR Intents solver availability | High | Demo mode fallback, error handling |
 | Zcash network issues | High | Error handling, retry logic |
 | Twitter API rate limits | Medium | Caching, graceful degradation |
 | Extension store rejection | Medium | Follow guidelines, prepare appeals |
