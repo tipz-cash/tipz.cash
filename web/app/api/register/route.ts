@@ -82,10 +82,9 @@ function isValidTwitterHandle(handle: string): boolean {
 /**
  * Zcash Shielded Address Validation
  *
- * Validates that the address:
- * - Starts with "zs" (Sapling shielded address prefix)
- * - Is exactly 78 characters in length
- * - Contains only valid Base58 characters (alphanumeric, excluding 0, O, I, l)
+ * Validates that the address is a valid shielded address:
+ * - Sapling addresses: Start with "zs1", exactly 78 characters
+ * - Unified addresses: Start with "u1", variable length (78+ chars)
  *
  * Note: This is format validation only. It does not verify the address
  * exists on the blockchain or has valid cryptographic properties.
@@ -95,20 +94,19 @@ function isValidShieldedAddress(address: string): boolean {
     return false
   }
 
-  // Shielded addresses must be exactly 78 characters
-  if (address.length !== 78) {
-    return false
+  // Unified addresses start with 'u1' (variable length, typically 141+ chars)
+  if (address.startsWith("u1")) {
+    return address.length >= 78
   }
 
-  // Must start with "zs" (Sapling shielded address prefix)
-  if (!address.startsWith("zs")) {
-    return false
+  // Sapling shielded addresses start with 'zs1' (exactly 78 characters)
+  if (address.startsWith("zs1")) {
+    // Validate Base58 character set (excludes 0, O, I, l to avoid confusion)
+    const base58Regex = /^zs1[1-9A-HJ-NP-Za-km-z]{75}$/
+    return address.length === 78 && base58Regex.test(address)
   }
 
-  // Validate Base58 character set (excludes 0, O, I, l to avoid confusion)
-  // The remaining 76 characters after "zs" should be valid Base58
-  const base58Regex = /^zs[1-9A-HJ-NP-Za-km-z]{76}$/
-  return base58Regex.test(address)
+  return false
 }
 
 /**
@@ -360,11 +358,11 @@ export async function POST(request: NextRequest) {
   // Validate shielded address
   if (!isValidShieldedAddress(sanitizedAddress)) {
     return createErrorResponse(
-      "Invalid Zcash shielded address. Must start with 'zs', be exactly 78 characters, and contain only valid Base58 characters (excludes 0, O, I, l)",
+      "Invalid Zcash shielded address. Must be a Sapling address (zs1..., 78 chars) or Unified address (u1..., 78+ chars)",
       ERROR_CODES.INVALID_ADDRESS,
       400,
       headers,
-      { provided_length: String(sanitizedAddress.length), expected_length: "78" }
+      { provided_length: String(sanitizedAddress.length) }
     )
   }
 

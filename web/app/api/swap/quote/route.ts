@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
+import { isDemoMode } from "@/lib/near"
 
 /**
- * Mock Swap Quote API
+ * Swap Quote API
  *
- * Returns realistic swap quotes for demo mode.
- * Uses real prices from CoinGecko when available.
+ * Returns swap quotes with real prices from CoinGecko.
+ * Works in both demo and production modes (quotes are always real).
  *
  * POST /api/swap/quote
  * Request: { fromChain, fromToken, fromAmount, toChain, toToken, destinationAddress }
@@ -194,6 +195,9 @@ export async function POST(request: NextRequest) {
     // Estimated time (5-10 minutes for cross-chain)
     const estimatedTime = 300 + Math.floor(Math.random() * 300)
 
+    // Quotes use real prices; demo flag indicates if execution will be real
+    const demoMode = isDemoMode()
+
     const response: QuoteResponse = {
       toAmount,
       exchangeRate,
@@ -205,7 +209,7 @@ export async function POST(request: NextRequest) {
       estimatedTime,
       route,
       expiresAt: Date.now() + 60000, // 60 second expiry
-      demo: true,
+      demo: demoMode, // true = execution will be simulated, false = real NEAR Intents
     }
 
     console.log("[swap/quote] Generated quote:", {
