@@ -71,7 +71,7 @@ function useIsMobile(breakpoint: number = 768) {
 }
 
 // Hook for count-up animation
-function useCountUp(target: number, duration: number = 1500) {
+function useCountUp(target: number, duration: number = 2500, delay: number = 400) {
   const [count, setCount] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -102,23 +102,88 @@ function useCountUp(target: number, duration: number = 1500) {
       return;
     }
 
-    const startTime = performance.now();
-    const easeOutExpo = (t: number) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+    // Add delay before animation starts
+    const delayTimer = setTimeout(() => {
+      const startTime = performance.now();
+      const easeInOutCubic = (t: number) =>
+        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = easeOutExpo(progress);
+      const animate = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeInOutCubic(progress);
 
-      setCount(Math.round(easedProgress * target));
+        setCount(Math.round(easedProgress * target));
 
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
 
-    requestAnimationFrame(animate);
-  }, [hasStarted, target, duration, prefersReducedMotion]);
+      requestAnimationFrame(animate);
+    }, delay);
+
+    return () => clearTimeout(delayTimer);
+  }, [hasStarted, target, duration, delay, prefersReducedMotion]);
+
+  return { ref, count };
+}
+
+// Hook for count-down animation (100 → 0)
+function useCountDown(duration: number = 2500, delay: number = 400) {
+  const [count, setCount] = useState(100);
+  const [hasStarted, setHasStarted] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (!ref.current || hasStarted) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHasStarted(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [hasStarted]);
+
+  useEffect(() => {
+    if (!hasStarted) return;
+
+    if (prefersReducedMotion) {
+      setCount(0);
+      return;
+    }
+
+    // Add delay before animation starts
+    const delayTimer = setTimeout(() => {
+      const startTime = performance.now();
+      const easeInOutCubic = (t: number) =>
+        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+      const animate = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeInOutCubic(progress);
+
+        setCount(Math.round(100 - (easedProgress * 100)));
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+
+      requestAnimationFrame(animate);
+    }, delay);
+
+    return () => clearTimeout(delayTimer);
+  }, [hasStarted, duration, delay, prefersReducedMotion]);
 
   return { ref, count };
 }
@@ -717,41 +782,55 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
   const [sendButtonClicked, setSendButtonClicked] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  // Animation timeline - 4 phases matching TippingFlow timing
-  // 0=tweet with link preview, 1=expanded payment card, 2=processing tunnel, 3=shielded receipt
+  // Animation timeline - 7 second loop matching the motion script
+  // Phase 0: The Hook (0-2s) - Tweet context with cursor animation
+  // Phase 1: The Expansion + Input (2-3.5s) - Card morphs, user clicks Send
+  // Phase 2: The Scrub (3.5-5s) - Processing with "identity scrubbed" message
+  // Phase 3: The Payoff (5-7s) - Receipt with SEALED badge
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0, visible: false, hovering: null as string | null });
+
   useEffect(() => {
     if (!isVisible || prefersReducedMotion) return;
 
+    const LOOP_DURATION = 7000;
+
     const timeline = [
-      { phase: 0, delay: 0 },       // Tweet + link preview (2.5s) - click happens
-      { phase: 1, delay: 2500 },    // Payment card expanded (3s) - user selects amount
-      { phase: 2, delay: 5500 },    // Processing tunnel (2s) - transaction in progress
-      { phase: 3, delay: 7500 },    // Shielded receipt (3.5s) - success state
-      { phase: 0, delay: 11000 },   // Loop reset
+      { phase: 0, delay: 0 },       // The Hook (2.0s)
+      { phase: 1, delay: 2000 },    // The Expansion + Input (1.5s)
+      { phase: 2, delay: 3500 },    // The Scrub (1.5s)
+      { phase: 3, delay: 5000 },    // The Payoff (2.0s)
+      { phase: 0, delay: LOOP_DURATION },   // Loop reset
     ];
 
-    const timers = timeline.map(({ phase: p, delay }) =>
-      setTimeout(() => setPhase(p), delay)
-    );
-
-    // Button click effect just before processing phase
-    const clickTimer = setTimeout(() => setSendButtonClicked(true), 5200);
-    const clickResetTimer = setTimeout(() => setSendButtonClicked(false), 5500);
-
-    // Continuous loop (11 second cycle)
-    const loopInterval = setInterval(() => {
+    const runTimeline = () => {
       timeline.forEach(({ phase: p, delay }) => {
         setTimeout(() => setPhase(p), delay);
       });
-      // Re-trigger button click effect each loop
-      setTimeout(() => setSendButtonClicked(true), 5200);
-      setTimeout(() => setSendButtonClicked(false), 5500);
-    }, 11000);
+
+      // Cursor animation during The Hook (phase 0)
+      // 0-1s: Static pause (cursor hidden)
+      // 1-1.4s: Cursor appears, moves to $5 chip (in link preview card)
+      // 1.4-1.7s: Hover $5 chip (glow effect)
+      // 1.7-2s: Move to Send button, hover
+      // Tweet 2 with link preview starts around y=180, link preview at y=230
+      // Chips row inside link preview at ~y=280, Send button at ~y=380
+      setTimeout(() => setCursorPosition({ x: 80, y: 200, visible: true, hovering: null }), 1000);
+      setTimeout(() => setCursorPosition({ x: 140, y: 285, visible: true, hovering: '$5' }), 1200);
+      setTimeout(() => setCursorPosition({ x: 175, y: 365, visible: true, hovering: 'send' }), 1700);
+      setTimeout(() => setCursorPosition({ x: 0, y: 0, visible: false, hovering: null }), 2000);
+
+      // Button click effect just before processing phase (at 3.2s)
+      setTimeout(() => setSendButtonClicked(true), 3200);
+      setTimeout(() => setSendButtonClicked(false), 3500);
+    };
+
+    // Initial run
+    runTimeline();
+
+    // Continuous loop
+    const loopInterval = setInterval(runTimeline, LOOP_DURATION);
 
     return () => {
-      timers.forEach(t => clearTimeout(t));
-      clearTimeout(clickTimer);
-      clearTimeout(clickResetTimer);
       clearInterval(loopInterval);
     };
   }, [isVisible, prefersReducedMotion]);
@@ -1051,35 +1130,42 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                         { amount: "$5", selected: true },
                         { amount: "$10", selected: false },
                         { amount: "$25", selected: false },
-                      ].map((chip) => (
-                        <div
-                          key={chip.amount}
-                          style={{
-                            flex: 1,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            height: `${28 * scale}px`,
-                            borderRadius: `${4 * scale}px`,
-                            fontSize: `${10 * scale}px`,
-                            fontWeight: 700,
-                            fontFamily: "'JetBrains Mono', monospace",
-                            ...(chip.selected
-                              ? {
-                                  backgroundColor: "#FFFFFF",
-                                  color: "#050505",
-                                  boxShadow: "0 0 16px rgba(255, 215, 0, 0.5), 0 0 6px rgba(255, 215, 0, 0.3)",
-                                }
-                              : {
-                                  backgroundColor: "rgba(255, 255, 255, 0.06)",
-                                  boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.1)",
-                                  color: "rgba(255, 255, 255, 0.5)",
-                                }),
-                          }}
-                        >
-                          {chip.amount}
-                        </div>
-                      ))}
+                      ].map((chip) => {
+                        const isHovered = chip.amount === "$5" && cursorPosition.hovering === "$5";
+                        return (
+                          <div
+                            key={chip.amount}
+                            style={{
+                              flex: 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              height: `${28 * scale}px`,
+                              borderRadius: `${4 * scale}px`,
+                              fontSize: `${10 * scale}px`,
+                              fontWeight: 700,
+                              fontFamily: "'JetBrains Mono', monospace",
+                              transition: "all 0.15s ease-out",
+                              ...(chip.selected
+                                ? {
+                                    backgroundColor: isHovered ? "#FFFFFF" : "#FFFFFF",
+                                    color: "#050505",
+                                    boxShadow: isHovered
+                                      ? "0 0 24px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 215, 0, 0.6), 0 0 8px rgba(255, 255, 255, 0.9)"
+                                      : "0 0 16px rgba(255, 215, 0, 0.5), 0 0 6px rgba(255, 215, 0, 0.3)",
+                                    transform: isHovered ? "scale(1.05)" : "scale(1)",
+                                  }
+                                : {
+                                    backgroundColor: "rgba(255, 255, 255, 0.06)",
+                                    boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+                                    color: "rgba(255, 255, 255, 0.5)",
+                                  }),
+                            }}
+                          >
+                            {chip.amount}
+                          </div>
+                        );
+                      })}
                     </div>
 
                     {/* Row 2 - Private Note: MESSAGE TRENCH */}
@@ -1191,13 +1277,19 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                       justifyContent: "center",
                       width: "100%",
                       height: `${28 * scale}px`,
-                      background: "linear-gradient(180deg, #FCD34D 0%, #F59E0B 50%, #D97706 100%)",
+                      background: cursorPosition.hovering === "send"
+                        ? "linear-gradient(180deg, #FFE066 0%, #FFB020 50%, #E8850A 100%)"
+                        : "linear-gradient(180deg, #FCD34D 0%, #F59E0B 50%, #D97706 100%)",
                       borderRadius: `${4 * scale}px`,
                       fontSize: `${9 * scale}px`,
                       fontWeight: 700,
                       color: "#050505",
                       fontFamily: "'JetBrains Mono', monospace",
-                      boxShadow: "inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 4px 12px rgba(255, 215, 0, 0.5)",
+                      boxShadow: cursorPosition.hovering === "send"
+                        ? "inset 0 2px 0 rgba(255, 255, 255, 0.5), 0 6px 20px rgba(255, 215, 0, 0.7), 0 0 30px rgba(255, 215, 0, 0.4)"
+                        : "inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 4px 12px rgba(255, 215, 0, 0.5)",
+                      transform: cursorPosition.hovering === "send" ? "scale(1.02)" : "scale(1)",
+                      transition: "all 0.15s ease-out",
                     }}>
                       Send $5.00
                     </div>
@@ -1780,24 +1872,40 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                   <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     PRIVACY
                   </span>
-                  <span style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: `${3 * scale}px`,
-                    padding: `${2 * scale}px ${6 * scale}px`,
-                    background: "rgba(0, 255, 148, 0.15)",
-                    borderRadius: `${3 * scale}px`,
-                    color: "#00FF94",
-                    fontSize: `${7 * scale}px`,
-                    fontWeight: 700,
-                    fontFamily: "'JetBrains Mono', monospace",
-                    letterSpacing: "1px",
-                  }}>
+                  <motion.span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: `${3 * scale}px`,
+                      padding: `${2 * scale}px ${6 * scale}px`,
+                      background: "rgba(0, 255, 148, 0.15)",
+                      borderRadius: `${3 * scale}px`,
+                      color: "#00FF94",
+                      fontSize: `${7 * scale}px`,
+                      fontWeight: 700,
+                      fontFamily: "'JetBrains Mono', monospace",
+                      letterSpacing: "1px",
+                    }}
+                    initial={{ scale: 1, boxShadow: "0 0 0px rgba(0, 255, 148, 0)" }}
+                    animate={{
+                      scale: [1, 1.15, 1],
+                      boxShadow: [
+                        "0 0 0px rgba(0, 255, 148, 0)",
+                        "0 0 20px rgba(0, 255, 148, 0.6)",
+                        "0 0 0px rgba(0, 255, 148, 0)",
+                      ],
+                    }}
+                    transition={{
+                      duration: 0.6,
+                      delay: 0.3,
+                      ease: "easeOut",
+                    }}
+                  >
                     <svg width={6 * scale} height={6 * scale} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
                     SEALED
-                  </span>
+                  </motion.span>
                 </div>
               </div>
 
@@ -1813,6 +1921,41 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* Animated Cursor - visible during Hook phase */}
+      {cursorPosition.visible && phase === 0 && (
+        <motion.div
+          style={{
+            position: "absolute",
+            width: `${20 * scale}px`,
+            height: `${20 * scale}px`,
+            pointerEvents: "none",
+            zIndex: 100,
+            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))",
+          }}
+          initial={{ opacity: 0, x: 50, y: 100 }}
+          animate={{
+            opacity: 1,
+            x: cursorPosition.x * scale,
+            y: cursorPosition.y * scale,
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 200,
+            damping: 25,
+          }}
+        >
+          {/* macOS-style cursor */}
+          <svg width={20 * scale} height={20 * scale} viewBox="0 0 24 24" fill="none">
+            <path
+              d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86h8.29a.5.5 0 0 0 .35-.85L5.85 2.86a.5.5 0 0 0-.35.35z"
+              fill="#FFFFFF"
+              stroke="#000000"
+              strokeWidth="1.5"
+            />
+          </svg>
+        </motion.div>
+      )}
     </div>
   );
 }
@@ -2256,7 +2399,7 @@ function SnapSection({
       style={{
         minHeight: "100vh",
         scrollSnapAlign: "start",
-        scrollSnapStop: "normal",
+        scrollSnapStop: "always",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -2352,6 +2495,10 @@ export default function HomePage() {
   const parallaxOffset = useParallax(0.3);
   const parallaxOffsetSlow = useParallax(0.15);
   const prefersReducedMotion = usePrefersReducedMotion();
+
+  // Animated counters for damage report
+  const { ref: feeRef, count: feeCount } = useCountUp(39, 2500, 400);
+  const { ref: privacyRef, count: privacyCount } = useCountDown(2500, 400);
 
   // Gate button/modal animations until tweet is visible
   useEffect(() => {
@@ -2500,6 +2647,7 @@ export default function HomePage() {
             flex: 1,
             maxWidth: isMobile ? "100%" : "500px",
             textAlign: isMobile ? "center" : "left",
+            paddingTop: isMobile ? "0" : "60px",
           }}>
             {/* Main headline */}
             <div style={{ marginBottom: "24px" }}>
@@ -2517,7 +2665,7 @@ export default function HomePage() {
                 lineHeight: 1.7,
                 marginBottom: "32px",
                 letterSpacing: "0.02em",
-                color: colors.muted,
+                color: colors.text,
               }}>
                 No fees. No friction. No trace.
               </p>
@@ -2570,6 +2718,33 @@ export default function HomePage() {
                     Start Earning TIPZ
                   </span>
                 </a>
+              </div>
+            </TerminalReveal>
+
+            {/* Platform icons - silver watermark style, matches CTA button width */}
+            <TerminalReveal delay={heroAnimationReady ? 400 : 99999}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "200px",
+                marginTop: "32px",
+                marginLeft: isMobile ? "auto" : "25px",
+                marginRight: isMobile ? "auto" : "0",
+                opacity: 0.4,
+              }}>
+                {/* X (Twitter) */}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#FFFFFF" }}>
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                {/* Substack */}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#FFFFFF" }}>
+                  <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
+                </svg>
+                {/* YouTube */}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#FFFFFF" }}>
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
               </div>
             </TerminalReveal>
           </div>
@@ -2724,7 +2899,14 @@ export default function HomePage() {
                 </p>
 
                 {/* Animated progress bar */}
-                <div style={{ position: "relative", marginBottom: "12px" }}>
+                <motion.div
+                  ref={feeRef}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  style={{ position: "relative", marginBottom: "12px" }}
+                >
                   <div style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -2732,7 +2914,7 @@ export default function HomePage() {
                     fontSize: "11px",
                   }}>
                     <span style={{ color: colors.muted }}>FEE EXTRACTION</span>
-                    <span style={{ color: colors.error, fontWeight: 700 }}>39% LOST</span>
+                    <span style={{ color: colors.error, fontWeight: 700 }}>{feeCount}% LOST</span>
                   </div>
                   <div style={{
                     height: "8px",
@@ -2741,15 +2923,14 @@ export default function HomePage() {
                     overflow: "hidden",
                   }}>
                     <div style={{
-                      width: "39%",
+                      width: `${feeCount}%`,
                       height: "100%",
                       background: `linear-gradient(90deg, ${colors.error}, ${colors.error}80)`,
                       borderRadius: "4px",
-                      animation: "bar-fill 1s ease-out 0.5s both",
-                      transformOrigin: "left",
+                      boxShadow: feeCount > 0 ? `0 0 12px ${colors.error}60` : "none",
                     }} />
                   </div>
-                </div>
+                </motion.div>
 
                 {/* $5 Tip Breakdown box */}
                 <div style={{
@@ -2889,7 +3070,14 @@ export default function HomePage() {
                 </p>
 
                 {/* Exposed indicator */}
-                <div style={{ position: "relative", marginBottom: "12px" }}>
+                <motion.div
+                  ref={privacyRef}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  style={{ position: "relative", marginBottom: "12px" }}
+                >
                   <div style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -2897,15 +3085,24 @@ export default function HomePage() {
                     fontSize: "11px",
                   }}>
                     <span style={{ color: colors.muted }}>PRIVACY LEVEL</span>
-                    <span style={{ color: colors.error, fontWeight: 700 }}>0% PRIVATE</span>
+                    <span style={{ color: colors.error, fontWeight: 700 }}>{privacyCount}% PRIVATE</span>
                   </div>
                   <div style={{
                     height: "8px",
-                    background: `repeating-linear-gradient(90deg, ${colors.error}40, ${colors.error}40 4px, transparent 4px, transparent 8px)`,
+                    background: colors.bg,
                     borderRadius: "4px",
+                    overflow: "hidden",
                     border: `1px solid ${colors.error}30`,
-                  }} />
-                </div>
+                  }}>
+                    <div style={{
+                      width: `${privacyCount}%`,
+                      height: "100%",
+                      background: `linear-gradient(90deg, ${colors.success}, ${colors.success}80)`,
+                      borderRadius: "4px",
+                      boxShadow: privacyCount > 0 ? `0 0 12px ${colors.success}60` : "none",
+                    }} />
+                  </div>
+                </motion.div>
 
                 {/* Exposed on-chain data box */}
                 <div style={{
@@ -3645,7 +3842,7 @@ export default function HomePage() {
                       backgroundColor: colors.surface,
                       border: `1px solid ${colors.border}`,
                       padding: "20px",
-                      minHeight: "88px",
+                      height: "100px",
                       opacity: visible ? 1 : 0,
                       transform: visible ? "translateY(0)" : "translateY(12px)",
                       transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -3750,7 +3947,7 @@ export default function HomePage() {
                       backgroundColor: colors.surface,
                       border: `1px solid ${colors.border}`,
                       padding: "20px",
-                      minHeight: "88px",
+                      height: "100px",
                       opacity: visible ? 1 : 0,
                       transform: visible ? "translateY(0)" : "translateY(12px)",
                       transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
