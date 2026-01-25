@@ -1351,7 +1351,10 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
           scale: phase >= 1 ? 1 : 0.1,
           opacity: phase >= 1 ? 1 : 0,
         }}
-        transition={shouldAnimate ? springConfig : { duration: 0 }}
+        transition={shouldAnimate ? {
+          opacity: { duration: 0.2 },
+          scale: { delay: 0.2, ...springConfig }
+        } : { duration: 0 }}
       >
         {/* Header: Avatar + Handle + Shield Badge - Compact style */}
         <div style={{
