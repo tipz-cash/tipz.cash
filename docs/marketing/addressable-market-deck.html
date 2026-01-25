@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TIPZ: The $730M Fee Problem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/black.css">
+  <style>
+    :root {
+      --background: #08090a;
+      --surface: #12141a;
+      --primary: #F5A623;
+      --success: #22C55E;
+      --error: #EF4444;
+      --text-muted: #D1D5DB;
+      --text-bright: #F9FAFB;
+    }
+
+    .reveal-viewport {
+      background: var(--background);
+    }
+
+    .reveal {
+      font-family: 'Inter', sans-serif;
+      font-size: 32px;
+      color: var(--text-muted);
+    }
+
+    .reveal h1, .reveal h2, .reveal h3 {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-bright);
+      text-transform: none;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .reveal h1 {
+      font-size: 2.4em;
+      margin-bottom: 0.5em;
+    }
+
+    .reveal h2 {
+      font-size: 1.8em;
+      color: var(--primary);
+    }
+
+    .reveal h3 {
+      font-size: 1.2em;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .reveal .slides section {
+      height: 100%;
+      padding: 40px;
+    }
+
+    .reveal code, .reveal pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .reveal pre {
+      background: var(--surface);
+      border: 1px solid #262626;
+      border-radius: 8px;
+      padding: 20px;
+      font-size: 0.55em;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .reveal .highlight {
+      color: var(--primary);
+    }
+
+    .reveal .success {
+      color: var(--success);
+    }
+
+    .reveal .error {
+      color: var(--error);
+    }
+
+    .reveal .tagline {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+      font-size: 0.6em;
+      letter-spacing: 0.1em;
+    }
+
+    .reveal table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      font-size: 0.7em;
+    }
+
+    .reveal table th {
+      background: var(--surface);
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      padding: 12px 20px;
+      text-align: left;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .reveal table td {
+      padding: 12px 20px;
+      border-bottom: 1px solid #262626;
+    }
+
+    .reveal table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .reveal .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .reveal .stat-box {
+      background: var(--surface);
+      border: 1px solid #262626;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .reveal .stat-box .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2em;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .reveal .stat-box .label {
+      font-size: 0.6em;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .reveal .bar {
+      background: #262626;
+      border-radius: 4px;
+      height: 24px;
+      margin: 8px 0;
+      overflow: hidden;
+    }
+
+    .reveal .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #d4920f);
+      border-radius: 4px;
+    }
+
+    .reveal .bar-fill.error {
+      background: linear-gradient(90deg, var(--error), #dc2626);
+    }
+
+    .reveal .bar-fill.success {
+      background: linear-gradient(90deg, var(--success), #16a34a);
+    }
+
+    .reveal .quote {
+      font-style: italic;
+      color: var(--text-muted);
+      border-left: 3px solid var(--primary);
+      padding-left: 20px;
+      margin: 30px 0;
+      font-size: 0.9em;
+    }
+
+    .reveal .logo-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3em;
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: 0 0 40px rgba(245, 166, 35, 0.4);
+    }
+
+    .reveal .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .reveal .comparison-box {
+      background: var(--surface);
+      border: 1px solid #262626;
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .reveal .comparison-box.tipz {
+      border-color: var(--primary);
+      box-shadow: 0 0 20px rgba(245, 166, 35, 0.2);
+    }
+
+    .reveal .comparison-box h4 {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-bright);
+      margin-bottom: 16px;
+      font-size: 0.9em;
+    }
+
+    .reveal .comparison-box.tipz h4 {
+      color: var(--primary);
+    }
+
+    .reveal .comparison-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #262626;
+      font-size: 0.65em;
+    }
+
+    .reveal .comparison-item:last-child {
+      border-bottom: none;
+    }
+
+    .reveal .flywheel {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .reveal .flywheel-step {
+      background: var(--surface);
+      border: 1px solid #262626;
+      border-radius: 8px;
+      padding: 16px 24px;
+      font-size: 0.6em;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .reveal .flywheel-arrow {
+      color: var(--primary);
+      font-size: 1.5em;
+    }
+
+    .reveal .segment-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 12px 0;
+      font-size: 0.7em;
+    }
+
+    .reveal .segment-label {
+      width: 180px;
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .reveal .segment-bar .bar {
+      flex: 1;
+      height: 32px;
+    }
+
+    .reveal .segment-pct {
+      width: 50px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+    }
+
+    .reveal .pyramid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin: 20px 0;
+    }
+
+    .reveal .pyramid-level {
+      background: var(--surface);
+      border: 1px solid #262626;
+      padding: 12px;
+      text-align: center;
+      font-size: 0.6em;
+    }
+
+    .reveal .pyramid-level.top {
+      width: 30%;
+      border-color: var(--primary);
+    }
+
+    .reveal .pyramid-level.middle {
+      width: 50%;
+    }
+
+    .reveal .pyramid-level.bottom {
+      width: 90%;
+      border-color: var(--success);
+      background: rgba(34, 197, 94, 0.1);
+    }
+
+    .slide-number {
+      font-family: 'JetBrains Mono', monospace !important;
+      color: var(--text-muted) !important;
+      font-size: 14px !important;
+    }
+
+    .reveal .fee-stack {
+      background: var(--surface);
+      border: 1px solid #262626;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 20px 0;
+    }
+
+    .reveal .fee-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #262626;
+      font-size: 0.7em;
+    }
+
+    .reveal .fee-row:last-child {
+      border-bottom: none;
+    }
+
+    .reveal .fee-row .amount {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--error);
+    }
+
+    .reveal .fee-row.total {
+      border-top: 2px solid var(--primary);
+      margin-top: 8px;
+      padding-top: 16px;
+    }
+
+    .reveal .fee-row.total .amount {
+      color: var(--success);
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- Slide 1: Title -->
+      <section>
+        <div class="logo-text">TIPZ</div>
+        <h1 style="margin-top: 40px;">The $730M Fee Problem</h1>
+        <p class="tagline">Private tips. Any asset. Zero trace.</p>
+      </section>
+
+      <!-- Slide 2: Problem Statement -->
+      <section>
+        <h2>Micropayments Are Broken</h2>
+        <h3>39% of every $5 tip lost to fees</h3>
+
+        <div class="fee-stack">
+          <div class="fee-row">
+            <span>Platform Fee (Patreon 8%)</span>
+            <span class="amount">-$0.40</span>
+          </div>
+          <div class="fee-row">
+            <span>Payment Processor (2.9% + $0.30)</span>
+            <span class="amount">-$0.45</span>
+          </div>
+          <div class="fee-row">
+            <span>Currency Conversion (varies)</span>
+            <span class="amount">-$0.15</span>
+          </div>
+          <div class="fee-row total">
+            <span>Creator Receives</span>
+            <span class="amount">$4.00</span>
+          </div>
+        </div>
+
+        <p class="quote">"Platforms extract $730M annually from creators. That's not a fee. That's a tax."</p>
+      </section>
+
+      <!-- Slide 3: TAM -->
+      <section>
+        <h2>Creator Tipping: $2.9B Market</h2>
+        <h3>Total Addressable Market</h3>
+
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="value">$2.44B</div>
+            <div class="label">2024 Market Size</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">$2.9B</div>
+            <div class="label">2025 Projected</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">18.8%</div>
+            <div class="label">CAGR Growth Rate</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">$730M</div>
+            <div class="label">Annual Fee Extraction</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 4: Volume -->
+      <section>
+        <h2>350 Million Tips Per Year</h2>
+        <h3>Micropayment Distribution</h3>
+
+        <div style="margin-top: 30px;">
+          <div class="segment-bar">
+            <span class="segment-label">$1–$5 <span class="highlight">(TARGET)</span></span>
+            <div class="bar"><div class="bar-fill" style="width: 40%"></div></div>
+            <span class="segment-pct">40%</span>
+          </div>
+          <div class="segment-bar">
+            <span class="segment-label">$5–$10</span>
+            <div class="bar"><div class="bar-fill" style="width: 30%"></div></div>
+            <span class="segment-pct">30%</span>
+          </div>
+          <div class="segment-bar">
+            <span class="segment-label">$10–$25</span>
+            <div class="bar"><div class="bar-fill" style="width: 20%"></div></div>
+            <span class="segment-pct">20%</span>
+          </div>
+          <div class="segment-bar">
+            <span class="segment-label">$25+</span>
+            <div class="bar"><div class="bar-fill" style="width: 10%"></div></div>
+            <span class="segment-pct">10%</span>
+          </div>
+        </div>
+
+        <p style="margin-top: 30px; font-size: 0.8em;"><span class="highlight">50%</span> of consumers have tipped a creator &nbsp;|&nbsp; <span class="highlight">140M</span> micropayments annually</p>
+      </section>
+
+      <!-- Slide 5: Competitor Tax -->
+      <section>
+        <h2>Where The Money Goes</h2>
+        <h3>Platform Fee Extraction (Annual)</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Volume</th>
+              <th>Fee %</th>
+              <th>Extracted</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>YouTube Super Chat</td>
+              <td>$10.5B</td>
+              <td class="error">30%</td>
+              <td class="error">$3.15B</td>
+            </tr>
+            <tr>
+              <td>TikTok Gifts</td>
+              <td>~$2B</td>
+              <td class="error">50%</td>
+              <td class="error">$1B</td>
+            </tr>
+            <tr>
+              <td>Twitch Bits</td>
+              <td>$2.5B</td>
+              <td class="error">~30%</td>
+              <td class="error">$750M</td>
+            </tr>
+            <tr>
+              <td>Patreon</td>
+              <td>$3.5B+</td>
+              <td class="error">8%+</td>
+              <td class="error">$280M+</td>
+            </tr>
+            <tr>
+              <td style="color: var(--primary);">TIPZ</td>
+              <td>—</td>
+              <td class="success">0%</td>
+              <td class="success">$0</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Slide 6: Long Tail -->
+      <section>
+        <h2>96% of Creators Are Undermonetized</h2>
+        <h3>The Long Tail Opportunity</h3>
+
+        <div class="pyramid">
+          <div class="pyramid-level top">
+            <strong>4%</strong> — Elite (>$100K/year)<br>
+            <span style="color: var(--text-muted); font-size: 0.9em;">Platforms optimize for these</span>
+          </div>
+          <div class="pyramid-level middle">
+            <strong>13%</strong> — Middle ($15K–$100K/year)<br>
+            <span style="color: var(--text-muted); font-size: 0.9em;">Fighting for margin</span>
+          </div>
+          <div class="pyramid-level bottom">
+            <strong>83%</strong> — Long Tail (<$15K/year) — <span class="success">200M+ creators</span><br>
+            <span style="color: var(--text-muted); font-size: 0.9em;">Every dollar matters</span>
+          </div>
+        </div>
+
+        <p class="quote">"$30 on $100 is devastating. $30 on $1M is a rounding error."</p>
+      </section>
+
+      <!-- Slide 7: Solution -->
+      <section>
+        <h2>The Tax Haven for Creators</h2>
+        <h3>TIPZ Solution</h3>
+
+        <div class="comparison-grid">
+          <div class="comparison-box">
+            <h4>Traditional Platforms</h4>
+            <div class="comparison-item">
+              <span>Platform Fee</span>
+              <span class="error">8–50%</span>
+            </div>
+            <div class="comparison-item">
+              <span>Payment Fee</span>
+              <span class="error">2.9% + $0.30</span>
+            </div>
+            <div class="comparison-item">
+              <span>Privacy</span>
+              <span class="error">Surveilled</span>
+            </div>
+            <div class="comparison-item">
+              <span>Custody</span>
+              <span class="error">Platform-held</span>
+            </div>
+            <div class="comparison-item">
+              <span>Settlement</span>
+              <span>Days</span>
+            </div>
+          </div>
+          <div class="comparison-box tipz">
+            <h4>TIPZ</h4>
+            <div class="comparison-item">
+              <span>Platform Fee</span>
+              <span class="success">0%</span>
+            </div>
+            <div class="comparison-item">
+              <span>Payment Fee</span>
+              <span class="success">Network only</span>
+            </div>
+            <div class="comparison-item">
+              <span>Privacy</span>
+              <span class="success">Shielded</span>
+            </div>
+            <div class="comparison-item">
+              <span>Custody</span>
+              <span class="success">Self-custody</span>
+            </div>
+            <div class="comparison-item">
+              <span>Settlement</span>
+              <span class="success">Minutes</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 8: SAM -->
+      <section>
+        <h2>Crypto-Native Creators</h2>
+        <h3>Serviceable Addressable Market</h3>
+
+        <div style="margin-top: 30px;">
+          <div class="segment-bar">
+            <span class="segment-label" style="color: var(--primary);">PRIMARY</span>
+            <div class="bar"><div class="bar-fill" style="width: 90%"></div></div>
+            <span class="segment-pct">50K+</span>
+          </div>
+          <p style="font-size: 0.6em; margin: 0 0 20px 196px;">Crypto X creators (5K–500K followers)</p>
+
+          <div class="segment-bar">
+            <span class="segment-label">SECONDARY</span>
+            <div class="bar"><div class="bar-fill" style="width: 50%"></div></div>
+            <span class="segment-pct">10K+</span>
+          </div>
+          <p style="font-size: 0.6em; margin: 0 0 20px 196px;">Privacy-conscious creators (journalists, activists)</p>
+
+          <div class="segment-bar">
+            <span class="segment-label">TERTIARY</span>
+            <div class="bar"><div class="bar-fill" style="width: 35%"></div></div>
+            <span class="segment-pct">100K+</span>
+          </div>
+          <p style="font-size: 0.6em; margin: 0 0 20px 196px;">Zcash community (existing wallets)</p>
+        </div>
+      </section>
+
+      <!-- Slide 9: The Ask -->
+      <section>
+        <h2>Capture the Fee Gap</h2>
+
+        <div class="stat-grid" style="margin-top: 20px;">
+          <div class="stat-box">
+            <div class="value">500</div>
+            <div class="label">Registered Creators (30 days)</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">5,000</div>
+            <div class="label">Extension Installs (30 days)</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">$10K+</div>
+            <div class="label">Total Tip Volume</div>
+          </div>
+          <div class="stat-box">
+            <div class="value success">$0</div>
+            <div class="label">Platform Fee Revenue (by design)</div>
+          </div>
+        </div>
+
+        <div class="flywheel">
+          <div class="flywheel-step">Creators<br>Register</div>
+          <span class="flywheel-arrow">→</span>
+          <div class="flywheel-step">Followers<br>Discover</div>
+          <span class="flywheel-arrow">→</span>
+          <div class="flywheel-step">Install<br>Extension</div>
+          <span class="flywheel-arrow">→</span>
+          <div class="flywheel-step">Tips<br>Flow</div>
+          <span class="flywheel-arrow">→</span>
+          <div class="flywheel-step">Creators<br>Advocate</div>
+        </div>
+      </section>
+
+      <!-- Slide 10: Volume Projections -->
+      <section>
+        <h2>TIPZ Volume Projections</h2>
+        <h3>Realistic Scenario Modeling</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Conservative</th>
+              <th>Base</th>
+              <th>Optimistic</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Registered Creators (Y1)</td>
+              <td>200</td>
+              <td class="highlight">1,000</td>
+              <td>5,000</td>
+            </tr>
+            <tr>
+              <td>Avg Tips/Creator/Month</td>
+              <td>5</td>
+              <td class="highlight">15</td>
+              <td>30</td>
+            </tr>
+            <tr>
+              <td>Avg Tip Size</td>
+              <td>$5</td>
+              <td class="highlight">$8</td>
+              <td>$10</td>
+            </tr>
+            <tr>
+              <td>Monthly Tip Volume</td>
+              <td>$5,000</td>
+              <td class="highlight">$120,000</td>
+              <td>$1,500,000</td>
+            </tr>
+            <tr style="background: var(--surface);">
+              <td><strong>Annual Tip Volume</strong></td>
+              <td>$60,000</td>
+              <td class="highlight" style="font-size: 1.1em;"><strong>$1.44M</strong></td>
+              <td>$18,000,000</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="margin-top: 20px; font-size: 0.7em; color: var(--text-muted);">
+          Volume = Creators × Tips/Month × Avg Size × 12 months
+        </p>
+      </section>
+
+      <!-- Slide 11: ZEC Flow Analysis -->
+      <section>
+        <h2>ZEC Flow Analysis</h2>
+        <h3>Value Flowing Into Privacy</h3>
+
+        <p style="font-size: 0.7em; margin-bottom: 20px;">All tips convert to ZEC via shielded transactions @ $360/ZEC</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Annual Volume</th>
+              <th>ZEC Equivalent</th>
+              <th>Shielded Pool Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Conservative</td>
+              <td>$60K</td>
+              <td>167 ZEC</td>
+              <td>+0.003%</td>
+            </tr>
+            <tr>
+              <td class="highlight">Base</td>
+              <td class="highlight">$1.44M</td>
+              <td class="highlight">4,000 ZEC</td>
+              <td class="highlight">+0.08%</td>
+            </tr>
+            <tr>
+              <td>Optimistic</td>
+              <td>$18M</td>
+              <td>50,000 ZEC</td>
+              <td class="success">+1.0%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="stat-grid" style="margin-top: 25px;">
+          <div class="stat-box">
+            <div class="value">~5M ZEC</div>
+            <div class="label">Current Shielded Pool</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">~$1.8B</div>
+            <div class="label">Shielded Pool Value</div>
+          </div>
+        </div>
+
+        <p class="quote" style="margin-top: 20px;">"Every TIPZ tip is a vote for financial privacy."</p>
+      </section>
+
+      <!-- Slide 12: 3-Year Trajectory -->
+      <section>
+        <h2>3-Year Trajectory</h2>
+        <h3>The Compounding Effect (Base Case, 3× annual growth)</h3>
+
+        <table style="margin-top: 30px;">
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Annual Volume</th>
+              <th>ZEC Flow</th>
+              <th>Cumulative ZEC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="highlight">Y1</span> — Beachhead</td>
+              <td>$1.44M</td>
+              <td>4,000 ZEC</td>
+              <td>4,000 ZEC</td>
+            </tr>
+            <tr>
+              <td><span class="highlight">Y2</span> — Expansion</td>
+              <td>$4.32M</td>
+              <td>12,000 ZEC</td>
+              <td>16,000 ZEC</td>
+            </tr>
+            <tr>
+              <td><span class="highlight">Y3</span> — Network Effects</td>
+              <td>$12.96M</td>
+              <td>36,000 ZEC</td>
+              <td class="success">52,000 ZEC</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="stat-grid" style="margin-top: 30px;">
+          <div class="stat-box" style="grid-column: span 2;">
+            <div class="value success">52,000 ZEC</div>
+            <div class="label">3-Year Cumulative: ~1% of Shielded Pool flowing through privacy-preserving tips</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 13: Close -->
+      <section>
+        <div class="logo-text">TIPZ</div>
+        <h1 style="margin-top: 40px; font-size: 1.8em;">Financial privacy is a human right.</h1>
+        <p class="tagline" style="margin-top: 40px;">Private tips. Any asset. Zero trace.</p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      width: 1280,
+      height: 720,
+      margin: 0.1,
+      transition: 'fade',
+      transitionSpeed: 'fast',
+      backgroundTransition: 'fade'
+    });
+  </script>
+</body>
+</html>

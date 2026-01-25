@@ -85,10 +85,7 @@ const responsiveStyles = `
     border-radius: 24px;
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    border-top: 1px solid ${colors.surfaceBorder};
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    border: none;
     z-index: 1;
   }
 
@@ -344,6 +341,16 @@ const responsiveStyles = `
     margin-top: 16px;
     text-align: center;
     font-family: 'Inter', sans-serif;
+  }
+
+  /* Powered by footer */
+  .tipz-powered-by {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+
+  .tipz-powered-by:hover {
+    opacity: 0.8;
   }
 
   /* Mobile-specific layout (edge-to-edge) */
@@ -616,15 +623,14 @@ export default function CreatorCardPage() {
         <div className="tipz-page tipz-mobile">
           <div className="tipz-card">
             <div className="tipz-card-content">
-              {/* Header with back + logo */}
-              <div className="tipz-mobile-header">
+              {/* Header with back button only */}
+              <div className="tipz-mobile-header" style={{ justifyContent: "flex-start" }}>
                 <a href="/" className="tipz-mobile-back">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                   </svg>
                   Back
                 </a>
-                <div className="tipz-mobile-logo">TIPZ</div>
               </div>
 
               {/* Content - TippingFlow owns creator header */}
@@ -635,6 +641,37 @@ export default function CreatorCardPage() {
                   isMobile={isMobile}
                   avatarColor={getAvatarColor(creator?.handle || handle)}
                 />
+
+                {/* Powered by TIPZ footer */}
+                <a
+                  href="/"
+                  className="tipz-powered-by"
+                  style={{
+                    marginTop: "32px",
+                    textDecoration: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                  }}
+                >
+                  <span style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "12px",
+                    color: "rgba(255, 255, 255, 0.4)",
+                  }}>
+                    Powered by
+                  </span>
+                  <span style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: "rgba(255, 255, 255, 0.8)",
+                    letterSpacing: "1px",
+                  }}>
+                    TIPZ
+                  </span>
+                </a>
               </div>
             </div>
           </div>
@@ -650,10 +687,6 @@ export default function CreatorCardPage() {
       <div className="tipz-page">
         <div className="tipz-card">
           <div className="tipz-card-content">
-            <div style={{ textAlign: "center", marginBottom: "16px" }}>
-              <div className="tipz-logo">TIPZ</div>
-            </div>
-
             <TippingFlow
               creatorHandle={creator?.handle || handle}
               shieldedAddress={creator?.shielded_address || ""}
@@ -663,11 +696,36 @@ export default function CreatorCardPage() {
           </div>
         </div>
 
-        <a href="/" className="tipz-back">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          Back to TIPZ
+        {/* Powered by TIPZ footer - 32px below card */}
+        <a
+          href="/"
+          className="tipz-powered-by"
+          style={{
+            marginTop: "32px",
+            textDecoration: "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "4px",
+            transition: "opacity 0.2s ease",
+          }}
+        >
+          <span style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "12px",
+            color: "rgba(255, 255, 255, 0.4)",
+          }}>
+            Powered by
+          </span>
+          <span style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: "12px",
+            fontWeight: 700,
+            color: "rgba(255, 255, 255, 0.8)",
+            letterSpacing: "1px",
+          }}>
+            TIPZ
+          </span>
         </a>
       </div>
     </>
