@@ -1,14 +1,36 @@
 import { NextRequest, NextResponse } from "next/server"
+import {
+  isDemoMode,
+  isNearConfigured,
+  generateIntentId as nearGenerateIntentId,
+  isValidShieldedAddress as nearValidateAddress,
+  createNearIntent,
+  parseNearError,
+  estimateCompletionTime,
+  type CreateIntentRequest,
+} from "@/lib/near"
+import {
+  logTransaction,
+  type TransactionSource,
+} from "@/lib/transactions"
+import { supabase } from "@/lib/supabase"
 
 /**
- * Mock Swap Execute API
+ * Swap Execute API
  *
- * Simulates swap execution with realistic delays.
- * Returns a mock transaction hash for demo purposes.
+ * Executes cross-chain swaps from EVM chains to Zcash.
+ * Supports both demo mode (mock responses) and production mode (real NEAR Intents).
+ *
+ * Flow:
+ * 1. User sends ETH/tokens from wallet (handled client-side)
+ * 2. Client calls this API with source tx hash
+ * 3. API creates NEAR Intent for cross-chain routing
+ * 4. Transaction is logged to database
+ * 5. Returns intent ID for tracking
  *
  * POST /api/swap/execute
- * Request: { fromChain, fromToken, fromAmount, walletAddress, destinationAddress, quote }
- * Response: { txHash, status: "pending", intentId }
+ * Request: { fromChain, fromToken, fromAmount, walletAddress, destinationAddress, quote, sourceTxHash?, creatorId? }
+ * Response: { txHash, status: "pending", intentId, demo }
  */
 
 interface ExecuteRequest {
@@ -19,6 +41,10 @@ interface ExecuteRequest {
   toToken: string
   walletAddress: string
   destinationAddress: string
+  sourceTxHash?: string // The tx hash from user's wallet transaction
+  creatorId?: string // Optional creator ID for logging
+  sourcePlatform?: TransactionSource // Where the tip originated
+  sourceUrl?: string // URL of content being tipped
   quote: {
     toAmount: string
     exchangeRate: string
@@ -39,11 +65,13 @@ interface ExecuteResponse {
   status: "pending" | "confirmed" | "failed"
   intentId: string
   demo: boolean
+  transactionId?: string // Database transaction ID for tracking
+  estimatedCompletion?: number
   message?: string
 }
 
 /**
- * Generate a realistic-looking Ethereum transaction hash
+ * Generate a realistic-looking Ethereum transaction hash (for demo mode)
  */
 function generateMockTxHash(): string {
   const chars = "0123456789abcdef"
@@ -52,15 +80,6 @@ function generateMockTxHash(): string {
     hash += chars[Math.floor(Math.random() * chars.length)]
   }
   return hash
-}
-
-/**
- * Generate a NEAR-style intent ID
- */
-function generateIntentId(): string {
-  const timestamp = Date.now().toString(36)
-  const random = Math.random().toString(36).substring(2, 11)
-  return `intent_${timestamp}_${random}`
 }
 
 /**
@@ -74,8 +93,7 @@ function isValidEthAddress(address: string): boolean {
  * Validate ZEC shielded address format
  */
 function isValidShieldedAddress(address: string): boolean {
-  // Unified addresses start with 'u1', Sapling with 'zs1'
-  return address.startsWith("u1") || address.startsWith("zs1")
+  return nearValidateAddress(address)
 }
 
 export async function POST(request: NextRequest) {
@@ -87,6 +105,10 @@ export async function POST(request: NextRequest) {
       fromAmount,
       walletAddress,
       destinationAddress,
+      sourceTxHash,
+      creatorId,
+      sourcePlatform,
+      sourceUrl,
       quote,
     } = body
 
@@ -122,30 +144,118 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Simulate processing delay (2-4 seconds)
-    const processingDelay = 2000 + Math.floor(Math.random() * 2000)
-    await new Promise(resolve => setTimeout(resolve, processingDelay))
+    // Check if running in demo mode
+    const demoMode = isDemoMode()
+    const nearConfigured = isNearConfigured()
 
-    // Generate mock transaction hash and intent ID
-    const txHash = generateMockTxHash()
-    const intentId = generateIntentId()
+    let txHash: string
+    let intentId: string
+    let estimatedCompletion: number
+    let transactionId: string | undefined
+
+    if (!demoMode && nearConfigured) {
+      // PRODUCTION MODE: Create real NEAR Intent
+      console.log("[swap/execute] Production mode - creating NEAR intent")
+
+      try {
+        const intentRequest: CreateIntentRequest = {
+          amount: quote.toAmount,
+          sourceChain: fromChain,
+          sourceToken: fromToken,
+          sourceTxHash: sourceTxHash,
+          senderAddress: walletAddress,
+          destinationChain: "ZEC",
+          destinationAddress,
+        }
+
+        const intentResult = await createNearIntent(intentRequest)
+
+        intentId = intentResult.intentId
+        txHash = sourceTxHash || intentResult.nearTxHash || ""
+        estimatedCompletion = intentResult.estimatedCompletion
+
+        console.log("[swap/execute] NEAR intent created:", {
+          intentId,
+          amount: `${quote.toAmount} ZEC`,
+          destination: destinationAddress.slice(0, 12) + "...",
+          sourceTx: sourceTxHash?.slice(0, 16),
+        })
+      } catch (nearError) {
+        console.error("[swap/execute] NEAR error:", nearError)
+        const errorMessage = parseNearError(nearError)
+        return NextResponse.json(
+          { error: errorMessage, nearError: true },
+          { status: 500 }
+        )
+      }
+    } else {
+      // DEMO MODE: Simulate execution
+      console.log("[swap/execute] Demo mode - simulating execution")
+
+      // Simulate processing delay (1-2 seconds)
+      const processingDelay = 1000 + Math.floor(Math.random() * 1000)
+      await new Promise(resolve => setTimeout(resolve, processingDelay))
+
+      txHash = sourceTxHash || generateMockTxHash()
+      intentId = nearGenerateIntentId()
+      estimatedCompletion = Date.now() + estimateCompletionTime("ZEC")
+    }
+
+    // Log transaction to database if configured
+    if (supabase && creatorId) {
+      try {
+        const transaction = await logTransaction({
+          creatorId,
+          senderAddress: walletAddress,
+          recipientAddress: destinationAddress,
+          amountZec: parseFloat(quote.toAmount),
+          amountUsd: parseFloat(fromAmount) * parseFloat(quote.exchangeRate),
+          txHash: txHash || undefined,
+          sourcePlatform: sourcePlatform || "web",
+          sourceUrl,
+          metadata: {
+            intentId,
+            fromChain,
+            fromToken,
+            fromAmount,
+            exchangeRate: parseFloat(quote.exchangeRate),
+            route: quote.route,
+            demo: demoMode,
+          },
+        })
+
+        transactionId = transaction.id
+        console.log("[swap/execute] Transaction logged:", {
+          transactionId,
+          creatorId,
+          amountZec: quote.toAmount,
+        })
+      } catch (dbError) {
+        // Log error but don't fail the request - the swap was successful
+        console.error("[swap/execute] Failed to log transaction:", dbError)
+      }
+    }
 
     const response: ExecuteResponse = {
       success: true,
       txHash,
       status: "pending",
       intentId,
-      demo: true,
-      message: "Demo transaction - no real funds transferred",
+      demo: demoMode,
+      transactionId,
+      estimatedCompletion,
+      message: demoMode
+        ? "Demo transaction - no real funds transferred"
+        : "Swap initiated via NEAR Intents",
     }
 
-    console.log("[swap/execute] Mock execution:", {
+    console.log("[swap/execute] Execution complete:", {
       from: `${fromAmount} ${fromToken === "0x0000000000000000000000000000000000000000" ? "ETH" : "token"}`,
       to: `${quote?.toAmount || "?"} ZEC`,
       wallet: walletAddress.slice(0, 10) + "...",
       destination: destinationAddress.slice(0, 10) + "...",
-      txHash,
       intentId,
+      demo: demoMode,
     })
 
     return NextResponse.json(response)

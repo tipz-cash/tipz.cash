@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
+import { isDemoMode, isNearConfigured, getNearNetwork } from "@/lib/near"
+import { isTwitterApiConfigured } from "@/lib/twitter-api"
 
 /**
  * Health check endpoint for monitoring and deployment verification.
@@ -9,13 +11,15 @@ import { supabase } from "@/lib/supabase"
  * - Database connectivity (creators table)
  * - Transactions table accessibility
  * - Environment configuration
+ * - NEAR configuration (for real payments)
+ * - Twitter API configuration (for tweet verification)
  *
  * Returns:
  * - 200: Service healthy
  * - 503: Service unhealthy (critical check failed)
  */
 
-const SERVICE_VERSION = "1.2.0"
+const SERVICE_VERSION = "1.3.0"
 const SERVICE_NAME = "tipz-api"
 
 // Track service start time for uptime calculation
@@ -33,12 +37,22 @@ interface HealthStatus {
   version: string
   timestamp: string
   uptime_seconds: number
+  mode: "demo" | "production"
   checks: {
     database: DatabaseCheck
     transactions_table: DatabaseCheck
     environment: {
       status: "configured" | "misconfigured"
       missing_vars?: string[]
+    }
+    near: {
+      status: "configured" | "demo_mode" | "not_configured"
+      network?: string
+      message?: string
+    }
+    twitter: {
+      status: "configured" | "not_configured"
+      message?: string
     }
   }
 }
@@ -60,12 +74,17 @@ function checkEnvironment(): { configured: boolean; missing: string[] } {
 }
 
 export async function GET() {
+  const demoMode = isDemoMode()
+  const nearConfigured = isNearConfigured()
+  const twitterConfigured = isTwitterApiConfigured()
+
   const health: HealthStatus = {
     status: "healthy",
     service: SERVICE_NAME,
     version: SERVICE_VERSION,
     timestamp: new Date().toISOString(),
     uptime_seconds: Math.floor((Date.now() - serviceStartTime) / 1000),
+    mode: demoMode ? "demo" : "production",
     checks: {
       database: {
         status: "disconnected"
@@ -75,6 +94,19 @@ export async function GET() {
       },
       environment: {
         status: "configured"
+      },
+      near: {
+        status: demoMode ? "demo_mode" : (nearConfigured ? "configured" : "not_configured"),
+        network: getNearNetwork(),
+        message: demoMode
+          ? "Demo mode enabled - payments are simulated"
+          : (nearConfigured ? "Production mode - real payments enabled" : "NEAR credentials missing")
+      },
+      twitter: {
+        status: twitterConfigured ? "configured" : "not_configured",
+        message: twitterConfigured
+          ? "Tweet verification enabled"
+          : "Tweet verification disabled - registrations default to pending"
       }
     }
   }
@@ -180,7 +212,8 @@ export async function GET() {
     status: httpStatus,
     headers: {
       "Cache-Control": "no-cache, no-store, must-revalidate",
-      "X-Health-Status": health.status
+      "X-Health-Status": health.status,
+      "X-Service-Mode": health.mode
     }
   })
 }
