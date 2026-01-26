@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 
 import { AutoStampBadge } from "~components/AutoStampToggle"
 import { getLinkedCreator, type CreatorIdentity } from "~lib/identity"
-import { colors, fonts } from "~lib/theme"
+import { colors, fonts, radius, transitions } from "~lib/theme"
 
 const WEB_URL = process.env.PLASMO_PUBLIC_API_URL || "https://tipz.cash"
 
@@ -227,12 +227,15 @@ function TipzAutoStamp({ anchor }: TipzAutoStampProps) {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "4px",
-          padding: "4px 10px",
+          gap: "6px",
+          padding: "6px 12px",
           marginLeft: "8px",
           fontSize: "12px",
           fontFamily: fonts.mono,
           color: colors.success,
+          background: "rgba(34, 197, 94, 0.1)",
+          borderRadius: radius.full,
+          border: `1px solid ${colors.success}`,
         }}
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

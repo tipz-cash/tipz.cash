@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react"
 import { getLinkedCreator, clearLinkedCreator, onLinkedCreatorChange, type CreatorIdentity } from "~lib/identity"
 import { getReceivedTips, getRevenueStats, type ReceivedTip, type RevenueStats } from "~lib/api"
-import { colors, fonts } from "~lib/theme"
+import { colors, fonts, radius, shadows, transitions } from "~lib/theme"
 
 const WEB_URL = process.env.PLASMO_PUBLIC_API_URL || "https://tipz.cash"
 
-// Terminal-style TIPZ Logo Component
+// Terminal-style TIPZ Logo Component with glow effect
 function Logo() {
   return (
     <span style={{
@@ -13,13 +13,15 @@ function Logo() {
       fontWeight: 700,
       fontSize: "16px",
       fontFamily: fonts.mono,
+      textShadow: `0 0 20px ${colors.primaryGlow}`,
+      letterSpacing: "0.5px",
     }}>
       [TIPZ]
     </span>
   )
 }
 
-// Linked status indicator
+// Linked status indicator with pulse animation
 function LinkedStatus({ identity }: { identity: CreatorIdentity | null }) {
   return (
     <div style={{
@@ -28,10 +30,11 @@ function LinkedStatus({ identity }: { identity: CreatorIdentity | null }) {
       gap: "6px",
     }}>
       <div style={{
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
+        width: "8px",
+        height: "8px",
+        borderRadius: radius.full,
         backgroundColor: identity ? colors.success : colors.muted,
+        animation: identity ? "statusPulse 2s ease-in-out infinite" : "none",
       }}/>
       <span style={{ fontSize: "11px", color: colors.muted, fontFamily: fonts.mono }}>
         {identity ? `@${identity.handle}` : "Not Linked"}
@@ -40,24 +43,41 @@ function LinkedStatus({ identity }: { identity: CreatorIdentity | null }) {
   )
 }
 
-// Revenue stat card
+// Revenue stat card with glassmorphism
 function StatCard({ label, value, subtext }: { label: string; value: string; subtext?: string }) {
   return (
     <div style={{
       flex: 1,
-      padding: "12px",
-      backgroundColor: colors.surface,
-      borderRadius: "4px",
-      border: `1px solid ${colors.border}`,
+      padding: "16px",
+      background: colors.cardBg,
+      backdropFilter: "blur(16px)",
+      borderRadius: radius.lg,
+      border: `1px solid ${colors.cardBorder}`,
+      borderTop: `1px solid ${colors.borderGold}`,
+      boxShadow: shadows.card,
+      transition: `all ${transitions.normal}`,
     }}>
-      <div style={{ fontSize: "10px", color: colors.muted, fontFamily: fonts.mono, marginBottom: "4px" }}>
+      <div style={{
+        fontSize: "10px",
+        color: colors.muted,
+        fontFamily: fonts.mono,
+        marginBottom: "6px",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px",
+      }}>
         {label}
       </div>
-      <div style={{ fontSize: "18px", fontWeight: 600, color: colors.primary, fontFamily: fonts.mono }}>
+      <div style={{
+        fontSize: "20px",
+        fontWeight: 600,
+        color: colors.primary,
+        fontFamily: fonts.mono,
+        textShadow: `0 0 20px ${colors.primaryGlow}`,
+      }}>
         {value}
       </div>
       {subtext && (
-        <div style={{ fontSize: "10px", color: colors.muted, fontFamily: fonts.mono, marginTop: "2px" }}>
+        <div style={{ fontSize: "10px", color: colors.muted, fontFamily: fonts.mono, marginTop: "4px" }}>
           {subtext}
         </div>
       )}
@@ -65,7 +85,7 @@ function StatCard({ label, value, subtext }: { label: string; value: string; sub
   )
 }
 
-// Recent tip item
+// Recent tip item with hover state
 function RecentTipItem({ tip }: { tip: ReceivedTip }) {
   const date = new Date(tip.created_at)
   const formattedDate = date.toLocaleDateString("en-US", {
@@ -78,13 +98,20 @@ function RecentTipItem({ tip }: { tip: ReceivedTip }) {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      padding: "10px 12px",
-      backgroundColor: colors.surface,
-      borderRadius: "4px",
-      border: `1px solid ${colors.border}`,
+      padding: "12px 14px",
+      background: colors.cardBg,
+      backdropFilter: "blur(12px)",
+      borderRadius: radius.md,
+      border: `1px solid ${colors.cardBorder}`,
+      transition: `all ${transitions.fast}`,
     }}>
       <div>
-        <div style={{ fontSize: "13px", fontWeight: 500, fontFamily: fonts.mono, color: colors.textWhite }}>
+        <div style={{
+          fontSize: "13px",
+          fontWeight: 500,
+          fontFamily: fonts.mono,
+          color: colors.textWhite
+        }}>
           Tip received
         </div>
         <div style={{ fontSize: "11px", color: colors.muted, fontFamily: fonts.mono }}>
@@ -92,7 +119,7 @@ function RecentTipItem({ tip }: { tip: ReceivedTip }) {
         </div>
       </div>
       <div style={{
-        fontSize: "13px",
+        fontSize: "14px",
         fontWeight: 600,
         color: colors.success,
         fontFamily: fonts.mono,
@@ -110,17 +137,17 @@ function TipSkeleton() {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      padding: "10px 12px",
-      backgroundColor: colors.surface,
-      borderRadius: "4px",
-      border: `1px solid ${colors.border}`,
+      padding: "12px 14px",
+      background: colors.cardBg,
+      borderRadius: radius.md,
+      border: `1px solid ${colors.cardBorder}`,
     }}>
       <div>
         <div style={{
           width: "80px",
           height: "13px",
           backgroundColor: colors.border,
-          borderRadius: "2px",
+          borderRadius: radius.sm,
           marginBottom: "6px",
           animation: "pulse 1.5s ease-in-out infinite",
         }} />
@@ -128,7 +155,7 @@ function TipSkeleton() {
           width: "50px",
           height: "11px",
           backgroundColor: colors.border,
-          borderRadius: "2px",
+          borderRadius: radius.sm,
           animation: "pulse 1.5s ease-in-out infinite",
         }} />
       </div>
@@ -136,15 +163,9 @@ function TipSkeleton() {
         width: "60px",
         height: "13px",
         backgroundColor: colors.border,
-        borderRadius: "2px",
+        borderRadius: radius.sm,
         animation: "pulse 1.5s ease-in-out infinite",
       }} />
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `}</style>
     </div>
   )
 }
@@ -152,17 +173,19 @@ function TipSkeleton() {
 // Not linked view - prompts creator to register/link
 function NotLinkedView() {
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
+    <div style={{ padding: "24px 20px", textAlign: "center" }}>
       <div style={{
         width: "64px",
         height: "64px",
-        borderRadius: "8px",
-        backgroundColor: colors.surface,
+        borderRadius: radius.lg,
+        background: colors.cardBg,
+        backdropFilter: "blur(12px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        margin: "0 auto 16px",
-        border: `1px solid ${colors.border}`,
+        margin: "0 auto 20px",
+        border: `1px solid ${colors.cardBorder}`,
+        boxShadow: shadows.card,
       }}>
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -170,7 +193,7 @@ function NotLinkedView() {
       </div>
 
       <h2 style={{
-        margin: "0 0 8px",
+        margin: "0 0 10px",
         fontSize: "16px",
         fontWeight: 600,
         color: colors.textWhite,
@@ -180,10 +203,10 @@ function NotLinkedView() {
       </h2>
 
       <p style={{
-        margin: "0 0 20px",
+        margin: "0 0 24px",
         fontSize: "13px",
         color: colors.muted,
-        fontFamily: fonts.mono,
+        fontFamily: fonts.sans,
         lineHeight: 1.5,
       }}>
         Register on TIPZ to start receiving private tips and track your earnings.
@@ -196,28 +219,30 @@ function NotLinkedView() {
         style={{
           display: "block",
           width: "100%",
-          padding: "14px",
+          padding: "14px 24px",
           fontSize: "14px",
           fontWeight: 600,
           color: colors.bg,
-          backgroundColor: colors.primary,
+          background: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
           border: "none",
-          borderRadius: "4px",
+          borderRadius: radius.lg,
           textAlign: "center",
           textDecoration: "none",
           cursor: "pointer",
           fontFamily: fonts.mono,
           boxSizing: "border-box",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 12px rgba(245,166,35,0.15)",
+          transition: `all ${transitions.fast}`,
         }}
       >
         Register Now
       </a>
 
       <p style={{
-        margin: "16px 0 0",
-        fontSize: "11px",
+        margin: "20px 0 0",
+        fontSize: "12px",
         color: colors.muted,
-        fontFamily: fonts.mono,
+        fontFamily: fonts.sans,
       }}>
         Already registered?{" "}
         <a
@@ -272,9 +297,9 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
   }
 
   return (
-    <div style={{ padding: "16px 20px" }}>
+    <div style={{ padding: "16px 20px 20px" }}>
       {/* Stats Cards */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
+      <div style={{ display: "flex", gap: "12px", marginBottom: "16px" }}>
         <StatCard
           label="TOTAL EARNED"
           value={stats ? `${parseFloat(stats.total_zec).toFixed(4)}` : "-.----"}
@@ -290,14 +315,14 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
       {/* USD Value */}
       {stats && parseFloat(stats.total_zec) > 0 && (
         <div style={{
-          padding: "12px",
-          backgroundColor: "rgba(245, 166, 35, 0.1)",
-          border: `1px solid ${colors.primary}`,
-          borderRadius: "4px",
+          padding: "12px 14px",
+          background: colors.primaryGlow,
+          border: `1px solid ${colors.borderGold}`,
+          borderRadius: radius.md,
           marginBottom: "16px",
           textAlign: "center",
         }}>
-          <span style={{ fontSize: "12px", color: colors.muted, fontFamily: fonts.mono }}>
+          <span style={{ fontSize: "12px", color: colors.text, fontFamily: fonts.mono }}>
             ≈ {stats.total_usd}
           </span>
         </div>
@@ -309,9 +334,17 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: "10px",
+          marginBottom: "12px",
         }}>
-          <h3 style={{ margin: 0, fontSize: "12px", fontWeight: 600, fontFamily: fonts.mono, color: colors.textWhite }}>
+          <h3 style={{
+            margin: 0,
+            fontSize: "11px",
+            fontWeight: 600,
+            fontFamily: fonts.mono,
+            color: colors.muted,
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+          }}>
             Recent Tips
           </h3>
         </div>
@@ -323,10 +356,10 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
             </>
           ) : error ? (
             <div style={{
-              padding: "12px",
-              backgroundColor: "rgba(255, 68, 68, 0.1)",
+              padding: "14px",
+              background: "rgba(239, 68, 68, 0.1)",
               border: `1px solid ${colors.error}`,
-              borderRadius: "4px",
+              borderRadius: radius.md,
               fontSize: "12px",
               color: colors.error,
               textAlign: "center",
@@ -340,10 +373,10 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
             ))
           ) : (
             <div style={{
-              padding: "20px 12px",
-              backgroundColor: colors.surface,
-              borderRadius: "4px",
-              border: `1px solid ${colors.border}`,
+              padding: "24px 14px",
+              background: colors.cardBg,
+              borderRadius: radius.md,
+              border: `1px solid ${colors.cardBorder}`,
               fontSize: "12px",
               color: colors.muted,
               textAlign: "center",
@@ -355,7 +388,7 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
         </div>
       </div>
 
-      {/* Share Tip Page */}
+      {/* Share Tip Page - Secondary button */}
       <a
         href={`${WEB_URL}/${identity.handle}`}
         target="_blank"
@@ -366,17 +399,18 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
           justifyContent: "center",
           gap: "8px",
           width: "100%",
-          padding: "12px",
+          padding: "12px 16px",
           fontSize: "13px",
           fontWeight: 500,
           color: colors.textWhite,
           backgroundColor: "transparent",
           border: `1px solid ${colors.border}`,
-          borderRadius: "4px",
+          borderRadius: radius.lg,
           cursor: "pointer",
           textDecoration: "none",
           fontFamily: fonts.mono,
           boxSizing: "border-box",
+          transition: `all ${transitions.fast}`,
         }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -392,13 +426,14 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
           display: "block",
           width: "100%",
           marginTop: "12px",
-          padding: "8px",
+          padding: "10px",
           fontSize: "11px",
           color: colors.muted,
           backgroundColor: "transparent",
           border: "none",
           cursor: "pointer",
           fontFamily: fonts.mono,
+          transition: `color ${transitions.fast}`,
         }}
       >
         Unlink account
@@ -435,9 +470,17 @@ function IndexPopup() {
         color: colors.textWhite,
       }}
     >
-      {/* Header */}
+      {/* Gold accent bar at top */}
       <div style={{
-        padding: "20px 20px 16px",
+        height: "2px",
+        background: "linear-gradient(90deg, transparent 0%, #FFD700 50%, transparent 100%)",
+      }} />
+
+      {/* Header with glassmorphism */}
+      <div style={{
+        padding: "20px",
+        background: "rgba(18, 20, 26, 0.8)",
+        backdropFilter: "blur(12px)",
         borderBottom: `1px solid ${colors.border}`,
       }}>
         <div style={{
@@ -445,9 +488,15 @@ function IndexPopup() {
           alignItems: "center",
           justifyContent: "space-between",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <Logo />
-            <span style={{ color: colors.muted, fontSize: "11px", fontFamily: fonts.mono }}>
+            <span style={{
+              color: colors.muted,
+              fontSize: "11px",
+              fontFamily: fonts.mono,
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+            }}>
               Creator
             </span>
           </div>
@@ -457,23 +506,16 @@ function IndexPopup() {
 
       {/* Content */}
       {isLoading ? (
-        <div style={{ padding: "40px 20px", textAlign: "center" }}>
+        <div style={{ padding: "48px 20px", textAlign: "center" }}>
           <div style={{
             width: "24px",
             height: "24px",
             border: `2px solid ${colors.border}`,
             borderTopColor: colors.primary,
-            borderRadius: "50%",
+            borderRadius: radius.full,
             animation: "spin 0.8s linear infinite",
             margin: "0 auto",
-          }}>
-            <style>{`
-              @keyframes spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-              }
-            `}</style>
-          </div>
+          }} />
         </div>
       ) : linkedCreator ? (
         <CreatorDashboard identity={linkedCreator} />
@@ -488,6 +530,7 @@ function IndexPopup() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
+        background: colors.bgBase,
       }}>
         <div style={{
           display: "flex",
@@ -497,19 +540,25 @@ function IndexPopup() {
           <div style={{
             width: "6px",
             height: "6px",
-            borderRadius: "50%",
+            borderRadius: radius.full,
             backgroundColor: colors.success,
           }} />
           <span style={{ fontSize: "11px", color: colors.muted, fontFamily: fonts.mono }}>
             Powered by Zcash
           </span>
         </div>
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div style={{ display: "flex", gap: "14px" }}>
           <a
             href="https://github.com/tipz"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: colors.muted, fontSize: "11px", textDecoration: "none", fontFamily: fonts.mono }}
+            style={{
+              color: colors.muted,
+              fontSize: "11px",
+              textDecoration: "none",
+              fontFamily: fonts.mono,
+              transition: `color ${transitions.fast}`,
+            }}
           >
             GitHub
           </a>
@@ -517,7 +566,13 @@ function IndexPopup() {
             href={`${WEB_URL}/privacy`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: colors.muted, fontSize: "11px", textDecoration: "none", fontFamily: fonts.mono }}
+            style={{
+              color: colors.muted,
+              fontSize: "11px",
+              textDecoration: "none",
+              fontFamily: fonts.mono,
+              transition: `color ${transitions.fast}`,
+            }}
           >
             Privacy
           </a>
