@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { TippingFlow } from "@/components/tipping"
+import { LetterGridBackground } from "@/components/LetterGridBackground"
 
 const colors = {
   bg: "#050505",
@@ -520,6 +521,7 @@ export default function CreatorCardPage() {
       <>
         <style>{responsiveStyles}</style>
         <div className="tipz-page">
+          <LetterGridBackground />
           <div className="tipz-card">
             <div className="tipz-card-content">
               <div className="tipz-skeleton" style={{ width: 60, height: 16, margin: "0 auto 16px" }} />
@@ -537,6 +539,7 @@ export default function CreatorCardPage() {
       <>
         <style>{responsiveStyles}</style>
         <div className="tipz-page">
+          <LetterGridBackground />
           <div className="tipz-card">
             <div className="tipz-card-content">
               <div className="tipz-logo">TIPZ</div>
@@ -594,6 +597,7 @@ export default function CreatorCardPage() {
       <>
         <style>{responsiveStyles}</style>
         <div className="tipz-page">
+          <LetterGridBackground />
           <div className="tipz-card">
             <div className="tipz-card-content">
               <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
@@ -621,6 +625,7 @@ export default function CreatorCardPage() {
       <>
         <style>{responsiveStyles}</style>
         <div className="tipz-page tipz-mobile">
+          <LetterGridBackground />
           <div className="tipz-card">
             <div className="tipz-card-content">
               {/* Header with back button only */}
@@ -685,6 +690,7 @@ export default function CreatorCardPage() {
     <>
       <style>{responsiveStyles}</style>
       <div className="tipz-page">
+        <LetterGridBackground />
         <div className="tipz-card">
           <div className="tipz-card-content">
             <TippingFlow

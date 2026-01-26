@@ -27,10 +27,11 @@
     "host_permissions": [
       "https://x.com/*",
       "https://twitter.com/*",
-      "https://*.substack.com/*"
+      "https://tipz.cash/*"
     ],
     "permissions": [
-      "storage"
+      "storage",
+      "notifications"
     ]
   }
 }

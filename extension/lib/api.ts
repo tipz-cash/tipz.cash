@@ -87,3 +87,78 @@ export async function batchLookupCreators(
     return { results: {} }
   }
 }
+
+// ============================================================================
+// Creator Revenue (Received Tips) API
+// ============================================================================
+
+export interface ReceivedTip {
+  id: string
+  amount: string // ZEC amount
+  from_address?: string // Optional: sender address (may be shielded)
+  created_at: string
+  message?: string
+}
+
+export interface ReceivedTipsResult {
+  tips: ReceivedTip[]
+  total_zec: string
+  total_count: number
+}
+
+/**
+ * Get tips received by a creator
+ * @param handle - The creator's handle
+ * @param limit - Maximum number of tips to return (default 50)
+ */
+export async function getReceivedTips(
+  handle: string,
+  limit: number = 50
+): Promise<ReceivedTipsResult> {
+  const normalizedHandle = normalizeHandle(handle)
+
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/tips/received?handle=${encodeURIComponent(normalizedHandle)}&limit=${limit}`
+    )
+
+    if (!res.ok) {
+      // Return empty result on error
+      return { tips: [], total_zec: "0", total_count: 0 }
+    }
+
+    return await res.json()
+  } catch (error) {
+    console.error("TIPZ: Failed to get received tips", error)
+    return { tips: [], total_zec: "0", total_count: 0 }
+  }
+}
+
+/**
+ * Get revenue stats for a creator
+ */
+export interface RevenueStats {
+  total_zec: string
+  total_usd: string
+  tip_count: number
+  last_tip_at: string | null
+}
+
+export async function getRevenueStats(handle: string): Promise<RevenueStats> {
+  const normalizedHandle = normalizeHandle(handle)
+
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/tips/stats?handle=${encodeURIComponent(normalizedHandle)}`
+    )
+
+    if (!res.ok) {
+      return { total_zec: "0", total_usd: "$0.00", tip_count: 0, last_tip_at: null }
+    }
+
+    return await res.json()
+  } catch (error) {
+    console.error("TIPZ: Failed to get revenue stats", error)
+    return { total_zec: "0", total_usd: "$0.00", tip_count: 0, last_tip_at: null }
+  }
+}
