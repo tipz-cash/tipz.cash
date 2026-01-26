@@ -2237,41 +2237,22 @@ function HeroTitle({
           </>
         ) : (
           // Full animation: character-by-character with effects
-          // Don't render trailing newlines to prevent cursor flash on empty line
+          // Let AnimatedCharacter handle newlines naturally as <br/> elements
           <>
-            {(() => {
-              const chars = displayText.split("");
-              // Find if there are trailing newlines
-              let renderUpTo = chars.length;
-              while (renderUpTo > 0 && chars[renderUpTo - 1] === "\n") {
-                renderUpTo--;
-              }
-              return chars.slice(0, renderUpTo).map((char, index) => (
-                <AnimatedCharacter
-                  key={index}
-                  char={char}
-                  index={index}
-                  isNew={index === newCharIndex}
-                  isTipzChar={isTipzChar(index)}
-                />
-              ));
-            })()}
+            {displayText.split("").map((char, index) => (
+              <AnimatedCharacter
+                key={index}
+                char={char}
+                index={index}
+                isNew={index === newCharIndex}
+                isTipzChar={isTipzChar(index)}
+              />
+            ))}
             <PremiumCursor
               visible={!isComplete}
               typingComplete={isComplete}
               intensity={glowIntensity}
             />
-            {/* Render trailing newlines after cursor */}
-            {(() => {
-              const chars = displayText.split("");
-              let trailingStart = chars.length;
-              while (trailingStart > 0 && chars[trailingStart - 1] === "\n") {
-                trailingStart--;
-              }
-              return chars.slice(trailingStart).map((_, index) => (
-                <br key={`trailing-${index}`} />
-              ));
-            })()}
           </>
         )}
       </h1>
@@ -2575,7 +2556,7 @@ export default function HomePage() {
                 padding: "8px 16px",
                 borderRadius: "8px",
               }}
-            >START EARNING</a>
+            >REGISTER</a>
           </nav>
         </div>
       </header>
