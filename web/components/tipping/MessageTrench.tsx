@@ -25,7 +25,8 @@ export function MessageTrench({ value, onChange, disabled = false }: MessageTren
     <div
       style={{
         width: "100%",
-        padding: "12px 14px",
+        minHeight: "48px",
+        padding: "14px 16px",
         background: "rgba(0, 0, 0, 0.3)",
         borderRadius: tokens.radius.md,
         border: `1px solid ${isFocused ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.05)"}`,

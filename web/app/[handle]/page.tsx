@@ -51,8 +51,8 @@ const responsiveStyles = `
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 600px;
-    height: 600px;
+    width: min(600px, 100vw);
+    height: min(600px, 100vw);
     background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
     filter: blur(100px);
     animation: auroraDrift 20s ease-in-out infinite;

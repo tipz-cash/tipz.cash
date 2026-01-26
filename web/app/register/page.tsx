@@ -215,8 +215,9 @@ My shielded address: ${shieldedAddress || "[your address]"}`
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    padding: "14px 16px",
-    fontSize: "16px",
+    padding: "16px",
+    minHeight: "52px",
+    fontSize: "16px", // Prevents iOS zoom on focus
     fontFamily: "'JetBrains Mono', monospace",
     backgroundColor: colors.bg,
     border: `1px solid ${colors.border}`,
@@ -813,6 +814,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
               style={{
                 width: "100%",
                 padding: "18px",
+                minHeight: "56px",
                 fontSize: "15px",
                 fontWeight: 700,
                 color: colors.bg,
