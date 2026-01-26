@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TIPZ: Team Pitch Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/black.css">
+  <style>
+    :root {
+      --background: #08090a;
+      --surface: #12141a;
+      --primary: #F5A623;
+      --primary-hover: #FFB84D;
+      --success: #22C55E;
+      --error: #EF4444;
+      --text-muted: #D1D5DB;
+      --text-bright: #F9FAFB;
+      --border: #262626;
+    }
+
+    .reveal-viewport {
+      background: var(--background);
+    }
+
+    .reveal {
+      font-family: 'Inter', sans-serif;
+      font-size: 32px;
+      color: var(--text-muted);
+    }
+
+    .reveal h1, .reveal h2, .reveal h3 {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-bright);
+      text-transform: none;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .reveal h1 {
+      font-size: 2.4em;
+      margin-bottom: 0.5em;
+    }
+
+    .reveal h2 {
+      font-size: 1.6em;
+      color: var(--primary);
+      margin-bottom: 0.3em;
+    }
+
+    .reveal h3 {
+      font-size: 1em;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .reveal .slides section {
+      height: 100%;
+      padding: 40px;
+    }
+
+    .reveal code, .reveal pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .reveal pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      font-size: 0.5em;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .reveal .highlight {
+      color: var(--primary);
+    }
+
+    .reveal .success {
+      color: var(--success);
+    }
+
+    .reveal .error {
+      color: var(--error);
+    }
+
+    .reveal .tagline {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+      font-size: 0.6em;
+      letter-spacing: 0.1em;
+    }
+
+    .reveal table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      font-size: 0.65em;
+    }
+
+    .reveal table th {
+      background: var(--surface);
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      padding: 12px 20px;
+      text-align: left;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .reveal table td {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .reveal table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .reveal .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .reveal .stat-grid.three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .reveal .stat-grid.four {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .reveal .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .reveal .stat-box .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.8em;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .reveal .stat-box .value.success {
+      color: var(--success);
+    }
+
+    .reveal .stat-box .label {
+      font-size: 0.5em;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .reveal .logo-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3em;
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: 0 0 40px rgba(245, 166, 35, 0.4);
+    }
+
+    .reveal .bullet-list {
+      text-align: left;
+      font-size: 0.75em;
+      margin: 20px auto;
+      max-width: 800px;
+    }
+
+    .reveal .bullet-list li {
+      margin-bottom: 16px;
+      padding-left: 10px;
+    }
+
+    .reveal .bullet-list li::marker {
+      color: var(--primary);
+    }
+
+    .reveal .bullet-list.small li {
+      margin-bottom: 10px;
+      font-size: 0.9em;
+    }
+
+    .reveal .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+
+    .reveal .flow-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-size: 0.55em;
+      font-family: 'JetBrains Mono', monospace;
+      text-align: center;
+    }
+
+    .reveal .flow-step.highlight-box {
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(245, 166, 35, 0.2);
+    }
+
+    .reveal .flow-arrow {
+      color: var(--primary);
+      font-size: 1.2em;
+    }
+
+    .reveal .flow-arrow.down {
+      transform: rotate(90deg);
+    }
+
+    .reveal .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .reveal .comparison-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .reveal .comparison-box.tipz {
+      border-color: var(--primary);
+      box-shadow: 0 0 20px rgba(245, 166, 35, 0.2);
+    }
+
+    .reveal .comparison-box h4 {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-bright);
+      margin-bottom: 16px;
+      font-size: 0.8em;
+    }
+
+    .reveal .comparison-box.tipz h4 {
+      color: var(--primary);
+    }
+
+    .reveal .comparison-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.6em;
+    }
+
+    .reveal .comparison-item:last-child {
+      border-bottom: none;
+    }
+
+    .reveal .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .reveal .tech-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .reveal .tech-item .label {
+      font-size: 0.5em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .reveal .tech-item .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65em;
+      color: var(--text-bright);
+    }
+
+    .reveal .status-list {
+      text-align: left;
+      font-size: 0.7em;
+      margin: 20px auto;
+      max-width: 700px;
+    }
+
+    .reveal .status-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-radius: 6px;
+    }
+
+    .reveal .status-check {
+      font-size: 1.2em;
+    }
+
+    .reveal .status-check.done {
+      color: var(--success);
+    }
+
+    .reveal .status-check.pending {
+      color: var(--primary);
+    }
+
+    .reveal .roadmap-table {
+      font-size: 0.6em;
+    }
+
+    .reveal .roadmap-table td:first-child {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .reveal .role-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: left;
+    }
+
+    .reveal .role-card h4 {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+      font-size: 0.8em;
+      margin-bottom: 8px;
+    }
+
+    .reveal .role-card .focus {
+      font-size: 0.6em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .reveal .role-card .tasks {
+      font-size: 0.55em;
+      color: var(--text-bright);
+    }
+
+    .reveal .role-card .tasks li {
+      margin-bottom: 6px;
+    }
+
+    .reveal .quote {
+      font-style: italic;
+      color: var(--text-muted);
+      border-left: 3px solid var(--primary);
+      padding-left: 20px;
+      margin: 25px 0;
+      font-size: 0.8em;
+    }
+
+    .reveal .cta-list {
+      text-align: left;
+      font-size: 0.8em;
+      margin: 30px auto;
+      max-width: 700px;
+    }
+
+    .reveal .cta-list li {
+      margin-bottom: 20px;
+      padding-left: 10px;
+    }
+
+    .reveal .cta-list .label {
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .slide-number {
+      font-family: 'JetBrains Mono', monospace !important;
+      color: var(--text-muted) !important;
+      font-size: 14px !important;
+    }
+
+    .reveal .ecosystem-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 10px 0;
+    }
+
+    .reveal .ecosystem-box h4 {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+      font-size: 0.7em;
+      margin-bottom: 10px;
+    }
+
+    .reveal .ecosystem-box p {
+      font-size: 0.6em;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .reveal .timeline-row {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 16px;
+      margin-bottom: 12px;
+      font-size: 0.6em;
+    }
+
+    .reveal .timeline-week {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .reveal .timeline-content {
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 12px 16px;
+    }
+
+    /* Chart Styles */
+    .reveal .chart-container {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      margin: 20px 0;
+    }
+
+    .reveal .area-chart {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .reveal .area-chart svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .reveal .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .reveal .bar-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 60px;
+      gap: 12px;
+      align-items: center;
+      font-size: 0.55em;
+    }
+
+    .reveal .bar-label {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+    }
+
+    .reveal .bar-track {
+      height: 24px;
+      background: var(--surface);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .reveal .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+
+    .reveal .bar-fill.error {
+      background: linear-gradient(90deg, var(--error) 0%, #ff6b6b 100%);
+    }
+
+    .reveal .bar-fill.success {
+      background: linear-gradient(90deg, var(--success) 0%, #4ade80 100%);
+    }
+
+    .reveal .bar-fill.primary {
+      background: linear-gradient(90deg, var(--primary) 0%, #ffd93d 100%);
+    }
+
+    .reveal .bar-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+
+    .reveal .chart-legend {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 16px;
+      font-size: 0.55em;
+    }
+
+    .reveal .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .reveal .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    .reveal .mini-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .reveal .mini-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.5em;
+    }
+
+    .reveal .mini-bar-label {
+      width: 80px;
+      text-align: right;
+      color: var(--text-muted);
+    }
+
+    .reveal .mini-bar-track {
+      flex: 1;
+      height: 16px;
+      background: var(--surface);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .reveal .mini-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+
+    .reveal .mini-bar-value {
+      width: 50px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+
+    /* Option cards for monetization */
+    .reveal .option-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .reveal .option-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: left;
+    }
+
+    .reveal .option-card.recommended {
+      border-color: var(--success);
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+    }
+
+    .reveal .option-card h4 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7em;
+      color: var(--text-bright);
+      margin-bottom: 8px;
+    }
+
+    .reveal .option-card.recommended h4 {
+      color: var(--success);
+    }
+
+    .reveal .option-card p {
+      font-size: 0.5em;
+      color: var(--text-muted);
+      margin: 0 0 8px 0;
+    }
+
+    .reveal .option-card .verdict {
+      font-size: 0.5em;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .reveal .option-card .verdict.bad {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--error);
+    }
+
+    .reveal .option-card .verdict.good {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--success);
+    }
+
+    /* Flywheel diagram */
+    .reveal .flywheel {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px 0;
+    }
+
+    .reveal .flywheel-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.5em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .reveal .flywheel-num {
+      background: var(--primary);
+      color: var(--background);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9em;
+    }
+
+    .reveal .flywheel-arrow {
+      color: var(--primary);
+      font-size: 1.2em;
+    }
+
+    /* Segment grid */
+    .reveal .segment-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .reveal .segment-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .reveal .segment-card .icon {
+      font-size: 1.4em;
+      margin-bottom: 6px;
+    }
+
+    .reveal .segment-card .name {
+      font-size: 0.5em;
+      color: var(--text-bright);
+      font-weight: 500;
+    }
+
+    /* Pitch angle boxes */
+    .reveal .pitch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .reveal .pitch-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: left;
+    }
+
+    .reveal .pitch-box h4 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75em;
+      margin-bottom: 12px;
+    }
+
+    .reveal .pitch-box.zcash h4 {
+      color: var(--primary);
+    }
+
+    .reveal .pitch-box.broad h4 {
+      color: var(--success);
+    }
+
+    .reveal .pitch-box ul {
+      font-size: 0.55em;
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .reveal .pitch-box li {
+      margin-bottom: 8px;
+    }
+
+    /* Contact slide */
+    .reveal .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .reveal .contact-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .reveal .contact-item .icon {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+
+    .reveal .contact-item .label {
+      font-size: 0.5em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .reveal .contact-item .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6em;
+      color: var(--primary);
+    }
+
+    /* Big number highlight */
+    .reveal .big-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3em;
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: 0 0 30px rgba(245, 166, 35, 0.3);
+    }
+
+    .reveal .big-number.success {
+      color: var(--success);
+      text-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+    }
+
+    /* Hero stat variation */
+    .reveal .stat-box.hero {
+      padding: 30px;
+      border-color: var(--primary);
+      box-shadow: 0 0 30px rgba(245, 166, 35, 0.15);
+    }
+
+    .reveal .stat-box.hero .value {
+      font-size: 2.4em;
+    }
+
+    /* Section break slide */
+    .reveal section.section-break {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .reveal section.section-break h2 {
+      font-size: 2em;
+      text-align: center;
+    }
+
+    .reveal section.section-break h3 {
+      font-size: 0.9em;
+      margin-top: 16px;
+    }
+
+    /* Improved quote styling */
+    .reveal .quote.featured {
+      font-size: 1em;
+      border-left-width: 4px;
+      padding: 20px 25px;
+      background: rgba(245, 166, 35, 0.05);
+      border-radius: 0 8px 8px 0;
+    }
+
+    /* Vertical flywheel */
+    .reveal .flywheel-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .reveal .flywheel-vertical .step {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-radius: 8px;
+      border-left: 3px solid var(--primary);
+      font-size: 0.55em;
+    }
+
+    .reveal .flywheel-vertical .step-num {
+      background: var(--primary);
+      color: var(--background);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9em;
+      flex-shrink: 0;
+    }
+
+    /* Segment cards without emoji - text only */
+    .reveal .segment-card-text {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+
+    .reveal .segment-card-text .name {
+      font-size: 0.55em;
+      color: var(--text-bright);
+      font-weight: 500;
+    }
+
+    .reveal .segment-card-text .desc {
+      font-size: 0.45em;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Subtle title animation */
+    .reveal .logo-text.animated {
+      animation: logoGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes logoGlow {
+      0%, 100% { text-shadow: 0 0 40px rgba(245, 166, 35, 0.4); }
+      50% { text-shadow: 0 0 60px rgba(245, 166, 35, 0.6), 0 0 80px rgba(245, 166, 35, 0.3); }
+    }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- Slide 1: Title -->
+      <section>
+        <div class="logo-text animated">[TIPZ]</div>
+        <h1 style="margin-top: 30px; font-size: 1.6em;">Private tips. Any asset. Zero trace.</h1>
+        <p class="tagline" style="margin-top: 30px;">Privacy-first micro-tipping for creators</p>
+        <p style="margin-top: 60px; font-size: 0.5em; color: var(--text-muted);">Team Pitch Deck // 2026</p>
+      </section>
+
+      <!-- Slide 2: Problem 1 - Platform Fees -->
+      <section>
+        <h2>Problem 1: Platforms Take Half</h2>
+        <h3>Traditional tipping is a bad deal for creators</h3>
+
+        <div class="bar-chart" style="margin-top: 20px;">
+          <div class="bar-row">
+            <div class="bar-label">TikTok Gifts</div>
+            <div class="bar-track">
+              <div class="bar-fill error" style="width: 50%;"></div>
+            </div>
+            <div class="bar-value error">50%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Twitch Subs</div>
+            <div class="bar-track">
+              <div class="bar-fill error" style="width: 50%;"></div>
+            </div>
+            <div class="bar-value error">50%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Twitch Bits</div>
+            <div class="bar-track">
+              <div class="bar-fill error" style="width: 40%;"></div>
+            </div>
+            <div class="bar-value error">40%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">YouTube Super Chat</div>
+            <div class="bar-track">
+              <div class="bar-fill error" style="width: 30%;"></div>
+            </div>
+            <div class="bar-value error">30%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Patreon</div>
+            <div class="bar-track">
+              <div class="bar-fill primary" style="width: 12%;"></div>
+            </div>
+            <div class="bar-value" style="color: var(--text-muted);">8-12%</div>
+          </div>
+        </div>
+
+        <p style="margin-top: 16px; font-size: 0.55em; color: var(--text-muted);">
+          Platform fee shown above. <span class="error">+ 2.9% payment processing</span> on top of that.
+        </p>
+
+        <div class="stat-box hero" style="margin-top: 16px; max-width: 400px; margin-left: auto; margin-right: auto;">
+          <div class="value error" style="color: var(--error);">$730M+</div>
+          <div class="label">extracted from creators yearly</div>
+        </div>
+      </section>
+
+      <!-- Slide 3: Problem 2 - Crypto Privacy -->
+      <section>
+        <h2>Problem 2: Crypto Tips Are Public</h2>
+        <h3>Every transaction, traceable forever</h3>
+
+        <div class="stat-grid" style="margin-top: 25px;">
+          <div class="stat-box">
+            <div class="value error" style="color: var(--error);">100%</div>
+            <div class="label">of blockchain transactions traceable</div>
+          </div>
+          <div class="stat-box">
+            <div class="value error" style="color: var(--error);">Forever</div>
+            <div class="label">on-chain records are permanent</div>
+          </div>
+        </div>
+
+        <ul class="bullet-list" style="margin-top: 25px;">
+          <li><span class="error">Sender, receiver, amount</span> — all visible on public chains</li>
+          <li><span class="error">AI-powered chain analysis</span> links wallets to real identities</li>
+          <li><span class="error">Any wallet linked to any wallet</span> — your entire financial graph exposed</li>
+          <li><span class="error">Doxing risk</span> — one tip can reveal a creator's total income</li>
+        </ul>
+
+        <p class="quote featured" style="margin-top: 20px;">
+          "Crypto was supposed to be freedom. Instead, it's a permanent audit trail."
+        </p>
+      </section>
+
+      <!-- Slide 4: The Solution -->
+      <section>
+        <h2>The Solution: TIPZ</h2>
+        <h3>Private tipping infrastructure for creators</h3>
+
+        <ul class="bullet-list" style="margin-top: 30px;">
+          <li><span class="success">Tips arrive encrypted</span> via Zcash shielded addresses</li>
+          <li><span class="success">Accept any token</span> (ETH, USDC, SOL) — auto-converts to ZEC</li>
+          <li><span class="success">100% goes to creator</span> — zero platform fees</li>
+          <li><span class="success">2-minute setup</span> — no KYC required</li>
+        </ul>
+
+        <div class="quote" style="margin-top: 30px;">
+          "Your income is your business. Not the blockchain's."
+        </div>
+      </section>
+
+      <!-- Slide 4: How It Works -->
+      <section>
+        <h2>How It Works</h2>
+        <h3>ETH in, private ZEC out</h3>
+
+        <div class="flow-diagram" style="flex-direction: column; gap: 16px; position: relative;">
+          <span style="position: absolute; top: -10px; right: 0; font-size: 0.45em; background: var(--surface); border: 1px solid var(--primary); border-radius: 4px; padding: 4px 10px; color: var(--primary);">~2 min</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="flow-step">Tipper clicks TIP</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Chooses amount + token</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Wallet confirms</div>
+          </div>
+          <span class="flow-arrow down">↓</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="flow-step highlight-box">NEAR Intents swaps to ZEC</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step highlight-box">Arrives at shielded address</div>
+          </div>
+          <span class="flow-arrow down">↓</span>
+          <div class="flow-step" style="border-color: var(--success);">
+            Creator gets notification — Income stays private
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 5: Why Now? (Opportunity Intro) -->
+      <section class="section-break">
+        <h2>Why Join Now?</h2>
+        <h3>Two megatrends. Zero competitors at their intersection.</h3>
+
+        <div class="comparison-grid" style="margin-top: 30px;">
+          <div class="stat-box hero">
+            <div class="value">$1.3T</div>
+            <div class="label">Creator economy by 2033</div>
+          </div>
+          <div class="stat-box hero">
+            <div class="value">$45B</div>
+            <div class="label">Privacy tech by 2032</div>
+          </div>
+        </div>
+
+        <p class="quote featured" style="margin-top: 30px;">
+          "Here's the opportunity."
+        </p>
+      </section>
+
+      <!-- Slide 8: Creator Economy Growth -->
+      <section>
+        <h2>$205B → $1.3T</h2>
+        <h3>Creator economy, 2024-2033</h3>
+
+        <div class="area-chart" style="margin-top: 20px;">
+          <svg viewBox="0 0 600 200" preserveAspectRatio="xMidYMid meet">
+            <!-- Grid lines -->
+            <line x1="50" y1="20" x2="50" y2="180" stroke="#262626" stroke-width="1"/>
+            <line x1="50" y1="180" x2="580" y2="180" stroke="#262626" stroke-width="1"/>
+            <line x1="50" y1="140" x2="580" y2="140" stroke="#3a3a3a" stroke-width="0.5" stroke-dasharray="4"/>
+            <line x1="50" y1="100" x2="580" y2="100" stroke="#3a3a3a" stroke-width="0.5" stroke-dasharray="4"/>
+            <line x1="50" y1="60" x2="580" y2="60" stroke="#3a3a3a" stroke-width="0.5" stroke-dasharray="4"/>
+
+            <!-- Y-axis labels -->
+            <text x="42" y="143" fill="#6b7280" font-size="8" text-anchor="end">$250B</text>
+            <text x="42" y="103" fill="#6b7280" font-size="8" text-anchor="end">$500B</text>
+            <text x="42" y="63" fill="#6b7280" font-size="8" text-anchor="end">$750B</text>
+            <text x="42" y="23" fill="#6b7280" font-size="8" text-anchor="end">$1T+</text>
+
+            <!-- NOW marker (2026) -->
+            <line x1="168" y1="20" x2="168" y2="180" stroke="#F5A623" stroke-width="1" stroke-dasharray="3"/>
+            <text x="168" y="15" fill="#F5A623" font-size="9" text-anchor="middle" font-weight="600">NOW</text>
+
+            <!-- Area fill with gradient -->
+            <defs>
+              <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#F5A623;stop-opacity:0.4" />
+                <stop offset="100%" style="stop-color:#F5A623;stop-opacity:0.05" />
+              </linearGradient>
+              <filter id="endGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Area path: 2024=$205B to 2033=$1345B -->
+            <path d="M 50 165 L 109 160 L 168 152 L 227 140 L 286 125 L 345 105 L 404 80 L 463 50 L 522 25 L 580 5 L 580 180 L 50 180 Z" fill="url(#areaGrad)"/>
+
+            <!-- Line -->
+            <path d="M 50 165 L 109 160 L 168 152 L 227 140 L 286 125 L 345 105 L 404 80 L 463 50 L 522 25 L 580 5" fill="none" stroke="#F5A623" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+            <!-- Data points -->
+            <circle cx="50" cy="165" r="4" fill="#F5A623"/>
+            <circle cx="168" cy="152" r="5" fill="#F5A623"/>
+            <circle cx="580" cy="5" r="6" fill="#F5A623" filter="url(#endGlow)"/>
+
+            <!-- Labels -->
+            <text x="50" y="195" fill="#D1D5DB" font-size="10" text-anchor="middle">2024</text>
+            <text x="580" y="195" fill="#D1D5DB" font-size="10" text-anchor="middle">2033</text>
+            <text x="25" y="168" fill="#D1D5DB" font-size="9" text-anchor="middle">$205B</text>
+            <text x="580" y="25" fill="#F5A623" font-size="11" text-anchor="middle" font-weight="bold">$1.3T</text>
+          </svg>
+        </div>
+
+        <div class="stat-grid three" style="margin-top: 10px;">
+          <div class="stat-box">
+            <div class="value">23.3%</div>
+            <div class="label">CAGR</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">50M+</div>
+            <div class="label">creators globally</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">20%+</div>
+            <div class="label">Asia-Pacific growth</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 9: Creator Tipping Market -->
+      <section>
+        <h2>$2.9B in Tips</h2>
+        <h3>And 70% are under $10</h3>
+
+        <div class="stat-grid four" style="margin-top: 25px;">
+          <div class="stat-box">
+            <div class="value">$2.9B</div>
+            <div class="label">tipping market (2025)</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">350M</div>
+            <div class="label">tips per year</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">70%</div>
+            <div class="label">micropayments (&lt;$10)</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">83%</div>
+            <div class="label">creators earn &lt;$15K/year</div>
+          </div>
+        </div>
+
+        <p class="quote featured" style="margin-top: 25px;">"Platforms take half. TIPZ takes nothing."</p>
+      </section>
+
+      <!-- Slide 10: Privacy - The Asymmetric Bet -->
+      <section>
+        <h2>Privacy Isn't a Cycle</h2>
+        <h3>It's infrastructure demand</h3>
+
+        <div class="stat-grid" style="margin-top: 25px;">
+          <div class="stat-box">
+            <div class="value">35.5%</div>
+            <div class="label">CAGR → $45B by 2032</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">80%+</div>
+            <div class="label">consumers uneasy about data use</div>
+          </div>
+        </div>
+
+        <div class="stat-grid" style="margin-top: 16px;">
+          <div class="stat-box">
+            <div class="value error" style="color: var(--error);">€5.65B</div>
+            <div class="label">cumulative GDPR fines</div>
+          </div>
+          <div class="stat-box">
+            <div class="value error" style="color: var(--error);">€1.2B</div>
+            <div class="label">Meta's single largest fine</div>
+          </div>
+        </div>
+
+        <p class="quote featured" style="margin-top: 20px;">
+          "When privacy wins, it wins forever."
+        </p>
+      </section>
+
+      <!-- Slide 12: Privacy Adoption Surge -->
+      <section>
+        <h2>Users Are Voting</h2>
+        <h3>With their wallets</h3>
+
+        <div class="stat-grid four" style="margin-top: 25px;">
+          <div class="stat-box">
+            <div class="value success">700%</div>
+            <div class="label">ZEC price surge (2025)</div>
+          </div>
+          <div class="stat-box">
+            <div class="value success">30%</div>
+            <div class="label">ZEC supply now shielded</div>
+          </div>
+          <div class="stat-box">
+            <div class="value success">20%</div>
+            <div class="label">Spot volume on DEXs</div>
+          </div>
+          <div class="stat-box">
+            <div class="value success">54%</div>
+            <div class="label">DEX CAGR</div>
+          </div>
+        </div>
+
+        <div class="comparison-grid" style="margin-top: 20px;">
+          <div class="comparison-box">
+            <h4>Then (Early 2025)</h4>
+            <div class="comparison-item">
+              <span>Shielded ZEC</span>
+              <span>~10% of supply</span>
+            </div>
+            <div class="comparison-item">
+              <span>DEX volume</span>
+              <span>~10% of spot</span>
+            </div>
+            <div class="comparison-item">
+              <span>Self-custody</span>
+              <span>Niche preference</span>
+            </div>
+          </div>
+          <div class="comparison-box tipz">
+            <h4>Now (Late 2025)</h4>
+            <div class="comparison-item">
+              <span>Shielded ZEC</span>
+              <span class="success">30% of supply (3x)</span>
+            </div>
+            <div class="comparison-item">
+              <span>DEX volume</span>
+              <span class="success">20% of spot (2x)</span>
+            </div>
+            <div class="comparison-item">
+              <span>Self-custody</span>
+              <span class="success">40% of new users</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 13: Why Zcash (Enhanced) -->
+      <section>
+        <h2>Why Zcash?</h2>
+        <h3>Battle-tested, SEC-cleared, $5.6B deep</h3>
+
+        <div class="stat-grid four" style="margin-top: 20px;">
+          <div class="stat-box">
+            <div class="value">$5.6B+</div>
+            <div class="label">Market cap (#19)</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">4.9M</div>
+            <div class="label">ZEC shielded (30%)</div>
+          </div>
+          <div class="stat-box">
+            <div class="value success">+150%</div>
+            <div class="label">Active addresses YoY</div>
+          </div>
+          <div class="stat-box">
+            <div class="value success">886</div>
+            <div class="label">Merchants via Flexa</div>
+          </div>
+        </div>
+
+        <ul class="bullet-list small" style="margin-top: 20px;">
+          <li><span class="highlight">SEC investigation closed</span> — no enforcement action (regulatory clarity)</li>
+          <li><span class="highlight">Zero-knowledge proofs</span> — hide sender, receiver, AND amount</li>
+          <li><span class="highlight">Battle-tested since 2016</span> — not associated with darknet activity</li>
+        </ul>
+      </section>
+
+      <!-- Slide 14: The Zcash Moment -->
+      <section>
+        <h2>Perfect Timing</h2>
+        <h3>The Zcash ecosystem is ready for use cases</h3>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px;">
+          <div class="ecosystem-box">
+            <h4>cashZ (Early 2026)</h4>
+            <p>Consumer wallet by Josh Swihart, former ECC CEO. Mainstream adoption focus.</p>
+          </div>
+          <div class="ecosystem-box">
+            <h4>Zashi Wallet</h4>
+            <p>ECC's official wallet with 886 merchant integrations via Flexa.</p>
+          </div>
+          <div class="ecosystem-box">
+            <h4>Institutional Backing</h4>
+            <p><span class="highlight">Winklevoss:</span> $1.2M to Shielded Labs<br>
+            <span class="highlight">Cypherpunk:</span> 290K ZEC ($100M+)</p>
+          </div>
+        </div>
+
+        <p class="quote featured" style="margin-top: 20px; border-left-color: var(--success); background: rgba(34, 197, 94, 0.05);">
+          "Wallets need users. Creators bring them."
+        </p>
+      </section>
+
+      <!-- Slide 15: Zcash Grants (Enhanced) -->
+      <section>
+        <h2>Two Grant Programs</h2>
+        <h3>8% of ZEC block rewards fund ecosystem development through Nov 2028</h3>
+
+        <div class="comparison-grid" style="margin-top: 20px;">
+          <div class="comparison-box">
+            <h4>Zcash Foundation Grants</h4>
+            <div class="comparison-item">
+              <span>Minor grants</span>
+              <span class="highlight">&lt;$25K</span>
+            </div>
+            <div class="comparison-item">
+              <span>Major grants</span>
+              <span class="highlight">$25K-$250K+</span>
+            </div>
+            <div class="comparison-item">
+              <span>Review cycle</span>
+              <span>2 weeks</span>
+            </div>
+            <div class="comparison-item">
+              <span>Process</span>
+              <span>Rolling applications</span>
+            </div>
+          </div>
+          <div class="comparison-box tipz">
+            <h4>Zcash Community Grants (ZCG)</h4>
+            <div class="comparison-item">
+              <span>Small grants</span>
+              <span class="highlight">&lt;$50K</span>
+            </div>
+            <div class="comparison-item">
+              <span>Large grants</span>
+              <span class="highlight">$50K-$500K+</span>
+            </div>
+            <div class="comparison-item">
+              <span>Review cycle</span>
+              <span>Monthly</span>
+            </div>
+            <div class="comparison-item">
+              <span>Process</span>
+              <span>Community vote</span>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin-top: 16px; font-size: 0.55em; color: var(--text-bright); background: var(--surface); padding: 12px 16px; border-radius: 6px; border-left: 3px solid var(--success);">
+          <span class="success">TIPZ ticks every box:</span> 0% fees, open source, and funnels external assets (ETH, USDC, SOL) directly into shielded ZEC. Real utility, not speculation.
+        </p>
+      </section>
+
+      <!-- Slide: What's Built -->
+      <section>
+        <h2>What's Built</h2>
+        <h3>Working product, not a concept</h3>
+
+        <div class="status-list" style="margin-top: 25px;">
+          <div class="status-item">
+            <span class="status-check done">✓</span>
+            <span>Landing page live with full narrative</span>
+          </div>
+          <div class="status-item">
+            <span class="status-check done">✓</span>
+            <span>Creator registration working</span>
+          </div>
+          <div class="status-item">
+            <span class="status-check done">✓</span>
+            <span>Browser extension (Creator Command Center)</span>
+          </div>
+          <div class="status-item">
+            <span class="status-check done">✓</span>
+            <span>Web tipping flow complete</span>
+          </div>
+          <div class="status-item">
+            <span class="status-check pending">⏳</span>
+            <span>NEAR mainnet integration <span class="highlight">(critical path)</span></span>
+          </div>
+          <div class="status-item">
+            <span class="status-check pending">⏳</span>
+            <span>Chrome Web Store submission</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide: Team Structure -->
+      <section>
+        <h2>Team Structure</h2>
+        <h3>Small team, AI-augmented velocity</h3>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px;">
+          <div class="role-card">
+            <h4>Engineer</h4>
+            <div class="focus">Payment Flow</div>
+            <ul class="tasks">
+              <li>NEAR mainnet integration</li>
+              <li>Extension production build</li>
+              <li>Transaction monitoring</li>
+            </ul>
+          </div>
+          <div class="role-card">
+            <h4>Growth</h4>
+            <div class="focus">Creator Acquisition</div>
+            <ul class="tasks">
+              <li>Crypto Twitter outreach</li>
+              <li>Community (Discord)</li>
+              <li>KOL relationships</li>
+            </ul>
+          </div>
+          <div class="role-card">
+            <h4>BD</h4>
+            <div class="focus">Partnerships</div>
+            <ul class="tasks">
+              <li>Wallet integrations</li>
+              <li>Grant applications</li>
+              <li>Ecosystem relationships</li>
+            </ul>
+          </div>
+        </div>
+
+        <p style="margin-top: 16px; font-size: 0.55em; color: var(--text-bright); background: var(--surface); padding: 10px 16px; border-radius: 6px; border-left: 3px solid var(--primary);">
+          <span class="highlight">AI tools like Claude Code change the math.</span> With 2-3 people who can manage and sign off on areas, we ship like a team of 10.
+        </p>
+      </section>
+
+      <!-- Slide 16: Monetization Paths -->
+      <section>
+        <h2>The Real Business Model</h2>
+        <h3>Four paths, presented honestly</h3>
+
+        <div class="option-grid">
+          <div class="option-card">
+            <h4>1. Payment Flow Fee (1-3%)</h4>
+            <p>Take a cut of transaction volume</p>
+            <span class="verdict bad">✕ Contradicts "zero fees" positioning</span>
+          </div>
+          <div class="option-card">
+            <h4>2. Donation Button</h4>
+            <p>"Support TIPZ" voluntary contributions</p>
+            <span class="verdict bad">✕ Won't generate real revenue (&lt;1%)</span>
+          </div>
+          <div class="option-card recommended">
+            <h4>3. Zcash Grants</h4>
+            <p>Fund development while building traction. TIPZ directly advances ZEC mission.</p>
+            <span class="verdict good">✓ Aligned incentives, up to $25K+</span>
+          </div>
+          <div class="option-card recommended">
+            <h4>4. Acquisition/Acqui-hire</h4>
+            <p>Wallets need use cases. TIPZ delivers creator distribution. cashZ/Zashi partnership → exit.</p>
+            <span class="verdict good">✓ The valuable asset is onboarding</span>
+          </div>
+        </div>
+
+        <p style="margin-top: 16px; font-size: 0.65em; color: var(--primary); font-weight: 500;">
+          Zero fees is the wedge. Distribution is the exit.
+        </p>
+      </section>
+
+      <!-- Slide 17: What's Actually Valuable -->
+      <section>
+        <h2>The Real Asset</h2>
+        <h3>Creator distribution, not code</h3>
+
+        <div class="comparison-grid" style="margin-top: 25px;">
+          <div class="comparison-box">
+            <h4>What Wallets Need</h4>
+            <div class="comparison-item">
+              <span>Real use cases</span>
+            </div>
+            <div class="comparison-item">
+              <span>Shielded transaction volume</span>
+            </div>
+            <div class="comparison-item">
+              <span>User onboarding funnel</span>
+            </div>
+            <div class="comparison-item">
+              <span>Viral distribution</span>
+            </div>
+          </div>
+          <div class="comparison-box tipz">
+            <h4>What TIPZ Delivers</h4>
+            <div class="comparison-item">
+              <span>Each creator = 1000s of users</span>
+              <span class="success">✓</span>
+            </div>
+            <div class="comparison-item">
+              <span>Every tip = shielded tx</span>
+              <span class="success">✓</span>
+            </div>
+            <div class="comparison-item">
+              <span>Browser extension → wallet</span>
+              <span class="success">✓</span>
+            </div>
+            <div class="comparison-item">
+              <span>Creators promote to audience</span>
+              <span class="success">✓</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="quote featured" style="margin-top: 20px;">
+          "Wallets need users. Creators bring them."
+        </p>
+      </section>
+
+      <!-- Slide 18: Creator Advocacy Potential -->
+      <section>
+        <h2>Built-In Evangelists</h2>
+        <h3>Privacy-conscious creators spread the word</h3>
+
+        <div class="segment-grid" style="margin-bottom: 16px;">
+          <div class="segment-card-text">
+            <div class="name">Crypto<br>Influencers</div>
+            <div class="desc">already privacy-native</div>
+          </div>
+          <div class="segment-card-text">
+            <div class="name">Journalists</div>
+            <div class="desc">source protection</div>
+          </div>
+          <div class="segment-card-text">
+            <div class="name">Political<br>Commentators</div>
+            <div class="desc">deplatforming risk</div>
+          </div>
+          <div class="segment-card-text">
+            <div class="name">Adult<br>Creators</div>
+            <div class="desc">payment processor cuts</div>
+          </div>
+          <div class="segment-card-text">
+            <div class="name">International<br>Creators</div>
+            <div class="desc">banking barriers</div>
+          </div>
+        </div>
+
+        <div class="flywheel-vertical">
+          <div class="step"><span class="step-num">1</span> Creator discovers TIPZ</div>
+          <div class="step"><span class="step-num">2</span> Zero fees builds trust</div>
+          <div class="step"><span class="step-num">3</span> Creator promotes to audience</div>
+          <div class="step"><span class="step-num">4</span> Audience tips + advocates</div>
+          <div class="step" style="border-left-color: var(--success);"><span class="step-num" style="background: var(--success);">5</span> More creators join → repeat</div>
+        </div>
+
+        <p style="margin-top: 12px; font-size: 0.5em; color: var(--text-muted);">
+          Gumroad (2024), itch.io (2025), OnlyFans near-ban — payment processor pressure
+        </p>
+      </section>
+
+      <!-- Slide 19: Two Pitch Angles -->
+      <section>
+        <h2>Two Angles, One Product</h2>
+        <h3>Different audiences, same value</h3>
+
+        <div class="pitch-grid">
+          <div class="pitch-box zcash">
+            <h4>Pitch A: Zcash Crowd</h4>
+            <ul>
+              <li>Drive shielded adoption through creator use case</li>
+              <li>Lead with ZEC flow, shielded pool growth</li>
+              <li>Ecosystem alignment, grant eligibility</li>
+              <li>Every TIPZ tip = shielded transaction</li>
+              <li>Measurable impact on protocol metrics</li>
+            </ul>
+          </div>
+          <div class="pitch-box broad">
+            <h4>Pitch B: Broader Crypto</h4>
+            <ul>
+              <li>Private tipping from any crypto</li>
+              <li>Users don't need to know what ZEC is</li>
+              <li>Accept ETH, USDC, SOL → arrives private</li>
+              <li>Privacy as feature, not ideology</li>
+              <li>Captures entire crypto tipping TAM</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="quote featured" style="margin-top: 20px;">
+          "Privacy is the product. ZEC is the plumbing."
+        </p>
+      </section>
+
+      <!-- Slide 20: Launch Roadmap -->
+      <section>
+        <h2>Launch Roadmap</h2>
+        <h3>4-week sprint to live payments</h3>
+
+        <table class="roadmap-table" style="margin-top: 25px;">
+          <thead>
+            <tr>
+              <th style="width: 100px;">Week</th>
+              <th>Milestone</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Week 1</td>
+              <td>NEAR testnet → mainnet migration, community launch</td>
+            </tr>
+            <tr>
+              <td>Week 2</td>
+              <td>Chrome Web Store submission, 50+ registered creators</td>
+            </tr>
+            <tr>
+              <td>Week 3</td>
+              <td>Grant submissions (ZF, NEAR), 100+ creators</td>
+            </tr>
+            <tr>
+              <td>Week 4</td>
+              <td>Wallet partnerships (cashZ, Zashi), 500+ creators</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="stat-grid" style="margin-top: 25px;">
+          <div class="stat-box">
+            <div class="value">500</div>
+            <div class="label">Creator target (30 days)</div>
+          </div>
+          <div class="stat-box">
+            <div class="value success">$10K+</div>
+            <div class="label">Tip volume target</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 21: Why Join Now (Enhanced) -->
+      <section>
+        <h2>Why Join Now?</h2>
+        <h3>This is the moment</h3>
+
+        <ul class="cta-list" style="margin-top: 20px; font-size: 0.7em;">
+          <li style="margin-bottom: 14px;">
+            <span class="label">No One Else Is Building This</span>
+            Two megatrends. Zero competitors at the intersection.
+          </li>
+          <li style="margin-bottom: 14px;">
+            <span class="label">Perfect Timing</span>
+            cashZ launching. Two grant programs. Ecosystem ready.
+          </li>
+          <li style="margin-bottom: 14px;">
+            <span class="label">Working Product. Real Users. Now.</span>
+            Not a deck — live demo, registered creators.
+          </li>
+          <li style="margin-bottom: 14px;">
+            <span class="label">Mission That Matters</span>
+            Financial privacy is a human right.
+          </li>
+        </ul>
+
+        <div class="stat-grid" style="margin-top: 16px;">
+          <div class="stat-box">
+            <div class="value" style="font-size: 1.4em;">Founding Equity</div>
+            <div class="label">ground floor team</div>
+          </div>
+          <div class="stat-box">
+            <div class="value" style="font-size: 1.4em;">Clear Exit Path</div>
+            <div class="label">build → traction → acquisition</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 22: Close -->
+      <section>
+        <div class="logo-text animated" style="font-size: 2.5em;">[TIPZ]</div>
+        <p class="tagline" style="margin-top: 20px;">Private tips. Any asset. Zero trace.</p>
+
+        <div style="margin-top: 60px;">
+          <p style="font-size: 1.1em; color: var(--text-bright); font-weight: 500;">
+            Let's build something that matters.
+          </p>
+        </div>
+
+        <p style="margin-top: 50px; font-size: 0.5em; color: var(--text-muted);">
+          Press <span class="highlight">F</span> for fullscreen • Arrow keys or space to navigate
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      width: 1280,
+      height: 720,
+      margin: 0.1,
+      transition: 'fade',
+      transitionSpeed: 'fast',
+      backgroundTransition: 'fade',
+      keyboard: {
+        // Custom keyboard shortcuts
+        39: 'next',     // Right arrow
+        37: 'prev',     // Left arrow
+        40: 'next',     // Down arrow
+        38: 'prev',     // Up arrow
+        32: 'next',     // Space
+        13: 'next'      // Enter
+      }
+    });
+  </script>
+</body>
+</html>
