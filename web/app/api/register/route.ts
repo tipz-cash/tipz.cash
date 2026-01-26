@@ -80,11 +80,12 @@ function isValidTwitterHandle(handle: string): boolean {
 }
 
 /**
- * Zcash Shielded Address Validation
+ * Zcash Sapling Address Validation
  *
- * Validates that the address is a valid shielded address:
- * - Sapling addresses: Start with "zs1", exactly 78 characters
- * - Unified addresses: Start with "u1", variable length (78+ chars)
+ * Validates that the address is a valid Sapling shielded address:
+ * - Must start with "zs1"
+ * - Must be exactly 78 characters
+ * - Uses Bech32 encoding
  *
  * Note: This is format validation only. It does not verify the address
  * exists on the blockchain or has valid cryptographic properties.
@@ -94,16 +95,11 @@ function isValidShieldedAddress(address: string): boolean {
     return false
   }
 
-  // Unified addresses start with 'u1' (variable length, typically 141+ chars)
-  if (address.startsWith("u1")) {
-    return address.length >= 78
-  }
-
   // Sapling shielded addresses start with 'zs1' (exactly 78 characters)
   if (address.startsWith("zs1")) {
-    // Validate Base58 character set (excludes 0, O, I, l to avoid confusion)
-    const base58Regex = /^zs1[1-9A-HJ-NP-Za-km-z]{75}$/
-    return address.length === 78 && base58Regex.test(address)
+    // Bech32 character set (excludes 1, b, i, o)
+    const bech32Regex = /^zs1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{75}$/
+    return address.length === 78 && bech32Regex.test(address)
   }
 
   return false
@@ -358,7 +354,7 @@ export async function POST(request: NextRequest) {
   // Validate shielded address
   if (!isValidShieldedAddress(sanitizedAddress)) {
     return createErrorResponse(
-      "Invalid Zcash shielded address. Must be a Sapling address (zs1..., 78 chars) or Unified address (u1..., 78+ chars)",
+      "Invalid Zcash shielded address. Must be a Sapling address (zs1..., 78 chars)",
       ERROR_CODES.INVALID_ADDRESS,
       400,
       headers,
