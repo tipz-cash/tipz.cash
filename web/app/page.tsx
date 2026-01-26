@@ -882,20 +882,16 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
           <div style={{ display: "flex", gap: `${12 * scale}px` }}>
             {/* Avatar Column with Thread Line */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-              <div style={{
-                width: `${40 * scale}px`,
-                height: `${40 * scale}px`,
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #1a1a2e 0%, #334155 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: `${18 * scale}px`,
-                fontWeight: 700,
-                color: "#FFFFFF",
-              }}>
-                N
-              </div>
+              <img
+                src="https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2_400x400.jpg"
+                alt="Naval"
+                style={{
+                  width: `${40 * scale}px`,
+                  height: `${40 * scale}px`,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                }}
+              />
               {/* Thread Line connecting to Tweet 2 */}
               <div style={{
                 width: `${2 * scale}px`,
@@ -965,21 +961,17 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
           {/* Tweet 2: The Delivery */}
           <div style={{ display: "flex", gap: `${12 * scale}px`, marginTop: `${4 * scale}px` }}>
             {/* Avatar */}
-            <div style={{
-              width: `${40 * scale}px`,
-              height: `${40 * scale}px`,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #1a1a2e 0%, #334155 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: `${18 * scale}px`,
-              fontWeight: 700,
-              color: "#FFFFFF",
-              flexShrink: 0,
-            }}>
-              N
-            </div>
+            <img
+              src="https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2_400x400.jpg"
+              alt="Naval"
+              style={{
+                width: `${40 * scale}px`,
+                height: `${40 * scale}px`,
+                borderRadius: "50%",
+                objectFit: "cover",
+                flexShrink: 0,
+              }}
+            />
             {/* Tweet 2 Content */}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px` }}>
@@ -1033,22 +1025,18 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                       gap: `${8 * scale}px`,
                     }}>
                       {/* Avatar - Squircle */}
-                      <div style={{
-                        width: `${24 * scale}px`,
-                        height: `${24 * scale}px`,
-                        borderRadius: `${6 * scale}px`,
-                        background: "linear-gradient(135deg, hsl(220, 50%, 35%) 0%, hsl(220, 60%, 25%) 100%)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: `${12 * scale}px`,
-                        fontWeight: 800,
-                        color: "#FFFFFF",
-                        flexShrink: 0,
-                        boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
-                      }}>
-                        N
-                      </div>
+                      <img
+                        src="https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2_400x400.jpg"
+                        alt="Naval"
+                        style={{
+                          width: `${24 * scale}px`,
+                          height: `${24 * scale}px`,
+                          borderRadius: `${6 * scale}px`,
+                          objectFit: "cover",
+                          flexShrink: 0,
+                          boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+                        }}
+                      />
 
                       {/* @naval - EXTRA BOLD HEADLINE */}
                       <div style={{
@@ -1354,27 +1342,18 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
           transition: shouldAnimate ? "all 0.3s ease-out 0.1s" : "none",
         }}>
           {/* Avatar - squircle with inner glow */}
-          <div style={{
-            width: `${48 * scale}px`,
-            height: `${48 * scale}px`,
-            borderRadius: "22%",
-            backgroundColor: avatarColor,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
-            flexShrink: 0,
-          }}>
-            <span style={{
-              fontSize: `${18 * scale}px`,
-              color: "#FFFFFF",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              fontFamily: "'JetBrains Mono', monospace",
-            }}>
-              N
-            </span>
-          </div>
+          <img
+            src="https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2_400x400.jpg"
+            alt="Naval"
+            style={{
+              width: `${48 * scale}px`,
+              height: `${48 * scale}px`,
+              borderRadius: "22%",
+              objectFit: "cover",
+              boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+              flexShrink: 0,
+            }}
+          />
           {/* Handle + Shield */}
           <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px` }}>
             <span style={{
