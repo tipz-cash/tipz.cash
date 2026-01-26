@@ -5,6 +5,32 @@ import Link from "next/link"
 import { colors } from "@/lib/colors"
 import { animationKeyframes, transitions } from "@/lib/animations"
 
+// SVG Icons (no emojis - brand guidelines)
+function CheckIcon({ size = 16, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function LockIcon({ size = 16, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
+
+function CelebrationIcon({ size = 32, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z" />
+    </svg>
+  );
+}
+
 // Form validation helpers
 function validateHandle(handle: string): string | null {
   if (!handle) return "Handle is required";
@@ -340,15 +366,15 @@ My shielded address: ${shieldedAddress || "[your address]"}`
           {/* Trust signals - Optimized */}
           <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: colors.success }}>✓</span>
+              <CheckIcon size={14} color={colors.success} />
               <span style={{ fontSize: "12px", color: colors.text }}>0% fees</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: colors.success }}>✓</span>
+              <CheckIcon size={14} color={colors.success} />
               <span style={{ fontSize: "12px", color: colors.text }}>2-minute setup</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: colors.success }}>✓</span>
+              <CheckIcon size={14} color={colors.success} />
               <span style={{ fontSize: "12px", color: colors.text }}>Private by default</span>
             </div>
           </div>
@@ -365,10 +391,8 @@ My shielded address: ${shieldedAddress || "[your address]"}`
               <label style={{ ...labelStyle, marginBottom: 0 }}>X Handle</label>
               {handle && !validateHandle(handle) && (
                 <span style={{
-                  color: colors.success,
-                  fontSize: "16px",
                   animation: prefersReducedMotion ? "none" : "fadeIn 0.3s ease-out",
-                }}>✓</span>
+                }}><CheckIcon size={16} color={colors.success} /></span>
               )}
             </div>
             <input
@@ -420,10 +444,8 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                 <label style={{ ...labelStyle, marginBottom: 0 }}>Zcash Shielded Address</label>
                 {isAddressComplete(shieldedAddress) && (
                   <span style={{
-                    color: colors.success,
-                    fontSize: "16px",
                     animation: prefersReducedMotion ? "none" : "fadeIn 0.3s ease-out",
-                  }}>✓</span>
+                  }}><CheckIcon size={16} color={colors.success} /></span>
                 )}
               </div>
               <input
@@ -465,7 +487,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                   color: isAddressComplete(shieldedAddress) ? colors.success : colors.muted
                 }}>
                   {shieldedAddress.length > 0
-                    ? `${shieldedAddress.length}/78 characters${isAddressComplete(shieldedAddress) ? ' ✓' : ''}`
+                    ? `${shieldedAddress.length}/78 characters`
                     : "Sapling address (starts with zs1)"}
                 </p>
               )}
@@ -587,10 +609,8 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                   <label style={{ ...labelStyle, marginBottom: 0 }}>Paste tweet URL</label>
                   {tweetUrl && !validateTweetUrl(tweetUrl) && (
                     <span style={{
-                      color: colors.success,
-                      fontSize: "16px",
                       animation: prefersReducedMotion ? "none" : "fadeIn 0.3s ease-out",
-                    }}>✓</span>
+                    }}><CheckIcon size={16} color={colors.success} /></span>
                   )}
                 </div>
                 <input
@@ -649,9 +669,8 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                 marginBottom: "20px",
               }}>
                 <span style={{
-                  fontSize: "32px",
                   animation: prefersReducedMotion ? "none" : "stampIn 0.6s ease-out",
-                }}>🎉</span>
+                }}><CelebrationIcon size={32} color={colors.success} /></span>
                 <div>
                   <div style={{
                     fontWeight: 700,
@@ -707,7 +726,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
               {/* Share CTA */}
               <div style={{ display: "flex", gap: "12px" }}>
                 <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just set up @TIPZ_xyz to receive private tips with ZERO fees! 🔒\n\nCreators: keep 100% of what you earn.\n\nSet up in 2 mins: tipz.cash`)}`}
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just set up @TIPZ_xyz to receive private tips with ZERO fees.\n\nCreators: keep 100% of what you earn.\n\nSet up in 2 mins: tipz.cash`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -855,7 +874,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
               fontSize: "11px",
               color: colors.muted,
             }}>
-              <span>🔒</span>
+              <LockIcon size={14} color={colors.muted} />
               <span>Your data stays private. We only store your public handle.</span>
             </div>
           )}
