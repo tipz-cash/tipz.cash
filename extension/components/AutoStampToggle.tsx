@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react"
-import { colors, fonts } from "~lib/theme"
+import { colors, fonts, radius, transitions } from "~lib/theme"
 
 interface AutoStampToggleProps {
   handle: string
@@ -22,12 +21,13 @@ export function AutoStampToggle({ handle, onStamp, isEnabled, onToggle }: AutoSt
         display: "flex",
         alignItems: "center",
         gap: "8px",
-        padding: "4px 8px",
-        borderRadius: "9999px",
-        backgroundColor: isEnabled ? "rgba(245, 166, 35, 0.1)" : "transparent",
+        padding: "6px 12px",
+        borderRadius: radius.full,
+        background: isEnabled ? colors.primaryGlow : "transparent",
         border: `1px solid ${isEnabled ? colors.primary : colors.border}`,
+        boxShadow: isEnabled ? `0 0 16px ${colors.primaryGlow}` : "none",
         cursor: "pointer",
-        transition: "all 0.15s ease",
+        transition: `all ${transitions.fast}`,
         userSelect: "none",
       }}
       onClick={() => {
@@ -56,9 +56,10 @@ export function AutoStampToggle({ handle, onStamp, isEnabled, onToggle }: AutoSt
       <span
         style={{
           fontSize: "13px",
-          fontWeight: 500,
+          fontWeight: 600,
           fontFamily: fonts.mono,
           color: isEnabled ? colors.primary : colors.muted,
+          textShadow: isEnabled ? `0 0 12px ${colors.primaryGlow}` : "none",
         }}
       >
         TIPZ
@@ -67,24 +68,26 @@ export function AutoStampToggle({ handle, onStamp, isEnabled, onToggle }: AutoSt
       {/* Toggle indicator */}
       <div
         style={{
-          width: "28px",
-          height: "16px",
-          borderRadius: "8px",
+          width: "32px",
+          height: "18px",
+          borderRadius: radius.full,
           backgroundColor: isEnabled ? colors.primary : colors.border,
           position: "relative",
-          transition: "background-color 0.15s ease",
+          transition: `background-color ${transitions.fast}`,
+          boxShadow: isEnabled ? `0 0 8px ${colors.primaryGlow}` : "none",
         }}
       >
         <div
           style={{
             position: "absolute",
-            top: "2px",
-            left: isEnabled ? "14px" : "2px",
+            top: "3px",
+            left: isEnabled ? "16px" : "3px",
             width: "12px",
             height: "12px",
-            borderRadius: "50%",
+            borderRadius: radius.full,
             backgroundColor: isEnabled ? colors.bg : colors.muted,
-            transition: "left 0.15s ease",
+            transition: `left ${transitions.fast}`,
+            boxShadow: isEnabled ? "0 1px 3px rgba(0,0,0,0.3)" : "none",
           }}
         />
       </div>
@@ -102,17 +105,18 @@ export function AutoStampBadge({ handle, onClick }: { handle: string; onClick: (
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: "4px",
-        padding: "4px 10px",
+        gap: "6px",
+        padding: "6px 12px",
         fontSize: "12px",
         fontWeight: 600,
         fontFamily: fonts.mono,
         color: colors.primary,
-        backgroundColor: "rgba(245, 166, 35, 0.1)",
+        background: colors.primaryGlow,
         border: `1px solid ${colors.primary}`,
-        borderRadius: "9999px",
+        borderRadius: radius.full,
         cursor: "pointer",
-        transition: "all 0.15s ease",
+        transition: `all ${transitions.fast}`,
+        boxShadow: `0 0 12px ${colors.primaryGlow}`,
       }}
       title={`Add tipz.cash/${handle} to tweet`}
     >

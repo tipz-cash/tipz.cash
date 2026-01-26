@@ -1,67 +1,85 @@
 /**
- * Terminal Theme Design Tokens
+ * TIPZ Brand Theme Design Tokens
  *
- * Shared design tokens matching the terminal homepage aesthetic.
- * Used across all extension components for visual consistency.
+ * "Bloomberg Terminal meets Premium Fintech" aesthetic
+ * with glassmorphism, gold accents, and sophisticated dark theme.
  */
 
-export const terminalTheme = {
-  colors: {
-    bg: "#0A0A0A",
-    surface: "#1A1A1A",
-    primary: "#F5A623",
-    primaryHover: "#FFB84D",
-    success: "#00FF00",
-    error: "#FF4444",
-    muted: "#888888",
-    border: "#333333",
-    text: "#E0E0E0",
-    textWhite: "#FFFFFF",
-  },
-  fonts: {
-    mono: "'JetBrains Mono', monospace",
-  },
-  // Semantic aliases for backwards compatibility
-  get bgBlack() {
-    return this.colors.bg;
-  },
-  get bgCard() {
-    return this.colors.bg;
-  },
-  get accentYellow() {
-    return this.colors.primary;
-  },
-  get borderSubtle() {
-    return this.colors.border;
-  },
-  get borderHover() {
-    return this.colors.border;
-  },
-  get textMuted() {
-    return this.colors.muted;
-  },
-} as const;
-
-// Flat colors export for direct destructuring
 export const colors = {
-  bg: terminalTheme.colors.bg,
-  bgBlack: terminalTheme.colors.bg,
-  bgCard: terminalTheme.colors.bg,
-  surface: terminalTheme.colors.surface,
-  primary: terminalTheme.colors.primary,
-  primaryHover: terminalTheme.colors.primaryHover,
-  accentYellow: terminalTheme.colors.primary,
-  success: terminalTheme.colors.success,
-  error: terminalTheme.colors.error,
-  muted: terminalTheme.colors.muted,
-  textMuted: terminalTheme.colors.muted,
-  border: terminalTheme.colors.border,
-  borderSubtle: terminalTheme.colors.border,
-  borderHover: terminalTheme.colors.border,
-  text: terminalTheme.colors.text,
-  textWhite: terminalTheme.colors.textWhite,
-} as const;
+  // Backgrounds
+  bg: "#050505",
+  bgBase: "#08090a",
+  surface: "#12141a",
+  surfaceHover: "#1a1d24",
+
+  // Primary (Gold/Amber)
+  primary: "#F5A623",
+  primaryHover: "#FFB84D",
+  primaryDark: "#CC8A1D",
+  primaryGlow: "rgba(245, 166, 35, 0.15)",
+
+  // Text
+  textBright: "#F9FAFB",
+  textWhite: "#F9FAFB",
+  text: "#D1D5DB",
+  muted: "#6B7280",
+
+  // Status
+  success: "#22C55E",
+  error: "#EF4444",
+  info: "#3B82F6",
+
+  // Borders
+  border: "#2a2f38",
+  borderHover: "#3d4450",
+  borderGold: "rgba(255, 215, 0, 0.4)",
+
+  // Cards (glassmorphism)
+  cardBg: "rgba(255, 255, 255, 0.02)",
+  cardBorder: "rgba(255, 255, 255, 0.06)",
+  cardBorderHover: "rgba(245, 166, 35, 0.3)",
+
+  // Semantic aliases for backwards compatibility
+  bgBlack: "#050505",
+  bgCard: "#12141a",
+  accentYellow: "#F5A623",
+  borderSubtle: "#2a2f38",
+  textMuted: "#6B7280",
+} as const
 
 export const fonts = {
-  mono: terminalTheme.fonts.mono,
-} as const;
+  mono: "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace",
+  sans: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+} as const
+
+export const radius = {
+  sm: "4px",
+  md: "8px",
+  lg: "12px",
+  xl: "16px",
+  full: "9999px",
+} as const
+
+export const shadows = {
+  card: "0 4px 16px rgba(0, 0, 0, 0.3)",
+  cardHover: "0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 166, 35, 0.1)",
+  glow: "0 0 20px rgba(245, 166, 35, 0.3)",
+} as const
+
+export const transitions = {
+  fast: "0.15s ease-out",
+  normal: "0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+  spring: "0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+} as const
+
+// Legacy terminalTheme export for backwards compatibility
+export const terminalTheme = {
+  colors,
+  fonts,
+  get bgBlack() { return colors.bg },
+  get bgCard() { return colors.surface },
+  get accentYellow() { return colors.primary },
+  get borderSubtle() { return colors.border },
+  get borderHover() { return colors.borderHover },
+  get textMuted() { return colors.muted },
+} as const
