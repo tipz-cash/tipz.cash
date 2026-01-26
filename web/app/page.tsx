@@ -2176,10 +2176,9 @@ function HeroTitle({
     if (isComplete && !prefersReducedMotion) {
       setCompletionFlash(true);
       const flashTimer = setTimeout(() => setCompletionFlash(false), 400);
-      const completeTimer = setTimeout(() => onComplete(), 200);
+      onComplete(); // Fire immediately, no delay
       return () => {
         clearTimeout(flashTimer);
-        clearTimeout(completeTimer);
       };
     } else if (isComplete) {
       onComplete();
