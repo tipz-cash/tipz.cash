@@ -433,7 +433,27 @@ spring({
 - Use underscores in technical terms: `ZK_SHIELDED`, `SELF_CUSTODY`
 - Version numbers: `v0.1.0-beta`
 - Status text: `OPERATIONAL`, `PROCESSING...`
-- Avoid emojis (except checkmarks and status symbols)
+- **NO EMOJIS** - Always use clean SVG icons instead
+
+### Icon Policy
+
+**Never use Unicode emojis** (e.g., 🎉, 🔒, ✓, ✗, ⚠️). Instead, use clean SVG icons that match our terminal aesthetic.
+
+| Instead of | Use |
+|------------|-----|
+| 🎉 ✨ | Success checkmark SVG |
+| 🔒 🔐 | Lock/shield SVG icon |
+| ✓ ✅ | Checkmark SVG (stroke-based) |
+| ✗ ❌ | X mark SVG (stroke-based) |
+| ⚠️ | Warning triangle SVG |
+| → | Arrow SVG or CSS border trick |
+| 🔗 | Link chain SVG |
+
+SVG icons should be:
+- Stroke-based (not filled) for consistency
+- 16-24px standard size
+- Use `currentColor` for easy theming
+- Match the terminal aesthetic (clean, minimal lines)
 
 ---
 
