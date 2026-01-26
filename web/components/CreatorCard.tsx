@@ -23,9 +23,10 @@ function hashToHue(str: string): number {
 interface CreatorCardProps {
   creator: Creator;
   index: number;
+  compact?: boolean;
 }
 
-export function CreatorCard({ creator, index }: CreatorCardProps) {
+export function CreatorCard({ creator, index, compact = false }: CreatorCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const hue = hashToHue(creator.handle);
 
@@ -62,8 +63,8 @@ export function CreatorCard({ creator, index }: CreatorCardProps) {
           borderLeft: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : "rgba(255, 255, 255, 0.08)"}`,
           borderRight: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : "rgba(255, 255, 255, 0.08)"}`,
           borderBottom: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : "rgba(0, 0, 0, 0.3)"}`,
-          borderRadius: "16px",
-          padding: "32px 24px",
+          borderRadius: compact ? "12px" : "16px",
+          padding: compact ? "20px 16px" : "32px 24px",
           opacity: 0,
           animation: "fadeInUp 0.4s ease forwards",
           animationDelay: `${index * 0.05}s`,
@@ -75,7 +76,7 @@ export function CreatorCard({ creator, index }: CreatorCardProps) {
         }}
       >
         {/* Avatar with gold ring on hover */}
-        <div style={{ position: "relative", marginBottom: "16px" }}>
+        <div style={{ position: "relative", marginBottom: compact ? "12px" : "16px" }}>
           {/* Gold ring - visible on hover */}
           <div
             style={{
@@ -91,14 +92,14 @@ export function CreatorCard({ creator, index }: CreatorCardProps) {
           <div
             style={{
               position: "relative",
-              width: "72px",
-              height: "72px",
+              width: compact ? "56px" : "72px",
+              height: compact ? "56px" : "72px",
               borderRadius: "50%",
               background: `linear-gradient(135deg, hsl(${hue}, 50%, 35%) 0%, hsl(${hue}, 60%, 25%) 100%)`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "28px",
+              fontSize: compact ? "22px" : "28px",
               fontWeight: 700,
               color: "#fff",
               textShadow: "0 2px 4px rgba(0,0,0,0.3)",
@@ -116,11 +117,13 @@ export function CreatorCard({ creator, index }: CreatorCardProps) {
         <h3
           style={{
             color: colors.textBright,
-            fontSize: "16px",
+            fontSize: compact ? "14px" : "16px",
             fontWeight: 600,
-            margin: "0 0 12px",
+            margin: compact ? "0 0 8px" : "0 0 12px",
             fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: "-0.01em",
+            wordBreak: "break-word",
+            textAlign: "center",
           }}
         >
           @{creator.handle}
@@ -131,8 +134,8 @@ export function CreatorCard({ creator, index }: CreatorCardProps) {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "6px",
-            marginBottom: "16px",
+            gap: compact ? "4px" : "6px",
+            marginBottom: compact ? "12px" : "16px",
           }}
         >
           <svg

@@ -446,10 +446,11 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: tokens.space.lg,
+            gap: isMobile ? tokens.space.md : tokens.space.lg,
             marginTop: tokens.space.lg,
             paddingTop: tokens.space.md,
             borderTop: `1px solid rgba(255, 255, 255, 0.1)`,
+            flexWrap: "wrap",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>

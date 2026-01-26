@@ -64,7 +64,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 24px;
+  padding: clamp(32px, 8vw, 80px) clamp(16px, 4vw, 24px);
   position: relative;
 }
 
@@ -366,8 +366,8 @@ a {
 /* Hero glow background */
 .hero-glow {
   position: absolute;
-  width: 600px;
-  height: 600px;
+  width: min(600px, 100vw);
+  height: min(600px, 100vw);
   background: radial-gradient(ellipse at center, rgba(244, 183, 40, 0.12) 0%, transparent 70%);
   pointer-events: none;
   z-index: -1;
@@ -552,6 +552,60 @@ a {
   }
 }
 
+/* Small phones (iPhone 14, Pixel 7) */
+@media (max-width: 390px) {
+  .section {
+    padding: 40px 14px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .btn {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+
+  .heading-section {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  .hero-glow {
+    width: min(300px, 90vw);
+    height: min(300px, 90vw);
+  }
+}
+
+/* Extra small phones (iPhone SE) */
+@media (max-width: 375px) {
+  .section {
+    padding: 32px 12px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .btn {
+    padding: 14px 14px;
+    font-size: 13px;
+  }
+
+  .heading-section {
+    font-size: clamp(22px, 8vw, 28px);
+  }
+
+  .body-text {
+    font-size: 15px;
+  }
+
+  /* Tighter spacing for small screens */
+  .trust-badges-grid {
+    gap: 12px !important;
+  }
+}
+
 /* Touch-friendly improvements */
 @media (hover: none) and (pointer: coarse) {
   .btn {
@@ -560,6 +614,7 @@ a {
 
   input, select, textarea {
     min-height: 48px;
+    padding: 14px 16px;
   }
 
   /* Remove hover effects on touch devices */
@@ -571,9 +626,30 @@ a {
     transform: none;
   }
 
-  /* Increase tap targets */
+  /* Increase tap targets - WCAG 2.1 minimum 44px */
   a {
     padding: 4px 0;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Ensure all interactive elements meet touch target size */
+  button,
+  [role="button"],
+  .interactive {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Larger touch targets for icons/small buttons */
+  .icon-btn,
+  .close-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 

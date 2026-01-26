@@ -90,7 +90,8 @@ export function AmountSelector({
               onMouseLeave={() => setHoveredAmount(null)}
               disabled={disabled}
               style={{
-                padding: "10px 16px",
+                padding: "14px 18px",
+                minHeight: "48px",
                 background: isSelected
                   ? "#FFFFFF"
                   : isHovered
@@ -122,10 +123,11 @@ export function AmountSelector({
           style={{
             flex: "1 1 80px",
             minWidth: "80px",
+            minHeight: "48px",
             display: "flex",
             alignItems: "center",
             gap: "4px",
-            padding: "10px 12px",
+            padding: "14px 14px",
             background: isCustom && inputValue
               ? "#FFFFFF"
               : isFocused
@@ -180,7 +182,7 @@ export function AmountSelector({
             }}
           />
 
-          {/* Clear button when has value */}
+          {/* Clear button when has value - 44px touch target for accessibility */}
           {inputValue && isCustom && (
             <button
               onClick={(e) => {
@@ -192,26 +194,43 @@ export function AmountSelector({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "18px",
-                height: "18px",
-                background: "rgba(0, 0, 0, 0.1)",
+                width: "44px",
+                height: "44px",
+                minWidth: "44px",
+                minHeight: "44px",
+                marginRight: "-10px",
+                marginTop: "-10px",
+                marginBottom: "-10px",
+                background: "transparent",
                 border: "none",
                 borderRadius: "50%",
                 cursor: "pointer",
                 flexShrink: 0,
               }}
             >
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#050505"
-                strokeWidth="2"
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "20px",
+                  height: "20px",
+                  background: "rgba(0, 0, 0, 0.15)",
+                  borderRadius: "50%",
+                }}
               >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#050505"
+                  strokeWidth="2.5"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </div>
             </button>
           )}
         </div>

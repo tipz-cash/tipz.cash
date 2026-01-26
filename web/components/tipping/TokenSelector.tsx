@@ -107,10 +107,11 @@ export function TokenSelector({
         disabled={disabled}
         style={{
           width: "100%",
+          minHeight: "48px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: compact ? "10px 12px" : tokens.space.md,
+          padding: compact ? "12px 14px" : tokens.space.md,
           background: isOpen ? "rgba(255, 255, 255, 0.08)" : "rgba(255, 255, 255, 0.05)",
           border: `1px solid ${isOpen ? tokens.colors.gold : "rgba(255, 255, 255, 0.1)"}`,
           borderRadius: tokens.radius.md,
@@ -226,8 +227,9 @@ export function TokenSelector({
               : { top: "calc(100% + 4px)" }),
             left: 0,
             right: 0,
-            minWidth: compact ? "180px" : undefined,
-            background: "rgba(26, 26, 26, 0.9)",
+            minWidth: compact ? "160px" : undefined,
+            maxWidth: "calc(100vw - 32px)",
+            background: "rgba(26, 26, 26, 0.95)",
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
             border: `1px solid rgba(255, 255, 255, 0.1)`,
@@ -254,10 +256,11 @@ export function TokenSelector({
                 onMouseLeave={() => setHoveredToken(null)}
                 style={{
                   width: "100%",
+                  minHeight: "48px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "10px 12px",
+                  padding: "12px 14px",
                   background: isSelected
                     ? "rgba(255, 215, 0, 0.15)"
                     : isHovered

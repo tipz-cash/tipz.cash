@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { CreatorCard, SkeletonCard } from "@/components/CreatorCard";
 import { colors } from "@/lib/colors";
 import { animationKeyframes } from "@/lib/animations";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface Creator {
   id: string;
@@ -56,6 +57,8 @@ export default function CreatorsPage() {
   const [error, setError] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
   const [isDemo, setIsDemo] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isMobile, isSm } = useResponsive();
   const limit = 50;
 
   async function fetchCreators(newOffset: number = 0, append: boolean = false) {
@@ -176,7 +179,7 @@ export default function CreatorsPage() {
             style={{
               maxWidth: "1200px",
               margin: "0 auto",
-              padding: "20px 48px",
+              padding: isMobile ? "16px" : "20px 48px",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -184,12 +187,12 @@ export default function CreatorsPage() {
           >
             <a
               href="/"
-              style={{ display: "flex", alignItems: "center", gap: "16px", textDecoration: "none" }}
+              style={{ display: "flex", alignItems: "center", gap: isMobile ? "8px" : "16px", textDecoration: "none" }}
             >
               <span style={{
                 color: colors.primary,
                 fontWeight: 700,
-                fontSize: "18px",
+                fontSize: isMobile ? "16px" : "18px",
                 fontFamily: "'JetBrains Mono', monospace",
                 textShadow: `0 0 20px ${colors.primaryGlow}`,
               }}>[TIPZ]</span>
@@ -206,61 +209,221 @@ export default function CreatorsPage() {
                 BETA
               </span>
             </a>
-            <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-              <ZecTicker />
-              <span style={{ color: colors.border }}>|</span>
+
+            {/* Desktop Navigation */}
+            {!isMobile && (
+              <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
+                <ZecTicker />
+                <span style={{ color: colors.border }}>|</span>
+                <a
+                  href="/creators"
+                  style={{
+                    color: colors.primary,
+                    textDecoration: "none",
+                    fontSize: "11px",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  CREATORS
+                </a>
+                <a
+                  href="/manifesto"
+                  style={{
+                    color: colors.muted,
+                    textDecoration: "none",
+                    fontSize: "11px",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  MANIFESTO
+                </a>
+                <a
+                  href="/docs"
+                  style={{
+                    color: colors.muted,
+                    textDecoration: "none",
+                    fontSize: "11px",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  DOCS
+                </a>
+                <a
+                  href="/register"
+                  className="cta-primary"
+                  style={{
+                    color: colors.bg,
+                    backgroundColor: colors.primary,
+                    textDecoration: "none",
+                    fontSize: "11px",
+                    letterSpacing: "1px",
+                    fontWeight: 600,
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                  }}
+                >
+                  START EARNING
+                </a>
+              </nav>
+            )}
+
+            {/* Mobile Hamburger Button */}
+            {isMobile && (
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "5px",
+                  padding: "10px",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  minWidth: "44px",
+                  minHeight: "44px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                aria-label="Open menu"
+              >
+                <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+                <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+                <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+              </button>
+            )}
+          </div>
+        </header>
+
+        {/* Mobile Menu Drawer */}
+        {isMobile && mobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <div
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(0, 0, 0, 0.7)",
+                zIndex: 200,
+              }}
+            />
+            {/* Drawer */}
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                right: 0,
+                bottom: 0,
+                width: "280px",
+                maxWidth: "80vw",
+                background: colors.pageBg,
+                borderLeft: `1px solid ${colors.border}`,
+                zIndex: 201,
+                padding: "20px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+              }}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  alignSelf: "flex-end",
+                  width: "44px",
+                  height: "44px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  marginBottom: "16px",
+                }}
+                aria-label="Close menu"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+
+              {/* ZEC Ticker */}
+              <div style={{ padding: "12px 0", borderBottom: `1px solid ${colors.border}` }}>
+                <ZecTicker />
+              </div>
+
+              {/* Nav Links */}
               <a
                 href="/creators"
+                onClick={() => setMobileMenuOpen(false)}
                 style={{
+                  display: "block",
+                  padding: "16px 0",
                   color: colors.primary,
                   textDecoration: "none",
-                  fontSize: "11px",
+                  fontSize: "14px",
                   letterSpacing: "1px",
+                  fontWeight: 600,
+                  borderBottom: `1px solid ${colors.border}`,
                 }}
               >
                 CREATORS
               </a>
               <a
                 href="/manifesto"
+                onClick={() => setMobileMenuOpen(false)}
                 style={{
-                  color: colors.muted,
+                  display: "block",
+                  padding: "16px 0",
+                  color: colors.text,
                   textDecoration: "none",
-                  fontSize: "11px",
+                  fontSize: "14px",
                   letterSpacing: "1px",
+                  borderBottom: `1px solid ${colors.border}`,
                 }}
               >
                 MANIFESTO
               </a>
               <a
                 href="/docs"
+                onClick={() => setMobileMenuOpen(false)}
                 style={{
-                  color: colors.muted,
+                  display: "block",
+                  padding: "16px 0",
+                  color: colors.text,
                   textDecoration: "none",
-                  fontSize: "11px",
+                  fontSize: "14px",
                   letterSpacing: "1px",
+                  borderBottom: `1px solid ${colors.border}`,
                 }}
               >
                 DOCS
               </a>
+
+              {/* CTA Button */}
               <a
                 href="/register"
-                className="cta-primary"
+                onClick={() => setMobileMenuOpen(false)}
                 style={{
+                  display: "block",
+                  marginTop: "16px",
+                  padding: "16px",
                   color: colors.bg,
                   backgroundColor: colors.primary,
                   textDecoration: "none",
-                  fontSize: "11px",
+                  fontSize: "14px",
                   letterSpacing: "1px",
                   fontWeight: 600,
-                  padding: "8px 16px",
                   borderRadius: "8px",
+                  textAlign: "center",
                 }}
               >
                 START EARNING
               </a>
-            </nav>
-          </div>
-        </header>
+            </div>
+          </>
+        )}
 
         {/* Main content */}
         <main style={{ position: "relative", zIndex: 1 }}>
@@ -268,7 +431,7 @@ export default function CreatorsPage() {
           <section
             style={{
               textAlign: "center",
-              padding: "80px 24px 60px",
+              padding: isMobile ? "40px 16px 32px" : "80px 24px 60px",
               maxWidth: "800px",
               margin: "0 auto",
             }}
@@ -328,14 +491,14 @@ export default function CreatorsPage() {
           </section>
 
           {/* Creators grid */}
-          <section style={{ padding: "0 24px 80px" }}>
+          <section style={{ padding: isMobile ? "0 16px 48px" : "0 24px 80px" }}>
             {loading ? (
               // Loading skeleton
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-                  gap: "24px",
+                  gridTemplateColumns: isSm ? "repeat(auto-fill, minmax(140px, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))",
+                  gap: isMobile ? "16px" : "24px",
                   maxWidth: "1200px",
                   margin: "0 auto",
                 }}
@@ -422,14 +585,14 @@ export default function CreatorsPage() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-                    gap: "24px",
+                    gridTemplateColumns: isSm ? "repeat(auto-fill, minmax(140px, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))",
+                    gap: isMobile ? "16px" : "24px",
                     maxWidth: "1200px",
                     margin: "0 auto",
                   }}
                 >
                   {creators.map((creator, index) => (
-                    <CreatorCard key={creator.id} creator={creator} index={index} />
+                    <CreatorCard key={creator.id} creator={creator} index={index} compact={isSm} />
                   ))}
                 </div>
 
@@ -465,7 +628,7 @@ export default function CreatorsPage() {
           <section
             style={{
               textAlign: "center",
-              padding: "40px 24px",
+              padding: isMobile ? "24px 16px" : "40px 24px",
               borderTop: `1px solid ${colors.border}`,
             }}
           >
@@ -474,10 +637,11 @@ export default function CreatorsPage() {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                gap: "24px",
+                gap: isMobile ? "12px" : "24px",
                 color: colors.muted,
-                fontSize: "12px",
+                fontSize: isMobile ? "11px" : "12px",
                 fontFamily: "monospace",
+                flexWrap: "wrap",
               }}
             >
               <span>{total} creators</span>

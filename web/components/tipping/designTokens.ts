@@ -63,6 +63,23 @@ export const tokens = {
     xxl: 32,
   },
 
+  // Mobile-specific spacing (use on mobile screens)
+  spaceMobile: {
+    xs: 4,
+    sm: 6,
+    md: 10,
+    lg: 14,
+    xl: 20,
+    xxl: 28,
+  },
+
+  // Touch target sizes (WCAG 2.1 compliant)
+  touch: {
+    minimum: 44,      // WCAG minimum (44x44px)
+    comfortable: 48,  // Recommended for touch
+    large: 56,        // Primary CTA buttons
+  },
+
   // Border radius
   radius: {
     sm: 8,
