@@ -45,7 +45,9 @@ export const config = {
      * - _next/image (image optimization)
      * - favicon.ico
      * - public files (images, etc)
+     * - opengraph-image, twitter-image, apple-icon (for social previews)
+     * - api/og (dynamic OG images)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|opengraph-image|twitter-image|apple-icon|icon|api/og|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
