@@ -1,18 +1,20 @@
 import cssText from "data-text:~styles.css"
 import type { PlasmoCSConfig, PlasmoGetInlineAnchorList } from "plasmo"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 
-import { TipButton } from "~components/TipButton"
-import { TipModal } from "~components/TipModal"
-import { lookupCreator, type Creator } from "~lib/api"
+import { AutoStampBadge } from "~components/AutoStampToggle"
+import { getLinkedCreator, type CreatorIdentity } from "~lib/identity"
+import { colors, fonts } from "~lib/theme"
+
+const WEB_URL = process.env.PLASMO_PUBLIC_API_URL || "https://tipz.cash"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://x.com/*", "https://twitter.com/*"],
   all_frames: true
 }
 
-// Debug: Log when content script loads
-console.log("TIPZ: Content script loaded on", window.location.href)
+// Debug logging
+console.log("TIPZ: Creator content script loaded on", window.location.href)
 
 export const getStyle = () => {
   const style = document.createElement("style")
@@ -20,29 +22,71 @@ export const getStyle = () => {
   return style
 }
 
-// Find tweet action bars to inject tip buttons
-export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
-  console.log("TIPZ: Looking for tweet action bars...")
+// Storage key for auto-stamp preference
+const AUTO_STAMP_KEY = 'tipz_auto_stamp_enabled'
 
-  // Try multiple selectors - X changes their markup frequently
+/**
+ * Get auto-stamp preference from storage
+ */
+async function getAutoStampEnabled(): Promise<boolean> {
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      const result = await chrome.storage.local.get([AUTO_STAMP_KEY])
+      return result[AUTO_STAMP_KEY] === true
+    }
+    return false
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Set auto-stamp preference in storage
+ */
+async function setAutoStampEnabled(enabled: boolean): Promise<void> {
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      await chrome.storage.local.set({ [AUTO_STAMP_KEY]: enabled })
+    }
+  } catch {
+    // Ignore errors
+  }
+}
+
+/**
+ * Find tweet compose areas to inject TIPZ auto-stamp button
+ * X has multiple compose contexts:
+ * - Main compose box at /compose/tweet
+ * - Reply compose in thread view
+ * - Quote tweet compose
+ */
+export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
+  console.log("TIPZ: Looking for compose areas...")
+
+  // Selectors for compose toolbar areas
   const selectors = [
-    '[data-testid="tweet"] [role="group"]',
-    'article[data-testid="tweet"] [role="group"]',
-    'article [role="group"][id]',
-    '[data-testid="tweet"] div[role="group"]',
+    // Main compose toolbar (where media, gif, poll buttons are)
+    '[data-testid="toolBar"]',
+    // Alternative: look for the row with media buttons
+    '[data-testid="primaryColumn"] [role="group"]:has([data-testid="fileInput"])',
   ]
 
   let anchors: Element[] = []
   for (const selector of selectors) {
-    const found = document.querySelectorAll(selector)
-    console.log(`TIPZ: Selector "${selector}" found ${found.length} elements`)
-    if (found.length > 0) {
-      anchors = Array.from(found)
-      break
+    try {
+      const found = document.querySelectorAll(selector)
+      console.log(`TIPZ: Selector "${selector}" found ${found.length} elements`)
+      if (found.length > 0) {
+        anchors = Array.from(found)
+        break
+      }
+    } catch (e) {
+      // Some selectors may not be supported
+      console.log(`TIPZ: Selector "${selector}" not supported`)
     }
   }
 
-  console.log(`TIPZ: Total anchors found: ${anchors.length}`)
+  console.log(`TIPZ: Total compose anchors found: ${anchors.length}`)
 
   return anchors.map((element) => ({
     element,
@@ -50,76 +94,8 @@ export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
   }))
 }
 
-// Check if tweet is a reply (not an original post)
-function isReplyTweet(element: HTMLElement): boolean {
-  const tweetContainer = element.closest('[data-testid="tweet"]') || element.closest('article')
-  if (!tweetContainer) return false
-
-  // Check for "Replying to" context that appears above reply tweets
-  const socialContext = tweetContainer.querySelector('[data-testid="socialContext"]')
-  if (socialContext?.textContent?.includes('Replying to')) return true
-
-  // Also check for reply thread indicator
-  const hasReplyingToText = tweetContainer.textContent?.includes('Replying to @')
-  if (hasReplyingToText) return true
-
-  return false
-}
-
-// Extract handle from tweet element
-function getHandleFromTweet(element: HTMLElement): string | null {
-  // Navigate up to find the tweet container
-  const tweetContainer = element.closest('[data-testid="tweet"]') || element.closest('article')
-  if (!tweetContainer) {
-    console.log("TIPZ: No tweet container found")
-    return null
-  }
-
-  // Try multiple selectors for username - X changes their markup
-  const userLinkSelectors = [
-    'a[href^="/"][role="link"]',
-    'a[href^="/"][tabindex="-1"]',
-    'div[data-testid="User-Name"] a[href^="/"]',
-    'a[href^="/"][dir="ltr"]',
-  ]
-
-  let userLink: Element | null = null
-  for (const selector of userLinkSelectors) {
-    const links = tweetContainer.querySelectorAll(selector)
-    // Find a link that looks like a username (single path segment)
-    for (const link of links) {
-      const href = link.getAttribute("href")
-      if (href && /^\/[^\/]+$/.test(href) && !href.includes("/status")) {
-        userLink = link
-        break
-      }
-    }
-    if (userLink) break
-  }
-
-  if (!userLink) {
-    console.log("TIPZ: No user link found in tweet")
-    return null
-  }
-
-  const href = userLink.getAttribute("href")
-  if (!href) return null
-
-  // Extract handle from href (e.g., "/username" -> "username")
-  const match = href.match(/^\/([^\/]+)$/)
-  const handle = match ? match[1] : null
-  console.log("TIPZ: Extracted handle:", handle)
-  return handle
-}
-
-// Global state for modal triggered from external sources
-let globalSetCreator: ((creator: Creator | null) => void) | null = null
-let globalSetIsModalOpen: ((open: boolean) => void) | null = null
-let globalSetExternalHandle: ((handle: string | null) => void) | null = null
-
-// Inject extension marker and set up external event listener (runs once)
+// Inject extension marker for detection
 if (typeof window !== "undefined") {
-  // Inject marker div for extension detection
   if (!document.getElementById('tipz-extension-installed')) {
     const marker = document.createElement('div')
     marker.id = 'tipz-extension-installed'
@@ -127,107 +103,154 @@ if (typeof window !== "undefined") {
     document.body.appendChild(marker)
     console.log("TIPZ: Extension marker injected")
   }
-
-  // Listen for external modal trigger events
-  window.addEventListener('tipz-open-modal', ((event: CustomEvent) => {
-    const { handle } = event.detail || {}
-    console.log("TIPZ: External modal trigger received for handle:", handle)
-
-    if (handle && globalSetCreator && globalSetIsModalOpen && globalSetExternalHandle) {
-      lookupCreator("x", handle).then((result) => {
-        if (result.found && result.creator) {
-          globalSetCreator(result.creator)
-          globalSetExternalHandle(handle)
-          globalSetIsModalOpen(true)
-        } else {
-          // Even if creator not found, open modal with handle
-          globalSetCreator(null)
-          globalSetExternalHandle(handle)
-          globalSetIsModalOpen(true)
-        }
-      })
-    }
-  }) as EventListener)
 }
 
-interface TipzInlineProps {
+interface TipzAutoStampProps {
   anchor: {
     element: HTMLElement
   }
 }
 
-function TipzInline({ anchor }: TipzInlineProps) {
-  const [handle, setHandle] = useState<string | null>(null)
-  const [creator, setCreator] = useState<Creator | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+/**
+ * TIPZ Auto-Stamp Component
+ *
+ * Injects into X's compose toolbar to let creators easily add their tip link
+ */
+function TipzAutoStamp({ anchor }: TipzAutoStampProps) {
+  const [linkedCreator, setLinkedCreator] = useState<CreatorIdentity | null>(null)
+  const [isAutoStampEnabled, setIsAutoStampEnabled] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [isReply, setIsReply] = useState(false)
-  const [externalHandle, setExternalHandle] = useState<string | null>(null)
+  const [hasStamped, setHasStamped] = useState(false)
 
-  console.log("TIPZ: TipzInline component rendering")
-
-  // Register global setters for external modal triggering
+  // Load linked creator identity
   useEffect(() => {
-    globalSetCreator = setCreator
-    globalSetIsModalOpen = setIsModalOpen
-    globalSetExternalHandle = setExternalHandle
+    getLinkedCreator().then((identity) => {
+      setLinkedCreator(identity)
+      setIsLoading(false)
+    })
 
-    return () => {
-      globalSetCreator = null
-      globalSetIsModalOpen = null
-      globalSetExternalHandle = null
-    }
+    // Load auto-stamp preference
+    getAutoStampEnabled().then(setIsAutoStampEnabled)
   }, [])
 
+  // Watch for compose text changes to detect if link is already present
   useEffect(() => {
-    // Check if this is a reply tweet - don't show TIP on replies
-    const reply = isReplyTweet(anchor.element)
-    setIsReply(reply)
+    if (!linkedCreator) return
 
-    const extractedHandle = getHandleFromTweet(anchor.element)
-    setHandle(extractedHandle)
-
-    if (extractedHandle && !reply) {
-      lookupCreator("x", extractedHandle)
-        .then((result) => {
-          if (result.found && result.creator) {
-            setCreator(result.creator)
-          }
-        })
-        .finally(() => setIsLoading(false))
-    } else {
-      setIsLoading(false)
+    const checkForExistingLink = () => {
+      // Find the compose text area
+      const textArea = document.querySelector('[data-testid="tweetTextarea_0"]') as HTMLElement
+      if (textArea) {
+        const text = textArea.textContent || ''
+        const tipUrl = `tipz.cash/${linkedCreator.handle}`
+        setHasStamped(text.includes(tipUrl))
+      }
     }
-  }, [anchor.element])
 
-  // Don't show TIP button on replies, only original posts
-  if (!handle || isLoading || isReply) {
+    // Check initially
+    checkForExistingLink()
+
+    // Set up mutation observer to watch for text changes
+    const observer = new MutationObserver(checkForExistingLink)
+    const composeArea = anchor.element.closest('[data-testid="primaryColumn"]')
+    if (composeArea) {
+      observer.observe(composeArea, { subtree: true, characterData: true, childList: true })
+    }
+
+    return () => observer.disconnect()
+  }, [linkedCreator, anchor.element])
+
+  /**
+   * Add the TIPZ link to the tweet compose area
+   */
+  const handleStamp = useCallback(() => {
+    if (!linkedCreator) return
+
+    const tipUrl = `tipz.cash/${linkedCreator.handle}`
+
+    // Find the compose text area
+    const textArea = document.querySelector('[data-testid="tweetTextarea_0"]') as HTMLElement
+    if (!textArea) {
+      console.log("TIPZ: Could not find tweet text area")
+      return
+    }
+
+    // Check if link is already present
+    const currentText = textArea.textContent || ''
+    if (currentText.includes(tipUrl)) {
+      console.log("TIPZ: Link already present in tweet")
+      return
+    }
+
+    // X uses a contenteditable div, so we need to simulate typing
+    // The safest approach is to use the clipboard API
+    const linkText = currentText ? `\n\n${tipUrl}` : tipUrl
+
+    // Focus the text area
+    textArea.focus()
+
+    // Try to insert via execCommand (works in most cases)
+    const selection = window.getSelection()
+    if (selection) {
+      // Move cursor to end
+      const range = document.createRange()
+      range.selectNodeContents(textArea)
+      range.collapse(false)
+      selection.removeAllRanges()
+      selection.addRange(range)
+
+      // Insert text
+      document.execCommand('insertText', false, linkText)
+      setHasStamped(true)
+      console.log("TIPZ: Tip link added to tweet")
+    }
+  }, [linkedCreator])
+
+  // Auto-stamp when enabled and compose is opened
+  useEffect(() => {
+    if (isAutoStampEnabled && linkedCreator && !hasStamped && !isLoading) {
+      // Small delay to let X's compose UI fully render
+      const timer = setTimeout(handleStamp, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [isAutoStampEnabled, linkedCreator, hasStamped, isLoading, handleStamp])
+
+  // Don't show anything if not linked
+  if (isLoading || !linkedCreator) {
     return null
   }
 
-  // Use externalHandle if available (from tipz-open-modal event), otherwise use handle from tweet
-  const modalHandle = externalHandle || handle
+  // If link is already in tweet, show confirmation
+  if (hasStamped) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          padding: "4px 10px",
+          marginLeft: "8px",
+          fontSize: "12px",
+          fontFamily: fonts.mono,
+          color: colors.success,
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M20 6L9 17l-5-5" />
+        </svg>
+        TIPZ added
+      </div>
+    )
+  }
 
   return (
-    <>
-      <div style={{ marginLeft: "8px" }}>
-        <TipButton
-          creator={creator}
-          handle={handle}
-          onTip={() => setIsModalOpen(true)}
-        />
-      </div>
-      <TipModal
-        creator={creator}
-        handle={modalHandle}
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false)
-          setExternalHandle(null) // Reset external handle when closing
-        }}
+    <div style={{ marginLeft: "8px", display: "flex", alignItems: "center" }}>
+      <AutoStampBadge
+        handle={linkedCreator.handle}
+        onClick={handleStamp}
       />
-    </>
+    </div>
   )
 }
 
-export default TipzInline
+export default TipzAutoStamp

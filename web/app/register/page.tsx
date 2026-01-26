@@ -130,6 +130,19 @@ My shielded address: ${shieldedAddress || "[your address]"}`
 
       setRegisteredHandle(handle)  // Save for success screen before clearing
       setMessage({ type: "success", text: "Registration successful! You can now receive tips." })
+
+      // Store verified identity in localStorage for TIPZ extension to read
+      // This enables the Web Bridge flow for creator identity linking
+      try {
+        localStorage.setItem('tipz_creator_identity', JSON.stringify({
+          handle: handle,
+          verified: true,
+          verifiedAt: Date.now()
+        }))
+      } catch (e) {
+        console.warn('Could not store creator identity in localStorage', e)
+      }
+
       setHandle("")
       setShieldedAddress("")
       setTweetUrl("")
