@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { TippingFlow } from "@/components/tipping"
 import { LetterGridBackground } from "@/components/LetterGridBackground"
@@ -468,9 +468,6 @@ export default function CreatorCardPage() {
   const [state, setState] = useState<PageState>("loading")
   const [creator, setCreator] = useState<Creator | null>(null)
   const [isMobile, setIsMobile] = useState(false)
-  const [extensionInstalled, setExtensionInstalled] = useState(false)
-  const [isLinking, setIsLinking] = useState(false)
-  const [linkStatus, setLinkStatus] = useState<"idle" | "success" | "error">("idle")
 
   // Check for mobile
   useEffect(() => {
@@ -489,56 +486,6 @@ export default function CreatorCardPage() {
       window.removeEventListener('resize', checkMobile)
     }
   }, [])
-
-  // Check for TIPZ extension (injected marker div)
-  useEffect(() => {
-    const checkExtension = () => {
-      const marker = document.getElementById('tipz-extension-installed')
-      setExtensionInstalled(!!marker)
-    }
-
-    // Check immediately and after a short delay (extension might inject after page load)
-    checkExtension()
-    const timeout = setTimeout(checkExtension, 1000)
-
-    return () => clearTimeout(timeout)
-  }, [])
-
-  // Handle extension linking
-  const handleLinkExtension = useCallback(async () => {
-    if (!creator?.handle) return
-
-    setIsLinking(true)
-    setLinkStatus("idle")
-
-    try {
-      const res = await fetch("/api/link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ handle: creator.handle })
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.error || "Link failed")
-      }
-
-      // Set localStorage for extension to read
-      localStorage.setItem('tipz_creator_identity', JSON.stringify({
-        handle: data.handle,
-        verified: data.verified,
-        verifiedAt: Date.now()
-      }))
-
-      setLinkStatus("success")
-    } catch (err) {
-      console.error("Link extension error:", err)
-      setLinkStatus("error")
-    } finally {
-      setIsLinking(false)
-    }
-  }, [creator?.handle])
 
   // Fetch creator data
   useEffect(() => {
@@ -700,68 +647,6 @@ export default function CreatorCardPage() {
                   avatarColor={getAvatarColor(creator?.handle || handle)}
                 />
 
-                {/* Link Extension button - only shows when extension is installed */}
-                {extensionInstalled && (
-                  <div style={{ marginTop: "16px" }}>
-                    {linkStatus === "success" ? (
-                      <div style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                        padding: "12px",
-                        backgroundColor: "rgba(0, 255, 148, 0.1)",
-                        borderRadius: "8px",
-                        fontSize: "13px",
-                        color: colors.success,
-                        fontFamily: "'Inter', sans-serif",
-                      }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        Extension linked!
-                      </div>
-                    ) : linkStatus === "error" ? (
-                      <div style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                        padding: "12px",
-                        backgroundColor: "rgba(239, 68, 68, 0.1)",
-                        borderRadius: "8px",
-                        fontSize: "13px",
-                        color: colors.error,
-                        fontFamily: "'Inter', sans-serif",
-                      }}>
-                        Failed to link. Try again.
-                      </div>
-                    ) : (
-                      <button
-                        onClick={handleLinkExtension}
-                        disabled={isLinking}
-                        style={{
-                          width: "100%",
-                          padding: "12px",
-                          backgroundColor: "rgba(255, 255, 255, 0.05)",
-                          border: `1px solid ${colors.border}`,
-                          borderRadius: "8px",
-                          color: colors.muted,
-                          fontSize: "13px",
-                          fontFamily: "'Inter', sans-serif",
-                          cursor: isLinking ? "not-allowed" : "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        {isLinking ? "Linking..." : "Link Extension"}
-                      </button>
-                    )}
-                  </div>
-                )}
-
                 {/* Powered by TIPZ footer */}
                 <a
                   href="/"
@@ -814,103 +699,6 @@ export default function CreatorCardPage() {
               isMobile={isMobile}
               avatarColor={getAvatarColor(creator?.handle || handle)}
             />
-
-            {/* Link Extension button - only shows when extension is installed */}
-            {extensionInstalled && (
-              <div style={{
-                marginTop: "16px",
-                paddingTop: "16px",
-                borderTop: `1px solid ${colors.border}`,
-              }}>
-                {linkStatus === "success" ? (
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    padding: "12px",
-                    backgroundColor: "rgba(0, 255, 148, 0.1)",
-                    borderRadius: "8px",
-                    fontSize: "13px",
-                    color: colors.success,
-                    fontFamily: "'Inter', sans-serif",
-                  }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    Extension linked! Check the popup.
-                  </div>
-                ) : linkStatus === "error" ? (
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    padding: "12px",
-                    backgroundColor: "rgba(239, 68, 68, 0.1)",
-                    borderRadius: "8px",
-                    fontSize: "13px",
-                    color: colors.error,
-                    fontFamily: "'Inter', sans-serif",
-                  }}>
-                    Failed to link. Try again or re-register.
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleLinkExtension}
-                    disabled={isLinking}
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      backgroundColor: "rgba(255, 255, 255, 0.05)",
-                      border: `1px solid ${colors.border}`,
-                      borderRadius: "8px",
-                      color: colors.muted,
-                      fontSize: "13px",
-                      fontFamily: "'Inter', sans-serif",
-                      cursor: isLinking ? "not-allowed" : "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      transition: "all 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isLinking) {
-                        e.currentTarget.style.borderColor = colors.primary
-                        e.currentTarget.style.color = colors.text
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = colors.border
-                      e.currentTarget.style.color = colors.muted
-                    }}
-                  >
-                    {isLinking ? (
-                      <>
-                        <span style={{
-                          width: "14px",
-                          height: "14px",
-                          border: "2px solid transparent",
-                          borderTopColor: "currentColor",
-                          borderRadius: "50%",
-                          animation: "spin 0.8s linear infinite",
-                        }} />
-                        Linking...
-                      </>
-                    ) : (
-                      <>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                        </svg>
-                        Link Extension
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
