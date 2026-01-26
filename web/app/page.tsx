@@ -445,7 +445,6 @@ function useTypingOnView(text: string, speed: number = 35) {
 // ZEC price ticker component
 function ZecTicker() {
   const [price, setPrice] = useState<number | null>(null);
-  const [change, setChange] = useState<number>(0);
 
   useEffect(() => {
     async function fetchPrice() {
@@ -453,7 +452,6 @@ function ZecTicker() {
         const res = await fetch("/api/zec-price");
         const data = await res.json();
         setPrice(data.price);
-        setChange(data.change24h);
       } catch {
         setPrice(27.50);
       }
@@ -463,28 +461,15 @@ function ZecTicker() {
     return () => clearInterval(interval);
   }, []);
 
-  if (price === null) return null;
-
-  const isPositive = change >= 0;
-  const changeColor = isPositive ? colors.success : colors.error;
-
   return (
-    <div style={{
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      fontSize: "11px",
-      fontFamily: "'JetBrains Mono', monospace",
+    <span style={{
       color: colors.muted,
+      fontSize: "11px",
+      letterSpacing: "1px",
+      fontFamily: "'JetBrains Mono', monospace",
     }}>
-      <span style={{ color: colors.primary }}>ZEC</span>
-      <span style={{ color: colors.textBright }}>
-        ${price.toFixed(2)}
-      </span>
-      <span style={{ color: changeColor }}>
-        {isPositive ? "+" : ""}{change.toFixed(1)}%
-      </span>
-    </div>
+      ZEC {price ? `$${price.toFixed(2)}` : "—"}
+    </span>
   );
 }
 
@@ -2588,6 +2573,7 @@ export default function HomePage() {
                 letterSpacing: "1px",
                 fontWeight: 600,
                 padding: "8px 16px",
+                borderRadius: "8px",
               }}
             >START EARNING</a>
           </nav>
