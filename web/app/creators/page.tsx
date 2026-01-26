@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { CreatorCard, SkeletonCard } from "@/components/CreatorCard";
 import { colors } from "@/lib/colors";
 import { animationKeyframes } from "@/lib/animations";
-import { useResponsive } from "@/hooks/useResponsive";
 
 interface Creator {
   id: string;
@@ -58,7 +57,6 @@ export default function CreatorsPage() {
   const [offset, setOffset] = useState(0);
   const [isDemo, setIsDemo] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isMobile, isSm } = useResponsive();
   const limit = 50;
 
   async function fetchCreators(newOffset: number = 0, append: boolean = false) {
@@ -115,6 +113,7 @@ export default function CreatorsPage() {
         body {
           margin: 0;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+          overflow-x: hidden;
         }
 
         .cta-primary {
@@ -142,6 +141,113 @@ export default function CreatorsPage() {
 
         .cta-primary:hover::before {
           left: 100%;
+        }
+
+        /* Mobile responsive styles */
+        .header-inner {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px 48px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .desktop-nav {
+          display: flex;
+          gap: 32px;
+          align-items: center;
+        }
+
+        .mobile-menu-btn {
+          display: none;
+          flex-direction: column;
+          gap: 5px;
+          padding: 10px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          min-width: 44px;
+          min-height: 44px;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .hero-section {
+          text-align: center;
+          padding: 80px 24px 60px;
+          max-width: 800px;
+          margin: 0 auto;
+        }
+
+        .creators-grid-section {
+          padding: 0 24px 80px;
+        }
+
+        .creators-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          gap: 24px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+
+        .footer-stats {
+          text-align: center;
+          padding: 40px 24px;
+          border-top: 1px solid ${colors.border};
+        }
+
+        .footer-stats-inner {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 24px;
+          color: ${colors.muted};
+          font-size: 12px;
+          font-family: monospace;
+          flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+          .header-inner {
+            padding: 16px;
+          }
+
+          .desktop-nav {
+            display: none;
+          }
+
+          .mobile-menu-btn {
+            display: flex;
+          }
+
+          .hero-section {
+            padding: 40px 16px 32px;
+          }
+
+          .creators-grid-section {
+            padding: 0 16px 48px;
+          }
+
+          .creators-grid {
+            gap: 16px;
+          }
+
+          .footer-stats {
+            padding: 24px 16px;
+          }
+
+          .footer-stats-inner {
+            gap: 12px;
+            font-size: 11px;
+          }
+        }
+
+        @media (max-width: 428px) {
+          .creators-grid {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+          }
         }
       `}</style>
 
@@ -175,24 +281,15 @@ export default function CreatorsPage() {
             borderBottom: `1px solid ${colors.border}`,
           }}
         >
-          <div
-            style={{
-              maxWidth: "1200px",
-              margin: "0 auto",
-              padding: isMobile ? "16px" : "20px 48px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
+          <div className="header-inner">
             <a
               href="/"
-              style={{ display: "flex", alignItems: "center", gap: isMobile ? "8px" : "16px", textDecoration: "none" }}
+              style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}
             >
               <span style={{
                 color: colors.primary,
                 fontWeight: 700,
-                fontSize: isMobile ? "16px" : "18px",
+                fontSize: "18px",
                 fontFamily: "'JetBrains Mono', monospace",
                 textShadow: `0 0 20px ${colors.primaryGlow}`,
               }}>[TIPZ]</span>
@@ -210,92 +307,76 @@ export default function CreatorsPage() {
               </span>
             </a>
 
-            {/* Desktop Navigation */}
-            {!isMobile && (
-              <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-                <ZecTicker />
-                <span style={{ color: colors.border }}>|</span>
-                <a
-                  href="/creators"
-                  style={{
-                    color: colors.primary,
-                    textDecoration: "none",
-                    fontSize: "11px",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  CREATORS
-                </a>
-                <a
-                  href="/manifesto"
-                  style={{
-                    color: colors.muted,
-                    textDecoration: "none",
-                    fontSize: "11px",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  MANIFESTO
-                </a>
-                <a
-                  href="/docs"
-                  style={{
-                    color: colors.muted,
-                    textDecoration: "none",
-                    fontSize: "11px",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  DOCS
-                </a>
-                <a
-                  href="/register"
-                  className="cta-primary"
-                  style={{
-                    color: colors.bg,
-                    backgroundColor: colors.primary,
-                    textDecoration: "none",
-                    fontSize: "11px",
-                    letterSpacing: "1px",
-                    fontWeight: 600,
-                    padding: "8px 16px",
-                    borderRadius: "8px",
-                  }}
-                >
-                  START EARNING
-                </a>
-              </nav>
-            )}
-
-            {/* Mobile Hamburger Button */}
-            {isMobile && (
-              <button
-                onClick={() => setMobileMenuOpen(true)}
+            {/* Desktop Navigation - hidden on mobile via CSS */}
+            <nav className="desktop-nav">
+              <ZecTicker />
+              <span style={{ color: colors.border }}>|</span>
+              <a
+                href="/creators"
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "5px",
-                  padding: "10px",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  minWidth: "44px",
-                  minHeight: "44px",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  color: colors.primary,
+                  textDecoration: "none",
+                  fontSize: "11px",
+                  letterSpacing: "1px",
                 }}
-                aria-label="Open menu"
               >
-                <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-                <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-                <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-              </button>
-            )}
+                CREATORS
+              </a>
+              <a
+                href="/manifesto"
+                style={{
+                  color: colors.muted,
+                  textDecoration: "none",
+                  fontSize: "11px",
+                  letterSpacing: "1px",
+                }}
+              >
+                MANIFESTO
+              </a>
+              <a
+                href="/docs"
+                style={{
+                  color: colors.muted,
+                  textDecoration: "none",
+                  fontSize: "11px",
+                  letterSpacing: "1px",
+                }}
+              >
+                DOCS
+              </a>
+              <a
+                href="/register"
+                className="cta-primary"
+                style={{
+                  color: colors.bg,
+                  backgroundColor: colors.primary,
+                  textDecoration: "none",
+                  fontSize: "11px",
+                  letterSpacing: "1px",
+                  fontWeight: 600,
+                  padding: "8px 16px",
+                  borderRadius: "8px",
+                }}
+              >
+                START EARNING
+              </a>
+            </nav>
+
+            {/* Mobile Hamburger Button - shown on mobile via CSS */}
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+              <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+              <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+            </button>
           </div>
         </header>
 
         {/* Mobile Menu Drawer */}
-        {isMobile && mobileMenuOpen && (
+        {mobileMenuOpen && (
           <>
             {/* Backdrop */}
             <div
@@ -323,6 +404,7 @@ export default function CreatorsPage() {
                 display: "flex",
                 flexDirection: "column",
                 gap: "8px",
+                overflowY: "auto",
               }}
             >
               {/* Close Button */}
@@ -428,14 +510,7 @@ export default function CreatorsPage() {
         {/* Main content */}
         <main style={{ position: "relative", zIndex: 1 }}>
           {/* Hero section */}
-          <section
-            style={{
-              textAlign: "center",
-              padding: isMobile ? "40px 16px 32px" : "80px 24px 60px",
-              maxWidth: "800px",
-              margin: "0 auto",
-            }}
-          >
+          <section className="hero-section">
             <h1
               style={{
                 fontSize: "clamp(32px, 5vw, 48px)",
@@ -491,18 +566,10 @@ export default function CreatorsPage() {
           </section>
 
           {/* Creators grid */}
-          <section style={{ padding: isMobile ? "0 16px 48px" : "0 24px 80px" }}>
+          <section className="creators-grid-section">
             {loading ? (
               // Loading skeleton
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: isSm ? "repeat(auto-fill, minmax(140px, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))",
-                  gap: isMobile ? "16px" : "24px",
-                  maxWidth: "1200px",
-                  margin: "0 auto",
-                }}
-              >
+              <div className="creators-grid">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <SkeletonCard key={i} index={i} />
                 ))}
@@ -582,17 +649,9 @@ export default function CreatorsPage() {
             ) : (
               // Creators grid
               <>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: isSm ? "repeat(auto-fill, minmax(140px, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))",
-                    gap: isMobile ? "16px" : "24px",
-                    maxWidth: "1200px",
-                    margin: "0 auto",
-                  }}
-                >
+                <div className="creators-grid">
                   {creators.map((creator, index) => (
-                    <CreatorCard key={creator.id} creator={creator} index={index} compact={isSm} />
+                    <CreatorCard key={creator.id} creator={creator} index={index} />
                   ))}
                 </div>
 
@@ -625,25 +684,8 @@ export default function CreatorsPage() {
           </section>
 
           {/* Footer stats */}
-          <section
-            style={{
-              textAlign: "center",
-              padding: isMobile ? "24px 16px" : "40px 24px",
-              borderTop: `1px solid ${colors.border}`,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: isMobile ? "12px" : "24px",
-                color: colors.muted,
-                fontSize: isMobile ? "11px" : "12px",
-                fontFamily: "monospace",
-                flexWrap: "wrap",
-              }}
-            >
+          <section className="footer-stats">
+            <div className="footer-stats-inner">
               <span>{total} creators</span>
               <span style={{ color: colors.border }}>•</span>
               <span>0% fees</span>
