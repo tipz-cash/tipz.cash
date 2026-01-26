@@ -99,6 +99,9 @@ export async function fetchTweet(tweetId: string): Promise<TwitterTweetResponse>
     if (response.status === 429) {
       throw new Error("Twitter API rate limit exceeded. Please try again later.")
     }
+    if (response.status === 402) {
+      throw new Error("Twitter API payment required. Registration will proceed with manual review.")
+    }
     throw new Error(`Twitter API error: ${response.status} ${response.statusText}`)
   }
 
@@ -245,8 +248,8 @@ export async function verifyTweetContent(
 
     // If it's a known error type, pass it through
     if (error instanceof Error) {
-      // Rate limiting should result in manual review
-      if (error.message.includes("rate limit")) {
+      // Rate limiting or payment issues should result in manual review
+      if (error.message.includes("rate limit") || error.message.includes("payment required")) {
         return {
           valid: true,
           status: "manual_review",
