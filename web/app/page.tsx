@@ -2555,7 +2555,7 @@ export default function HomePage() {
                 padding: "8px 16px",
                 borderRadius: "8px",
               }}
-            >REGISTER</a>
+            >START EARNING</a>
           </nav>
         </div>
       </header>
