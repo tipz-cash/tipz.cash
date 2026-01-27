@@ -4,155 +4,177 @@ Feature priorities and technical milestones.
 
 ---
 
-## Current State (v0.1 - MVP)
+## Current State (v1.0 - MVP Complete)
 
-### Completed
-- [x] Landing page with responsive design
-- [x] Creator registration form
-- [x] Single creator lookup API
-- [x] Batch creator lookup API
-- [x] Supabase database integration
-- [x] Chrome extension structure (Plasmo)
-- [x] X.com content script
-- [x] Substack content script
-- [x] Tip button injection
-- [x] Tip modal UI
+### Completed ✅
+
+**Web App:**
+- [x] Landing page with responsive design + animations
+- [x] 4-step creator registration wizard
+- [x] Creator directory with pagination
+- [x] Individual tip pages at `/{handle}`
+- [x] TippingFlow component (AmountSelector, TokenSelector, WalletConnect, etc.)
+- [x] Dynamic OG images for social sharing
+- [x] Manifesto page
+- [x] Documentation page
+
+**API:**
+- [x] Single creator lookup (`GET /api/creator`)
+- [x] Paginated creator list (`GET /api/creators`)
+- [x] Batch creator lookup (`POST /api/creators/batch`)
+- [x] Creator registration (`POST /api/register`)
+- [x] Creator re-linking (`POST /api/link`)
+- [x] Health check (`GET /api/health`)
+- [x] ZEC price feed (`GET /api/zec-price`)
+- [x] Swap quotes (`POST /api/swap/quote`)
+- [x] Swap execution (`POST /api/swap/execute`)
+- [x] NEAR Intents (`POST /api/intents/create`, `GET /api/intents/create`)
+
+**Extension (Creator Tool):**
+- [x] Creator dashboard popup (revenue stats, recent tips)
+- [x] Web bridge for identity linking (tipz-interceptor.tsx)
+- [x] Auto-stamp for X compose boxes (x.tsx)
+- [x] Real-time tip notifications (Supabase Realtime)
+- [x] Polling fallback for notifications
+- [x] Badge count for unread tips
+
+**Database:**
+- [x] Supabase integration
+- [x] Creators table with normalized handles
+- [x] Transactions table
+- [x] Realtime subscriptions
+
+**Payments:**
+- [x] NEAR Intents SDK integration
+- [x] Demo mode for testing
+- [x] Real CoinGecko price quotes
 
 ### Known Gaps
-- [x] Payment integration (SwapKit/NEAR Intents) - NEAR SDK integrated
-- [ ] Real Twitter API verification
-- [x] Wallet connection - Extension wallet bridge implemented
-- [x] Transaction execution - API endpoints ready (demo mode by default)
-- [ ] Rate limiting
-- [ ] Error monitoring
+- [ ] Real Twitter API verification (URL-only validation currently)
+- [ ] Rate limiting on all endpoints
+- [ ] Error monitoring (Sentry)
+- [ ] Production NEAR deployment (testnet ready)
 
 ---
 
-## Phase 1: Launch Ready (Week 1)
+## Phase 1: Launch Ready ✅ COMPLETE
 
 **Goal**: Functional end-to-end tipping flow
 
-### P0: Critical Path
+### P0: Critical Path ✅
 
-#### Payment Integration
-**Priority**: P0
-**Owner**: Extension Engineer
-**Effort**: Large
+#### Payment Integration ✅
+**Status**: Complete
 
-Tasks:
-- [x] Integrate SwapKit SDK - Using NEAR Intents instead
-- [x] Implement token selection UI - Extension TipModal complete
-- [x] Add wallet connection (MetaMask, WalletConnect) - Wallet bridge implemented
-- [x] Build transaction confirmation flow - Multi-step UI in TipModal
-- [x] Handle swap execution - /api/swap/execute endpoint ready
-- [x] Add success/error states - Full state machine in extension
+Completed:
+- [x] NEAR Intents SDK integration (near-api-js)
+- [x] Token selection UI in web TippingFlow component
+- [x] Wallet connection (WalletConnect, MetaMask via web)
+- [x] Transaction confirmation flow with TipSummary
+- [x] Swap execution endpoints (/api/swap/quote, /api/swap/execute)
+- [x] Success/error states with TransactionStatus component
 
 Technical notes:
-- NEAR Intents SDK integrated (near-api-js)
-- Demo mode for testing (NEAR_DEMO_MODE=true)
-- Production mode with NEAR_ACCOUNT_ID + NEAR_PRIVATE_KEY
-- Final destination: Zcash shielded pool via NEAR routing
+- Demo mode toggle via NEAR_DEMO_MODE env var
+- Production mode requires NEAR_ACCOUNT_ID + NEAR_PRIVATE_KEY
+- Real prices from CoinGecko, simulated execution in demo mode
 
-#### Twitter API Verification
-**Priority**: P0
-**Owner**: Backend Engineer
-**Effort**: Medium
+#### Twitter API Verification 🔄 Partial
+**Status**: URL validation only (Twitter API optional)
 
-Tasks:
-- [ ] Set up Twitter API credentials
-- [ ] Implement tweet fetch
-- [ ] Verify tweet content contains:
-  - Reference to TIPZ
-  - The shielded address
-  - Posted by claimed handle
+Completed:
+- [x] Tweet URL format validation
+- [x] Handle matching in URL
+- [x] lib/twitter-api.ts ready for API integration
+
+Remaining:
+- [ ] Set up Twitter API credentials (developer account)
+- [ ] Enable actual tweet content verification
 - [ ] Handle API rate limits
 - [ ] Cache verified tweets
 
-Technical notes:
-- Twitter API v2 for tweet lookup
-- Store verification timestamp
-- Re-verify on address change
-
 ### P1: Important
 
-#### Rate Limiting
-**Priority**: P1
-**Owner**: Backend Engineer
-**Effort**: Small
+#### Rate Limiting ✅
+**Status**: Implemented on /api/register
 
-Tasks:
-- [ ] Add per-IP rate limits to /api/register
-- [ ] Implement sliding window algorithm
-- [ ] Return 429 with retry-after header
-- [ ] Log rate limit events
+Completed:
+- [x] In-memory sliding window rate limiter
+- [x] 10 requests/hour per IP on registration
+- [x] 429 response with Retry-After header
+- [x] Rate limit headers in responses
 
-Limits:
-- Registration: 10/hour per IP
-- Lookup: 100/minute per IP
+Remaining:
+- [ ] Rate limiting on lookup endpoints
+- [ ] Redis/Upstash for distributed limiting
 
-#### Extension UI Polish
-**Priority**: P1
-**Owner**: Design + Extension
-**Effort**: Medium
+#### Extension UI Polish ✅
+**Status**: Complete
 
-Tasks:
-- [ ] Update popup.tsx design to match web
-- [ ] Add loading states to buttons
-- [ ] Improve modal animations
-- [ ] Add transaction status indicators
+Completed:
+- [x] Creator dashboard popup matches web design
+- [x] Loading states with skeletons
+- [x] Real-time stats (total ZEC, tip count, USD)
+- [x] Recent tips list with timestamps
+- [x] Glassmorphism design system
+- [x] Status pulse animations
 
 ---
 
-## Phase 2: Stability (Week 2-3)
+## Phase 2: Stability 🔄 In Progress
 
 **Goal**: Production-ready reliability
 
 ### Error Monitoring
 **Priority**: P1
-**Owner**: Backend Engineer
-**Effort**: Medium
+**Status**: Not started
 
 Tasks:
 - [ ] Integrate Sentry (or similar)
 - [ ] Add error boundaries in React
 - [ ] Log API errors with context
-- [ ] Set up alerting
+- [ ] Set up alerting (PagerDuty/Slack)
 
-### Transaction Logging
+### Transaction Logging ✅
 **Priority**: P1
-**Owner**: Backend Engineer
-**Effort**: Medium
+**Status**: Schema ready, logging implemented
 
-Tasks:
-- [ ] Design transactions table
-- [ ] Log tip initiations
-- [ ] Track completion status
-- [ ] Build admin query interface
+Completed:
+- [x] Transactions table in Supabase
+- [x] Schema includes: id, creator_id, amount_zec, amount_usd, tx_hash, status, source_platform
+- [x] Realtime subscriptions for tip notifications
 
-Schema:
+Schema (current):
 ```sql
 CREATE TABLE transactions (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   creator_id UUID REFERENCES creators(id),
-  tipper_address TEXT,  -- hashed for privacy
-  amount_zec DECIMAL,
-  source_token TEXT,
-  status TEXT,  -- pending, completed, failed
-  tx_hash TEXT,
-  created_at TIMESTAMPTZ
+  amount_zec DECIMAL(18, 8) NOT NULL,
+  amount_usd DECIMAL(10, 2),
+  tx_hash TEXT UNIQUE,
+  status transaction_status DEFAULT 'pending',
+  source_platform TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE INDEX idx_transactions_creator ON transactions(creator_id);
+CREATE INDEX idx_transactions_status ON transactions(status);
 ```
 
-### Health Check Endpoint
-**Priority**: P2
-**Owner**: Backend Engineer
-**Effort**: Small
+Remaining:
+- [ ] Admin query interface
+- [ ] Analytics dashboard for creators
 
-Tasks:
-- [ ] Create GET /api/health
-- [ ] Check database connectivity
-- [ ] Return service status
-- [ ] Set up uptime monitoring
+### Health Check Endpoint ✅
+**Priority**: P2
+**Status**: Complete
+
+Completed:
+- [x] GET /api/health endpoint
+- [x] Database connectivity check
+- [x] NEAR configuration status
+- [x] Demo/production mode indicator
+- [x] Version and timestamp in response
 
 ---
 
@@ -233,12 +255,14 @@ Technical:
 
 ## Milestones
 
-| Milestone | Target | Criteria |
-|-----------|--------|----------|
-| MVP Launch | Week 1 | Tip flow works end-to-end |
-| Stable | Week 3 | No critical bugs in 48hr |
-| Growth Ready | Week 6 | Dashboard + recurring tips |
-| Scale | Week 12 | 10K+ active creators |
+| Milestone | Target | Status | Criteria |
+|-----------|--------|--------|----------|
+| MVP Launch | Week 1 | ✅ Complete | Tip flow works end-to-end (demo mode) |
+| Testnet Ready | Week 2 | ✅ Complete | NEAR testnet integration working |
+| Mainnet Ready | Week 4 | 🔄 In Progress | Production NEAR + Twitter API |
+| Stable | Week 6 | Pending | No critical bugs in 48hr, error monitoring |
+| Growth Ready | Week 10 | Pending | Creator analytics dashboard |
+| Scale | Week 16 | Pending | 10K+ active creators |
 
 ---
 

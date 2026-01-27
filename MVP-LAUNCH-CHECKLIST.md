@@ -7,18 +7,24 @@ This document outlines everything needed to transition TIPZ from demo mode to pr
 **Demo Mode:** All payment flows work but are simulated. No real transactions occur.
 
 **What Works Today:**
-- Creator registration with tweet verification (pending status without Twitter API)
-- Creator directory with pagination
-- Extension injects TIP buttons on X.com
-- Full tipping UI flow with wallet connection
-- Real ZEC price quotes from CoinGecko
-- Transaction logging to database (when configured)
+- [x] Creator registration with 4-step wizard
+- [x] Tweet verification (URL validation; Twitter API optional)
+- [x] Creator directory with pagination
+- [x] Individual tip pages at `/{handle}`
+- [x] TippingFlow component with AmountSelector, TokenSelector, WalletConnect
+- [x] Real ZEC price quotes from CoinGecko
+- [x] NEAR Intents API ready (demo mode)
+- [x] Extension creator dashboard with revenue stats
+- [x] Real-time tip notifications (Supabase Realtime)
+- [x] Auto-stamp feature for X compose boxes
+- [x] Dynamic OG images for social sharing
+- [x] Transaction logging schema ready
 
 ## Pre-Launch Configuration
 
-### 1. Supabase (Required)
+### 1. Supabase (Required) ✅
 
-**Status:** Web app requires these for any functionality.
+**Status:** Database configured and working.
 
 ```bash
 # /tipz/web/.env
@@ -27,9 +33,10 @@ SUPABASE_SERVICE_KEY=your-service-key
 ```
 
 **Actions:**
-- [ ] Create Supabase project at https://supabase.com
-- [ ] Run migrations: `supabase db push` or apply manually
-- [ ] Set environment variables
+- [x] Create Supabase project at https://supabase.com
+- [x] Run migrations (creators table, transactions table)
+- [x] Set environment variables
+- [x] Enable Realtime for transactions table
 
 ### 2. Twitter API (Recommended)
 
@@ -77,17 +84,24 @@ NEAR_DEMO_MODE=false           # THE SWITCH
 
 ```bash
 # /tipz/extension/.env
-PLASMO_PUBLIC_API_URL=https://your-production-url.com
+PLASMO_PUBLIC_API_URL=https://tipz.cash
 PLASMO_PUBLIC_DEMO_MODE=false
-PLASMO_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id
+
+# Optional: Enable WebSocket notifications
+PLASMO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+PLASMO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 **Actions:**
-- [ ] Get WalletConnect Project ID at https://cloud.walletconnect.com
-- [ ] Update API URL to production
+- [x] Extension structure complete (creator tool, not tipper tool)
+- [x] Creator dashboard with revenue stats
+- [x] Auto-stamp feature for X compose
+- [x] Real-time notifications via Supabase Realtime
+- [ ] Update API URL to production (tipz.cash)
 - [ ] Set demo mode to false
 - [ ] Build extension: `npm run build`
 - [ ] Package for Chrome Web Store: `npm run package`
+- [ ] Submit for Chrome Web Store review
 
 ## Launch Sequence
 
@@ -190,10 +204,40 @@ The `/api/health` endpoint returns production readiness:
 
 ## Security Checklist
 
-- [ ] NEAR private key is stored securely (env variable, not committed)
-- [ ] Supabase service key has appropriate RLS policies
-- [ ] Rate limiting is enabled (already configured)
-- [ ] No sensitive data in extension bundle
+- [x] NEAR private key stored as env variable (not committed)
+- [x] Supabase service key used only server-side
+- [x] Rate limiting on /api/register (10 req/hour)
+- [x] No sensitive data in extension bundle
+- [ ] Enable RLS policies on Supabase tables
+- [ ] Audit extension permissions (minimal required)
+- [ ] Review CORS configuration
+
+## Extension Features Checklist
+
+**Creator Dashboard (popup.tsx):**
+- [x] Linked/unlinked state detection
+- [x] Revenue stats (total ZEC, tip count, USD value)
+- [x] Recent tips list with timestamps
+- [x] View tip page link
+- [x] Unlink account option
+
+**Identity Linking (tipz-interceptor.tsx):**
+- [x] Reads `tipz_creator_identity` from tipz.cash localStorage
+- [x] Syncs to chrome.storage.local
+- [x] Re-syncs on visibility change (tab focus)
+- [x] Handles registration success events
+
+**Auto-Stamp (x.tsx):**
+- [x] Detects X compose boxes via MutationObserver
+- [x] Injects stamp button into toolbar
+- [x] Inserts `tipz.cash/{handle}` into tweet
+- [x] Shows "TIPZ added" confirmation
+
+**Real-Time Notifications (background.ts + realtime.ts):**
+- [x] Supabase Realtime WebSocket subscription
+- [x] Polling fallback (30s interval)
+- [x] Browser notifications for new tips
+- [x] Badge count for unread tips
 
 ## Rollback Plan
 

@@ -6,7 +6,7 @@ Complete documentation for the TIPZ API.
 
 ## Base URL
 
-**Production**: `https://tipz.app`
+**Production**: `https://tipz.cash`
 **Development**: `http://localhost:3000`
 
 ---
@@ -338,6 +338,376 @@ curl -X POST "https://tipz.app/api/creators/batch" \
 
 ---
 
+### GET /api/creators
+
+Get a paginated list of registered creators.
+
+#### Request
+
+**Query Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| page | number | No | Page number (default: 1) |
+| limit | number | No | Results per page (default: 20, max: 100) |
+
+#### Example Request
+
+```bash
+curl "https://tipz.cash/api/creators?page=1&limit=20"
+```
+
+#### Response
+
+**Success**:
+```json
+{
+  "creators": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "handle": "username",
+      "shielded_address": "zs1...",
+      "created_at": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
+  }
+}
+```
+
+---
+
+### POST /api/link
+
+Re-link a returning creator's extension by verifying their original tweet still exists.
+
+#### Request
+
+**Headers**:
+```
+Content-Type: application/json
+```
+
+**Body**:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| handle | string | Yes | Creator's X handle |
+
+#### Example Request
+
+```bash
+curl -X POST "https://tipz.cash/api/link" \
+  -H "Content-Type: application/json" \
+  -d '{"handle": "username"}'
+```
+
+#### Response
+
+**Success**:
+```json
+{
+  "success": true,
+  "handle": "username",
+  "verified": true
+}
+```
+
+**Error (404 Not Found)**:
+```json
+{
+  "error": "Creator not found"
+}
+```
+
+**Error (400 Bad Request)**:
+```json
+{
+  "error": "Original verification tweet not found or invalid. Please re-register.",
+  "code": "TWEET_INVALID"
+}
+```
+
+---
+
+### GET /api/zec-price
+
+Get real-time ZEC price from CoinGecko.
+
+#### Request
+
+No parameters required.
+
+#### Example Request
+
+```bash
+curl "https://tipz.cash/api/zec-price"
+```
+
+#### Response
+
+**Success**:
+```json
+{
+  "price": 42.50,
+  "currency": "USD",
+  "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
+
+---
+
+### POST /api/swap/quote
+
+Get a swap quote for converting any supported token to ZEC.
+
+#### Request
+
+**Headers**:
+```
+Content-Type: application/json
+```
+
+**Body**:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| fromChain | number | Yes | Source chain ID (1=Ethereum, 137=Polygon) |
+| fromToken | string | Yes | Token contract address (0x0... for native) |
+| fromAmount | string | Yes | Amount to swap (in token units) |
+| toChain | string | No | Destination chain (default: "ZEC") |
+| toToken | string | No | Destination token (default: "ZEC") |
+| destinationAddress | string | No | ZEC shielded address |
+
+#### Example Request
+
+```bash
+curl -X POST "https://tipz.cash/api/swap/quote" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fromChain": 1,
+    "fromToken": "0x0000000000000000000000000000000000000000",
+    "fromAmount": "0.01",
+    "destinationAddress": "zs1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp"
+  }'
+```
+
+#### Response
+
+**Success**:
+```json
+{
+  "toAmount": "0.75000000",
+  "exchangeRate": "80.0",
+  "fees": {
+    "network": "0.5000",
+    "protocol": "0.1600",
+    "total": "0.6600"
+  },
+  "estimatedTime": 480,
+  "route": ["ETH", "USDC", "ZEC"],
+  "expiresAt": 1705316000000,
+  "demo": true
+}
+```
+
+**Notes**:
+- Quotes use real prices from CoinGecko
+- `demo: true` indicates execution will be simulated
+- `demo: false` indicates real NEAR Intents execution
+- Quote expires in 60 seconds
+
+---
+
+### POST /api/swap/execute
+
+Execute a token swap after obtaining a quote.
+
+#### Request
+
+**Headers**:
+```
+Content-Type: application/json
+```
+
+**Body**:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| fromChain | number | Yes | Source chain ID |
+| fromToken | string | Yes | Token contract address |
+| fromAmount | string | Yes | Amount to swap |
+| toAmount | string | Yes | Expected ZEC amount (from quote) |
+| destinationAddress | string | Yes | ZEC shielded address |
+| senderAddress | string | Yes | Wallet address executing swap |
+| signature | string | No | Transaction signature (production only) |
+
+#### Response
+
+**Success (Demo Mode)**:
+```json
+{
+  "success": true,
+  "txHash": "demo_tx_abc123...",
+  "status": "completed",
+  "demo": true,
+  "message": "Demo swap executed - no real funds moved"
+}
+```
+
+**Success (Production)**:
+```json
+{
+  "success": true,
+  "txHash": "0x...",
+  "status": "pending",
+  "demo": false,
+  "intentId": "intent_xyz789"
+}
+```
+
+---
+
+### POST /api/intents/create
+
+Create a NEAR Intent for cross-chain privacy routing.
+
+#### Request
+
+**Headers**:
+```
+Content-Type: application/json
+```
+
+**Body**:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| amount | string | Yes | ZEC amount to send |
+| destinationAddress | string | Yes | ZEC shielded address (zs1... or u1...) |
+| destinationChain | string | Yes | Must be "ZEC" |
+| metadata | object | No | Optional metadata |
+| metadata.sourceTxHash | string | No | Source transaction hash |
+| metadata.sourceChain | number | No | Source chain ID |
+| metadata.senderAddress | string | No | Sender's wallet address |
+
+#### Example Request
+
+```bash
+curl -X POST "https://tipz.cash/api/intents/create" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": "0.75",
+    "destinationAddress": "zs1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp",
+    "destinationChain": "ZEC",
+    "metadata": {
+      "sourceTxHash": "0x...",
+      "sourceChain": 1
+    }
+  }'
+```
+
+#### Response
+
+**Success**:
+```json
+{
+  "success": true,
+  "intentId": "intent_1705316000_abc123",
+  "status": "pending",
+  "destinationChain": "ZEC",
+  "estimatedCompletion": 1705316600000,
+  "nearContract": "intents.testnet",
+  "demo": true,
+  "message": "Demo intent created - no real funds routed through NEAR"
+}
+```
+
+**Validation Errors**:
+```json
+{
+  "error": "Invalid ZEC shielded address. Must start with 'zs1' (78 chars) or 'u1' (unified address)."
+}
+```
+
+```json
+{
+  "error": "Unsupported destination chain: BTC. Supported: ZEC"
+}
+```
+
+---
+
+### GET /api/intents/create
+
+Query the status of a NEAR Intent.
+
+#### Request
+
+**Query Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| intentId | string | Yes | The intent ID to query |
+
+#### Example Request
+
+```bash
+curl "https://tipz.cash/api/intents/create?intentId=intent_1705316000_abc123"
+```
+
+#### Response
+
+**Success**:
+```json
+{
+  "intentId": "intent_1705316000_abc123",
+  "status": "completed",
+  "demo": true,
+  "message": "Demo status - not querying real NEAR chain"
+}
+```
+
+**Production Response**:
+```json
+{
+  "intentId": "intent_1705316000_abc123",
+  "status": "processing",
+  "solver": "solver.near",
+  "demo": false
+}
+```
+
+---
+
+### GET /api/og/[handle]
+
+Generate dynamic OG (Open Graph) images for creator tip pages.
+
+#### Request
+
+**URL Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| handle | string | Yes | Creator's handle |
+
+#### Example Request
+
+```bash
+curl "https://tipz.cash/api/og/username"
+```
+
+#### Response
+
+Returns a PNG image (1200x630) suitable for social media previews.
+
+**Features**:
+- Dynamic avatar based on handle
+- Creator handle prominently displayed
+- Privacy indicators (Private, Instant, 0% fees)
+- Tip amount presets
+- TIPZ branding
+
+---
+
 ## Data Types
 
 ### Creator Object
@@ -507,7 +877,18 @@ interface RegisterResponse {
 
 ## Changelog
 
-### v1.1.0 (Current)
+### v2.0.0 (Current)
+- Added swap endpoints (`POST /api/swap/quote`, `POST /api/swap/execute`)
+- Added NEAR Intents integration (`POST /api/intents/create`, `GET /api/intents/create`)
+- Added creator re-linking (`POST /api/link`)
+- Added paginated creator directory (`GET /api/creators`)
+- Added ZEC price endpoint (`GET /api/zec-price`)
+- Added dynamic OG images (`GET /api/og/[handle]`)
+- Support for unified addresses (u1...) in addition to sapling (zs1...)
+- Demo mode for testing without real transactions
+- Real-time price quotes from CoinGecko
+
+### v1.1.0
 - Added health check endpoint (`GET /api/health`)
 - Implemented rate limiting on registration endpoint (10 req/hour per IP)
 - Improved tweet URL validation with stricter format checking
@@ -522,7 +903,6 @@ interface RegisterResponse {
 
 ### Planned
 - Twitter API integration for proper tweet verification
-- Transaction logging endpoint (`POST /api/transactions/log`)
-- Creator statistics endpoint (`GET /api/creator/stats`)
-- Rate limiting on lookup endpoints
-- Webhook for transaction status updates
+- Creator analytics endpoint (`GET /api/creator/stats`)
+- Transaction webhook notifications
+- Recurring tip subscriptions

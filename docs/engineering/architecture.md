@@ -11,14 +11,16 @@ System design and technical architecture documentation.
 │                         USER LAYER                               │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐     │
-│   │   Creator    │    │   Tipper     │    │   Tipper     │     │
-│   │  (Browser)   │    │  (Browser)   │    │  (Extension) │     │
-│   └──────┬───────┘    └──────┬───────┘    └──────┬───────┘     │
-│          │                   │                   │              │
-└──────────┼───────────────────┼───────────────────┼──────────────┘
-           │                   │                   │
-           ▼                   ▼                   ▼
+│   ┌──────────────────┐         ┌───────────────────────┐        │
+│   │     Creator      │         │       Tipper          │        │
+│   │   (Extension)    │         │    (Web Browser)      │        │
+│   │  Auto-Stamp +    │         │  Tip Pages at         │        │
+│   │  Revenue Stats   │         │  tipz.cash/{handle}   │        │
+│   └────────┬─────────┘         └───────────┬───────────┘        │
+│            │                               │                     │
+└────────────┼───────────────────────────────┼─────────────────────┘
+             │                               │
+             ▼                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                       APPLICATION LAYER                          │
 ├─────────────────────────────────────────────────────────────────┤
@@ -26,19 +28,25 @@ System design and technical architecture documentation.
 │   ┌──────────────────────────────────────────────────────┐      │
 │   │              TIPZ Web App (Next.js 16)               │      │
 │   │                                                       │      │
-│   │   ┌─────────────┐  ┌─────────────┐  ┌────────────┐  │      │
-│   │   │  Landing    │  │  Register   │  │    API     │  │      │
-│   │   │   Page      │  │    Form     │  │   Routes   │  │      │
-│   │   └─────────────┘  └─────────────┘  └─────┬──────┘  │      │
+│   │   ┌────────────┐  ┌────────────┐  ┌─────────────┐   │      │
+│   │   │  Landing   │  │  Register  │  │  Tip Pages  │   │      │
+│   │   │   Page     │  │  (4-step)  │  │  /{handle}  │   │      │
+│   │   └────────────┘  └────────────┘  └─────────────┘   │      │
+│   │                                                       │      │
+│   │   ┌────────────┐  ┌────────────┐  ┌─────────────┐   │      │
+│   │   │  Creators  │  │   Docs     │  │    API      │   │      │
+│   │   │ Directory  │  │   Page     │  │   Routes    │   │      │
+│   │   └────────────┘  └────────────┘  └──────┬──────┘   │      │
 │   │                                           │          │      │
 │   └───────────────────────────────────────────┼──────────┘      │
 │                                               │                  │
 │   ┌──────────────────────────────────────────────────────┐      │
-│   │           TIPZ Extension (Plasmo/Chrome MV3)         │      │
+│   │        TIPZ Extension (Plasmo/Chrome MV3)            │      │
+│   │        ** Creator Tool - NOT Tipper Tool **          │      │
 │   │                                                       │      │
 │   │   ┌─────────────┐  ┌─────────────┐  ┌────────────┐  │      │
-│   │   │   Popup     │  │  Content    │  │    Tip     │  │      │
-│   │   │    UI       │  │  Scripts    │  │   Modal    │  │      │
+│   │   │   Popup     │  │ Background  │  │  Content   │  │      │
+│   │   │ Dashboard   │  │  (Realtime) │  │  Scripts   │  │      │
 │   │   └─────────────┘  └─────────────┘  └────────────┘  │      │
 │   │                                                       │      │
 │   └──────────────────────────────────────────────────────┘      │
@@ -55,8 +63,17 @@ System design and technical architecture documentation.
 │   │                                                       │      │
 │   │   ┌─────────────────────────────────────────────┐    │      │
 │   │   │            creators table                    │    │      │
-│   │   │                                              │    │      │
 │   │   │  id | platform | handle | shielded_address  │    │      │
+│   │   └─────────────────────────────────────────────┘    │      │
+│   │                                                       │      │
+│   │   ┌─────────────────────────────────────────────┐    │      │
+│   │   │           transactions table                 │    │      │
+│   │   │  id | creator_id | amount_zec | tx_hash     │    │      │
+│   │   └─────────────────────────────────────────────┘    │      │
+│   │                                                       │      │
+│   │   ┌─────────────────────────────────────────────┐    │      │
+│   │   │             Realtime (WebSocket)             │    │      │
+│   │   │      Pushes tip notifications to extension   │    │      │
 │   │   └─────────────────────────────────────────────┘    │      │
 │   │                                                       │      │
 │   └──────────────────────────────────────────────────────┘      │
@@ -65,15 +82,15 @@ System design and technical architecture documentation.
            │
            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                       PAYMENT LAYER (Planned)                    │
+│                         PAYMENT LAYER                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐     │
-│   │   SwapKit    │───▶│ NEAR Intents │───▶│   Zcash      │     │
-│   │    SDK       │    │              │    │  Shielded    │     │
+│   │  Web3 Wallet │───▶│ NEAR Intents │───▶│   Zcash      │     │
+│   │  (any token) │    │  (routing)   │    │  Shielded    │     │
 │   └──────────────┘    └──────────────┘    └──────────────┘     │
 │                                                                  │
-│   [Any Token] ────────▶ [Swap] ────────▶ [ZEC] ────────▶ [zs...]│
+│   [ETH/USDC/etc] ──▶ [/api/swap] ──▶ [NEAR] ──▶ [ZEC zs...]    │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -85,7 +102,7 @@ System design and technical architecture documentation.
 ### Web Application
 
 **Location**: `/tipz/web`
-**Framework**: Next.js 16.1.4
+**Framework**: Next.js 16
 **Runtime**: Node.js with App Router
 
 #### Directory Structure
@@ -93,52 +110,106 @@ System design and technical architecture documentation.
 web/
 ├── app/
 │   ├── page.tsx              # Landing page
-│   ├── layout.tsx            # Root layout
-│   ├── globals.css           # Global styles
-│   ├── register/
-│   │   └── page.tsx          # Registration form
+│   ├── layout.tsx            # Root layout + fonts
+│   ├── globals.css           # Global styles + Tailwind
+│   ├── register/page.tsx     # 4-step registration wizard
+│   ├── creators/page.tsx     # Creator directory (paginated)
+│   ├── manifesto/page.tsx    # Product manifesto
+│   ├── docs/page.tsx         # Documentation
+│   ├── [handle]/
+│   │   ├── page.tsx          # Individual tip page
+│   │   └── layout.tsx        # Tip page layout
 │   └── api/
+│       ├── health/route.ts   # Health check
 │       ├── creator/route.ts  # Single creator lookup
+│       ├── creators/route.ts # Paginated creator list
+│       ├── creators/batch/route.ts # Batch lookup
 │       ├── register/route.ts # Creator registration
-│       └── creators/
-│           └── batch/route.ts # Batch creator lookup
+│       ├── link/route.ts     # Re-link returning creators
+│       ├── zec-price/route.ts # CoinGecko price feed
+│       ├── swap/
+│       │   ├── quote/route.ts  # Swap quotes
+│       │   └── execute/route.ts # Swap execution
+│       ├── intents/
+│       │   └── create/route.ts # NEAR Intents
+│       └── og/[handle]/route.tsx # Dynamic OG images
+├── components/
+│   ├── tipping/             # Tipping flow components
+│   │   ├── TippingFlow.tsx  # Multi-stage payment UI
+│   │   ├── AmountSelector.tsx # Preset + custom amounts
+│   │   ├── TokenSelector.tsx # Multi-token support
+│   │   ├── WalletConnect.tsx # Web3 wallet integration
+│   │   ├── MessageTrench.tsx # Private note input
+│   │   ├── TipSummary.tsx   # Confirmation view
+│   │   └── TransactionStatus.tsx # Processing/success states
+│   ├── LetterGridBackground.tsx # Animated background
+│   ├── CreatorCard.tsx      # Directory card component
+│   └── TipzLogo.tsx         # Logo component
 ├── lib/
-│   └── supabase.ts           # Database client
+│   ├── supabase.ts          # Database client
+│   ├── near.ts              # NEAR Intents integration
+│   └── twitter-api.ts       # Tweet verification
 └── public/
-    └── logo.svg              # Static assets
+    └── logo.svg             # Static assets
 ```
 
 #### Key Responsibilities
-1. **Landing Page**: Marketing and product explanation
-2. **Registration Form**: Creator onboarding
-3. **API Routes**: CRUD operations for creators
+1. **Landing Page**: Marketing, product explanation, privacy manifesto
+2. **Registration**: 4-step wizard with tweet verification
+3. **Tip Pages**: Individual creator pages at `/{handle}` with TippingFlow component
+4. **Creator Directory**: Paginated list of registered creators
+5. **API Routes**: Creator CRUD, swap quotes, NEAR Intents, OG images
 
 ### Browser Extension
 
 **Location**: `/tipz/extension`
-**Framework**: Plasmo 0.90.5
+**Framework**: Plasmo
 **Target**: Chrome MV3
+
+**IMPORTANT**: The extension is a **Creator Tool**, not a tipper tool. Tippers use the web app.
 
 #### Directory Structure
 ```
 extension/
+├── popup.tsx                 # Creator dashboard UI
+│                             # - Revenue stats (total ZEC, tip count, USD)
+│                             # - Recent tips list
+│                             # - Link to tip page
+│                             # - Unlink option
+├── background.ts             # Service worker
+│                             # - Supabase Realtime subscription
+│                             # - Browser notification handling
+│                             # - Badge updates for unread tips
 ├── contents/
 │   ├── x.tsx                 # X.com content script
-│   └── substack.tsx          # Substack content script
+│   │                         # - Auto-stamp toggle in compose box
+│   │                         # - Injects tipz.cash/{handle} into tweets
+│   └── tipz-interceptor.tsx  # Web bridge for identity linking
+│                             # - Reads tipz_creator_identity from tipz.cash localStorage
+│                             # - Syncs to chrome.storage.local
 ├── components/
-│   ├── TipButton.tsx         # Injected tip button
-│   └── TipModal.tsx          # Tipping interface
+│   └── AutoStampToggle.tsx   # UI component for auto-stamp button
 ├── lib/
-│   └── api.ts                # API client
-├── popup.tsx                 # Extension popup
-└── assets/                   # Icons
+│   ├── identity.ts           # Creator identity management
+│   │                         # - getLinkedCreator()
+│   │                         # - setLinkedCreator()
+│   │                         # - clearLinkedCreator()
+│   │                         # - onLinkedCreatorChange()
+│   ├── realtime.ts           # Supabase Realtime client
+│   │                         # - WebSocket subscription to tips table
+│   │                         # - Polling fallback (30s interval)
+│   ├── api.ts                # TIPZ API client
+│   │                         # - getReceivedTips()
+│   │                         # - getRevenueStats()
+│   └── theme.ts              # Design tokens (colors, fonts)
+└── assets/                   # Extension icons
 ```
 
 #### Key Responsibilities
-1. **Content Scripts**: Detect tweets/articles, inject UI
-2. **TipButton**: Display registration status, trigger modal
-3. **TipModal**: Amount selection, payment execution
-4. **Popup**: Extension settings and status
+1. **Identity Linking**: Web bridge reads localStorage from tipz.cash and syncs to chrome.storage
+2. **Auto-Stamp**: Detects X compose boxes and injects tip link when enabled
+3. **Real-Time Notifications**: Subscribes to Supabase Realtime for instant tip alerts
+4. **Revenue Dashboard**: Shows earnings, tip count, and recent tips in popup
 
 ### Database
 
@@ -164,55 +235,100 @@ CREATE INDEX idx_creators_platform_handle ON creators(platform, handle_normalize
 
 ## Data Flow
 
-### Creator Registration
+### Creator Registration (4-Step Wizard)
 
 ```
-1. Creator visits /register
-2. Fills form: platform, handle, shielded_address, tweet_url
-3. Client submits to POST /api/register
-4. Server validates:
-   - Required fields present
-   - Platform is 'x' or 'substack'
-   - Shielded address format (zs + 76 chars)
-   - Tweet URL format matches handle
-5. Server upserts to Supabase
-6. Returns success/error
+Step 1: Handle Entry
+  - Creator enters X handle
+  - Client validates format
+
+Step 2: Wallet Setup
+  - Creator enters Zcash shielded address (zs... or u1...)
+  - Client validates address format
+
+Step 3: Tweet Verification
+  - Creator posts verification tweet containing handle + address
+  - Creator pastes tweet URL into form
+  - If Twitter API configured: server verifies tweet content
+  - If not configured: URL format validation only
+
+Step 4: Confirmation
+  - Server upserts to Supabase (platform, handle, handle_normalized, shielded_address, tweet_url)
+  - Server sets localStorage `tipz_creator_identity` for extension bridge
+  - Returns success with verification_status (pending/verified)
 ```
 
-### Creator Lookup (Single)
+### Extension Identity Linking (Web Bridge)
 
 ```
-1. Extension detects tweet author handle
-2. Calls GET /api/creator?platform=x&handle=username
-3. Server normalizes handle (lowercase, strip @)
-4. Queries Supabase by platform + handle_normalized
-5. Returns { found: true/false, creator?: {...} }
-6. Extension renders appropriate button
+1. Creator visits tipz.cash after registration
+2. tipz-interceptor.tsx content script loads on tipz.cash
+3. Script reads `tipz_creator_identity` from localStorage
+4. If valid identity found:
+   - Stores in chrome.storage.local under `tipz_linked_creator`
+   - Dispatches 'tipz-identity-linked' CustomEvent
+5. popup.tsx calls getLinkedCreator() to display dashboard
+6. background.ts subscribes to tips for linked handle
 ```
 
-### Creator Lookup (Batch)
+### Real-Time Tip Notifications
 
 ```
-1. Extension collects visible tweet authors
-2. Calls POST /api/creators/batch
-   Body: { platform: 'x', handles: ['user1', 'user2', ...] }
-3. Server normalizes all handles
-4. Single Supabase query with IN clause
-5. Returns { results: { handle: { found, creator? }, ... } }
-6. Extension renders buttons for all visible tweets
+1. background.ts initializes on extension load
+2. Gets linked creator identity from chrome.storage.local
+3. If linked:
+   - Calls subscribeToTips(handle, callback) from realtime.ts
+   - realtime.ts attempts WebSocket connection to Supabase Realtime
+   - Falls back to 30-second polling if WebSocket unavailable
+4. On new tip:
+   - Shows browser notification with amount/message
+   - Increments badge count
+   - Updates chrome.storage for popup to refresh
 ```
 
-### Tipping Flow (Planned)
+### Auto-Stamp Flow
 
 ```
-1. User clicks "Tip" button
-2. TipModal opens with creator info
-3. User selects amount and token
-4. SwapKit calculates swap (token → ZEC)
-5. User confirms in wallet
-6. Swap executes via NEAR Intents
-7. ZEC sent to creator's shielded address
-8. Success confirmation displayed
+1. Creator opens X.com compose box (tweet, reply, quote)
+2. x.tsx content script detects compose toolbar via MutationObserver
+3. If creator is linked:
+   - Injects AutoStampToggle button into toolbar
+4. When creator clicks stamp (or if auto-stamp enabled):
+   - Inserts `tipz.cash/{handle}` at end of tweet text
+   - Shows confirmation badge "TIPZ added"
+```
+
+### Tipping Flow (Web App)
+
+```
+1. Tipper visits tipz.cash/{handle}
+2. Tip page loads with TippingFlow component
+3. User selects amount (preset or custom USD)
+4. User selects payment token (ETH, USDC, etc.)
+5. Client calls POST /api/swap/quote
+   - Server fetches real prices from CoinGecko
+   - Returns: toAmount (ZEC), exchangeRate, fees, route
+6. User connects wallet via WalletConnect/MetaMask
+7. User confirms transaction
+8. Client calls POST /api/swap/execute
+   - In demo mode: simulates swap
+   - In production: executes via connected wallet
+9. Client calls POST /api/intents/create
+   - Server creates NEAR Intent for cross-chain routing
+   - Returns: intentId, status, estimatedCompletion
+10. Transaction logged to Supabase (if configured)
+11. Creator receives tip notification via Realtime
+```
+
+### Creator Re-Linking (Returning Creator)
+
+```
+1. Creator with existing registration visits tipz.cash
+2. Enters handle in link form
+3. Client calls POST /api/link with handle
+4. Server looks up creator, verifies original tweet still valid
+5. Returns success - client sets localStorage for extension bridge
+6. Extension detects new identity on next visit
 ```
 
 ---
@@ -225,14 +341,24 @@ CREATE INDEX idx_creators_platform_handle ON creators(platform, handle_normalize
 2. **Simple**: Minimal endpoints, clear purpose
 3. **Fast**: Normalized handles for O(1) lookup
 4. **Permissive CORS**: Extension needs cross-origin access
+5. **Demo Mode**: All payment APIs support demo/production toggle via NEAR_DEMO_MODE
 
 ### Endpoints Summary
 
 | Method | Path | Purpose |
 |--------|------|---------|
+| GET | /api/health | Health check with database/NEAR status |
 | GET | /api/creator | Single creator lookup |
+| GET | /api/creators | Paginated creator directory |
+| POST | /api/creators/batch | Batch creator lookup (max 100) |
 | POST | /api/register | Create/update registration |
-| POST | /api/creators/batch | Batch creator lookup |
+| POST | /api/link | Re-link returning creator's extension |
+| GET | /api/zec-price | Real-time ZEC price from CoinGecko |
+| POST | /api/swap/quote | Get swap quote (any token → ZEC) |
+| POST | /api/swap/execute | Execute token swap |
+| POST | /api/intents/create | Create NEAR Intent for cross-chain routing |
+| GET | /api/intents/create | Query NEAR Intent status |
+| GET | /api/og/[handle] | Dynamic OG images for tip pages |
 
 ---
 
@@ -317,13 +443,29 @@ CREATE INDEX idx_creators_platform_handle ON creators(platform, handle_normalize
 
 ### Web App
 ```env
+# Database (required)
 SUPABASE_URL=https://xxx.supabase.co
 SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# Twitter Verification (optional - enables automated tweet verification)
+TWITTER_BEARER_TOKEN=your-bearer-token
+
+# NEAR Intents (required for real payments)
+NEAR_NETWORK=testnet                # or mainnet
+NEAR_ACCOUNT_ID=tipz.testnet        # Your NEAR account
+NEAR_PRIVATE_KEY=ed25519:...        # Your private key
+NEAR_DEMO_MODE=true                 # Set to false for real payments
 ```
 
 ### Extension
 ```env
-PLASMO_PUBLIC_API_URL=https://tipz.app
+PLASMO_PUBLIC_API_URL=https://tipz.cash
+PLASMO_PUBLIC_DEMO_MODE=true
+PLASMO_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id
+
+# Supabase Realtime (optional - enables WebSocket notifications)
+PLASMO_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+PLASMO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ---
@@ -364,19 +506,36 @@ npm run dev  # Opens Chrome with extension loaded
 
 ---
 
+## Current Architecture
+
+### Payment Flow (Implemented)
+```
+Tipper (Web) → WalletConnect → /api/swap → NEAR Intents → Zcash Shielded
+```
+
+### Creator Notifications (Implemented)
+```
+Supabase Realtime → Extension Background → Browser Notification
+```
+
+### Identity Bridge (Implemented)
+```
+tipz.cash localStorage → tipz-interceptor.tsx → chrome.storage → popup.tsx
+```
+
 ## Future Architecture
 
-### Phase 2: Payment Integration
+### Phase 2: Creator Analytics Dashboard
 ```
-Extension → SwapKit SDK → Token Swap → NEAR Intents → Zcash Shielded
-```
-
-### Phase 3: Analytics
-```
-tipz.app/dashboard → Analytics API → Supabase (anonymized)
+tipz.cash/dashboard → /api/analytics → Supabase (anonymized aggregates)
 ```
 
-### Phase 4: Multi-Platform
+### Phase 3: Multi-Platform Support
 ```
-Extension → Platform Adapters → {X, Substack, YouTube, Twitch, ...}
+Extension → Platform Adapters → {YouTube, Twitch, GitHub, Farcaster}
+```
+
+### Phase 4: Recurring Tips
+```
+User → Subscription Setup → Background Job → Monthly Tips
 ```
