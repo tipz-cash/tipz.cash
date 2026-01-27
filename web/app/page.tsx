@@ -4262,7 +4262,7 @@ export default function HomePage() {
                       backgroundPosition: "center",
                       position: "relative",
                     }}>
-                      {/* TIPZ QR Code watermark - sleek, no box */}
+                      {/* TIPZ QR Code watermark - black QR, gold text */}
                       <div style={{
                         position: "absolute",
                         bottom: "6px",
@@ -4270,16 +4270,17 @@ export default function HomePage() {
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        filter: "drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8))",
                       }}>
                         <div style={{
-                          width: "24px",
-                          height: "24px",
+                          width: "28px",
+                          height: "28px",
                           display: "grid",
                           gridTemplateColumns: "repeat(7, 1fr)",
                           gridTemplateRows: "repeat(7, 1fr)",
                           gap: "0.5px",
-                          opacity: 0.9,
+                          background: "#F5A623",
+                          padding: "2px",
+                          borderRadius: "2px",
                         }}>
                           {[
                             1,1,1,0,1,1,1,
@@ -4291,17 +4292,17 @@ export default function HomePage() {
                             1,1,1,0,1,1,1,
                           ].map((cell, i) => (
                             <div key={i} style={{
-                              background: cell ? "#fff" : "transparent",
+                              background: cell ? "#000" : "#F5A623",
                             }} />
                           ))}
                         </div>
                         <div style={{
                           color: "#F5A623",
-                          fontSize: "6px",
+                          fontSize: "7px",
                           fontFamily: "'JetBrains Mono', monospace",
-                          fontWeight: 600,
-                          marginTop: "2px",
-                          textShadow: "0 1px 2px rgba(0, 0, 0, 0.8)",
+                          fontWeight: 700,
+                          marginTop: "3px",
+                          textShadow: "0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.5)",
                         }}>
                           tipz.cash/mert
                         </div>
