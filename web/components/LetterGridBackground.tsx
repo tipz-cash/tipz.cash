@@ -69,8 +69,8 @@ export function LetterGridBackground() {
             }
           }
 
-          // Start new morph - ALL letters constantly changing (100% probability)
-          if (cell.morphProgress === 0 && !cell.isHighlight) {
+          // Start new morph - only ~5% of letters change per frame for smoother performance
+          if (cell.morphProgress === 0 && !cell.isHighlight && Math.random() < 0.05) {
             cell.nextChar = CHARS[Math.floor(Math.random() * CHARS.length)]
             cell.morphProgress = 0.01
           }
@@ -120,9 +120,9 @@ export function LetterGridBackground() {
         }
       }
 
-      // Random letter sparks - instant flash then gone
-      if (Math.random() < 0.2) {
-        const numSparks = 3 + Math.floor(Math.random() * 6)
+      // Random letter sparks - instant flash then gone (reduced frequency)
+      if (Math.random() < 0.1) {
+        const numSparks = 1 + Math.floor(Math.random() * 3)
         for (let s = 0; s < numSparks; s++) {
           const row = Math.floor(Math.random() * ROWS)
           const col = Math.floor(Math.random() * COLS)
@@ -148,8 +148,8 @@ export function LetterGridBackground() {
       setRenderKey(k => k + 1)
     }
 
-    // Slower interval: 25ms → 50ms (40fps → 20fps)
-    const interval = setInterval(updateGrid, 50)
+    // Slower interval for smoother interactions (100ms = 10fps)
+    const interval = setInterval(updateGrid, 100)
 
     return () => clearInterval(interval)
   }, [])
