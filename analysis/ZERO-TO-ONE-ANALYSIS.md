@@ -21,6 +21,23 @@ TIPZ has a genuine contrarian insight (financial privacy for creator support is 
 
 ---
 
+## Product Architecture (Current State)
+
+**For Creators:**
+- Register on tipz.cash with Zcash shielded address + tweet verification
+- Get a tip page at `tipz.cash/{handle}` with shareable link and QR code
+- Optional: Install browser extension for auto-stamping posts, revenue dashboard, and real-time tip notifications
+
+**For Tippers:**
+- Click creator's tip link or scan QR code
+- Land on web-based tip page (no extension or app required)
+- Connect wallet, select amount/token, tip
+- NEAR Intents converts any token → ZEC → creator's shielded address
+
+**Key insight:** Zero friction for tippers is a distribution advantage. The extension is a creator power tool, not a tipper requirement.
+
+---
+
 ## 1. The Contrarian Question
 
 > "What important truth do few people agree with you on?"
@@ -57,9 +74,9 @@ Supporting evidence:
 | **Privacy-first tipping** | ✅ First to combine shielded + cross-chain | |
 | **Zcash for creators** | ✅ New use case for ZEC | |
 | **Any-token to shielded** | ✅ Novel cross-chain privacy flow | |
-| Browser extension for tipping | | ❌ Exists (tip.cc, others) |
+| **Link/QR-based tipping** | ✅ Zero-friction web flow (no app/extension for tippers) | |
 | Creator monetization | | ❌ Crowded space |
-| X integration | | ❌ Many compete here |
+| Creator tools (extension) | | ❌ Dashboard/analytics exist elsewhere |
 
 **Verdict: Core innovation is 0→1, but surface presentation is 1→n.**
 
@@ -199,7 +216,7 @@ Evidence of indefinite thinking in TIPZ:
 > "We'll launch, see what works, iterate based on feedback, maybe pivot if needed."
 
 **Definite** (better):
-> "By March 2026, TIPZ will process $100K in private tips monthly. We will achieve this by onboarding 10 anchor creators with 100K+ followers each, who will drive 80% of tip volume. The extension will have 5000 active installers. We will not pursue Substack, mobile, or any other platform until X is dominant."
+> "By March 2026, TIPZ will process $100K in private tips monthly. We will achieve this by onboarding 10 anchor creators with 100K+ followers each, who will drive 80% of tip volume. We will have 500 registered creators actively sharing their tip links. We will not pursue Substack, mobile apps, or any other platform until X is dominant."
 
 ### Definite Vision Statement (Proposed)
 
@@ -218,7 +235,7 @@ Evidence of indefinite thinking in TIPZ:
 | **Organic X** | ~$0 | Low (one-time tips) | ✅ Primary |
 | **KOL outreach** | ~$0 (time) | Medium (if they convert followers) | ✅ Good |
 | **Zcash community** | ~$0 | High (evangelists) | ✅ Critical |
-| **Chrome Web Store** | ~$0 | Low | ⚠️ Passive |
+| **Link/QR sharing** | ~$0 | High (zero friction for tippers) | ✅ Core mechanic |
 | **Paid ads** | High | Unknown | ❌ Premature |
 
 ### Distribution Spectrum Fit
@@ -237,21 +254,28 @@ TIPZ needs **viral or near-viral distribution** to work. The current strategy (o
 
 **Current loop:**
 ```
-Creator registers → Posts tweet → Followers see → Some install extension → Some tip → Creator posts about tip → ???
+Creator registers → Shares tip link (tipz.cash/{handle}) or QR → Followers click/scan → Tip on web (no install needed) → Creator gets notified → ???
 ```
 
+**Strength of current flow:**
+- Zero friction for tippers (just click link, connect wallet, tip)
+- Works on mobile and desktop
+- QR codes enable offline-to-online conversion (podcasts, events)
+- Creator extension (optional) enables auto-stamping posts with tip links
+
 **Missing viral elements:**
-1. No incentive for creators to promote TIPZ beyond initial registration
+1. No incentive for creators to keep sharing (beyond initial registration)
 2. No social proof of tips (privacy paradox—success is invisible)
 3. No tipper-to-creator referral mechanism
-4. No "powered by TIPZ" attribution on tips
+4. No "powered by TIPZ" attribution visible to tippers' networks
 
 ### Viral Recommendations
 
 1. **Milestone celebrations** - Auto-generate shareable (privacy-safe) achievements: "I've received 100 private tips on TIPZ!"
-2. **Tipper referrals** - "Tip 3 creators, get a badge" (gamification without exposing amounts)
+2. **Post-tip sharing prompt** - After tipping, prompt: "Tell others you support this creator privately" with pre-filled tweet
 3. **Creator leaderboard** - Opt-in only, shows tip count (not amounts), drives competition
 4. **TIPZ verified badge** - Social proof creators display to signal they accept private tips
+5. **Auto-stamp expansion** - Creator extension stamps posts with tip link, making every tweet a distribution moment
 
 ---
 
