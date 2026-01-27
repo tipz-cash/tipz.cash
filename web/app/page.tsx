@@ -4227,7 +4227,7 @@ export default function HomePage() {
                       width: "40px",
                       height: "40px",
                       borderRadius: "50%",
-                      backgroundImage: "url('https://pbs.twimg.com/profile_images/1773809987070504960/Lx_-F6Wd_400x400.jpg')",
+                      backgroundImage: "url('https://pbs.twimg.com/profile_images/1860329630885003264/K5LKN4le_400x400.jpg')",
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                       flexShrink: 0,
@@ -4262,25 +4262,24 @@ export default function HomePage() {
                       backgroundPosition: "center",
                       position: "relative",
                     }}>
-                      {/* TIPZ QR Code watermark */}
+                      {/* TIPZ QR Code watermark - sleek, no box */}
                       <div style={{
                         position: "absolute",
-                        bottom: "8px",
-                        right: "8px",
+                        bottom: "6px",
+                        right: "6px",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        background: "rgba(0, 0, 0, 0.6)",
-                        padding: "6px",
-                        borderRadius: "6px",
+                        filter: "drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8))",
                       }}>
                         <div style={{
-                          width: "32px",
-                          height: "32px",
+                          width: "24px",
+                          height: "24px",
                           display: "grid",
                           gridTemplateColumns: "repeat(7, 1fr)",
                           gridTemplateRows: "repeat(7, 1fr)",
                           gap: "0.5px",
+                          opacity: 0.9,
                         }}>
                           {[
                             1,1,1,0,1,1,1,
@@ -4298,11 +4297,11 @@ export default function HomePage() {
                         </div>
                         <div style={{
                           color: "#F5A623",
-                          fontSize: "7px",
+                          fontSize: "6px",
                           fontFamily: "'JetBrains Mono', monospace",
                           fontWeight: 600,
-                          marginTop: "3px",
-                          letterSpacing: "0.2px",
+                          marginTop: "2px",
+                          textShadow: "0 1px 2px rgba(0, 0, 0, 0.8)",
                         }}>
                           tipz.cash/mert
                         </div>
@@ -4320,15 +4319,6 @@ export default function HomePage() {
                         Bitcoin solved legitimacy, Solana/Ethereum solved scale. Privacy is next.
                       </div>
                     </div>
-                  </div>
-
-                  {/* Auto-stamped TIPZ link */}
-                  <div style={{
-                    padding: "0 16px 12px",
-                    color: "#1d9bf0",
-                    fontSize: "15px",
-                  }}>
-                    tipz.cash/mert
                   </div>
 
                   {/* Engagement Row - X style */}
