@@ -4260,61 +4260,27 @@ export default function HomePage() {
                     borderRadius: "16px",
                     overflow: "hidden",
                   }}>
-                    {/* Article Image - Abstract gradient */}
+                    {/* Article Image - Privacy Thesis cover */}
                     <div style={{
                       height: "140px",
-                      background: `linear-gradient(135deg,
-                        #0f172a 0%,
-                        #1e293b 30%,
-                        #312e81 60%,
-                        #1e1b4b 100%
-                      )`,
+                      backgroundImage: "url('https://pbs.twimg.com/media/G48VC29aUAAO__P?format=jpg&name=medium')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
                       position: "relative",
-                    }}>
-                      {/* Decorative orbs */}
-                      <div style={{
-                        position: "absolute",
-                        top: "20%",
-                        left: "15%",
-                        width: "60px",
-                        height: "60px",
-                        background: "radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)",
-                        borderRadius: "50%",
-                      }} />
-                      <div style={{
-                        position: "absolute",
-                        bottom: "25%",
-                        right: "20%",
-                        width: "80px",
-                        height: "80px",
-                        background: "radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)",
-                        borderRadius: "50%",
-                      }} />
-                      {/* Article icon overlay */}
-                      <div style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        fontSize: "32px",
-                        opacity: 0.6,
-                      }}>
-                        📰
-                      </div>
-                    </div>
+                    }} />
                     {/* Article Meta */}
                     <div style={{
                       padding: "12px",
                       background: "#000",
                     }}>
                       <div style={{ color: "#71767b", fontSize: "13px", marginBottom: "4px" }}>
-                        helius.dev
+                        mert.xyz
                       </div>
                       <div style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 500, lineHeight: 1.3 }}>
-                        The State of Solana DeFi: 2025 Report
+                        The Last 1000x in Crypto: A Privacy Thesis
                       </div>
                       <div style={{ color: "#71767b", fontSize: "13px", marginTop: "4px" }}>
-                        Deep dive into Solana&apos;s DeFi ecosystem growth and infrastructure evolution.
+                        Bitcoin solved legitimacy, Solana/Ethereum solved scale. Privacy is next.
                       </div>
                     </div>
                   </div>
