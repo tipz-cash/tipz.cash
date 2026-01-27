@@ -200,8 +200,134 @@ These are red lines, not negotiable positions:
 
 ---
 
+## Zero to One Analysis
+
+*Evaluating this monetization strategy through Peter Thiel's framework.*
+
+### Strengths
+
+| Dimension | Assessment |
+|-----------|------------|
+| **Addresses the Anti-Pattern** | The original Zero to One analysis flagged "no monetization path" as a critical weakness. This roadmap directly addresses it with 4 phased revenue streams. |
+| **Grant Bridge Strategy** | Smart. Uses ecosystem funding to buy time while building traction—Thiel would approve of defined runway with milestones. |
+| **Premium Features Preserve Core** | Zero fees on tipping stays intact. Premium monetizes *creator success tools*, not the transaction itself. This maintains the 10x value prop. |
+| **Red Lines Section** | Definite thinking. Explicitly stating what you won't do is as strategic as what you will do. Prevents mission drift. |
+
+### Weaknesses
+
+| Dimension | Concern |
+|-----------|---------|
+| **Indefinite Milestones** | "500+ creators" to launch premium is arbitrary. Better: "10 creators doing $5K/month in tips" = actual monetization readiness signal. |
+| **Protocol Fee as Last Resort** | Positioning fees as "contingency" is indefinite thinking. Either commit to never taking fees (charity model) or design fees from day one (business model). The middle ground is strategic limbo. |
+| **Premium Pricing Untested** | $5/$15 pricing pulled from thin air. Thiel: "The most important decision is your first sale." Validate pricing with 10 anchor creators before locking in. |
+| **NEAR Grant = Dependency Risk** | Seeking NEAR funding while NEAR Intents is a key integration creates weird incentive alignment. If NEAR grant doesn't happen, does the integration still make sense? |
+
+### Power Law Test
+
+> "Does this monetization strategy optimize for the 5% scenario where TIPZ becomes the default private tipping infrastructure?"
+
+| Revenue Stream | Power Law Aligned? | Analysis |
+|----------------|-------------------|----------|
+| Grants | ⚠️ Neutral | Bridge funding, doesn't determine outcome |
+| Premium tier | ❌ **No** | $5-15/mo subscriptions are lifestyle business math, not monopoly math |
+| Enterprise/API | ✅ **Yes** | If TIPZ wins, every platform wants integration. This scales with dominance. |
+| Protocol fee | ✅ **Yes** | 0.1% of $1B annual volume = $1M. Only matters if TIPZ wins big. |
+
+**Insight:** The roadmap is optimized for "sustainable niche" (30% probability, $1-10M) rather than "category dominance" (5% probability, $1B+). Premium tiers are 1→n thinking. Enterprise and protocol fees are 0→1 thinking.
+
+### Monopoly Mechanics
+
+The roadmap is **missing monopoly mechanics in monetization**:
+
+| Current State | Monopoly Alternative |
+|---------------|---------------------|
+| Premium badge = vanity feature | Premium badge = network effect (verified creators get preferential directory placement, tippers trust badges) |
+| Pro analytics = solo tool | Pro analytics = aggregate insights ("you're in top 10% of tip recipients this month") |
+| Enterprise = per-deal sales | Enterprise = platform lock-in (once embedded, switching costs are high) |
+
+**Recommendation:** Redesign premium tiers to create switching costs and network effects, not just feature upgrades.
+
+### Definite vs. Indefinite
+
+| Aspect | Verdict |
+|--------|---------|
+| Philosophy | ✅ Definite — "Zero fees non-negotiable" is a real commitment |
+| Phase timelines | ⚠️ Semi-definite — Q1/Q2/Q3 2026 is a timeline, but contingent on vague "500 creators" |
+| Grant amounts | ✅ Definite — Specific dollar asks, not "whatever we can get" |
+| Protocol fee | ❌ Indefinite — "TBD", "if needed", "community vote" = no actual plan |
+| Breakeven | ✅ Definite — "$15K/month, 1,000 premium subs" is a real target |
+
+### Strategic Recommendations
+
+**Tier 1: Make Definite Commitments**
+
+1. **Replace creator count triggers with revenue triggers**
+   - Current: "Launch premium at 500 creators"
+   - Better: "Launch premium when 50 creators are each receiving $500+/month in tips"
+   - Why: Creator count is vanity. Tip volume is product-market fit.
+
+2. **Decide on protocol fee now**
+   - Either: "We will never take fees" (and design grants/premium to sustain)
+   - Or: "We will implement 0.1% fee at $X volume threshold on DATE"
+   - The "contingency" framing is strategic cowardice.
+
+3. **Kill NEAR grant dependency**
+   - If NEAR Intents integration is strategic, fund it from Zcash grant or self-fund
+   - Taking money from infrastructure partners creates conflicts
+
+**Tier 2: Optimize for Power Law**
+
+4. **Flip the premium model**
+   - Current: Creators pay for badges/analytics
+   - Better: Platforms pay for white-label; creators get premium free if they drive volume
+   - Power law logic: If one platform (say Substack) integrates, that's worth more than 10,000 $15/mo subs
+
+5. **Design enterprise as the primary path**
+   - Premium subscriptions are a distraction from the power law outcome
+   - Enterprise integration is the only revenue stream that scales with monopoly
+
+**Tier 3: Add Monopoly Mechanics**
+
+6. **Verified badge should create network effects**
+   - Verified creators appear first in directory
+   - Tippers see "verified" signal, trust increases, tips increase
+   - More tips = more creators want verification = flywheel
+
+7. **Pro analytics should leverage aggregate data**
+   - "Your tip conversion rate is 2x the TIPZ average"
+   - "Creators who post at 2pm get 40% more tips"
+   - This data is only possible with scale = monopoly advantage
+
+### Revised Roadmap Priorities
+
+If applying Zero to One rigorously, the phases should be reordered:
+
+| Current Order | Zero to One Order | Rationale |
+|---------------|-------------------|-----------|
+| 1. Grants | 1. Grants | ✓ Same — buys runway |
+| 2. Premium | 3. Premium | Defer — lifestyle business revenue |
+| 3. Enterprise | 2. Enterprise | **Prioritize** — power law aligned |
+| 4. Protocol fee | 4. Protocol fee | ✓ Same — only if needed at scale |
+
+**The play:** Use grants to survive, close 2-3 enterprise deals to prove platform value, then let premium emerge naturally. Don't waste energy on $5/mo subscriptions when you could be landing platform partnerships.
+
+### Summary
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Addresses monetization gap | ✅ Strong | Yes, 4 revenue streams with clear structure |
+| Definite vision | ⚠️ Partial | Good philosophy, weak triggers and timelines |
+| Power law optimized | ❌ Weak | Premium focus is 1→n thinking |
+| Monopoly mechanics | ❌ Missing | No switching costs or network effects in revenue model |
+| Actionable | ⚠️ Partial | Grant strategy is actionable; premium/enterprise need more work |
+
+**Bottom line:** This roadmap solves the "no monetization" anti-pattern but introduces a new risk: **optimizing for sustainability instead of dominance**. A privacy-first tipping monopoly looks like enterprise integrations and protocol fees at scale, not $5/mo verified badges.
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 0.2 | 2026-01-27 | Added Zero to One strategic analysis |
 | 0.1 | 2026-01-27 | Initial roadmap draft |
