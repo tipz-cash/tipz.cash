@@ -2449,7 +2449,7 @@ function renderWithTipzHighlight(text: string, primaryColor: string) {
 }
 
 export default function HomePage() {
-  const heroText = "Private TIPZ\nfor creators";
+  const heroText = "Private TIPZ\nfor X creators";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [tweetVisible, setTweetVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -2758,30 +2758,27 @@ export default function HomePage() {
               </div>
             </TerminalReveal>
 
-            {/* Platform icons - silver watermark style, matches CTA button width */}
+            {/* Platform badge - X only per Zero to One strategy */}
             <TerminalReveal delay={heroAnimationReady ? 400 : 99999}>
               <div style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
-                width: "200px",
+                gap: "10px",
                 marginTop: "32px",
                 marginLeft: isMobile ? "auto" : "25px",
                 marginRight: isMobile ? "auto" : "0",
-                opacity: 0.4,
+                opacity: 0.5,
               }}>
                 {/* X (Twitter) */}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#FFFFFF" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#FFFFFF" }}>
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
-                {/* Substack */}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#FFFFFF" }}>
-                  <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
-                </svg>
-                {/* YouTube */}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#FFFFFF" }}>
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
+                <span style={{
+                  fontSize: "11px",
+                  letterSpacing: "0.1em",
+                  color: "#FFFFFF",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>BUILT FOR X</span>
               </div>
             </TerminalReveal>
           </div>
@@ -3663,7 +3660,7 @@ export default function HomePage() {
           </TerminalReveal>
 
           <TypingHeading
-            text="Join 127+ creators keeping 100%."
+            text="Join 127+ X creators keeping 100%."
             style={{ marginBottom: "48px" }}
           />
 
@@ -4727,7 +4724,7 @@ export default function HomePage() {
               fontSize: "18px",
               marginBottom: "32px",
             }}>
-              Join 127+ creators who registered for fee-free tipping.
+              Join 127+ X creators who registered for fee-free tipping.
               <br />Set up in 2 minutes. Private by default.
             </p>
           </TerminalReveal>
