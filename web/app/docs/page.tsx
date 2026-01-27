@@ -1,7 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+
+// ZEC Ticker component
+function ZecTicker() {
+  const [price, setPrice] = useState<number | null>(null);
+
+  useEffect(() => {
+    async function fetchPrice() {
+      try {
+        const res = await fetch("/api/zec-price");
+        const data = await res.json();
+        if (data.price) setPrice(data.price);
+      } catch {
+        // Ignore errors
+      }
+    }
+    fetchPrice();
+  }, []);
+
+  return (
+    <span style={{ color: "#6B7280", fontSize: "11px", letterSpacing: "1px" }}>
+      ZEC {price ? `$${price.toFixed(2)}` : "—"}
+    </span>
+  );
+}
 
 // Color palette - refined for depth and atmosphere (matching home page)
 const colors = {
@@ -94,6 +118,8 @@ function CollapsibleSection({
 }
 
 export default function DocsPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div
       style={{
@@ -109,109 +135,42 @@ export default function DocsPage() {
       <div className="scanlines" />
 
       {/* Header */}
-      <header
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          borderBottom: `1px solid ${colors.border}`,
-          backgroundColor: `${colors.bg}f0`,
-          backdropFilter: "blur(12px)",
-          zIndex: 100,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            padding: "20px 48px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Link
-            href="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-              textDecoration: "none",
-            }}
-          >
-            <span
-              style={{
-                color: colors.primary,
-                fontWeight: 700,
-                fontSize: "18px",
-                textShadow: `0 0 20px ${colors.primaryGlow}`,
-              }}
-            >
-              [TIPZ]
-            </span>
-            <span style={{
-              color: colors.muted,
-              fontSize: "10px",
-              letterSpacing: "1px",
-              padding: "2px 6px",
-              border: `1px solid ${colors.border}`,
-              borderRadius: "2px",
-            }}>BETA</span>
+      <header style={{ position: "fixed", top: 0, left: 0, right: 0, borderBottom: `1px solid ${colors.border}`, backgroundColor: `${colors.bg}f0`, backdropFilter: "blur(12px)", zIndex: 100 }}>
+        <div className="header-inner" style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
+            <span style={{ color: colors.primary, fontWeight: 700, fontSize: "18px", textShadow: `0 0 20px ${colors.primaryGlow}` }}>[TIPZ]</span>
+            <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px", padding: "2px 6px", border: `1px solid ${colors.border}`, borderRadius: "2px" }}>BETA</span>
           </Link>
-          <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-            <Link
-              href="/creators"
-              style={{
-                color: colors.muted,
-                textDecoration: "none",
-                fontSize: "11px",
-                letterSpacing: "1px",
-              }}
-            >
-              CREATORS
-            </Link>
-            <Link
-              href="/manifesto"
-              style={{
-                color: colors.muted,
-                textDecoration: "none",
-                fontSize: "11px",
-                letterSpacing: "1px",
-              }}
-            >
-              MANIFESTO
-            </Link>
-            <span
-              style={{
-                color: colors.primary,
-                fontSize: "11px",
-                fontWeight: 600,
-                letterSpacing: "1px",
-                textShadow: `0 0 10px ${colors.primaryGlow}`,
-              }}
-            >
-              DOCS
-            </span>
-            <Link
-              href="/register"
-              className="cta-primary"
-              style={{
-                color: colors.bg,
-                backgroundColor: colors.primary,
-                textDecoration: "none",
-                fontSize: "11px",
-                letterSpacing: "1px",
-                fontWeight: 600,
-                padding: "8px 16px",
-                borderRadius: "8px",
-              }}
-            >
-              START EARNING
-            </Link>
+          <nav className="desktop-nav" style={{ gap: "32px", alignItems: "center" }}>
+            <Link href="/creators" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>CREATORS</Link>
+            <Link href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MANIFESTO</Link>
+            <span style={{ color: colors.primary, fontSize: "11px", fontWeight: 600, letterSpacing: "1px", textShadow: `0 0 10px ${colors.primaryGlow}` }}>DOCS</span>
+            <Link href="/register" className="cta-primary" style={{ color: colors.bg, backgroundColor: colors.primary, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", fontWeight: 600, padding: "8px 16px", borderRadius: "8px" }}>START EARNING</Link>
           </nav>
+          <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu">
+            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+          </button>
         </div>
       </header>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <>
+          <div onClick={() => setMobileMenuOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 200 }} />
+          <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "280px", maxWidth: "80vw", background: colors.bg, borderLeft: `1px solid ${colors.border}`, zIndex: 201, padding: "20px", display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
+            <button onClick={() => setMobileMenuOpen(false)} style={{ alignSelf: "flex-end", width: "44px", height: "44px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", cursor: "pointer", marginBottom: "16px" }} aria-label="Close menu">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+            <div style={{ padding: "12px 0", borderBottom: `1px solid ${colors.border}` }}><ZecTicker /></div>
+            <Link href="/creators" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>CREATORS</Link>
+            <Link href="/manifesto" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MANIFESTO</Link>
+            <span style={{ display: "block", padding: "16px 0", color: colors.primary, fontSize: "14px", letterSpacing: "1px", fontWeight: 600, borderBottom: `1px solid ${colors.border}` }}>DOCS</span>
+            <Link href="/register" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", marginTop: "16px", padding: "16px", color: colors.bg, backgroundColor: colors.primary, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", fontWeight: 600, borderRadius: "8px", textAlign: "center" }}>START EARNING</Link>
+          </div>
+        </>
+      )}
 
       {/* Main content */}
       <main style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 24px 64px" }}>
@@ -745,6 +704,16 @@ export default function DocsPage() {
           transform: translateY(-2px);
           border-color: #3d4450 !important;
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-inner { padding: 20px 48px; }
+        .desktop-nav { display: flex; }
+        .mobile-menu-btn { display: none; flex-direction: column; gap: 5px; padding: 10px; background: transparent; border: none; cursor: pointer; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+
+        @media (max-width: 768px) {
+          .header-inner { padding: 16px; }
+          .desktop-nav { display: none !important; }
+          .mobile-menu-btn { display: flex !important; }
         }
       `}</style>
     </div>

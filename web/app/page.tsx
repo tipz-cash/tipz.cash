@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, memo, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 // Plain [TIPZ] text logo used throughout
 
@@ -290,6 +290,9 @@ function usePremiumTypingEffect(
     setIsComplete(false);
     setNewCharIndex(-1);
 
+    // Track all timer IDs for proper cleanup
+    const timerIds: NodeJS.Timeout[] = [];
+
     const getNextDelay = (char: string, position: number) => {
       // Base speed with random variance for organic feel
       let delay = baseSpeed + (Math.random() - 0.5) * varianceRange * 2;
@@ -328,7 +331,8 @@ function usePremiumTypingEffect(
         index++;
 
         const delay = getNextDelay(currentChar, index);
-        setTimeout(typeNextChar, delay);
+        const timerId = setTimeout(typeNextChar, delay);
+        timerIds.push(timerId);
       } else {
         setIsComplete(true);
         setNewCharIndex(-1);
@@ -338,8 +342,10 @@ function usePremiumTypingEffect(
     const startTimer = setTimeout(() => {
       typeNextChar();
     }, initialDelay);
+    timerIds.push(startTimer);
 
-    return () => clearTimeout(startTimer);
+    // Clear ALL timers on cleanup to prevent memory leaks
+    return () => timerIds.forEach(clearTimeout);
   }, [text, baseSpeed, varianceRange, pauseOnSpace, pauseOnPunctuation, accelerationCurve, initialDelay, prefersReducedMotion]);
 
   return { displayText, isComplete, newCharIndex };
@@ -761,6 +767,14 @@ function TipNotification() {
 
 // Iron Man Morph - Hero animation that transforms link preview into payment terminal
 // 4-phase animation: Tweet → Card → Processing → Receipt
+
+// Memoized constants (defined outside component to avoid recreation)
+const IRONMAN_SPRING_CONFIG = { type: "spring" as const, stiffness: 120, damping: 20 };
+const IRONMAN_BASE_WIDTH = 460;
+const IRONMAN_BASE_HEIGHT = 580;
+const IRONMAN_TWEET_WIDTH = 400;
+const IRONMAN_CARD_WIDTH = 340;
+
 function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: number }) {
   // 4-phase animation: 0=tweet, 1=card, 2=processing, 3=receipt
   const [phase, setPhase] = useState(0);
@@ -787,9 +801,20 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
       { phase: 0, delay: LOOP_DURATION },   // Loop reset
     ];
 
+    // Track all timer IDs for proper cleanup
+    let timerIds: NodeJS.Timeout[] = [];
+
+    const clearAllTimers = () => {
+      timerIds.forEach(clearTimeout);
+      timerIds = [];
+    };
+
     const runTimeline = () => {
+      // Clear previous timers before starting new ones
+      clearAllTimers();
+
       timeline.forEach(({ phase: p, delay }) => {
-        setTimeout(() => setPhase(p), delay);
+        timerIds.push(setTimeout(() => setPhase(p), delay));
       });
 
       // Cursor animation during The Hook (phase 0)
@@ -799,14 +824,14 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
       // 1.7-2s: Move to Send button, hover
       // Tweet 2 with link preview starts around y=180, link preview at y=230
       // Chips row inside link preview at ~y=280, Send button at ~y=380
-      setTimeout(() => setCursorPosition({ x: 80, y: 200, visible: true, hovering: null }), 1000);
-      setTimeout(() => setCursorPosition({ x: 140, y: 285, visible: true, hovering: '$5' }), 1200);
-      setTimeout(() => setCursorPosition({ x: 175, y: 365, visible: true, hovering: 'send' }), 1700);
-      setTimeout(() => setCursorPosition({ x: 0, y: 0, visible: false, hovering: null }), 2000);
+      timerIds.push(setTimeout(() => setCursorPosition({ x: 80, y: 200, visible: true, hovering: null }), 1000));
+      timerIds.push(setTimeout(() => setCursorPosition({ x: 140, y: 285, visible: true, hovering: '$5' }), 1200));
+      timerIds.push(setTimeout(() => setCursorPosition({ x: 175, y: 365, visible: true, hovering: 'send' }), 1700));
+      timerIds.push(setTimeout(() => setCursorPosition({ x: 0, y: 0, visible: false, hovering: null }), 2000));
 
       // Button click effect just before processing phase (at 3.2s)
-      setTimeout(() => setSendButtonClicked(true), 3200);
-      setTimeout(() => setSendButtonClicked(false), 3500);
+      timerIds.push(setTimeout(() => setSendButtonClicked(true), 3200));
+      timerIds.push(setTimeout(() => setSendButtonClicked(false), 3500));
     };
 
     // Initial run
@@ -817,25 +842,22 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
 
     return () => {
       clearInterval(loopInterval);
+      clearAllTimers();
     };
   }, [isVisible, prefersReducedMotion]);
 
   const shouldAnimate = !prefersReducedMotion;
 
-  // Spring animation config
-  const springConfig = { type: "spring" as const, stiffness: 120, damping: 20 };
+  // Use memoized constants
+  const springConfig = IRONMAN_SPRING_CONFIG;
+  const tweetWidth = IRONMAN_TWEET_WIDTH;
+  const cardWidth = IRONMAN_CARD_WIDTH;
 
-  // Scaled dimensions
-  const baseWidth = 460;
-  const baseHeight = 580;
-  const tweetWidth = 400;
-  const cardWidth = 340;
+  const width = IRONMAN_BASE_WIDTH * scale;
+  const height = IRONMAN_BASE_HEIGHT * scale;
 
-  const width = baseWidth * scale;
-  const height = baseHeight * scale;
-
-  // Glass card styles - EXACT match to TippingFlow
-  const glassCard = {
+  // Glass card styles - memoized to avoid recreation on every render
+  const glassCard = useMemo(() => ({
     background: "rgba(26, 26, 26, 0.6)",
     backdropFilter: "blur(24px) saturate(150%)",
     WebkitBackdropFilter: "blur(24px) saturate(150%)",
@@ -847,10 +869,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
       ? "0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)"
       : "0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
     borderRadius: `${24 * scale}px`,
-  };
-
-  // Avatar color for Naval
-  const avatarColor = "#4a5568";
+  }), [scale]);
 
   return (
     <div style={{
@@ -858,15 +877,15 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
       width: `${width}px`,
       height: `${height}px`,
     }}>
-      {/* Background Tweet Layer */}
+      {/* Background Tweet Layer - opacity/scale only (no blur for GPU perf) */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          opacity: phase >= 1 ? 0.3 : 1,
-          filter: phase >= 1 ? "blur(12px)" : "none",
+          opacity: phase >= 1 ? 0.15 : 1,
           transform: phase >= 1 ? "scale(0.95)" : "scale(1)",
-          transition: shouldAnimate ? "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)" : "none",
+          transition: shouldAnimate ? "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)" : "none",
+          willChange: shouldAnimate ? "opacity, transform" : "auto",
         }}
       >
         {/* Tweet Thread Container - Single connected card */}
@@ -2073,7 +2092,7 @@ function PremiumCursor({
 }
 
 // Animated character component for micro drop-in animation
-function AnimatedCharacter({
+const AnimatedCharacter = memo(function AnimatedCharacter({
   char,
   index,
   isNew,
@@ -2107,7 +2126,7 @@ function AnimatedCharacter({
       {char === " " ? "\u00A0" : char}
     </span>
   );
-}
+});
 
 // HeroTitle component - orchestrates the entire premium typing animation
 function HeroTitle({
@@ -2120,7 +2139,6 @@ function HeroTitle({
   onComplete: () => void;
 }) {
   const [containerVisible, setContainerVisible] = useState(false);
-  const [glowIntensity, setGlowIntensity] = useState(0);
   const [completionFlash, setCompletionFlash] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -2133,6 +2151,9 @@ function HeroTitle({
     initialDelay: prefersReducedMotion ? 0 : 400,
   });
 
+  // Compute glow intensity directly (no state needed)
+  const glowIntensity = text.length > 0 ? displayText.length / text.length : 0;
+
   // Container entrance (100ms delay, fades in)
   useEffect(() => {
     if (prefersReducedMotion) {
@@ -2142,13 +2163,6 @@ function HeroTitle({
     const timer = setTimeout(() => setContainerVisible(true), 100);
     return () => clearTimeout(timer);
   }, [prefersReducedMotion]);
-
-  // Dynamic glow intensity based on typing progress
-  useEffect(() => {
-    if (text.length > 0) {
-      setGlowIntensity(displayText.length / text.length);
-    }
-  }, [displayText, text]);
 
   // Completion flash effect
   useEffect(() => {
@@ -2195,6 +2209,7 @@ function HeroTitle({
           whiteSpace: "pre-line",
           textShadow: `0 0 ${flashGlow}px ${colors.primaryGlow}, 0 0 ${flashGlow / 2}px rgba(255,255,255,0.1)`,
           transition: completionFlash ? "text-shadow 0.15s ease-out" : "text-shadow 0.3s ease",
+          willChange: prefersReducedMotion ? "auto" : "filter",
         }}
       >
         {prefersReducedMotion ? (
@@ -2276,13 +2291,13 @@ function CountingStat({
 function ChapterIndicator({ currentChapter }: { currentChapter: number }) {
   return (
     <div
+      className="chapter-indicator"
       style={{
         position: "fixed",
         right: "32px",
         top: "50%",
         transform: "translateY(-50%)",
         zIndex: 50,
-        display: "flex",
         flexDirection: "column",
         gap: "16px",
       }}
@@ -2437,6 +2452,7 @@ export default function HomePage() {
   const heroText = "Private TIPZ\nfor creators";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [tweetVisible, setTweetVisible] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const currentChapter = useCurrentChapter();
   const isMobile = useIsMobile(768);
   const parallaxOffset = useParallax(0.3);
@@ -2465,13 +2481,15 @@ export default function HomePage() {
 
   return (
     <div
+      className="main-container"
       style={{
         minHeight: "100vh",
         background: `linear-gradient(180deg, ${colors.bgGradientStart} 0%, ${colors.bgGradientEnd} 50%, ${colors.bgGradientStart} 100%)`,
         color: colors.text,
         fontFamily: "'JetBrains Mono', monospace",
         overflowY: "auto",
-        scrollSnapType: "y proximity",
+        overflowX: "hidden",
+        scrollSnapType: isMobile ? "none" : "y proximity",
         scrollBehavior: "smooth",
         height: "100vh",
         position: "relative",
@@ -2490,15 +2508,14 @@ export default function HomePage() {
         zIndex: 100,
         borderBottom: `1px solid ${colors.border}`,
       }}>
-        <div style={{
+        <div className="header-inner" style={{
           maxWidth: "1200px",
           margin: "0 auto",
-          padding: "20px 48px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
         }}>
-          <a href="/" style={{ display: "flex", alignItems: "center", gap: "16px", textDecoration: "none" }}>
+          <a href="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
             <span style={{
               color: colors.primary,
               fontWeight: 700,
@@ -2515,7 +2532,7 @@ export default function HomePage() {
               borderRadius: "2px",
             }}>BETA</span>
           </a>
-          <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
+          <nav className="desktop-nav" style={{ gap: "32px", alignItems: "center" }}>
             <ZecTicker />
             <span style={{ color: colors.border }}>|</span>
             <a href="/creators" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>CREATORS</a>
@@ -2536,8 +2553,80 @@ export default function HomePage() {
               }}
             >START EARNING</a>
           </nav>
+          {/* Mobile Hamburger Button */}
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open menu"
+          >
+            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+          </button>
         </div>
       </header>
+
+      {/* Mobile Menu Drawer */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0, 0, 0, 0.7)",
+              zIndex: 200,
+            }}
+          />
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "280px",
+              maxWidth: "80vw",
+              background: colors.bg,
+              borderLeft: `1px solid ${colors.border}`,
+              zIndex: 201,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              overflowY: "auto",
+            }}
+          >
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                alignSelf: "flex-end",
+                width: "44px",
+                height: "44px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                marginBottom: "16px",
+              }}
+              aria-label="Close menu"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+            <div style={{ padding: "12px 0", borderBottom: `1px solid ${colors.border}` }}>
+              <ZecTicker />
+            </div>
+            <a href="/creators" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>CREATORS</a>
+            <a href="/manifesto" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MANIFESTO</a>
+            <a href="/docs" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>DOCS</a>
+            <a href="/register" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", marginTop: "16px", padding: "16px", color: colors.bg, backgroundColor: colors.primary, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", fontWeight: 600, borderRadius: "8px", textAlign: "center" }}>START EARNING</a>
+          </div>
+        </>
+      )}
 
       {/* Chapter Indicator */}
       <ChapterIndicator currentChapter={currentChapter} />
@@ -5324,6 +5413,64 @@ export default function HomePage() {
         /* Animated elements should use will-change during animation */
         [style*="animation"] {
           will-change: transform, opacity;
+        }
+
+        /* Header responsive */
+        .header-inner {
+          padding: 20px 48px;
+        }
+
+        .desktop-nav {
+          display: flex;
+        }
+
+        .mobile-menu-btn {
+          display: none;
+          flex-direction: column;
+          gap: 5px;
+          padding: 10px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          min-width: 44px;
+          min-height: 44px;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .chapter-indicator {
+          display: flex;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+          .header-inner {
+            padding: 16px;
+          }
+
+          .desktop-nav {
+            display: none !important;
+          }
+
+          .mobile-menu-btn {
+            display: flex !important;
+          }
+
+          .chapter-indicator {
+            display: none !important;
+          }
+
+          /* Disable scroll snap on mobile for natural scrolling */
+          .main-container {
+            scroll-snap-type: none !important;
+            overflow-x: hidden !important;
+          }
+
+          /* Reduce section padding on mobile */
+          .snap-section {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+          }
         }
       `}</style>
     </div>
