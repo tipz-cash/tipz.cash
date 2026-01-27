@@ -214,20 +214,28 @@ Technical:
 - Wallet authorization
 
 ### Additional Platforms
-**Priority**: P3
+**Priority**: P4 (Deferred)
 **Owner**: Extension Engineer
 **Effort**: Medium per platform
+**Status**: ON HOLD - See strategic note below
 
-Candidates:
-- YouTube (comment sections)
-- Twitch (stream overlay?)
-- GitHub (sponsor alternative)
-- Farcaster (Web3 native)
+> **Strategic Note**: Per Zero to One analysis, TIPZ focuses exclusively on X until market saturation. Multi-platform expansion only when:
+> 1. X privacy creators are saturated (they all know TIPZ)
+> 2. Creators are *pulling* us to new platforms
+> 3. New platform shares same "privacy pain" secret
+>
+> See `docs/strategy/platform-focus-analysis.md` for full rationale.
 
-Technical:
-- Platform adapter pattern
-- Shared modal/button components
-- Platform-specific content scripts
+**Future Expansion Order** (when criteria met):
+1. Farcaster - Web3 native, similar ethos
+2. Nostr - decentralized, privacy-aligned
+3. YouTube/Twitch - only if privacy becomes mainstream creator concern
+
+**DO NOT BUILD** for v1:
+- YouTube integration
+- Twitch overlays/chat bots
+- Generic "creator" positioning
+- Multi-platform dashboard analytics
 
 ### Mesh Connect (Exchange Payments)
 **Priority**: P2
