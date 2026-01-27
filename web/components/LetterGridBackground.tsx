@@ -5,8 +5,9 @@ import { useState, useEffect, useRef } from "react"
 // Words that light up in rows/columns
 const HIGHLIGHT_WORDS = ["ZCASH", "TIPZ", "PRIVATE", "0FEES", "ZEC", "TIP", "INSTANT"]
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-const COLS = 90
-const ROWS = 60
+// Reduced grid size: 90×60 → 45×30 (4× fewer cells: 5400 → 1350)
+const COLS = 45
+const ROWS = 30
 
 interface Cell {
   char: string
@@ -18,10 +19,16 @@ interface Cell {
 }
 
 export function LetterGridBackground() {
-  const [grid, setGrid] = useState<Cell[][]>([])
+  // Use ref for grid state to avoid React re-renders on every frame
+  const gridRef = useRef<Cell[][]>([])
+  const [renderKey, setRenderKey] = useState(0)
+  const initializedRef = useRef(false)
 
-  // Initialize grid
+  // Initialize grid once
   useEffect(() => {
+    if (initializedRef.current) return
+    initializedRef.current = true
+
     const initialGrid: Cell[][] = []
     for (let row = 0; row < ROWS; row++) {
       const rowCells: Cell[] = []
@@ -38,112 +45,116 @@ export function LetterGridBackground() {
       }
       initialGrid.push(rowCells)
     }
-    setGrid(initialGrid)
+    gridRef.current = initialGrid
+    setRenderKey(1) // Trigger initial render
   }, [])
 
-  // Animation loop
+  // Animation loop - updates ref directly, triggers render periodically
   useEffect(() => {
-    if (grid.length === 0) return
+    if (gridRef.current.length === 0) return
 
-    const interval = setInterval(() => {
-      setGrid(prev => {
-        const newGrid = prev.map(row => row.map(cell => ({ ...cell })))
+    const updateGrid = () => {
+      const grid = gridRef.current
 
-        for (let row = 0; row < ROWS; row++) {
-          for (let col = 0; col < COLS; col++) {
-            const cell = newGrid[row][col]
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          const cell = grid[row][col]
 
-            // Progress morph animation (smooth transitions)
-            if (cell.morphProgress > 0 && cell.morphProgress < 1) {
-              cell.morphProgress = Math.min(1, cell.morphProgress + 0.15)
-              if (cell.morphProgress >= 1) {
-                cell.char = cell.nextChar
-                cell.morphProgress = 0
-              }
-            }
-
-            // Start new morph - ALL letters constantly changing (100% probability)
-            if (cell.morphProgress === 0 && !cell.isHighlight) {
-              cell.nextChar = CHARS[Math.floor(Math.random() * CHARS.length)]
-              cell.morphProgress = 0.01
-            }
-
-            // Gentle brightness drift
-            if (!cell.isHighlight) {
-              const drift = (Math.random() - 0.5) * 0.08
-              cell.brightness = Math.max(0.2, Math.min(0.8, cell.brightness + drift))
-            }
-
-            // Smooth highlight fade (quick fade out after brief hold)
-            if (cell.isHighlight) {
-              cell.highlightBrightness = Math.min(1, cell.highlightBrightness + 0.2)
-            } else if (cell.highlightBrightness > 0) {
-              cell.highlightBrightness = Math.max(0, cell.highlightBrightness - 0.12)
+          // Progress morph animation (smooth transitions)
+          if (cell.morphProgress > 0 && cell.morphProgress < 1) {
+            cell.morphProgress = Math.min(1, cell.morphProgress + 0.15)
+            if (cell.morphProgress >= 1) {
+              cell.char = cell.nextChar
+              cell.morphProgress = 0
             }
           }
-        }
 
-        // Insert word - spawn multiple across grid
-        if (Math.random() < 0.09) {
-          // Spawn 1-3 words at once across different areas
-          const numWords = 1 + Math.floor(Math.random() * 3)
-          for (let w = 0; w < numWords; w++) {
-            const word = HIGHLIGHT_WORDS[Math.floor(Math.random() * HIGHLIGHT_WORDS.length)]
-            const isHorizontal = Math.random() > 0.5
+          // Start new morph - ALL letters constantly changing (100% probability)
+          if (cell.morphProgress === 0 && !cell.isHighlight) {
+            cell.nextChar = CHARS[Math.floor(Math.random() * CHARS.length)]
+            cell.morphProgress = 0.01
+          }
 
-            if (isHorizontal) {
-              const row = Math.floor(Math.random() * ROWS)
-              const startCol = Math.floor(Math.random() * (COLS - word.length))
-              for (let i = 0; i < word.length; i++) {
-                newGrid[row][startCol + i].char = word[i]
-                newGrid[row][startCol + i].nextChar = word[i]
-                newGrid[row][startCol + i].morphProgress = 0
-                newGrid[row][startCol + i].isHighlight = true
-              }
-            } else {
-              const col = Math.floor(Math.random() * COLS)
-              const startRow = Math.floor(Math.random() * (ROWS - word.length))
-              for (let i = 0; i < word.length; i++) {
-                newGrid[startRow + i][col].char = word[i]
-                newGrid[startRow + i][col].nextChar = word[i]
-                newGrid[startRow + i][col].morphProgress = 0
-                newGrid[startRow + i][col].isHighlight = true
-              }
-            }
+          // Gentle brightness drift
+          if (!cell.isHighlight) {
+            const drift = (Math.random() - 0.5) * 0.08
+            cell.brightness = Math.max(0.2, Math.min(0.8, cell.brightness + drift))
+          }
+
+          // Smooth highlight fade (hold longer so words are readable)
+          if (cell.isHighlight) {
+            cell.highlightBrightness = Math.min(1, cell.highlightBrightness + 0.2)
+          } else if (cell.highlightBrightness > 0) {
+            cell.highlightBrightness = Math.max(0, cell.highlightBrightness - 0.04) // Slower fade
           }
         }
+      }
 
-        // Random letter sparks - instant flash then gone
-        if (Math.random() < 0.2) {
-          const numSparks = 3 + Math.floor(Math.random() * 6)
-          for (let s = 0; s < numSparks; s++) {
+      // Insert word - spawn occasionally
+      if (Math.random() < 0.04) {
+        // Spawn 1 word at a time for cleaner look
+        const numWords = 1
+        for (let w = 0; w < numWords; w++) {
+          const word = HIGHLIGHT_WORDS[Math.floor(Math.random() * HIGHLIGHT_WORDS.length)]
+          const isHorizontal = Math.random() > 0.5
+
+          if (isHorizontal) {
             const row = Math.floor(Math.random() * ROWS)
+            const startCol = Math.floor(Math.random() * (COLS - word.length))
+            for (let i = 0; i < word.length; i++) {
+              grid[row][startCol + i].char = word[i]
+              grid[row][startCol + i].nextChar = word[i]
+              grid[row][startCol + i].morphProgress = 0
+              grid[row][startCol + i].isHighlight = true
+            }
+          } else {
             const col = Math.floor(Math.random() * COLS)
-            if (!newGrid[row][col].isHighlight) {
-              // Don't set isHighlight - just flash brightness directly so it fades immediately
-              newGrid[row][col].highlightBrightness = 0.5 + Math.random() * 0.5
+            const startRow = Math.floor(Math.random() * (ROWS - word.length))
+            for (let i = 0; i < word.length; i++) {
+              grid[startRow + i][col].char = word[i]
+              grid[startRow + i][col].nextChar = word[i]
+              grid[startRow + i][col].morphProgress = 0
+              grid[startRow + i][col].isHighlight = true
             }
           }
         }
+      }
 
-        // Clear old highlights (brief hold then fade - just enough to read)
-        for (let row = 0; row < ROWS; row++) {
-          for (let col = 0; col < COLS; col++) {
-            if (newGrid[row][col].isHighlight && newGrid[row][col].highlightBrightness >= 0.95) {
-              if (Math.random() < 0.08) {
-                newGrid[row][col].isHighlight = false
-              }
+      // Random letter sparks - instant flash then gone
+      if (Math.random() < 0.2) {
+        const numSparks = 3 + Math.floor(Math.random() * 6)
+        for (let s = 0; s < numSparks; s++) {
+          const row = Math.floor(Math.random() * ROWS)
+          const col = Math.floor(Math.random() * COLS)
+          if (!grid[row][col].isHighlight) {
+            // Don't set isHighlight - just flash brightness directly so it fades immediately
+            grid[row][col].highlightBrightness = 0.5 + Math.random() * 0.5
+          }
+        }
+      }
+
+      // Clear old highlights (hold longer so words are readable, then fade)
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          if (grid[row][col].isHighlight && grid[row][col].highlightBrightness >= 0.95) {
+            if (Math.random() < 0.025) { // Lower probability = words stay longer
+              grid[row][col].isHighlight = false
             }
           }
         }
+      }
 
-        return newGrid
-      })
-    }, 25) // ~40fps for smoother updates
+      // Trigger re-render
+      setRenderKey(k => k + 1)
+    }
+
+    // Slower interval: 25ms → 50ms (40fps → 20fps)
+    const interval = setInterval(updateGrid, 50)
 
     return () => clearInterval(interval)
-  }, [grid.length])
+  }, [])
 
+  const grid = gridRef.current
   if (grid.length === 0) return null
 
   return (
@@ -204,6 +215,7 @@ const styles: Record<string, React.CSSProperties> = {
     overflow: "hidden",
     pointerEvents: "none",
     zIndex: 0,
+    contain: "strict", // Layout isolation for performance
   },
   grid: {
     position: "absolute",

@@ -76,6 +76,15 @@ const responsiveStyles = `
     50% { transform: translate(-30%, -40%) scale(1.2); }
   }
 
+  @keyframes backgroundFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .tipz-background-wrapper {
+    animation: backgroundFadeIn 0.3s ease-in forwards;
+  }
+
   .tipz-card {
     position: relative;
     width: 100%;
@@ -468,6 +477,13 @@ export default function CreatorCardPage() {
   const [state, setState] = useState<PageState>("loading")
   const [creator, setCreator] = useState<Creator | null>(null)
   const [isMobile, setIsMobile] = useState(false)
+  const [showBackground, setShowBackground] = useState(false)
+
+  // Lazy load background to prioritize content rendering
+  useEffect(() => {
+    const timer = setTimeout(() => setShowBackground(true), 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Check for mobile
   useEffect(() => {
@@ -521,7 +537,11 @@ export default function CreatorCardPage() {
       <>
         <style>{responsiveStyles}</style>
         <div className="tipz-page">
-          <LetterGridBackground />
+          {showBackground && (
+            <div className="tipz-background-wrapper">
+              <LetterGridBackground />
+            </div>
+          )}
           <div className="tipz-card">
             <div className="tipz-card-content">
               <div className="tipz-skeleton" style={{ width: 60, height: 16, margin: "0 auto 16px" }} />
@@ -539,7 +559,11 @@ export default function CreatorCardPage() {
       <>
         <style>{responsiveStyles}</style>
         <div className="tipz-page">
-          <LetterGridBackground />
+          {showBackground && (
+            <div className="tipz-background-wrapper">
+              <LetterGridBackground />
+            </div>
+          )}
           <div className="tipz-card">
             <div className="tipz-card-content">
               <div className="tipz-logo">TIPZ</div>
@@ -597,7 +621,11 @@ export default function CreatorCardPage() {
       <>
         <style>{responsiveStyles}</style>
         <div className="tipz-page">
-          <LetterGridBackground />
+          {showBackground && (
+            <div className="tipz-background-wrapper">
+              <LetterGridBackground />
+            </div>
+          )}
           <div className="tipz-card">
             <div className="tipz-card-content">
               <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
@@ -625,7 +653,11 @@ export default function CreatorCardPage() {
       <>
         <style>{responsiveStyles}</style>
         <div className="tipz-page tipz-mobile">
-          <LetterGridBackground />
+          {showBackground && (
+            <div className="tipz-background-wrapper">
+              <LetterGridBackground />
+            </div>
+          )}
           <div className="tipz-card">
             <div className="tipz-card-content">
               {/* Header with back button only */}
@@ -690,7 +722,11 @@ export default function CreatorCardPage() {
     <>
       <style>{responsiveStyles}</style>
       <div className="tipz-page">
-        <LetterGridBackground />
+        {showBackground && (
+            <div className="tipz-background-wrapper">
+              <LetterGridBackground />
+            </div>
+          )}
         <div className="tipz-card">
           <div className="tipz-card-content">
             <TippingFlow
