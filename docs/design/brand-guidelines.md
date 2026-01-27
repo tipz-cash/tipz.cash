@@ -22,8 +22,9 @@ TIPZ uses a terminal-inspired color palette that evokes Bloomberg terminals, com
 
 | Name | Hex | RGB | Usage |
 |------|-----|-----|-------|
-| **True Black** | `#0A0A0A` | 10, 10, 10 | Primary background |
-| **Surface** | `#1A1A1A` | 26, 26, 26 | Card backgrounds, elevated surfaces |
+| **True Black** | `#050505` | 5, 5, 5 | Primary background |
+| **Base** | `#08090a` | 8, 9, 10 | Base layer |
+| **Surface** | `#12141a` | 18, 20, 26 | Card backgrounds, elevated surfaces |
 | **Terminal Amber** | `#F5A623` | 245, 166, 35 | Primary accent, CTAs, highlights |
 | **Amber Hover** | `#FFB84D` | 255, 184, 77 | Hover states, emphasis |
 
@@ -31,31 +32,50 @@ TIPZ uses a terminal-inspired color palette that evokes Bloomberg terminals, com
 
 | Name | Hex | RGB | Usage |
 |------|-----|-----|-------|
-| **Matrix Green** | `#00FF00` | 0, 255, 0 | Success states, live indicators, confirmations |
-| **Error Red** | `#FF4444` | 255, 68, 68 | Error states, warnings, destructive actions |
+| **Success Green** | `#22C55E` | 34, 197, 94 | Success states, live indicators, confirmations |
+| **Error Red** | `#EF4444` | 239, 68, 68 | Error states, warnings, destructive actions |
+| **Info Blue** | `#3B82F6` | 59, 130, 246 | Informational states |
 
 ### Neutral Colors
 
 | Name | Hex | RGB | Usage |
 |------|-----|-----|-------|
-| **Phosphor White** | `#E0E0E0` | 224, 224, 224 | Primary text |
-| **Muted Gray** | `#888888` | 136, 136, 136 | Secondary text, labels, placeholders |
-| **Border Gray** | `#333333` | 51, 51, 51 | Borders, dividers, grid lines |
+| **Text Bright** | `#F9FAFB` | 249, 250, 251 | Headings, important text |
+| **Text Primary** | `#D1D5DB` | 209, 213, 219 | Body text |
+| **Text Muted** | `#6B7280` | 107, 114, 128 | Secondary text, labels, placeholders |
+| **Border Default** | `#2a2f38` | 42, 47, 56 | Borders, dividers |
+| **Border Hover** | `#3d4450` | 61, 68, 80 | Hover state borders |
+| **Border Gold** | `rgba(255, 215, 0, 0.4)` | - | Gold accent borders |
 
 ### CSS Variables
 
 ```css
 :root {
-  --tipz-bg: #0A0A0A;
-  --tipz-surface: #1A1A1A;
+  --tipz-bg: #050505;
+  --tipz-bg-base: #08090a;
+  --tipz-surface: #12141a;
   --tipz-primary: #F5A623;
   --tipz-primary-hover: #FFB84D;
-  --tipz-success: #00FF00;
-  --tipz-error: #FF4444;
-  --tipz-text: #E0E0E0;
-  --tipz-muted: #888888;
-  --tipz-border: #333333;
+  --tipz-primary-glow: rgba(245, 166, 35, 0.15);
+  --tipz-success: #22C55E;
+  --tipz-error: #EF4444;
+  --tipz-text-bright: #F9FAFB;
+  --tipz-text: #D1D5DB;
+  --tipz-muted: #6B7280;
+  --tipz-border: #2a2f38;
+  --tipz-border-gold: rgba(255, 215, 0, 0.4);
 }
+```
+
+### Glassmorphism Effects (Extension)
+
+The extension uses glassmorphism for cards:
+```css
+/* Card background */
+background: rgba(255, 255, 255, 0.02);
+backdrop-filter: blur(16px);
+border: 1px solid rgba(255, 255, 255, 0.06);
+border-top: 1px solid rgba(255, 215, 0, 0.4); /* Gold top accent */
 ```
 
 ### Ambient Effects

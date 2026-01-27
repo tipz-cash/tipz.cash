@@ -6,25 +6,26 @@ Privacy-first micro-tipping for creators using Zcash shielded addresses.
 
 ## What is TIPZ?
 
-TIPZ lets creators receive tips directly to their Zcash shielded address. Supporters can tip using any token (ETH, USDC, etc.) — we handle the conversion. 100% goes to the creator, zero platform fees.
+TIPZ lets creators receive tips directly to their Zcash shielded address. Supporters can tip using any token (ETH, USDC, etc.) — NEAR Intents handles the cross-chain conversion. 100% goes to the creator, zero platform fees.
 
 ## Features
 
 ### For Creators
 
 - **Creator Command Center** (Browser Extension)
-  - **Auto-QR**: Automatically stamps your content with tip QR codes
-  - **Instant Alerts**: Get notified when you receive tips
-  - **Revenue Analytics**: Track your tipping income
+  - **Identity Linking**: Secure web bridge connects extension to your tipz.cash registration
+  - **Auto-Stamp**: Automatically embeds `tipz.cash/{handle}` links in your X posts
+  - **Instant Alerts**: Real-time browser notifications when tips arrive (Supabase Realtime with polling fallback)
+  - **Revenue Dashboard**: Track total earnings, tip count, and recent tips
 - **Zero Fees**: 100% of tips go to you
 - **Private Income**: Shielded addresses keep your earnings private
-- **Easy Setup**: Register in 2 minutes with a verification tweet
+- **Easy Setup**: 4-step registration with tweet verification
 
 ### For Supporters
 
-- **Any Token**: Pay with ETH, USDC, SOL, or 20+ other tokens
+- **Any Token**: Pay with ETH, USDC, MATIC, or other supported tokens
 - **Private Giving**: Your generosity stays between you and the creator
-- **No Account Needed**: Just connect wallet and tip
+- **No Account Needed**: Just connect wallet and tip on creator tip pages
 
 ## Project Structure
 
@@ -77,12 +78,18 @@ npm run dev
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/creator` | GET | Lookup creator by handle |
-| `/api/creators/batch` | POST | Batch lookup creators |
-| `/api/register` | POST | Register as creator |
-| `/api/swap/quote` | POST | Get swap quote |
-| `/api/swap/execute` | POST | Execute swap |
 | `/api/health` | GET | Service health check |
+| `/api/creator` | GET | Lookup single creator by handle |
+| `/api/creators` | GET | Paginated creator directory |
+| `/api/creators/batch` | POST | Batch lookup creators |
+| `/api/register` | POST | Register as creator with tweet verification |
+| `/api/link` | POST | Re-link returning creator's extension |
+| `/api/zec-price` | GET | Real-time ZEC price from CoinGecko |
+| `/api/swap/quote` | POST | Get swap quote (any token → ZEC) |
+| `/api/swap/execute` | POST | Execute token swap |
+| `/api/intents/create` | POST | Create NEAR Intent for cross-chain routing |
+| `/api/intents/create` | GET | Query NEAR Intent status |
+| `/api/og/[handle]` | GET | Dynamic OG images for tip pages |
 
 ## Database Schema
 

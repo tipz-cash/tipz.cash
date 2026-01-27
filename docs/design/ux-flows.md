@@ -7,227 +7,318 @@ User journey maps and interaction flows for the TIPZ platform.
 ## Overview
 
 TIPZ has two primary user types:
-1. **Creators** - Content creators who register to receive tips
-2. **Tippers** - Users who want to send tips to creators
+1. **Creators** - Content creators who register to receive tips (use extension + web)
+2. **Tippers** - Users who want to send tips to creators (use web tip pages only)
+
+**Key Distinction**: The browser extension is a **Creator Tool**, not a tipper tool. Tippers use the web app's tip pages at `tipz.cash/{handle}`.
 
 ---
 
-## Flow 1: Creator Registration
+## Flow 1: Creator Registration (4-Step Wizard)
 
 ### Journey Map
 
 ```
-Landing Page → Register Page → Form Completion → Tweet Verification → Success
+Landing Page → /register → Step 1 (Handle) → Step 2 (Wallet) → Step 3 (Tweet) → Step 4 (Success)
 ```
 
 ### Detailed Steps
 
-#### Step 1: Discovery
-- User lands on tipz.app
-- Sees hero: "Private tips. Any asset. Zero trace."
-- Scrolls to see features and how it works
-- Clicks "Register as Creator" CTA
+#### Step 1: Handle Entry
+- Creator enters their X handle (with or without @)
+- Client validates format
+- "Next" button enabled when valid
+- Shows real-time validation feedback
 
-#### Step 2: Platform Selection
-- User arrives at /register
-- Chooses platform: X (Twitter) or Substack
-- UI updates to show platform-specific fields
+#### Step 2: Wallet Setup
+- Creator enters their Zcash shielded address
+- Supports both formats:
+  - Sapling: `zs1...` (78 characters)
+  - Unified: `u1...` (variable length)
+- Shows address format examples
+- Validates on blur
 
-#### Step 3: Form Completion
+#### Step 3: Tweet Verification
+- Shows pre-formatted verification tweet text
+- Tweet should contain: handle + shielded address + TIPZ mention
+- Creator posts tweet, then pastes URL
+- Server validates:
+  - URL format matches `https://(x|twitter).com/{handle}/status/{id}`
+  - Handle in URL matches registered handle
+  - If Twitter API configured: verifies tweet content
 
-**For X (Twitter):**
-1. Enter X handle (e.g., @username)
-2. Enter Zcash shielded address (zs...)
-3. Enter verification tweet URL
-
-**For Substack:**
-1. Enter Substack subdomain (e.g., username.substack.com)
-2. Enter Zcash shielded address (zs...)
-3. Enter verification tweet URL (still uses Twitter for verification)
-
-#### Step 4: Tweet Verification
-- User must post a tweet containing their TIPZ address
-- Format: "Registering for @TIPZ_app: zs1..."
-- User pastes tweet URL into form
-
-#### Step 5: Submission
-- Form validates all fields
-- API checks tweet exists and matches handle
-- On success: Show confirmation
-- On error: Show specific error message
+#### Step 4: Confirmation
+- Server creates/updates registration in Supabase
+- Sets `tipz_creator_identity` in localStorage for extension bridge
+- Shows success with:
+  - Tip page URL: `tipz.cash/{handle}`
+  - "Install Extension" CTA
+  - "Share on X" button
 
 ### Error States
 
 | Error | Message | Recovery |
 |-------|---------|----------|
-| Invalid handle format | "Please enter a valid X handle (e.g., @username)" | Fix input |
-| Invalid address | "Please enter a valid Zcash shielded address starting with 'zs'" | Fix input |
-| Tweet not found | "We couldn't find that tweet. Please check the URL." | Re-enter URL |
-| Tweet doesn't match handle | "That tweet appears to be from a different account." | Post new tweet |
-| Already registered | "This handle is already registered. Your address has been updated." | Success (upsert) |
+| Invalid handle format | "Please enter a valid X handle (letters, numbers, underscores)" | Fix input |
+| Invalid address | "Please enter a valid Zcash shielded address (zs1... or u1...)" | Fix input |
+| Tweet URL invalid | "Invalid tweet URL. Please use format: https://x.com/handle/status/..." | Re-enter URL |
+| Handle mismatch | "This tweet appears to be from a different account" | Post new tweet |
+| Rate limited | "Too many attempts. Please try again in {time}" | Wait |
+| Already registered | "Registration updated!" | Success (upsert) |
 
 ### Success State
 
 ```
-✓ You're all set!
+✓ You're all set, @{handle}!
 
-Your X handle @username is now registered on TIPZ.
-Anyone can tip you at your shielded address.
+Your tip page is live at:
+tipz.cash/{handle}
 
-[Install Extension] [Share on Twitter]
+[Copy Link] [Share on X] [Install Extension]
 ```
 
 ---
 
-## Flow 2: Tipping on X (Twitter)
+## Flow 2: Tipping via Web App
 
 ### Journey Map
 
 ```
-Browse X → See Tip Button → Click Tip → Select Amount → Confirm Transaction → Success
+Visit tipz.cash/{handle} → Select Amount → Choose Token → Connect Wallet → Confirm → Success
 ```
 
 ### Detailed Steps
 
-#### Step 1: Browsing
-- User has TIPZ extension installed
-- User browses X.com normally
-- Extension scans visible tweets
+#### Step 1: Visit Tip Page
+- Tipper visits `tipz.cash/{handle}` (found via X post, bio link, etc.)
+- Page loads creator info and TippingFlow component
+- Shows creator handle, verification status, privacy badges
 
-#### Step 2: Button Injection
-- For each tweet, extension checks if author is registered
-- **Registered**: Shows gold "Tip" button
-- **Not registered**: Shows muted "Not on TIPZ" button
+#### Step 2: Amount Selection (AmountSelector)
+- Preset USD amounts: $1, $5, $10, $25
+- Custom amount input for other values
+- Real-time conversion to ZEC shown
+- Selected amount highlighted
 
-#### Step 3: Initiate Tip
-- User clicks "Tip" button on a tweet
-- Modal appears with creator info
+#### Step 3: Private Message (MessageTrench)
+- Optional text input for private note
+- Shows "ENCRYPTED" badge indicating end-to-end privacy
+- Message travels with tip to creator's shielded address
 
-#### Step 4: Amount Selection
-- Modal shows preset amounts: 0.01, 0.05, 0.1, 0.5, 1 ZEC
-- User can also enter custom amount
-- Shows estimated USD value
+#### Step 4: Token Selection (TokenSelector)
+- Dropdown shows supported tokens: ETH, USDC, MATIC, etc.
+- Shows user's balance for each token
+- Displays current price and estimated cost
+- Auto-selects if user has only one token
 
-#### Step 5: Payment Method
-- User selects payment token (ETH, USDC, SOL, etc.)
-- SwapKit calculates swap rate to ZEC
-- Shows total cost including fees
+#### Step 5: Swap Quote
+- Client calls `/api/swap/quote` with selected token/amount
+- Shows breakdown:
+  - ZEC amount creator will receive
+  - Network fees
+  - Protocol fees (0.5%)
+  - Estimated time (5-10 minutes)
 
-#### Step 6: Wallet Connection
-- If not connected, prompts wallet connection
-- Supports MetaMask, WalletConnect, etc.
-- Shows connected wallet address
+#### Step 6: Wallet Connection (WalletConnect)
+- "Connect Wallet" button triggers WalletConnect modal
+- Supports MetaMask, Rainbow, Coinbase Wallet, etc.
+- Shows connected address and balance after connection
 
-#### Step 7: Transaction Confirmation
+#### Step 7: Confirmation (TipSummary)
 - Review screen shows:
-  - Recipient: @username
-  - Amount: X ZEC
-  - Your payment: Y TOKEN
-  - Swap fee: Z%
-- User clicks "Confirm"
+  - Recipient: @{handle}
+  - Amount: X ZEC (~$Y)
+  - Your payment: Z TOKEN
+  - Fees: $X.XX
+- "Send Tip" button (gold gradient, prominent)
 
-#### Step 8: Processing
-- Shows spinner: "Processing your tip..."
-- Wallet prompts for signature
-- Swap executes (any-token → ZEC)
-- ZEC sent to shielded address
+#### Step 8: Transaction Processing (TransactionStatus)
+- "Confirm in your wallet" prompt
+- Spinner with status messages:
+  - "Waiting for wallet confirmation..."
+  - "Processing swap..."
+  - "Creating NEAR Intent..."
+  - "Routing to Zcash..."
 
 #### Step 9: Success
-- Toast notification: "Tip sent! 0.1 ZEC to @username"
-- Optional: Share on Twitter
+- Checkmark animation
+- "Tip Sent!" confirmation
+- Summary of transaction
+- "Share on X" button
+- "Tip Again" option
 
 ### Error States
 
 | Error | Message | Recovery |
 |-------|---------|----------|
-| Wallet not connected | "Please connect your wallet to continue" | Connect wallet |
-| Insufficient balance | "Insufficient ETH balance for this tip" | Reduce amount or add funds |
-| Swap failed | "Swap failed. Your funds have not been charged." | Retry |
-| Transaction rejected | "Transaction cancelled" | Retry |
-| Network error | "Network error. Please try again." | Retry |
+| Wallet not connected | "Connect your wallet to continue" | Connect wallet |
+| Insufficient balance | "Insufficient {TOKEN} balance" | Reduce amount or switch token |
+| Quote expired | "Quote expired. Getting new quote..." | Auto-refresh |
+| Transaction rejected | "Transaction cancelled" | Try again |
+| Swap failed | "Swap failed. No funds were charged." | Retry |
+| Network error | "Network error. Please check your connection." | Retry |
 
 ---
 
-## Flow 3: Tipping on Substack
+## Flow 3: Extension Identity Linking
 
-### Journey Map
+### Journey Map (New Creator)
 
-Same as X flow, but triggered on Substack article pages.
+```
+Register on Web → Extension detects identity → Dashboard unlocked
+```
 
-### Differences
+### Detailed Steps
 
-- Button appears near author byline
-- Creator lookup uses Substack subdomain
-- Same payment flow once initiated
+1. Creator completes registration at `/register`
+2. Server sets `tipz_creator_identity` in localStorage
+3. If extension installed, `tipz-interceptor.tsx` detects new identity
+4. Identity synced to `chrome.storage.local`
+5. Extension popup shows Creator Dashboard
+
+### Journey Map (Returning Creator)
+
+```
+Visit tipz.cash → Enter handle → Verify ownership → Extension re-linked
+```
+
+### Detailed Steps
+
+1. Creator visits tipz.cash with extension installed but not linked
+2. Clicks "Link Account" (or visits /link page)
+3. Enters their registered handle
+4. Client calls `POST /api/link` to verify
+5. If original tweet still valid, localStorage is set
+6. Extension detects and unlocks dashboard
 
 ---
 
-## Flow 4: Extension Popup
+## Flow 4: Extension Popup (Creator Dashboard)
+
+**Note**: The extension is a **Creator Tool**. Tippers use the web app.
 
 ### States
 
-#### State 1: Not on Supported Site
+#### State 1: Not Linked (No Creator Identity)
 ```
-┌────────────────────────┐
-│  TIPZ                  │
-│                        │
-│  Visit X or Substack   │
-│  to start tipping      │
-│  creators.             │
-│                        │
-│  [Go to X] [Register]  │
-└────────────────────────┘
-```
-
-#### State 2: On Supported Site (Not Connected)
-```
-┌────────────────────────┐
-│  TIPZ                  │
-│                        │
-│  ● Active on X.com     │
-│                        │
-│  Connect wallet to     │
-│  start tipping.        │
-│                        │
-│  [Connect Wallet]      │
-│                        │
-│  [Register as Creator] │
-└────────────────────────┘
+┌────────────────────────────────┐
+│  [TIPZ] Creator    ○ Not Linked│
+├────────────────────────────────┤
+│                                │
+│       🛡️ Link Your Account     │
+│                                │
+│  Register on TIPZ to start    │
+│  receiving private tips and   │
+│  track your earnings.         │
+│                                │
+│  ┌──────────────────────────┐ │
+│  │      Register Now        │ │
+│  └──────────────────────────┘ │
+│                                │
+│  Already registered?          │
+│  Visit tipz.cash to link.     │
+│                                │
+├────────────────────────────────┤
+│  ● Powered by Zcash   GitHub  │
+└────────────────────────────────┘
 ```
 
-#### State 3: On Supported Site (Connected)
+#### State 2: Linked (Creator Dashboard)
 ```
-┌────────────────────────┐
-│  TIPZ                  │
-│                        │
-│  ● Active on X.com     │
-│                        │
-│  Wallet: 0x1234...5678 │
-│  Balance: 0.5 ETH      │
-│                        │
-│  Tips Sent: 12         │
-│  Total: 2.5 ZEC        │
-│                        │
-│  [Settings] [Help]     │
-└────────────────────────┘
+┌────────────────────────────────┐
+│  [TIPZ] Creator   ● @username  │
+├────────────────────────────────┤
+│                                │
+│  ┌────────────┐ ┌────────────┐│
+│  │TOTAL EARNED│ │   TIPS     ││
+│  │  0.2500    │ │     12     ││
+│  │    ZEC     │ │  received  ││
+│  └────────────┘ └────────────┘│
+│                                │
+│  ┌──────────────────────────┐ │
+│  │      ≈ $10.50 USD        │ │
+│  └──────────────────────────┘ │
+│                                │
+│  RECENT TIPS                   │
+│  ┌──────────────────────────┐ │
+│  │ Tip received      +0.05  │ │
+│  │ Jan 15             ZEC   │ │
+│  └──────────────────────────┘ │
+│  ┌──────────────────────────┐ │
+│  │ Tip received      +0.10  │ │
+│  │ Jan 14             ZEC   │ │
+│  └──────────────────────────┘ │
+│                                │
+│  ┌──────────────────────────┐ │
+│  │   ↗ View Tip Page        │ │
+│  └──────────────────────────┘ │
+│                                │
+│      Unlink account           │
+│                                │
+├────────────────────────────────┤
+│  ● Powered by Zcash   GitHub  │
+└────────────────────────────────┘
+```
+
+#### State 3: Loading
+```
+┌────────────────────────────────┐
+│  [TIPZ] Creator                │
+├────────────────────────────────┤
+│                                │
+│           ◌                    │
+│        Loading...              │
+│                                │
+├────────────────────────────────┤
+│  ● Powered by Zcash   GitHub  │
+└────────────────────────────────┘
 ```
 
 ---
 
-## Flow 5: Creator Address Update
+## Flow 5: Auto-Stamp on X
 
 ### Journey Map
 
 ```
-Register Page → Enter Same Handle → New Address → Submit → Updated
+Open X Compose → Extension injects button → Click to stamp → Link added to tweet
+```
+
+### Detailed Steps
+
+1. Creator opens X.com compose box (new tweet, reply, or quote)
+2. x.tsx content script detects compose toolbar
+3. If creator is linked via extension:
+   - Injects AutoStampBadge button into toolbar
+4. Creator clicks the TIPZ button (or if auto-stamp enabled, happens automatically)
+5. Extension inserts `tipz.cash/{handle}` at end of tweet
+6. Shows "TIPZ added ✓" confirmation badge
+
+### States
+
+| Compose State | Button Shown |
+|--------------|--------------|
+| Creator not linked | No button |
+| Creator linked, link not in tweet | Gold "TIPZ" stamp button |
+| Creator linked, link already in tweet | Green "TIPZ added ✓" badge |
+
+---
+
+## Flow 6: Creator Address Update
+
+### Journey Map
+
+```
+Register Page → Enter Same Handle → New Address → New Tweet → Submit → Updated
 ```
 
 ### Details
 
 - Creators can update their address by re-registering
-- System uses upsert: same handle = update, new handle = create
-- Must still provide valid verification tweet
+- System uses upsert: same platform + handle = update
+- Must provide a new verification tweet with new address
 - Old address immediately replaced
+- Extension automatically picks up new identity
 
 ---
 
@@ -291,17 +382,51 @@ Register Page → Enter Same Handle → New Address → Submit → Updated
 
 ---
 
+## Flow 7: Real-Time Tip Notifications
+
+### Journey Map
+
+```
+Tip received → Supabase Realtime → Extension background → Browser notification
+```
+
+### Detailed Steps
+
+1. Tipper completes tip via web app
+2. Transaction logged to Supabase `transactions` table
+3. Supabase Realtime broadcasts INSERT event
+4. Extension's `background.ts` receives event via WebSocket
+5. `handleNewTip()` called:
+   - Shows browser notification: "New Tip Received! 🎉 - You received X ZEC"
+   - Increments badge count
+   - Updates chrome.storage for popup
+6. If popup is open, it refreshes to show new tip in list
+
+### Fallback (Polling)
+
+If WebSocket unavailable:
+1. `realtime.ts` falls back to 30-second polling
+2. Calls `/api/tips/latest?handle={handle}`
+3. Compares with last known tip ID
+4. Shows notification only for genuinely new tips
+
+---
+
 ## Future Flows (Planned)
 
-### Creator Dashboard
-- View tip history
-- Total earnings
-- Analytics (anonymous)
+### Creator Analytics Dashboard
+- View tip history with anonymized sender info
+- Total earnings over time (daily/weekly/monthly charts)
+- Average tip size
+- Peak tipping hours
+
+### Multi-Platform Support
+- YouTube comment integration
+- Twitch stream overlay
+- GitHub sponsor alternative
+- Farcaster native integration
 
 ### Recurring Tips
-- Set up monthly tips
-- Manage subscriptions
-
-### Tip Chains
-- Tip and share to X
-- Recipients can pass it forward
+- Set up monthly tips to favorite creators
+- Manage subscriptions from tipper dashboard
+- Cancel/pause functionality
