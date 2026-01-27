@@ -229,6 +229,60 @@ Technical:
 - Shared modal/button components
 - Platform-specific content scripts
 
+### Mesh Connect (Exchange Payments)
+**Priority**: P2
+**Owner**: Full Stack
+**Effort**: Medium
+
+**Overview**: Add Mesh Connect as an alternative payment method. Allows users to tip directly from their Coinbase/Binance accounts without needing a wallet.
+
+**Flow (non-custodial):**
+```
+User clicks "Pay with Exchange"
+    ↓
+Backend gets NEAR Intents quote → deposit address
+    ↓
+Backend creates Mesh linkToken with toAddress = deposit address
+    ↓
+Frontend opens Mesh modal
+    ↓
+User logs into Coinbase, confirms payment
+    ↓
+Mesh sends USDC directly to NEAR Intents deposit address
+    ↓
+NEAR Intents automatically processes swap
+    ↓
+ZEC delivered to creator's shielded address
+```
+
+**Architecture Decision**: Two payment paths, same NEAR Intents destination:
+1. **Wallet Connect (existing):** User connects wallet → sends to NEAR Intents deposit address → ZEC to creator
+2. **Mesh (new):** User logs into exchange → Mesh sends to NEAR Intents deposit address → ZEC to creator
+
+**TIPZ never custodies funds.** Both paths route through NEAR Intents deposit addresses. We're just orchestrating the connection between Mesh and NEAR Intents.
+
+**Files to Create/Modify:**
+| File | Action | Purpose |
+|------|--------|---------|
+| `web/.env.example` | Modify | Add `MESH_CLIENT_ID`, `MESH_CLIENT_SECRET`, `NEXT_PUBLIC_MESH_CLIENT_ID` |
+| `web/app/api/mesh/link-token/route.ts` | Create | Generate Mesh linkToken + NEAR Intents quote |
+| `web/lib/mesh.ts` | Create | Mesh API client utilities |
+| `web/components/tipping/TippingFlow.tsx` | Modify | Add Mesh payment option |
+| `web/components/tipping/MeshPayButton.tsx` | Create | Mesh payment button + modal trigger |
+
+**Prerequisites:**
+1. Sign up at dashboard.meshconnect.com, get sandbox API keys
+2. Verify Mesh supports Polygon USDC transfers and get exact `networkId` value
+3. Contact Mesh sales to understand production costs
+
+**Edge Cases:**
+- Quote expiry: NEAR Intents quotes expire in ~10 minutes. If user takes too long in Mesh modal, show error and prompt to retry
+- Mesh transfer fails: Funds stay in user's exchange - show error message
+- NEAR Intents swap fails: Funds refund to the `refundTo` address
+- Network mismatch: Ensure Mesh `networkId` matches the chain NEAR Intents deposit address is on
+
+See: `docs/technical/near-intents-integration.md` for full technical implementation details.
+
 ---
 
 ## Technical Debt

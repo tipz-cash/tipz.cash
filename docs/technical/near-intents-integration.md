@@ -513,3 +513,227 @@ function handleIntentError(error: any): { message: string; recoverable: boolean 
 
 - [NEAR Examples](https://github.com/near-examples)
 - [Cross-chain intents patterns](https://github.com/near/near-intents)
+
+---
+
+## Alternative Payment Source: Mesh Connect
+
+Mesh Connect allows users to tip directly from their Coinbase/Binance accounts without needing a wallet. This section documents integrating Mesh as an alternative payment source that routes through NEAR Intents.
+
+### Architecture
+
+**Two payment paths, same NEAR Intents destination:**
+1. **Wallet Connect (existing):** User connects wallet → sends to NEAR Intents deposit address → ZEC to creator
+2. **Mesh (new):** User logs into exchange → Mesh sends to NEAR Intents deposit address → ZEC to creator
+
+**TIPZ never custodies funds.** Both paths route through NEAR Intents deposit addresses.
+
+### Flow
+
+```
+User clicks "Pay with Exchange"
+    ↓
+Backend gets NEAR Intents quote → deposit address
+    ↓
+Backend creates Mesh linkToken with toAddress = deposit address
+    ↓
+Frontend opens Mesh modal
+    ↓
+User logs into Coinbase, confirms payment
+    ↓
+Mesh sends USDC directly to NEAR Intents deposit address
+    ↓
+NEAR Intents automatically processes swap
+    ↓
+ZEC delivered to creator's shielded address
+```
+
+### Environment Setup
+
+Add to `web/.env.example` and `.env.local`:
+```
+MESH_CLIENT_ID=
+MESH_CLIENT_SECRET=
+NEXT_PUBLIC_MESH_CLIENT_ID=
+```
+
+No treasury needed - funds go directly to NEAR Intents.
+
+### Backend: Link Token Endpoint
+
+**New file:** `web/app/api/mesh/link-token/route.ts`
+
+```typescript
+// POST /api/mesh/link-token
+// Request: { amount, destinationAddress, refundAddress? }
+// Response: { linkToken, depositAddress, quoteId, expiresAt }
+
+async function POST(request: NextRequest) {
+  const { amount, destinationAddress, refundAddress } = await request.json()
+
+  // 1. Get NEAR Intents quote first (reuse existing logic)
+  const nearQuote = await getSwapQuote({
+    originAsset: USDC_POLYGON,  // or let user choose chain
+    destinationAsset: ZEC_ASSET_ID,
+    depositAmount: toSmallestUnits(amount, 6), // USDC has 6 decimals
+    recipient: destinationAddress,  // Creator's shielded address
+    refundTo: refundAddress || destinationAddress,
+  })
+
+  // 2. Create Mesh linkToken pointing to NEAR Intents deposit address
+  const meshResponse = await fetch('https://integration-api.meshconnect.com/api/v1/linktoken', {
+    method: 'POST',
+    headers: {
+      'X-Client-Id': process.env.MESH_CLIENT_ID,
+      'X-Client-Secret': process.env.MESH_CLIENT_SECRET,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      userId: `tip_${Date.now()}`,
+      transferOptions: {
+        transactionId: nearQuote.correlationId,
+        transferType: 'payment',
+        fundingOptions: { enabled: true },  // SmartFunding
+        toAddresses: [{
+          symbol: 'USDC',
+          address: nearQuote.quote.depositAddress,  // ← Key: NEAR Intents deposit
+          networkId: 'polygon',  // Verify exact ID in Mesh sandbox
+          amount: parseFloat(amount),
+        }],
+      },
+    }),
+  })
+
+  const { linkToken } = await meshResponse.json()
+
+  // 3. Return both tokens to frontend
+  return NextResponse.json({
+    linkToken,
+    depositAddress: nearQuote.quote.depositAddress,
+    quoteId: nearQuote.correlationId,
+    expiresAt: new Date(nearQuote.quote.deadline).getTime(),
+  })
+}
+```
+
+### Backend: Status Polling
+
+**Reuse existing:** `web/app/api/swap/status/route.ts`
+
+The existing status endpoint already polls NEAR Intents by deposit address. No changes needed - frontend can poll this after Mesh transfer completes.
+
+### Frontend: Add Mesh Option to TippingFlow
+
+**Install:** `npm install @meshconnect/web-link-sdk`
+
+**Modify:** `web/components/tipping/TippingFlow.tsx`
+
+Add payment method toggle when wallet not connected:
+```tsx
+{!walletState.isConnected && (
+  <div>
+    {/* Primary: Mesh/Exchange option */}
+    <MeshPayButton
+      amount={selectedAmount}
+      destinationAddress={shieldedAddress}
+      onSuccess={handleMeshSuccess}
+      onError={handleMeshError}
+    />
+
+    {/* Secondary: Wallet connect */}
+    <button onClick={connect}>
+      Or connect wallet
+    </button>
+  </div>
+)}
+```
+
+### Frontend: MeshPayButton Component
+
+**New component:** `web/components/tipping/MeshPayButton.tsx`
+
+```tsx
+import { createLink } from "@meshconnect/web-link-sdk"
+
+function MeshPayButton({ amount, destinationAddress, onSuccess, onError }) {
+  const [isLoading, setIsLoading] = useState(false)
+  const [depositAddress, setDepositAddress] = useState<string | null>(null)
+
+  const handleClick = async () => {
+    setIsLoading(true)
+
+    // 1. Get linkToken + NEAR Intents deposit address from backend
+    const res = await fetch('/api/mesh/link-token', {
+      method: 'POST',
+      body: JSON.stringify({ amount, destinationAddress }),
+    })
+    const { linkToken, depositAddress, quoteId, expiresAt } = await res.json()
+
+    setDepositAddress(depositAddress)
+
+    // 2. Open Mesh modal
+    const meshLink = createLink({
+      clientId: process.env.NEXT_PUBLIC_MESH_CLIENT_ID,
+      onTransferFinished: (payload) => {
+        // 3. Transfer complete - now poll NEAR Intents status
+        onSuccess({ depositAddress, quoteId })
+      },
+      onExit: (error) => {
+        if (error) onError(error)
+        setIsLoading(false)
+      },
+    })
+
+    meshLink.openLink(linkToken)
+  }
+
+  return (
+    <button onClick={handleClick} disabled={isLoading || !amount}>
+      {isLoading ? 'Loading...' : `Pay $${amount} with Coinbase`}
+    </button>
+  )
+}
+```
+
+### Frontend: Transaction Status Updates
+
+The existing `TransactionStatus` component already handles NEAR Intents status polling. After Mesh transfer completes:
+1. Frontend receives `depositAddress` from `onTransferFinished`
+2. Poll `/api/swap/status?address={depositAddress}` (existing endpoint)
+3. Show existing status UI: "Processing swap..." → "Complete!"
+
+No major changes needed - just wire up the Mesh success callback to start polling.
+
+### Verification
+
+**Sandbox Testing:**
+- Create test linkToken with NEAR Intents deposit address
+- Complete test transfer in Mesh sandbox
+- Verify USDC arrives at deposit address
+- Verify NEAR Intents swap processes automatically (check status endpoint)
+
+**Production Testing:**
+- Small real tip ($1-2) through Mesh
+- Confirm ZEC delivered to test shielded address
+- Test error cases (quote expired, user cancels, etc.)
+
+### Edge Cases
+
+1. **Quote expiry:** NEAR Intents quotes expire in ~10 minutes. If user takes too long in Mesh modal, show error and prompt to retry.
+2. **Mesh transfer fails:** Funds stay in user's exchange - just show error message.
+3. **NEAR Intents swap fails:** Funds refund to the `refundTo` address specified in the quote. Need to handle this in UI.
+4. **Network mismatch:** Ensure Mesh `networkId` matches the chain NEAR Intents deposit address is on.
+
+### Refund Flow
+
+If NEAR Intents swap fails, funds go to `refundTo` address. For Mesh users without a wallet:
+- **Option A:** Use creator's address as refund (they keep the tip attempt)
+- **Option B:** Ask user for a refund address before starting (adds friction)
+- **Option C:** Use a TIPZ operational address, manually handle refunds (adds custody)
+
+**Recommendation:** Option A for v1 - failed tips become "donations" to creator. Rare edge case.
+
+### Resources
+
+- [Mesh Connect Documentation](https://docs.meshconnect.com/)
+- [Mesh Dashboard](https://dashboard.meshconnect.com/)
