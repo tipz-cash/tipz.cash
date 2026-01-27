@@ -2449,7 +2449,7 @@ function renderWithTipzHighlight(text: string, primaryColor: string) {
 }
 
 export default function HomePage() {
-  const heroText = "Private TIPZ\nfor X creators";
+  const heroText = "Private TIPZ\nfor creators";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [tweetVisible, setTweetVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -4202,214 +4202,104 @@ export default function HomePage() {
                   animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
                 }} />
 
-                {/* Layer 1: Realistic Dark-Mode Substack Newsletter */}
+                {/* Layer 1: Realistic Dark-Mode X Tweet */}
                 <div style={{
                   position: "absolute",
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -45%)",
                   width: "340px",
-                  background: "#121212",
-                  border: "1px solid #333",
-                  borderRadius: "12px",
+                  background: "#000000",
+                  border: "1px solid #2f3336",
+                  borderRadius: "16px",
                   overflow: "hidden",
                   boxShadow: "0 25px 60px rgba(0, 0, 0, 0.5)",
                 }}>
-                  {/* Header Bar */}
+                  {/* Tweet Header */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "12px",
+                    padding: "16px 16px 0",
+                  }}>
+                    {/* Avatar */}
+                    <div style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg, #1a1a2e 0%, #334155 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      fontWeight: 700,
+                      color: "#fff",
+                      flexShrink: 0,
+                    }}>
+                      PS
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <span style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 700 }}>Privacy Stack</span>
+                        <svg width="18" height="18" viewBox="0 0 22 22" fill="#1d9bf0">
+                          <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/>
+                        </svg>
+                      </div>
+                      <span style={{ color: "#71767b", fontSize: "15px" }}>@privacystack · 2h</span>
+                    </div>
+                    {/* X Logo */}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#71767b" style={{ flexShrink: 0 }}>
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                  </div>
+
+                  {/* Tweet Content */}
+                  <div style={{
+                    padding: "12px 16px 16px",
+                    color: "#e7e9ea",
+                    fontSize: "15px",
+                    lineHeight: 1.5,
+                  }}>
+                    Financial privacy isn&apos;t about hiding. It&apos;s about choosing what you reveal.
+                    <br /><br />
+                    Every transaction indexed is a data point. Every data point is leverage.
+                    <br /><br />
+                    Support should leave no trace.
+                    <br /><br />
+                    <span style={{ color: "#1d9bf0" }}>tipz.cash/privacystack</span>
+                  </div>
+
+                  {/* Engagement Row - X style */}
                   <div style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    padding: "12px 16px",
-                    borderBottom: "1px solid #333",
+                    padding: "0 16px 12px",
+                    maxWidth: "300px",
                   }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      {/* Publication icon */}
-                      <div style={{
-                        width: "24px",
-                        height: "24px",
-                        borderRadius: "4px",
-                        background: "linear-gradient(135deg, #1a1a2e 0%, #334155 100%)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "12px",
-                        fontWeight: 700,
-                        color: "#fff",
-                      }}>
-                        P
-                      </div>
-                      <span style={{ color: "#e5e5e5", fontSize: "14px", fontWeight: 600 }}>The Privacy Stack</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/>
+                      </svg>
+                      <span>42</span>
                     </div>
-                    <button style={{
-                      background: "transparent",
-                      border: "1px solid #555",
-                      borderRadius: "16px",
-                      padding: "4px 12px",
-                      color: "#888",
-                      fontSize: "12px",
-                      cursor: "pointer",
-                    }}>
-                      Subscribe
-                    </button>
-                  </div>
-
-                  {/* Article Title - Serif editorial style */}
-                  <div style={{
-                    padding: "20px 16px 12px",
-                  }}>
-                    <h2 style={{
-                      color: "#e5e5e5",
-                      fontSize: "22px",
-                      fontWeight: 700,
-                      lineHeight: 1.3,
-                      margin: 0,
-                      fontFamily: "Georgia, 'Times New Roman', serif",
-                    }}>
-                      Financial Privacy in the Age of Surveillance
-                    </h2>
-                  </div>
-
-                  {/* Cover Image with QR Watermark */}
-                  <div style={{
-                    position: "relative",
-                    margin: "0 16px",
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                    aspectRatio: "16/9",
-                  }}>
-                    {/* Abstract moody gradient background */}
-                    <div style={{
-                      position: "absolute",
-                      inset: 0,
-                      background: `
-                        linear-gradient(135deg,
-                          #0f172a 0%,
-                          #1e293b 25%,
-                          #334155 50%,
-                          #1e293b 75%,
-                          #0f172a 100%
-                        )
-                      `,
-                    }} />
-                    {/* Geometric accents for depth */}
-                    <div style={{
-                      position: "absolute",
-                      top: "15%",
-                      left: "10%",
-                      width: "70px",
-                      height: "70px",
-                      background: "radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)",
-                      borderRadius: "50%",
-                    }} />
-                    <div style={{
-                      position: "absolute",
-                      bottom: "20%",
-                      left: "30%",
-                      width: "45px",
-                      height: "45px",
-                      background: "radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%)",
-                      borderRadius: "50%",
-                    }} />
-                    <div style={{
-                      position: "absolute",
-                      top: "35%",
-                      right: "35%",
-                      width: "35px",
-                      height: "35px",
-                      background: "radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%)",
-                      borderRadius: "50%",
-                    }} />
-
-                    {/* QR Watermark */}
-                    <div style={{
-                      position: "absolute",
-                      bottom: "8px",
-                      right: "8px",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                    }}>
-                      <div style={{
-                        width: "28px",
-                        height: "28px",
-                        display: "grid",
-                        gridTemplateColumns: "repeat(7, 1fr)",
-                        gridTemplateRows: "repeat(7, 1fr)",
-                        gap: "0.5px",
-                        opacity: 0.85,
-                        filter: "drop-shadow(0 1px 4px rgba(0, 0, 0, 0.6))",
-                      }}>
-                        {[
-                          1,1,1,0,1,1,1,
-                          1,0,1,0,1,0,1,
-                          1,1,1,0,1,1,1,
-                          0,0,0,0,0,0,0,
-                          1,1,1,0,1,0,1,
-                          1,0,1,0,0,1,0,
-                          1,1,1,0,1,1,1,
-                        ].map((cell, i) => (
-                          <div key={i} style={{
-                            background: cell ? "#fff" : "transparent",
-                          }} />
-                        ))}
-                      </div>
-                      <div style={{
-                        color: "#FFD700",
-                        fontSize: "6px",
-                        fontFamily: "monospace",
-                        fontWeight: 600,
-                        marginTop: "2px",
-                        textShadow: "0 1px 3px rgba(0, 0, 0, 0.8)",
-                        letterSpacing: "0.2px",
-                      }}>
-                        tipz.cash/privacystack
-                      </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/>
+                      </svg>
+                      <span>128</span>
                     </div>
-                  </div>
-
-                  {/* Meta Info */}
-                  <div style={{
-                    padding: "12px 16px 8px",
-                    color: "#888",
-                    fontSize: "12px",
-                  }}>
-                    Dec 15, 2024 • 8 min read
-                  </div>
-
-                  {/* Article Excerpt */}
-                  <div style={{
-                    padding: "0 16px 16px",
-                    color: "#aaa",
-                    fontSize: "14px",
-                    lineHeight: 1.6,
-                  }}>
-                    The question isn't whether you have something to hide. It's whether you have the right to choose what you reveal...
-                  </div>
-
-                  {/* Engagement Row - Real Substack actions */}
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "20px",
-                    padding: "12px 16px",
-                    borderTop: "1px solid #333",
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#888", fontSize: "13px" }}>
-                      <span>♡</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>
+                      </svg>
                       <span>847</span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#888", fontSize: "13px" }}>
-                      <span>💬</span>
-                      <span>23</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#888", fontSize: "13px" }}>
-                      <span>🔄</span>
-                      <span>12</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#888", fontSize: "13px", marginLeft: "auto" }}>
-                      <span>🔗</span>
-                      <span>Share</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/>
+                      </svg>
+                      <span>12K</span>
                     </div>
                   </div>
                 </div>
