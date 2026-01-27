@@ -60,7 +60,7 @@ Core messaging, value propositions, and copy for the TIPZ platform.
 
 **Headline**: "Tipping, native to your timeline"
 
-**Body**: The TIPZ extension adds a tip button to every registered creator's posts on X and Substack. No copying addresses, no switching tabs. Just click, pick an amount, and send.
+**Body**: The TIPZ extension adds a tip button to every registered creator's posts on X. No copying addresses, no switching tabs. Just click, pick an amount, and send.
 
 ### Creator Registration
 

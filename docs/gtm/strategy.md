@@ -9,9 +9,11 @@ Comprehensive GTM plan for the TIPZ private micro-tipping platform.
 TIPZ launches as the first private micro-tipping solution for crypto-native creators. Our GTM strategy focuses on organic growth through the Zcash community, targeted KOL relationships, and viral product mechanics.
 
 **Launch Timeline**: 1 week sprint to MVP launch
-**Primary Channel**: X (Twitter)
+**Primary Channel**: X (Twitter) - **exclusive focus for v1**
 **Primary Audience**: Crypto creators with privacy awareness
 **Growth Model**: Creator-led viral adoption
+
+> **Strategic Note**: Per Zero to One analysis, TIPZ focuses exclusively on X for v1. No YouTube, Twitch, or other platforms until X privacy creators are saturated. See `docs/strategy/platform-focus-analysis.md` for full rationale.
 
 ---
 
@@ -107,7 +109,7 @@ TIPZ launches as the first private micro-tipping solution for crypto-native crea
 **Actions**:
 - [ ] Teaser content on X
 - [ ] Soft outreach to 5-10 friendly creators for beta
-- [ ] Final testing on X.com and Substack
+- [ ] Final testing on X.com
 - [ ] Prepare all launch assets
 
 **Success Metrics**:
