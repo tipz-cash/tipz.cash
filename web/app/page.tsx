@@ -28,14 +28,14 @@ const colors = {
 };
 
 const chapters = [
-  { id: "hero", num: "01", title: "THE PROMISE" },
+  { id: "hero", num: "01", title: "VISION" },
   { id: "broken", num: "02", title: "THE FALSE CHOICE" },
   { id: "solution", num: "03", title: "THE SOLUTION" },
-  { id: "proof", num: "04", title: "PROOF" },
-  { id: "how-it-works", num: "05", title: "HOW IT WORKS" },
-  { id: "creator-tools", num: "06", title: "SOVEREIGN DISTRIBUTION" },
-  { id: "any-token", num: "07", title: "ANY TOKEN" },
-  { id: "faq", num: "08", title: "FAQ" },
+  { id: "any-token", num: "04", title: "UNIVERSAL INTAKE" },
+  { id: "proof", num: "05", title: "GENESIS COHORT" },
+  { id: "creator-tools", num: "06", title: "COMMAND CENTER" },
+  { id: "faq", num: "07", title: "FAQ" },
+  { id: "how-it-works", num: "08", title: "GET STARTED" },
   { id: "join", num: "09", title: "JOIN" },
 ];
 
@@ -2780,7 +2780,7 @@ export default function HomePage() {
       {/* Chapter Indicator */}
       <ChapterIndicator currentChapter={currentChapter} />
 
-      {/* Chapter 1: Hero - The Promise */}
+      {/* Chapter 01: Hero - The Promise */}
       <SnapSection id="hero" style={{ padding: "0 48px", overflow: "hidden", position: "relative" }}>
         {/* Atmospheric background effects - reduced for cleaner look */}
         <div style={{
@@ -2981,8 +2981,7 @@ export default function HomePage() {
           </TerminalReveal>
         </div>
       </SnapSection>
-
-      {/* Chapter 2: The False Choice - Simplified Visual Storytelling */}
+      {/* Chapter 02: The False Choice - Simplified Visual Storytelling */}
       <SnapSection id="broken" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
           {/* Chapter Header */}
@@ -3331,8 +3330,7 @@ export default function HomePage() {
           </TerminalReveal>
         </div>
       </SnapSection>
-
-      {/* Chapter 3: The Solution */}
+      {/* Chapter 03: The Solution */}
       <SnapSection id="solution" style={{ padding: "0 48px" }}>
         {/* Gold particles/glow overlay */}
         <div style={{
@@ -3834,907 +3832,7 @@ export default function HomePage() {
 
         </div>
       </SnapSection>
-
-      {/* Chapter 4: The Vanguard */}
-      <SnapSection id="proof" style={{ padding: "0 48px" }}>
-        <div style={contentPadding}>
-          <TerminalReveal delay={0}>
-            <div style={{
-              fontSize: "11px",
-              color: colors.muted,
-              letterSpacing: "2px",
-              marginBottom: "32px",
-            }}>
-              CHAPTER 04: THE GENESIS
-            </div>
-          </TerminalReveal>
-
-          <TypingHeading
-            text="The Genesis Cohort is established."
-            style={{ marginBottom: "16px" }}
-          />
-
-          <TerminalReveal delay={100}>
-            <p style={{
-              fontSize: "16px",
-              color: colors.muted,
-              marginBottom: "48px",
-            }}>
-              Zero rent paid. Zero data leaked. The new standard is set.
-            </p>
-          </TerminalReveal>
-
-          {/* Testimonial Cards - Refined Style */}
-          <TerminalReveal delay={200}>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-              gap: "24px",
-              marginBottom: "40px",
-            }}>
-              {/* Testimonial 1 */}
-              <div style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: "28px",
-                position: "relative",
-                overflow: "hidden",
-              }}>
-                {/* Top accent */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "3px",
-                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
-                  borderRadius: "12px 12px 0 0",
-                }} />
-
-                <p style={{
-                  fontSize: "16px",
-                  color: colors.textBright,
-                  margin: "0 0 24px",
-                  lineHeight: 1.7,
-                  fontStyle: "italic",
-                }}>
-                  &quot;They can shadowban my account, but they can&apos;t freeze my income.&quot;
-                </p>
-
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  {/* Avatar */}
-                  <div style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${colors.success}40 0%, ${colors.success}20 100%)`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: `0 0 15px ${colors.successGlow}`,
-                  }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>
-                      Verified Creator
-                    </div>
-                    <div style={{ fontSize: "12px", color: colors.muted }}>
-                      Anonymous • X User
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Testimonial 2 */}
-              <div style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: "28px",
-                position: "relative",
-                overflow: "hidden",
-              }}>
-                {/* Top accent */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "3px",
-                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-                  borderRadius: "12px 12px 0 0",
-                }} />
-
-                <p style={{
-                  fontSize: "16px",
-                  color: colors.textBright,
-                  margin: "0 0 24px",
-                  lineHeight: 1.7,
-                  fontStyle: "italic",
-                }}>
-                  &quot;I fired my bank today. This is what sovereignty feels like.&quot;
-                </p>
-
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  {/* Avatar */}
-                  <div style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${colors.primary}40 0%, ${colors.primary}20 100%)`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: `0 0 15px ${colors.primaryGlow}`,
-                  }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
-                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>
-                      Tech Founder
-                    </div>
-                    <div style={{ fontSize: "12px", color: colors.muted }}>
-                      Startup CEO • Anonymous
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TerminalReveal>
-
-          {/* Stats Bar - Glass Morphism Style */}
-          <TerminalReveal delay={350}>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr",
-              gap: "16px",
-            }}>
-              {/* Stat 1: Rent Paid */}
-              <div style={{
-                backgroundColor: "rgba(26, 26, 26, 0.6)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: isMobile ? "24px 20px" : "24px 28px",
-                position: "relative",
-                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
-              }}>
-                {/* Top gradient accent */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
-                  borderRadius: "12px 12px 0 0",
-                }} />
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  letterSpacing: "1px",
-                  marginBottom: "8px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}>
-                  RENT PAID
-                </div>
-                <div style={{
-                  fontSize: isMobile ? "32px" : "36px",
-                  fontWeight: 700,
-                  color: colors.success,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1,
-                }}>
-                  $0<span style={{ fontSize: "0.6em", opacity: 0.7 }}>.00</span>
-                </div>
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  marginTop: "12px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}>
-                  <span style={{ color: colors.success }}>↓ 100%</span> vs. platforms
-                </div>
-              </div>
-
-              {/* Stat 2: Volume (Redacted) */}
-              <div style={{
-                backgroundColor: "rgba(26, 26, 26, 0.6)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: isMobile ? "24px 20px" : "24px 28px",
-                position: "relative",
-                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
-              }}>
-                {/* Top gradient accent */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-                  borderRadius: "12px 12px 0 0",
-                }} />
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  letterSpacing: "1px",
-                  marginBottom: "8px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}>
-                  VOLUME
-                </div>
-                <div style={{
-                  fontSize: isMobile ? "32px" : "36px",
-                  fontWeight: 700,
-                  color: colors.primary,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1,
-                }}>
-                  [REDACTED]
-                </div>
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  marginTop: "12px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                  <span style={{ color: colors.primary }}>Shielded</span>
-                </div>
-              </div>
-
-              {/* Stat 3: System Status */}
-              <div style={{
-                backgroundColor: "rgba(26, 26, 26, 0.6)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: isMobile ? "24px 20px" : "24px 28px",
-                position: "relative",
-                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
-              }}>
-                {/* Top gradient accent */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
-                  borderRadius: "12px 12px 0 0",
-                }} />
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  letterSpacing: "1px",
-                  marginBottom: "8px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}>
-                  <span style={{
-                    width: "6px",
-                    height: "6px",
-                    backgroundColor: colors.success,
-                    borderRadius: "50%",
-                    boxShadow: `0 0 8px ${colors.success}`,
-                    animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
-                  }} />
-                  STATUS
-                </div>
-                <div style={{
-                  fontSize: isMobile ? "32px" : "36px",
-                  fontWeight: 700,
-                  color: colors.success,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.02em",
-                  lineHeight: 1,
-                }}>
-                  ONLINE
-                </div>
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  marginTop: "12px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}>
-                  <span style={{ color: colors.success }}>100%</span> uptime
-                </div>
-              </div>
-            </div>
-          </TerminalReveal>
-        </div>
-      </SnapSection>
-
-      {/* Chapter 5: How It Works */}
-      <SnapSection id="how-it-works" style={{ padding: "0 48px" }}>
-        <div style={contentPadding}>
-          <TerminalReveal delay={0}>
-            <div style={{
-              fontSize: "11px",
-              color: colors.muted,
-              letterSpacing: "2px",
-              marginBottom: "32px",
-            }}>
-              CHAPTER 05: GET STARTED
-            </div>
-          </TerminalReveal>
-
-          <TypingHeading
-            text="Claim your sovereign income."
-            style={{ marginBottom: "16px" }}
-          />
-
-          <TerminalReveal delay={50}>
-            <p style={{
-              fontSize: "16px",
-              color: colors.muted,
-              marginBottom: "48px",
-            }}>
-              Three steps to permanent financial independence.
-            </p>
-          </TerminalReveal>
-
-          {/* Side-by-side layout for Creators and Supporters */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-            gap: "48px",
-          }}>
-            {/* For Creators */}
-            <div>
-              <TerminalReveal delay={200}>
-                <h3 style={{
-                  color: colors.primary,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  letterSpacing: "1px",
-                  marginBottom: "24px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}>
-                  <span style={{ opacity: 0.5 }}>//</span> FOR CREATORS
-                </h3>
-              </TerminalReveal>
-
-              <StaggeredItems
-                baseDelay={120}
-                columns={1}
-                items={[
-                  {
-                    step: "01",
-                    title: "Link your wallet",
-                    desc: "Connect a Zashi shielded wallet. Takes 2 mins to set up.",
-                    icon: "/icons/wallet.svg",
-                  },
-                  {
-                    step: "02",
-                    title: "Verify your identity",
-                    desc: "One tweet binds your X handle to your keys.",
-                    icon: "/icons/link.svg",
-                  },
-                  {
-                    step: "03",
-                    title: "Go live",
-                    desc: "Your uncensorable payment link is now active.",
-                    icon: "/icons/coins.svg",
-                  },
-                ]}
-                renderItem={(item, visible) => (
-                  <div
-                    key={item.step}
-                    className="card-hover"
-                    style={{
-                      backgroundColor: colors.surface,
-                      border: `1px solid ${colors.border}`,
-                      padding: "20px",
-                      height: "100px",
-                      opacity: visible ? 1 : 0,
-                      transform: visible ? "translateY(0)" : "translateY(12px)",
-                      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                      position: "relative",
-                      overflow: "hidden",
-                      borderRadius: "8px",
-                    }}
-                  >
-                    <div style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "3px",
-                      height: "100%",
-                      background: `linear-gradient(180deg, ${colors.primary}, ${colors.primaryHover}, ${colors.primary})`,
-                      backgroundSize: "100% 200%",
-                      animation: prefersReducedMotion ? "none" : "idle-gradient-shift 6s ease-in-out infinite",
-                    }} />
-                    <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
-                      <div style={{
-                        color: colors.primary,
-                        fontSize: "24px",
-                        fontWeight: 700,
-                        textShadow: `0 0 20px ${colors.primaryGlow}`,
-                        minWidth: "36px",
-                        animation: prefersReducedMotion ? "none" : "idle-glow-pulse 3s ease-in-out infinite",
-                      }}>
-                        {item.step}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                          <img
-                            src={item.icon}
-                            alt=""
-                            style={{
-                              width: "18px",
-                              height: "18px",
-                              filter: "invert(70%) sepia(50%) saturate(500%) hue-rotate(5deg) brightness(100%)",
-                              animation: prefersReducedMotion ? "none" : "idle-rotate 4s ease-in-out infinite",
-                            }}
-                          />
-                          <h4 style={{ fontSize: "16px", fontWeight: 600, color: colors.textBright, margin: 0 }}>
-                            {item.title}
-                          </h4>
-                        </div>
-                        <p style={{ fontSize: "13px", color: colors.muted, margin: 0, lineHeight: 1.5 }}>
-                          {item.desc}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              />
-            </div>
-
-            {/* For Supporters */}
-            <div>
-              <TerminalReveal delay={300}>
-                <h3 style={{
-                  color: colors.success,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  letterSpacing: "1px",
-                  marginBottom: "24px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}>
-                  <span style={{ opacity: 0.5 }}>//</span> FOR SUPPORTERS
-                </h3>
-              </TerminalReveal>
-
-              <StaggeredItems
-                baseDelay={120}
-                columns={1}
-                items={[
-                  {
-                    step: "01",
-                    title: "Open their link",
-                    desc: "No account. No tracking. Just click.",
-                    icon: "/icons/link.svg",
-                  },
-                  {
-                    step: "02",
-                    title: "Pick your amount",
-                    desc: "Any token works. Any amount converts.",
-                    icon: "/icons/coins.svg",
-                  },
-                  {
-                    step: "03",
-                    title: "Confirm & send",
-                    desc: "100% arrives instantly. Zero fees. Zero trace.",
-                    icon: "/icons/lock.svg",
-                  },
-                ]}
-                renderItem={(item, visible) => (
-                  <div
-                    key={item.step}
-                    className="card-hover"
-                    style={{
-                      backgroundColor: colors.surface,
-                      border: `1px solid ${colors.border}`,
-                      padding: "20px",
-                      height: "100px",
-                      opacity: visible ? 1 : 0,
-                      transform: visible ? "translateY(0)" : "translateY(12px)",
-                      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                      position: "relative",
-                      overflow: "hidden",
-                      borderRadius: "8px",
-                    }}
-                  >
-                    <div style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "3px",
-                      height: "100%",
-                      background: `linear-gradient(180deg, ${colors.success}, #4ADE80, ${colors.success})`,
-                      backgroundSize: "100% 200%",
-                      animation: prefersReducedMotion ? "none" : "idle-gradient-shift 6s ease-in-out infinite",
-                    }} />
-                    <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
-                      <div style={{
-                        color: colors.success,
-                        fontSize: "24px",
-                        fontWeight: 700,
-                        textShadow: `0 0 20px ${colors.successGlow}`,
-                        minWidth: "36px",
-                        animation: prefersReducedMotion ? "none" : "idle-glow-pulse 3s ease-in-out infinite",
-                      }}>
-                        {item.step}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                          <img
-                            src={item.icon}
-                            alt=""
-                            style={{
-                              width: "18px",
-                              height: "18px",
-                              filter: "invert(60%) sepia(80%) saturate(400%) hue-rotate(90deg) brightness(95%)",
-                              animation: prefersReducedMotion ? "none" : "idle-rotate 4s ease-in-out infinite",
-                            }}
-                          />
-                          <h4 style={{ fontSize: "16px", fontWeight: 600, color: colors.textBright, margin: 0 }}>
-                            {item.title}
-                          </h4>
-                        </div>
-                        <p style={{ fontSize: "13px", color: colors.muted, margin: 0, lineHeight: 1.5 }}>
-                          {item.desc}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              />
-            </div>
-          </div>
-        </div>
-      </SnapSection>
-
-      {/* Chapter 6: Sovereign Distribution - Apple-Style Minimal */}
-      <SnapSection id="creator-tools" style={{ padding: "0 48px" }}>
-        <div style={contentPadding}>
-          <TerminalReveal delay={0}>
-            <div style={{
-              fontSize: "11px",
-              color: colors.muted,
-              letterSpacing: "2px",
-              marginBottom: "32px",
-            }}>
-              CHAPTER 06: SOVEREIGN DISTRIBUTION
-            </div>
-          </TerminalReveal>
-
-          {/* Split layout: Minimal Copy left, Hero Visual right */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1.2fr",
-            gap: "80px",
-            alignItems: "center",
-          }}>
-            {/* Left: Minimal Copy */}
-            <div>
-              <TypingHeading
-                text="The Sovereign Dashboard."
-                style={{ marginBottom: "20px", fontSize: "clamp(32px, 4vw, 42px)" }}
-              />
-
-              <TerminalReveal delay={100}>
-                <p style={{
-                  color: colors.muted,
-                  fontSize: "18px",
-                  lineHeight: 1.6,
-                  marginBottom: "36px",
-                }}>
-                  Monitor your income in real-time. Distribute your link instantly. Read private messages that X can never see.
-                </p>
-              </TerminalReveal>
-
-              {/* Feature Deck - Vertical Stack with Descriptions */}
-              <TerminalReveal delay={200}>
-                <div style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "20px",
-                  marginBottom: "40px",
-                }}>
-                  {/* Smart Watermark */}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#FFD700"
-                      strokeWidth="2"
-                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite" }}
-                    >
-                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <div>
-                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
-                        Smart Watermark
-                      </span>
-                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
-                        Auto-stamp your media with your payment signal. If your content spreads, your income grows.
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Live Stream */}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#FFD700"
-                      strokeWidth="2"
-                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.3s" }}
-                    >
-                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <div>
-                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
-                        Live Stream
-                      </span>
-                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
-                        Watch tips land in your wallet the second they are sent. No monthly payouts. No delays.
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Priority Inbox */}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#FFD700"
-                      strokeWidth="2"
-                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.6s" }}
-                    >
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <div>
-                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
-                        Priority Inbox
-                      </span>
-                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
-                        Receive private, encrypted messages attached to every tip. A direct line to your biggest fans.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </TerminalReveal>
-
-              {/* CTA Button */}
-              <TerminalReveal delay={300}>
-                <a
-                  href="https://chrome.google.com/webstore"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    padding: "16px 32px",
-                    background: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
-                    borderRadius: "8px",
-                    color: "#050505",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    letterSpacing: "0.5px",
-                    boxShadow: "0 4px 24px rgba(255, 215, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)",
-                    transition: "all 0.2s ease",
-                  }}
-                >
-                  GET THE EXTENSION
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </a>
-                <p style={{
-                  color: colors.muted,
-                  fontSize: "12px",
-                  marginTop: "16px",
-                }}>
-                  100% Free. Open Source. No Setup Fees.
-                </p>
-              </TerminalReveal>
-            </div>
-
-            {/* Right: "The Augmented Tweet" - Realistic X Post */}
-            <TerminalReveal delay={150}>
-              <div style={{
-                position: "relative",
-                height: "480px",
-              }}>
-                {/* Subtle background glow */}
-                <div style={{
-                  position: "absolute",
-                  top: "40%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  width: "350px",
-                  height: "350px",
-                  background: "radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%)",
-                  borderRadius: "50%",
-                  filter: "blur(50px)",
-                  animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
-                }} />
-
-                {/* Layer 1: X Article Card - @mert style */}
-                <div style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -45%)",
-                  width: "340px",
-                  background: "#000000",
-                  border: "1px solid #2f3336",
-                  borderRadius: "16px",
-                  overflow: "hidden",
-                  boxShadow: "0 25px 60px rgba(0, 0, 0, 0.5)",
-                }}>
-                  {/* Tweet Header */}
-                  <div style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "12px",
-                    padding: "16px 16px 12px",
-                  }}>
-                    {/* Avatar - Mert's actual profile picture */}
-                    <div style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      backgroundImage: "url('https://pbs.twimg.com/profile_images/1975912876243095552/YlVLO4Oz_400x400.jpg')",
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      flexShrink: 0,
-                    }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <span style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 700 }}>mert</span>
-                        <svg width="18" height="18" viewBox="0 0 22 22" fill="#1d9bf0">
-                          <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/>
-                        </svg>
-                      </div>
-                      <span style={{ color: "#71767b", fontSize: "15px" }}>@mert · 4h</span>
-                    </div>
-                    {/* X Logo */}
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#71767b" style={{ flexShrink: 0 }}>
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                  </div>
-
-                  {/* Article Card */}
-                  <div style={{
-                    margin: "0 16px 12px",
-                    border: "1px solid #2f3336",
-                    borderRadius: "16px",
-                    overflow: "hidden",
-                  }}>
-                    {/* Article Image - Privacy Thesis cover */}
-                    <div style={{
-                      height: "140px",
-                      backgroundImage: "url('https://pbs.twimg.com/media/G48VC29aUAAO__P?format=jpg&name=medium')",
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      position: "relative",
-                    }}>
-                      {/* TIPZ Smart Watermark - Frosted glass pill */}
-                      <div style={{
-                        position: "absolute",
-                        bottom: "4px",
-                        right: "4px",
-                        background: "rgba(0, 0, 0, 0.5)",
-                        backdropFilter: "blur(6px)",
-                        WebkitBackdropFilter: "blur(6px)",
-                        padding: "2px 6px",
-                        borderRadius: "6px",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}>
-                        <span style={{
-                          color: "rgba(255, 255, 255, 0.9)",
-                          fontSize: "8px",
-                          fontFamily: "'JetBrains Mono', monospace",
-                          fontWeight: 500,
-                          letterSpacing: "0.2px",
-                        }}>
-                          tipz.cash/mert
-                        </span>
-                      </div>
-                    </div>
-                    {/* Article Meta */}
-                    <div style={{
-                      padding: "12px",
-                      background: "#000",
-                    }}>
-                      <div style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 500, lineHeight: 1.3 }}>
-                        The Last 1000x in Crypto: A Privacy Thesis
-                      </div>
-                      <div style={{ color: "#71767b", fontSize: "13px", marginTop: "4px" }}>
-                        Bitcoin solved legitimacy, Solana/Ethereum solved scale. Privacy is next.
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Engagement Row - X style */}
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "0 16px 12px",
-                    maxWidth: "300px",
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/>
-                      </svg>
-                      <span>156</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/>
-                      </svg>
-                      <span>892</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>
-                      </svg>
-                      <span>2.4K</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/>
-                      </svg>
-                      <span>89K</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Layer 3: Floating Notification Toast - Animated on scroll */}
-                <TipNotification />
-              </div>
-            </TerminalReveal>
-          </div>
-        </div>
-      </SnapSection>
-
-      {/* Chapter 7: Any Token - Privacy Conversion Terminal */}
+      {/* Chapter 04: Any Token - Privacy Conversion Terminal */}
       <SnapSection id="any-token" style={{ padding: isMobile ? "0 24px" : "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
@@ -4744,7 +3842,7 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 07: UNIVERSAL INTAKE
+              CHAPTER 04: UNIVERSAL INTAKE
             </div>
           </TerminalReveal>
 
@@ -5189,8 +4287,658 @@ export default function HomePage() {
           }
         `}</style>
       </SnapSection>
+      {/* Chapter 05: The Vanguard */}
+      <SnapSection id="proof" style={{ padding: "0 48px" }}>
+        <div style={contentPadding}>
+          <TerminalReveal delay={0}>
+            <div style={{
+              fontSize: "11px",
+              color: colors.muted,
+              letterSpacing: "2px",
+              marginBottom: "32px",
+            }}>
+              CHAPTER 05: GENESIS COHORT
+            </div>
+          </TerminalReveal>
 
-      {/* Chapter 7: FAQ - Common Questions */}
+          <TypingHeading
+            text="The Genesis Cohort is established."
+            style={{ marginBottom: "16px" }}
+          />
+
+          <TerminalReveal delay={100}>
+            <p style={{
+              fontSize: "16px",
+              color: colors.muted,
+              marginBottom: "48px",
+            }}>
+              Zero rent paid. Zero data leaked. The new standard is set.
+            </p>
+          </TerminalReveal>
+
+          {/* Testimonial Cards - Refined Style */}
+          <TerminalReveal delay={200}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+              gap: "24px",
+              marginBottom: "40px",
+            }}>
+              {/* Testimonial 1 */}
+              <div style={{
+                backgroundColor: colors.surface,
+                border: `1px solid ${colors.border}`,
+                borderRadius: "12px",
+                padding: "28px",
+                position: "relative",
+                overflow: "hidden",
+              }}>
+                {/* Top accent */}
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "3px",
+                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
+                  borderRadius: "12px 12px 0 0",
+                }} />
+
+                <p style={{
+                  fontSize: "16px",
+                  color: colors.textBright,
+                  margin: "0 0 24px",
+                  lineHeight: 1.7,
+                  fontStyle: "italic",
+                }}>
+                  &quot;They can shadowban my account, but they can&apos;t freeze my income.&quot;
+                </p>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  {/* Avatar */}
+                  <div style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "50%",
+                    background: `linear-gradient(135deg, ${colors.success}40 0%, ${colors.success}20 100%)`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: `0 0 15px ${colors.successGlow}`,
+                  }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>
+                      Verified Creator
+                    </div>
+                    <div style={{ fontSize: "12px", color: colors.muted }}>
+                      Anonymous • X User
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonial 2 */}
+              <div style={{
+                backgroundColor: colors.surface,
+                border: `1px solid ${colors.border}`,
+                borderRadius: "12px",
+                padding: "28px",
+                position: "relative",
+                overflow: "hidden",
+              }}>
+                {/* Top accent */}
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "3px",
+                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+                  borderRadius: "12px 12px 0 0",
+                }} />
+
+                <p style={{
+                  fontSize: "16px",
+                  color: colors.textBright,
+                  margin: "0 0 24px",
+                  lineHeight: 1.7,
+                  fontStyle: "italic",
+                }}>
+                  &quot;I fired my bank today. This is what sovereignty feels like.&quot;
+                </p>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  {/* Avatar */}
+                  <div style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "50%",
+                    background: `linear-gradient(135deg, ${colors.primary}40 0%, ${colors.primary}20 100%)`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: `0 0 15px ${colors.primaryGlow}`,
+                  }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>
+                      Tech Founder
+                    </div>
+                    <div style={{ fontSize: "12px", color: colors.muted }}>
+                      Startup CEO • Anonymous
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TerminalReveal>
+
+          {/* Stats Bar - Glass Morphism Style */}
+          <TerminalReveal delay={350}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr",
+              gap: "16px",
+            }}>
+              {/* Stat 1: Rent Paid */}
+              <div style={{
+                backgroundColor: "rgba(26, 26, 26, 0.6)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: `1px solid ${colors.border}`,
+                borderRadius: "12px",
+                padding: isMobile ? "24px 20px" : "24px 28px",
+                position: "relative",
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+              }}>
+                {/* Top gradient accent */}
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "2px",
+                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
+                  borderRadius: "12px 12px 0 0",
+                }} />
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  letterSpacing: "1px",
+                  marginBottom: "8px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>
+                  RENT PAID
+                </div>
+                <div style={{
+                  fontSize: isMobile ? "32px" : "36px",
+                  fontWeight: 700,
+                  color: colors.success,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1,
+                }}>
+                  $0<span style={{ fontSize: "0.6em", opacity: 0.7 }}>.00</span>
+                </div>
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  marginTop: "12px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>
+                  <span style={{ color: colors.success }}>↓ 100%</span> vs. platforms
+                </div>
+              </div>
+
+              {/* Stat 2: Volume (Redacted) */}
+              <div style={{
+                backgroundColor: "rgba(26, 26, 26, 0.6)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: `1px solid ${colors.border}`,
+                borderRadius: "12px",
+                padding: isMobile ? "24px 20px" : "24px 28px",
+                position: "relative",
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+              }}>
+                {/* Top gradient accent */}
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "2px",
+                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+                  borderRadius: "12px 12px 0 0",
+                }} />
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  letterSpacing: "1px",
+                  marginBottom: "8px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>
+                  VOLUME
+                </div>
+                <div style={{
+                  fontSize: isMobile ? "32px" : "36px",
+                  fontWeight: 700,
+                  color: colors.primary,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1,
+                }}>
+                  [REDACTED]
+                </div>
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  marginTop: "12px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <span style={{ color: colors.primary }}>Shielded</span>
+                </div>
+              </div>
+
+              {/* Stat 3: System Status */}
+              <div style={{
+                backgroundColor: "rgba(26, 26, 26, 0.6)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: `1px solid ${colors.border}`,
+                borderRadius: "12px",
+                padding: isMobile ? "24px 20px" : "24px 28px",
+                position: "relative",
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+              }}>
+                {/* Top gradient accent */}
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "2px",
+                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
+                  borderRadius: "12px 12px 0 0",
+                }} />
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  letterSpacing: "1px",
+                  marginBottom: "8px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}>
+                  <span style={{
+                    width: "6px",
+                    height: "6px",
+                    backgroundColor: colors.success,
+                    borderRadius: "50%",
+                    boxShadow: `0 0 8px ${colors.success}`,
+                    animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
+                  }} />
+                  STATUS
+                </div>
+                <div style={{
+                  fontSize: isMobile ? "32px" : "36px",
+                  fontWeight: 700,
+                  color: colors.success,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "0.02em",
+                  lineHeight: 1,
+                }}>
+                  ONLINE
+                </div>
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  marginTop: "12px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>
+                  <span style={{ color: colors.success }}>100%</span> uptime
+                </div>
+              </div>
+            </div>
+          </TerminalReveal>
+        </div>
+      </SnapSection>
+      {/* Chapter 06: Sovereign Distribution - Apple-Style Minimal */}
+      <SnapSection id="creator-tools" style={{ padding: "0 48px" }}>
+        <div style={contentPadding}>
+          <TerminalReveal delay={0}>
+            <div style={{
+              fontSize: "11px",
+              color: colors.muted,
+              letterSpacing: "2px",
+              marginBottom: "32px",
+            }}>
+              CHAPTER 06: COMMAND CENTER
+            </div>
+          </TerminalReveal>
+
+          {/* Split layout: Minimal Copy left, Hero Visual right */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1.2fr",
+            gap: "80px",
+            alignItems: "center",
+          }}>
+            {/* Left: Minimal Copy */}
+            <div>
+              <TypingHeading
+                text="The Sovereign Dashboard."
+                style={{ marginBottom: "20px", fontSize: "clamp(32px, 4vw, 42px)" }}
+              />
+
+              <TerminalReveal delay={100}>
+                <p style={{
+                  color: colors.muted,
+                  fontSize: "18px",
+                  lineHeight: 1.6,
+                  marginBottom: "36px",
+                }}>
+                  Monitor your income in real-time. Distribute your link instantly. Read private messages that X can never see.
+                </p>
+              </TerminalReveal>
+
+              {/* Feature Deck - Vertical Stack with Descriptions */}
+              <TerminalReveal delay={200}>
+                <div style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "20px",
+                  marginBottom: "40px",
+                }}>
+                  {/* Smart Watermark */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFD700"
+                      strokeWidth="2"
+                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite" }}
+                    >
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <div>
+                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
+                        Smart Watermark
+                      </span>
+                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
+                        Auto-stamp your media with your payment signal. If your content spreads, your income grows.
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Live Stream */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFD700"
+                      strokeWidth="2"
+                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.3s" }}
+                    >
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <div>
+                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
+                        Live Stream
+                      </span>
+                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
+                        Watch tips land in your wallet the second they are sent. No monthly payouts. No delays.
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Priority Inbox */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFD700"
+                      strokeWidth="2"
+                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.6s" }}
+                    >
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <div>
+                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
+                        Priority Inbox
+                      </span>
+                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
+                        Receive private, encrypted messages attached to every tip. A direct line to your biggest fans.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </TerminalReveal>
+
+              {/* CTA Button */}
+              <TerminalReveal delay={300}>
+                <a
+                  href="https://chrome.google.com/webstore"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    padding: "16px 32px",
+                    background: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+                    borderRadius: "8px",
+                    color: "#050505",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    letterSpacing: "0.5px",
+                    boxShadow: "0 4px 24px rgba(255, 215, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  GET THE EXTENSION
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </a>
+                <p style={{
+                  color: colors.muted,
+                  fontSize: "12px",
+                  marginTop: "16px",
+                }}>
+                  100% Free. Open Source. No Setup Fees.
+                </p>
+              </TerminalReveal>
+            </div>
+
+            {/* Right: "The Augmented Tweet" - Realistic X Post */}
+            <TerminalReveal delay={150}>
+              <div style={{
+                position: "relative",
+                height: "480px",
+              }}>
+                {/* Subtle background glow */}
+                <div style={{
+                  position: "absolute",
+                  top: "40%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: "350px",
+                  height: "350px",
+                  background: "radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%)",
+                  borderRadius: "50%",
+                  filter: "blur(50px)",
+                  animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
+                }} />
+
+                {/* Layer 1: X Article Card - @mert style */}
+                <div style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -45%)",
+                  width: "340px",
+                  background: "#000000",
+                  border: "1px solid #2f3336",
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  boxShadow: "0 25px 60px rgba(0, 0, 0, 0.5)",
+                }}>
+                  {/* Tweet Header */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "12px",
+                    padding: "16px 16px 12px",
+                  }}>
+                    {/* Avatar - Mert's actual profile picture */}
+                    <div style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      backgroundImage: "url('https://pbs.twimg.com/profile_images/1975912876243095552/YlVLO4Oz_400x400.jpg')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      flexShrink: 0,
+                    }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <span style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 700 }}>mert</span>
+                        <svg width="18" height="18" viewBox="0 0 22 22" fill="#1d9bf0">
+                          <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/>
+                        </svg>
+                      </div>
+                      <span style={{ color: "#71767b", fontSize: "15px" }}>@mert · 4h</span>
+                    </div>
+                    {/* X Logo */}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#71767b" style={{ flexShrink: 0 }}>
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                  </div>
+
+                  {/* Article Card */}
+                  <div style={{
+                    margin: "0 16px 12px",
+                    border: "1px solid #2f3336",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                  }}>
+                    {/* Article Image - Privacy Thesis cover */}
+                    <div style={{
+                      height: "140px",
+                      backgroundImage: "url('https://pbs.twimg.com/media/G48VC29aUAAO__P?format=jpg&name=medium')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      position: "relative",
+                    }}>
+                      {/* TIPZ Smart Watermark - Frosted glass pill */}
+                      <div style={{
+                        position: "absolute",
+                        bottom: "4px",
+                        right: "4px",
+                        background: "rgba(0, 0, 0, 0.5)",
+                        backdropFilter: "blur(6px)",
+                        WebkitBackdropFilter: "blur(6px)",
+                        padding: "2px 6px",
+                        borderRadius: "6px",
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}>
+                        <span style={{
+                          color: "rgba(255, 255, 255, 0.9)",
+                          fontSize: "8px",
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontWeight: 500,
+                          letterSpacing: "0.2px",
+                        }}>
+                          tipz.cash/mert
+                        </span>
+                      </div>
+                    </div>
+                    {/* Article Meta */}
+                    <div style={{
+                      padding: "12px",
+                      background: "#000",
+                    }}>
+                      <div style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 500, lineHeight: 1.3 }}>
+                        The Last 1000x in Crypto: A Privacy Thesis
+                      </div>
+                      <div style={{ color: "#71767b", fontSize: "13px", marginTop: "4px" }}>
+                        Bitcoin solved legitimacy, Solana/Ethereum solved scale. Privacy is next.
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Engagement Row - X style */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "0 16px 12px",
+                    maxWidth: "300px",
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/>
+                      </svg>
+                      <span>156</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/>
+                      </svg>
+                      <span>892</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>
+                      </svg>
+                      <span>2.4K</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/>
+                      </svg>
+                      <span>89K</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Layer 3: Floating Notification Toast - Animated on scroll */}
+                <TipNotification />
+              </div>
+            </TerminalReveal>
+          </div>
+        </div>
+      </SnapSection>
+      {/* Chapter 07: FAQ - Common Questions */}
       <SnapSection id="faq" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
@@ -5200,7 +4948,7 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 08: FAQ
+              CHAPTER 07: FAQ
             </div>
           </TerminalReveal>
 
@@ -5278,8 +5026,252 @@ export default function HomePage() {
           </TerminalReveal>
         </div>
       </SnapSection>
+      {/* Chapter 08: How It Works */}
+      <SnapSection id="how-it-works" style={{ padding: "0 48px" }}>
+        <div style={contentPadding}>
+          <TerminalReveal delay={0}>
+            <div style={{
+              fontSize: "11px",
+              color: colors.muted,
+              letterSpacing: "2px",
+              marginBottom: "32px",
+            }}>
+              CHAPTER 08: GET STARTED
+            </div>
+          </TerminalReveal>
 
-      {/* Chapter 8: CTA - marketing-psychology: urgency + commitment */}
+          <TypingHeading
+            text="Claim your sovereign income."
+            style={{ marginBottom: "16px" }}
+          />
+
+          <TerminalReveal delay={50}>
+            <p style={{
+              fontSize: "16px",
+              color: colors.muted,
+              marginBottom: "48px",
+            }}>
+              Three steps to permanent financial independence.
+            </p>
+          </TerminalReveal>
+
+          {/* Side-by-side layout for Creators and Supporters */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+            gap: "48px",
+          }}>
+            {/* For Creators */}
+            <div>
+              <TerminalReveal delay={200}>
+                <h3 style={{
+                  color: colors.primary,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  letterSpacing: "1px",
+                  marginBottom: "24px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}>
+                  <span style={{ opacity: 0.5 }}>//</span> FOR CREATORS
+                </h3>
+              </TerminalReveal>
+
+              <StaggeredItems
+                baseDelay={120}
+                columns={1}
+                items={[
+                  {
+                    step: "01",
+                    title: "Link your wallet",
+                    desc: "Connect a Zashi shielded wallet. Takes 2 mins to set up.",
+                    icon: "/icons/wallet.svg",
+                  },
+                  {
+                    step: "02",
+                    title: "Verify your identity",
+                    desc: "One tweet binds your X handle to your keys.",
+                    icon: "/icons/link.svg",
+                  },
+                  {
+                    step: "03",
+                    title: "Go live",
+                    desc: "Your uncensorable payment link is now active.",
+                    icon: "/icons/coins.svg",
+                  },
+                ]}
+                renderItem={(item, visible) => (
+                  <div
+                    key={item.step}
+                    className="card-hover"
+                    style={{
+                      backgroundColor: colors.surface,
+                      border: `1px solid ${colors.border}`,
+                      padding: "20px",
+                      height: "100px",
+                      opacity: visible ? 1 : 0,
+                      transform: visible ? "translateY(0)" : "translateY(12px)",
+                      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                      position: "relative",
+                      overflow: "hidden",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <div style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "3px",
+                      height: "100%",
+                      background: `linear-gradient(180deg, ${colors.primary}, ${colors.primaryHover}, ${colors.primary})`,
+                      backgroundSize: "100% 200%",
+                      animation: prefersReducedMotion ? "none" : "idle-gradient-shift 6s ease-in-out infinite",
+                    }} />
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
+                      <div style={{
+                        color: colors.primary,
+                        fontSize: "24px",
+                        fontWeight: 700,
+                        textShadow: `0 0 20px ${colors.primaryGlow}`,
+                        minWidth: "36px",
+                        animation: prefersReducedMotion ? "none" : "idle-glow-pulse 3s ease-in-out infinite",
+                      }}>
+                        {item.step}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                          <img
+                            src={item.icon}
+                            alt=""
+                            style={{
+                              width: "18px",
+                              height: "18px",
+                              filter: "invert(70%) sepia(50%) saturate(500%) hue-rotate(5deg) brightness(100%)",
+                              animation: prefersReducedMotion ? "none" : "idle-rotate 4s ease-in-out infinite",
+                            }}
+                          />
+                          <h4 style={{ fontSize: "16px", fontWeight: 600, color: colors.textBright, margin: 0 }}>
+                            {item.title}
+                          </h4>
+                        </div>
+                        <p style={{ fontSize: "13px", color: colors.muted, margin: 0, lineHeight: 1.5 }}>
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              />
+            </div>
+
+            {/* For Supporters */}
+            <div>
+              <TerminalReveal delay={300}>
+                <h3 style={{
+                  color: colors.success,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  letterSpacing: "1px",
+                  marginBottom: "24px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}>
+                  <span style={{ opacity: 0.5 }}>//</span> FOR SUPPORTERS
+                </h3>
+              </TerminalReveal>
+
+              <StaggeredItems
+                baseDelay={120}
+                columns={1}
+                items={[
+                  {
+                    step: "01",
+                    title: "Open their link",
+                    desc: "No account. No tracking. Just click.",
+                    icon: "/icons/link.svg",
+                  },
+                  {
+                    step: "02",
+                    title: "Pick your amount",
+                    desc: "Any token works. Any amount converts.",
+                    icon: "/icons/coins.svg",
+                  },
+                  {
+                    step: "03",
+                    title: "Confirm & send",
+                    desc: "100% arrives instantly. Zero fees. Zero trace.",
+                    icon: "/icons/lock.svg",
+                  },
+                ]}
+                renderItem={(item, visible) => (
+                  <div
+                    key={item.step}
+                    className="card-hover"
+                    style={{
+                      backgroundColor: colors.surface,
+                      border: `1px solid ${colors.border}`,
+                      padding: "20px",
+                      height: "100px",
+                      opacity: visible ? 1 : 0,
+                      transform: visible ? "translateY(0)" : "translateY(12px)",
+                      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                      position: "relative",
+                      overflow: "hidden",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <div style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "3px",
+                      height: "100%",
+                      background: `linear-gradient(180deg, ${colors.success}, #4ADE80, ${colors.success})`,
+                      backgroundSize: "100% 200%",
+                      animation: prefersReducedMotion ? "none" : "idle-gradient-shift 6s ease-in-out infinite",
+                    }} />
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
+                      <div style={{
+                        color: colors.success,
+                        fontSize: "24px",
+                        fontWeight: 700,
+                        textShadow: `0 0 20px ${colors.successGlow}`,
+                        minWidth: "36px",
+                        animation: prefersReducedMotion ? "none" : "idle-glow-pulse 3s ease-in-out infinite",
+                      }}>
+                        {item.step}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                          <img
+                            src={item.icon}
+                            alt=""
+                            style={{
+                              width: "18px",
+                              height: "18px",
+                              filter: "invert(60%) sepia(80%) saturate(400%) hue-rotate(90deg) brightness(95%)",
+                              animation: prefersReducedMotion ? "none" : "idle-rotate 4s ease-in-out infinite",
+                            }}
+                          />
+                          <h4 style={{ fontSize: "16px", fontWeight: 600, color: colors.textBright, margin: 0 }}>
+                            {item.title}
+                          </h4>
+                        </div>
+                        <p style={{ fontSize: "13px", color: colors.muted, margin: 0, lineHeight: 1.5 }}>
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+      </SnapSection>
+      {/* Chapter 09: CTA - marketing-psychology: urgency + commitment */}
       <SnapSection id="join" style={{ textAlign: "center", padding: "0 48px" }}>
         <div style={{ maxWidth: "600px", margin: "0 auto" }}>
           <TerminalReveal delay={0}>
