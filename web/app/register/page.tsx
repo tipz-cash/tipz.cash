@@ -106,13 +106,14 @@ export default function RegisterPage() {
     }
   }, [shieldedAddress, currentStep]);
 
-  // Calculate progress for progress bar
+  // Calculate progress for progress bar (starts at 10% for sunk cost psychology)
   const getProgress = () => {
     let completed = 0;
     if (handle && !validateHandle(handle)) completed++;
     if (isAddressComplete(shieldedAddress)) completed++;
     if (tweetUrl && !validateTweetUrl(tweetUrl)) completed++;
-    return (completed / 3) * 100;
+    // Base 10% + 30% per step (10 + 30 + 30 + 30 = 100)
+    return 10 + (completed / 3) * 90;
   }
 
   const verificationText = `I'm registering for @TIPZ_xyz to receive private tips via Zcash.
@@ -215,8 +216,8 @@ My shielded address: ${shieldedAddress || "[your address]"}`
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    padding: "16px",
-    minHeight: "52px",
+    padding: "18px 16px",
+    minHeight: "58px",
     fontSize: "16px", // Prevents iOS zoom on focus
     fontFamily: "'JetBrains Mono', monospace",
     backgroundColor: colors.bg,
@@ -343,13 +344,14 @@ My shielded address: ${shieldedAddress || "[your address]"}`
 
           <h1 style={{
             margin: "0 0 12px",
-            fontSize: "clamp(32px, 5vw, 40px)",
+            fontSize: "clamp(32px, 6vw, 44px)",
             fontWeight: 700,
             letterSpacing: "-0.03em",
-            color: colors.textBright,
-            fontFamily: "Inter, -apple-system, sans-serif",
+            color: colors.primary,
+            fontFamily: "'JetBrains Mono', monospace",
+            textShadow: `0 0 40px ${colors.primaryGlow}`,
           }}>
-            Keep Every Dollar
+            Monetize Without Intermediaries.
           </h1>
 
           <p style={{
@@ -359,24 +361,22 @@ My shielded address: ${shieldedAddress || "[your address]"}`
             lineHeight: 1.6,
             fontFamily: "Inter, -apple-system, sans-serif",
           }}>
-            Ko-fi takes <span style={{ color: colors.error, fontWeight: 600 }}>5%</span>.
-            Patreon takes <span style={{ color: colors.error, fontWeight: 600 }}>8-12%</span>.
-            TIPZ takes <span style={{ color: colors.success, fontWeight: 600 }}>zero</span>.
+            Platforms extract. We don&apos;t. Direct to your shielded wallet.
           </p>
 
-          {/* Trust signals - Optimized */}
+          {/* Trust signals - Sovereign focus */}
           <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <LockIcon size={14} color={colors.success} />
+              <span style={{ fontSize: "12px", color: colors.text }}>Non-custodial</span>
+            </div>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <CheckIcon size={14} color={colors.success} />
               <span style={{ fontSize: "12px", color: colors.text }}>0% fees</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <CheckIcon size={14} color={colors.success} />
-              <span style={{ fontSize: "12px", color: colors.text }}>2-minute setup</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <CheckIcon size={14} color={colors.success} />
-              <span style={{ fontSize: "12px", color: colors.text }}>Private by default</span>
+              <span style={{ fontSize: "12px", color: colors.text }}>Shielded delivery</span>
             </div>
           </div>
         </div>
@@ -389,43 +389,56 @@ My shielded address: ${shieldedAddress || "[your address]"}`
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
               <span style={stepNumberStyle(1, currentStep >= 1)}>1</span>
-              <label style={{ ...labelStyle, marginBottom: 0 }}>X Handle</label>
+              <label style={{ ...labelStyle, marginBottom: 0 }}>Claim your handle</label>
               {handle && !validateHandle(handle) && (
                 <span style={{
                   animation: prefersReducedMotion ? "none" : "fadeIn 0.3s ease-out",
                 }}><CheckIcon size={16} color={colors.success} /></span>
               )}
             </div>
-            <input
-              type="text"
-              value={handle}
-              onChange={(e) => {
-                setHandle(e.target.value)
-                if (fieldErrors.handle) {
-                  setFieldErrors({ ...fieldErrors, handle: "" })
-                }
-              }}
-              placeholder="username"
-              style={{
-                ...inputStyle,
-                borderColor: fieldErrors.handle ? colors.error :
-                  (handle && !validateHandle(handle)) ? colors.success : colors.border,
-              }}
-              required
-              aria-describedby={fieldErrors.handle ? "handle-error" : undefined}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = fieldErrors.handle ? colors.error : colors.primary
-                e.currentTarget.style.boxShadow = `0 0 0 1px ${fieldErrors.handle ? colors.error : colors.primary}`
-              }}
-              onBlur={(e) => {
-                const isValid = handle && !validateHandle(handle);
-                e.currentTarget.style.borderColor = fieldErrors.handle ? colors.error :
-                  isValid ? colors.success : colors.border
-                e.currentTarget.style.boxShadow = "none"
-                const error = validateHandle(handle)
-                if (error) setFieldErrors(prev => ({ ...prev, handle: error }))
-              }}
-            />
+            <div style={{ position: "relative" }}>
+              <span style={{
+                position: "absolute",
+                left: "16px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: colors.muted,
+                fontSize: "16px",
+                fontFamily: "'JetBrains Mono', monospace",
+                pointerEvents: "none",
+              }}>@</span>
+              <input
+                type="text"
+                value={handle}
+                onChange={(e) => {
+                  setHandle(e.target.value)
+                  if (fieldErrors.handle) {
+                    setFieldErrors({ ...fieldErrors, handle: "" })
+                  }
+                }}
+                placeholder="yourhandle"
+                style={{
+                  ...inputStyle,
+                  paddingLeft: "36px",
+                  borderColor: fieldErrors.handle ? colors.error :
+                    (handle && !validateHandle(handle)) ? colors.success : colors.border,
+                }}
+                required
+                aria-describedby={fieldErrors.handle ? "handle-error" : undefined}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = fieldErrors.handle ? colors.error : colors.primary
+                  e.currentTarget.style.boxShadow = `0 0 0 1px ${fieldErrors.handle ? colors.error : colors.primary}`
+                }}
+                onBlur={(e) => {
+                  const isValid = handle && !validateHandle(handle);
+                  e.currentTarget.style.borderColor = fieldErrors.handle ? colors.error :
+                    isValid ? colors.success : colors.border
+                  e.currentTarget.style.boxShadow = "none"
+                  const error = validateHandle(handle)
+                  if (error) setFieldErrors(prev => ({ ...prev, handle: error }))
+                }}
+              />
+            </div>
             {fieldErrors.handle && (
               <p id="handle-error" style={{ margin: "8px 0 0", fontSize: "12px", color: colors.error }}>
                 {fieldErrors.handle}
@@ -897,6 +910,11 @@ My shielded address: ${shieldedAddress || "[your address]"}`
             fontSize: "12px",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted }}>
+              <LockIcon size={12} color={colors.muted} />
+              <span>Non-custodial</span>
+            </div>
+            <div style={{ width: "1px", height: "16px", backgroundColor: colors.border }} />
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted }}>
               <span style={{
                 width: "8px",
                 height: "8px",
@@ -905,11 +923,11 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                 boxShadow: `0 0 8px ${colors.success}`,
                 animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
               }} />
-              <span style={{ color: colors.primary, fontWeight: 700 }}>127+</span> creators registered
+              <span>Direct delivery</span>
             </div>
             <div style={{ width: "1px", height: "16px", backgroundColor: colors.border }} />
             <div style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted }}>
-              <span style={{ color: colors.success, fontWeight: 700 }}>Zero</span> platform fees
+              <span style={{ color: colors.success, fontWeight: 700 }}>0%</span> fees
             </div>
           </div>
         )}

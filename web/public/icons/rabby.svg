@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="rabby-bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8697FF"/>
+      <stop offset="1" stop-color="#6B7AFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#rabby-bg)"/>
+  <path fill="white" d="M22 12c0-3.3-2.7-6-6-6h-5c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h5c3.3 0 6-2.7 6-6v-1c1.1-.7 2-2.1 2-3.5s-.9-2.8-2-3.5v1z"/>
+  <circle cx="11.5" cy="13" r="2" fill="#8697FF"/>
+  <path fill="#8697FF" d="M18.5 19.5c0 1.4-1.1 2.5-2.5 2.5h-2c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5h2c1.4 0 2.5 1.1 2.5 2.5z"/>
+</svg>
