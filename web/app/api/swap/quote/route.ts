@@ -1,15 +1,30 @@
 import { NextRequest, NextResponse } from "next/server"
-import { isDemoMode } from "@/lib/near"
+import {
+  isRealSwapsEnabled,
+  getSwapQuote as getNearIntentsQuote,
+  mapAddressToAssetId,
+  ZEC_ASSET_ID,
+  toSmallestUnits,
+  fromSmallestUnits,
+} from "@/lib/near-intents"
 
 /**
  * Swap Quote API
  *
- * Returns swap quotes with real prices from CoinGecko.
- * Works in both demo and production modes (quotes are always real).
+ * Returns swap quotes for ETH/USDC → ZEC.
+ *
+ * In production mode (ENABLE_REAL_SWAPS=true):
+ *   - Calls NEAR Intents 1Click API for real quotes
+ *   - Returns deposit address for user to send funds
+ *   - Quote expires in ~60 seconds
+ *
+ * In demo mode:
+ *   - Uses CoinGecko prices for realistic quotes
+ *   - No real transactions occur
  *
  * POST /api/swap/quote
- * Request: { fromChain, fromToken, fromAmount, toChain, toToken, destinationAddress }
- * Response: { toAmount, exchangeRate, fees, estimatedTime, route, expiresAt }
+ * Request: { fromChain, fromToken, fromAmount, toChain, toToken, destinationAddress, refundAddress }
+ * Response: { toAmount, exchangeRate, fees, estimatedTime, route, expiresAt, depositAddress?, quoteId?, demo }
  */
 
 interface QuoteRequest {
@@ -19,6 +34,7 @@ interface QuoteRequest {
   toChain: string
   toToken: string
   destinationAddress: string
+  refundAddress?: string // Wallet address to refund if swap fails
 }
 
 interface QuoteResponse {
@@ -33,6 +49,10 @@ interface QuoteResponse {
   route: string[]
   expiresAt: number
   demo: boolean
+  // Real swap fields
+  quoteId?: string
+  depositAddress?: string
+  minDestinationAmount?: string
 }
 
 // CoinGecko ID mapping
@@ -63,6 +83,15 @@ const CHAIN_NATIVE: Record<number, string> = {
   137: "MATIC",
   42161: "ETH",
   10: "ETH",
+}
+
+// Token decimals
+const TOKEN_DECIMALS: Record<string, number> = {
+  ETH: 18,
+  MATIC: 18,
+  USDC: 6,
+  USDT: 6,
+  DAI: 18,
 }
 
 // Fallback prices if CoinGecko fails
@@ -138,10 +167,172 @@ function resolveTokenSymbol(address: string, chainId: number): string {
   return "UNKNOWN"
 }
 
+/**
+ * Generate demo quote using CoinGecko prices
+ */
+async function generateDemoQuote(
+  fromChain: number,
+  fromToken: string,
+  fromAmount: string,
+  destinationAddress: string
+): Promise<QuoteResponse> {
+  const fromSymbol = resolveTokenSymbol(fromToken, fromChain)
+  const toSymbol = "ZEC"
+
+  if (fromSymbol === "UNKNOWN") {
+    throw new Error("Unsupported token address")
+  }
+
+  // Fetch real prices
+  const prices = await getTokenPrices([fromSymbol, toSymbol])
+
+  // Use real prices or fallbacks
+  const fromPrice = prices[fromSymbol] || FALLBACK_PRICES[fromSymbol] || 1
+  const toPrice = prices[toSymbol] || FALLBACK_PRICES[toSymbol] || 40
+
+  // Calculate amounts
+  const fromAmountNum = parseFloat(fromAmount)
+  const fromValueUsd = fromAmountNum * fromPrice
+
+  // Apply fees (0.5% protocol fee for demo)
+  const protocolFeePercent = 0.005
+  const networkFeeUsd = fromSymbol === "ETH" || fromSymbol === "MATIC" ? 0.50 : 0.10
+  const protocolFeeUsd = fromValueUsd * protocolFeePercent
+
+  const valueAfterFees = fromValueUsd - networkFeeUsd - protocolFeeUsd
+  const toAmount = (valueAfterFees / toPrice).toFixed(8)
+
+  // Calculate exchange rate (tokens per token, not USD)
+  const exchangeRate = (fromPrice / toPrice).toString()
+
+  // Determine route based on token
+  let route: string[]
+  if (fromSymbol === "USDC" || fromSymbol === "USDT" || fromSymbol === "DAI") {
+    route = [fromSymbol, "ZEC"]
+  } else {
+    route = [fromSymbol, "USDC", "ZEC"]
+  }
+
+  // Estimated time (5-10 minutes for cross-chain)
+  const estimatedTime = 300 + Math.floor(Math.random() * 300)
+
+  console.log("[swap/quote] Demo quote generated:", {
+    from: `${fromAmount} ${fromSymbol}`,
+    to: `${toAmount} ZEC`,
+    rate: exchangeRate,
+    pricesUsed: { [fromSymbol]: fromPrice, ZEC: toPrice },
+  })
+
+  return {
+    toAmount,
+    exchangeRate,
+    fees: {
+      network: networkFeeUsd.toFixed(4),
+      protocol: protocolFeeUsd.toFixed(4),
+      total: (networkFeeUsd + protocolFeeUsd).toFixed(4),
+    },
+    estimatedTime,
+    route,
+    expiresAt: Date.now() + 60000, // 60 second expiry
+    demo: true,
+  }
+}
+
+/**
+ * Generate real quote using NEAR Intents
+ */
+async function generateRealQuote(
+  fromChain: number,
+  fromToken: string,
+  fromAmount: string,
+  destinationAddress: string,
+  refundAddress: string
+): Promise<QuoteResponse> {
+  const fromSymbol = resolveTokenSymbol(fromToken, fromChain)
+  const decimals = TOKEN_DECIMALS[fromSymbol] || 18
+
+  // Map to NEAR Intents asset ID
+  const originAsset = mapAddressToAssetId(fromToken, fromChain)
+  if (!originAsset) {
+    throw new Error(`Unsupported token: ${fromToken} on chain ${fromChain}`)
+  }
+
+  // Convert amount to smallest units
+  const depositAmount = toSmallestUnits(fromAmount, decimals)
+
+  console.log("[swap/quote] Requesting NEAR Intents quote:", {
+    originAsset,
+    depositAmount,
+    destinationAsset: ZEC_ASSET_ID,
+    recipient: destinationAddress.slice(0, 12) + "...",
+  })
+
+  try {
+    const nearResponse = await getNearIntentsQuote({
+      originAsset,
+      destinationAsset: ZEC_ASSET_ID,
+      depositAmount,
+      recipient: destinationAddress,
+      refundTo: refundAddress,
+      slippageTolerance: 100, // 1%
+    })
+
+    // Extract the nested quote object
+    const quote = nearResponse.quote
+    if (!quote) {
+      throw new Error("No quote returned from NEAR Intents")
+    }
+
+    // Convert destination amount from smallest units (ZEC has 8 decimals)
+    const toAmount = fromSmallestUnits(quote.amountOut, 8)
+    const minToAmount = fromSmallestUnits(quote.minAmountOut, 8)
+
+    // Route via NEAR Intents
+    const route = [fromSymbol, "NEAR", "ZEC"]
+
+    // Parse deadline from ISO 8601 string
+    const expiresAt = new Date(quote.deadline).getTime()
+
+    // Calculate exchange rate from amounts
+    const amountInNum = parseFloat(quote.amountInFormatted)
+    const amountOutNum = parseFloat(quote.amountOutFormatted)
+    const exchangeRate = amountInNum > 0 ? (amountOutNum / amountInNum).toString() : "0"
+
+    console.log("[swap/quote] Real quote received:", {
+      correlationId: nearResponse.correlationId,
+      depositAddress: quote.depositAddress,
+      amountIn: quote.amountInFormatted,
+      amountOut: quote.amountOutFormatted,
+      deadline: quote.deadline,
+      timeEstimate: quote.timeEstimate,
+    })
+
+    return {
+      toAmount,
+      exchangeRate,
+      fees: {
+        network: "0",
+        protocol: "0",
+        total: "0", // Fees are included in the rate
+      },
+      estimatedTime: quote.timeEstimate || 300,
+      route,
+      expiresAt,
+      demo: false,
+      quoteId: nearResponse.correlationId,
+      depositAddress: quote.depositAddress,
+      minDestinationAmount: minToAmount,
+    }
+  } catch (error) {
+    console.error("[swap/quote] NEAR Intents error:", error)
+    throw new Error(`Failed to get quote from NEAR Intents: ${error instanceof Error ? error.message : "Unknown error"}`)
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: QuoteRequest = await request.json()
-    const { fromChain, fromToken, fromAmount, destinationAddress } = body
+    const { fromChain, fromToken, fromAmount, destinationAddress, refundAddress } = body
 
     // Validate required fields
     if (!fromChain || !fromToken || !fromAmount) {
@@ -151,10 +342,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Resolve token symbol
-    const fromSymbol = resolveTokenSymbol(fromToken, fromChain)
-    const toSymbol = "ZEC"
+    // Validate destination address (ZEC shielded)
+    if (!destinationAddress) {
+      return NextResponse.json(
+        { error: "Missing destinationAddress" },
+        { status: 400 }
+      )
+    }
 
+    // Check for unsupported token
+    const fromSymbol = resolveTokenSymbol(fromToken, fromChain)
     if (fromSymbol === "UNKNOWN") {
       return NextResponse.json(
         { error: "Unsupported token address" },
@@ -162,68 +359,43 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Fetch real prices
-    const prices = await getTokenPrices([fromSymbol, toSymbol])
+    // Determine if we should use real swaps
+    // For NEAR Intents 1Click API, we only need ENABLE_REAL_SWAPS=true
+    // (no NEAR account credentials required - uses deposit addresses)
+    const useRealSwaps = isRealSwapsEnabled()
 
-    // Use real prices or fallbacks
-    const fromPrice = prices[fromSymbol] || FALLBACK_PRICES[fromSymbol] || 1
-    const toPrice = prices[toSymbol] || FALLBACK_PRICES[toSymbol] || 40
+    let response: QuoteResponse
 
-    // Calculate amounts
-    const fromAmountNum = parseFloat(fromAmount)
-    const fromValueUsd = fromAmountNum * fromPrice
-
-    // Apply fees (0.5% protocol fee)
-    const protocolFeePercent = 0.005
-    const networkFeeUsd = fromSymbol === "ETH" || fromSymbol === "MATIC" ? 0.50 : 0.10 // Estimate
-    const protocolFeeUsd = fromValueUsd * protocolFeePercent
-
-    const valueAfterFees = fromValueUsd - networkFeeUsd - protocolFeeUsd
-    const toAmount = (valueAfterFees / toPrice).toFixed(8)
-
-    // Calculate exchange rate (tokens per token, not USD)
-    const exchangeRate = (fromPrice / toPrice).toString()
-
-    // Determine route based on token
-    let route: string[]
-    if (fromSymbol === "USDC" || fromSymbol === "USDT" || fromSymbol === "DAI") {
-      route = [fromSymbol, "ZEC"]
+    if (useRealSwaps) {
+      // Production: Use NEAR Intents for real quotes
+      if (!refundAddress) {
+        return NextResponse.json(
+          { error: "Missing refundAddress for real swap" },
+          { status: 400 }
+        )
+      }
+      response = await generateRealQuote(
+        fromChain,
+        fromToken,
+        fromAmount,
+        destinationAddress,
+        refundAddress
+      )
     } else {
-      route = [fromSymbol, "USDC", "ZEC"]
+      // Demo: Generate mock quote with real prices
+      response = await generateDemoQuote(
+        fromChain,
+        fromToken,
+        fromAmount,
+        destinationAddress
+      )
     }
-
-    // Estimated time (5-10 minutes for cross-chain)
-    const estimatedTime = 300 + Math.floor(Math.random() * 300)
-
-    // Quotes use real prices; demo flag indicates if execution will be real
-    const demoMode = isDemoMode()
-
-    const response: QuoteResponse = {
-      toAmount,
-      exchangeRate,
-      fees: {
-        network: networkFeeUsd.toFixed(4),
-        protocol: protocolFeeUsd.toFixed(4),
-        total: (networkFeeUsd + protocolFeeUsd).toFixed(4),
-      },
-      estimatedTime,
-      route,
-      expiresAt: Date.now() + 60000, // 60 second expiry
-      demo: demoMode, // true = execution will be simulated, false = real NEAR Intents
-    }
-
-    console.log("[swap/quote] Generated quote:", {
-      from: `${fromAmount} ${fromSymbol}`,
-      to: `${toAmount} ZEC`,
-      rate: exchangeRate,
-      pricesUsed: { [fromSymbol]: fromPrice, ZEC: toPrice },
-    })
 
     return NextResponse.json(response)
   } catch (error) {
     console.error("[swap/quote] Error:", error)
     return NextResponse.json(
-      { error: "Failed to generate swap quote" },
+      { error: error instanceof Error ? error.message : "Failed to generate swap quote" },
       { status: 500 }
     )
   }

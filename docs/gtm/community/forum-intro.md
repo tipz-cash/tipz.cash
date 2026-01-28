@@ -35,7 +35,7 @@ This isn't just a privacy concern - it's a safety issue. Creators get targeted, 
 
 TIPZ brings shielded-by-default tipping to the creator economy:
 
-1. **Creators register** their Zcash shielded address at tipz.app
+1. **Creators register** their Zcash shielded address at tipz.cash
 2. **Tippers install** our browser extension
 3. **Tip buttons appear** next to tweets on X.com (more platforms coming)
 4. **Tips can be sent** in any token - ETH, USDC, SOL, or others
@@ -81,7 +81,7 @@ We're building TIPZ because we think every creator deserves financial privacy, a
 
 ### Current Status
 
-- **Web app**: Live at tipz.app
+- **Web app**: Live at tipz.cash
 - **Extension**: Available for Chrome (Firefox coming)
 - **Platforms**: X.com support live, Substack in development
 - **Architecture**: Fully non-custodial, direct to shielded addresses
@@ -90,7 +90,7 @@ We're building TIPZ because we think every creator deserves financial privacy, a
 
 **Feedback**: What would make TIPZ more useful? What concerns do you have? What did we get wrong?
 
-**Testing**: If you're a creator (or know one), we'd love for you to try it. Register at tipz.app and let us know how the experience is.
+**Testing**: If you're a creator (or know one), we'd love for you to try it. Register at tipz.cash and let us know how the experience is.
 
 **Ideas**: What other integrations or features would help Zcash adoption? We're listening.
 
@@ -108,7 +108,7 @@ Ask anything - we'll be monitoring this thread.
 
 ### Links
 
-- **Website**: tipz.app
+- **Website**: tipz.cash
 - **Documentation**: [link]
 - **X/Twitter**: @tipz_app (or appropriate handle)
 - **Source code**: [if applicable]
@@ -193,6 +193,6 @@ Just launched TIPZ - private micro-tipping for X/Twitter creators using Zcash sh
 
 We'd love feedback from the community. What would make this more useful? What did we miss?
 
-Try it: tipz.app
+Try it: tipz.cash
 
 Happy to answer questions here.

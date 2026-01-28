@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { type TipTransaction, formatTokenAmount } from "@/lib/wallet"
-import { type TippingFlowState } from "@/hooks/useTipping"
+import { type TippingFlowState, type SwapStatusType } from "@/hooks/useTipping"
 import { useTextScramble } from "@/hooks/useTextScramble"
 import { tokens, keyframes } from "./designTokens"
 
@@ -13,6 +13,13 @@ interface TransactionStatusProps {
   creatorHandle: string
   onRetry: () => void
   onDone: () => void
+  // New: Real swap status fields
+  swapStatus?: SwapStatusType | null
+  depositAddress?: string | null
+  isRealSwap?: boolean
+  // USD amount and fees for receipt
+  usdAmount?: number | null
+  networkFee?: string | null
 }
 
 // Message phases for the Private Tunnel experience
@@ -22,6 +29,16 @@ const TUNNEL_PHASES = [
   { primary: "Delivering to @{handle}...", subtext: "Arriving intact" },
 ] as const
 
+// Real swap phases based on NEAR Intents status
+const REAL_SWAP_PHASES: Record<SwapStatusType, { primary: string; subtext: string }> = {
+  PENDING_DEPOSIT: { primary: "Awaiting Deposit...", subtext: "Send funds to complete the swap" },
+  PROCESSING: { primary: "Processing Swap...", subtext: "Market makers are routing your funds" },
+  SUCCESS: { primary: "Swap Complete!", subtext: "ZEC delivered to creator" },
+  REFUNDED: { primary: "Swap Refunded", subtext: "Funds returned to your wallet" },
+  FAILED: { primary: "Swap Failed", subtext: "Please try again" },
+  EXPIRED: { primary: "Quote Expired", subtext: "Please get a new quote" },
+}
+
 export function TransactionStatus({
   flowState,
   transaction,
@@ -29,23 +46,34 @@ export function TransactionStatus({
   creatorHandle,
   onRetry,
   onDone,
+  swapStatus,
+  depositAddress,
+  isRealSwap,
+  usdAmount,
+  networkFee,
 }: TransactionStatusProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
   const [messagePhase, setMessagePhase] = useState(0)
+  const [addressCopied, setAddressCopied] = useState(false)
 
-  // Cycle through message phases during processing
+  // Cycle through message phases during processing (demo mode)
   useEffect(() => {
-    if (flowState === "signing" || flowState === "processing") {
+    if ((flowState === "signing" || flowState === "processing") && !isRealSwap) {
       const interval = setInterval(() => {
         setMessagePhase((prev) => (prev + 1) % TUNNEL_PHASES.length)
       }, 3000)
       return () => clearInterval(interval)
     }
-  }, [flowState])
+  }, [flowState, isRealSwap])
 
-  // Get current message with handle interpolation
-  const currentMessage = TUNNEL_PHASES[messagePhase]
+  // Get current message based on mode
+  let currentMessage: { primary: string; subtext: string }
+  if (isRealSwap && swapStatus) {
+    currentMessage = REAL_SWAP_PHASES[swapStatus] || TUNNEL_PHASES[0]
+  } else {
+    currentMessage = TUNNEL_PHASES[messagePhase]
+  }
   const primaryText = currentMessage.primary.replace("{handle}", creatorHandle)
   const subtextText = currentMessage.subtext
 
@@ -58,6 +86,14 @@ export function TransactionStatus({
       await navigator.clipboard.writeText(transaction.intentId)
       setIsCopied(true)
       setTimeout(() => setIsCopied(false), 2000)
+    }
+  }
+
+  const copyDepositAddress = async () => {
+    if (depositAddress) {
+      await navigator.clipboard.writeText(depositAddress)
+      setAddressCopied(true)
+      setTimeout(() => setAddressCopied(false), 2000)
     }
   }
 
@@ -202,6 +238,69 @@ export function TransactionStatus({
           </p>
         </div>
 
+        {/* Real Swap: Show swap status indicator */}
+        {isRealSwap && swapStatus && (
+          <div style={{ marginBottom: tokens.space.lg }}>
+            {/* Progress Steps */}
+            <div style={{ display: "flex", justifyContent: "center", gap: tokens.space.md, marginBottom: tokens.space.md }}>
+              {["PENDING_DEPOSIT", "PROCESSING", "SUCCESS"].map((step, index) => {
+                const isActive = swapStatus === step
+                const isPast =
+                  (step === "PENDING_DEPOSIT" && (swapStatus === "PROCESSING" || swapStatus === "SUCCESS")) ||
+                  (step === "PROCESSING" && swapStatus === "SUCCESS")
+
+                return (
+                  <div key={step} style={{ display: "flex", alignItems: "center", gap: tokens.space.sm }}>
+                    <div
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "50%",
+                        background: isPast
+                          ? tokens.colors.success
+                          : isActive
+                          ? tokens.colors.gold
+                          : "rgba(255, 255, 255, 0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: isActive ? `2px solid ${tokens.colors.gold}` : "none",
+                        boxShadow: isActive ? `0 0 12px ${tokens.colors.goldMuted}` : "none",
+                      }}
+                    >
+                      {isPast ? (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      ) : (
+                        <span style={{ color: isActive ? tokens.colors.bg : tokens.colors.textMuted, fontSize: "10px", fontWeight: 700 }}>
+                          {index + 1}
+                        </span>
+                      )}
+                    </div>
+                    {index < 2 && (
+                      <div
+                        style={{
+                          width: "40px",
+                          height: "2px",
+                          background: isPast ? tokens.colors.success : "rgba(255, 255, 255, 0.1)",
+                        }}
+                      />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Status Labels */}
+            <div style={{ display: "flex", justifyContent: "center", gap: "60px" }}>
+              <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>DEPOSIT</span>
+              <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>PROCESS</span>
+              <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>COMPLETE</span>
+            </div>
+          </div>
+        )}
+
         {/* Footer Privacy Note */}
         <p
           style={{
@@ -221,10 +320,12 @@ export function TransactionStatus({
 
   // Success state - "The Shielded Receipt"
   if (flowState === "success" && transaction) {
-    // Calculate USD amount from transaction (estimate based on ZEC)
+    // Calculate amounts from transaction (stored at time of tip) or props as fallback
     const zecAmount = parseFloat(formatTokenAmount(transaction.toAmount, 6))
-    const estimatedUsd = transaction.fromAmount ? parseFloat(transaction.fromAmount) : zecAmount * 40 // Fallback estimate
-    const networkFee = 0.01 // Typical Zcash fee
+    // Prefer transaction.usdAmount (stored at tip time), then props, then estimate
+    const estimatedUsd = transaction.usdAmount || usdAmount || parseFloat(transaction.fromAmount) || zecAmount * 40
+    // Prefer transaction.networkFee (stored at tip time), then props, then minimal estimate
+    const displayNetworkFee = transaction.networkFee ? parseFloat(transaction.networkFee) : (networkFee ? parseFloat(networkFee) : 0.01)
     const platformFee = 0.00
     const savedFees = (estimatedUsd * 0.029 + 0.30).toFixed(2) // Typical card processing
 
@@ -298,29 +399,39 @@ export function TransactionStatus({
           />
         </div>
 
-        {/* Header: PAYMENT SECURE */}
+        {/* Header: TIP SENT */}
         <h3
           style={{
             color: tokens.colors.gold,
-            fontSize: "14px",
+            fontSize: "18px",
             fontWeight: 700,
             fontFamily: tokens.font.mono,
-            letterSpacing: "3px",
+            letterSpacing: "2px",
             textTransform: "uppercase",
             marginBottom: tokens.space.xs,
           }}
         >
-          PAYMENT SECURE
+          TIP SENT!
         </h3>
         <p
           style={{
             color: tokens.colors.textMuted,
+            fontSize: "12px",
+            fontFamily: tokens.font.mono,
+            marginBottom: tokens.space.xs,
+          }}
+        >
+          ~{zecAmount.toFixed(4)} ZEC is on the way to <span style={{ color: tokens.colors.textBright }}>@{creatorHandle}</span>
+        </p>
+        <p
+          style={{
+            color: tokens.colors.textSubtle,
             fontSize: "11px",
             fontFamily: tokens.font.mono,
             marginBottom: tokens.space.lg,
           }}
         >
-          to <span style={{ color: tokens.colors.textBright }}>@{creatorHandle}</span>
+          They'll be notified when it arrives
         </p>
 
         {/* Receipt Table */}
@@ -349,7 +460,7 @@ export function TransactionStatus({
               NETWORK FEE
             </span>
             <span style={{ color: tokens.colors.textMuted, fontSize: "11px", fontFamily: tokens.font.mono }}>
-              ${networkFee.toFixed(2)}
+              ${displayNetworkFee.toFixed(2)}
             </span>
           </div>
 
@@ -394,7 +505,7 @@ export function TransactionStatus({
           </div>
         </div>
 
-        {/* Savings Flex */}
+        {/* Privacy Note */}
         <p
           style={{
             color: tokens.colors.textSubtle,
@@ -403,7 +514,7 @@ export function TransactionStatus({
             marginBottom: tokens.space.lg,
           }}
         >
-          You saved ~${savedFees} in processing fees.
+          Zero platform fees. Zero trace. ~${savedFees} saved vs. card processing.
         </p>
 
         {/* Done Button - Hollow outline style */}
@@ -547,6 +658,83 @@ export function TransactionStatus({
             }
           }
         `}</style>
+      </div>
+    )
+  }
+
+  // Refunded state
+  if (flowState === "refunded") {
+    return (
+      <div style={{ width: "100%", textAlign: "center", padding: `${tokens.space.lg}px 0` }}>
+        {/* Refund Icon */}
+        <div
+          style={{
+            width: "80px",
+            height: "80px",
+            margin: "0 auto 24px",
+            borderRadius: "50%",
+            background: "rgba(255, 166, 0, 0.15)",
+            border: `2px solid ${tokens.colors.gold}`,
+            boxShadow: `0 0 20px rgba(255, 166, 0, 0.3)`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            animation: "scaleIn 0.3s ease",
+          }}
+        >
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.gold} strokeWidth="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M12 7v5l4 2" />
+          </svg>
+        </div>
+
+        {/* Refund Message */}
+        <h3
+          style={{
+            color: tokens.colors.gold,
+            fontSize: "18px",
+            fontWeight: 700,
+            fontFamily: tokens.font.mono,
+            marginBottom: tokens.space.sm,
+          }}
+        >
+          Swap Refunded
+        </h3>
+        <p
+          style={{
+            color: tokens.colors.textMuted,
+            fontSize: "13px",
+            fontFamily: tokens.font.mono,
+            maxWidth: "280px",
+            margin: `0 auto ${tokens.space.lg}px auto`,
+            lineHeight: 1.5,
+          }}
+        >
+          {error || "Your funds have been returned to your wallet. No fees were charged."}
+        </p>
+
+        {/* Action Button */}
+        <button
+          onClick={onDone}
+          style={{
+            width: "100%",
+            padding: "14px",
+            background: "transparent",
+            border: `1px solid ${tokens.colors.border}`,
+            borderRadius: tokens.radius.md,
+            color: tokens.colors.text,
+            fontSize: "14px",
+            fontWeight: 500,
+            fontFamily: tokens.font.mono,
+            cursor: "pointer",
+            transition: `all ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
+          }}
+        >
+          Try Again
+        </button>
+
+        <style>{keyframes}</style>
       </div>
     )
   }

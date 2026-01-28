@@ -89,13 +89,6 @@ const responsiveStyles = `
     position: relative;
     width: 100%;
     max-width: 400px;
-    background: ${colors.surface};
-    backdrop-filter: blur(24px) saturate(150%);
-    -webkit-backdrop-filter: blur(24px) saturate(150%);
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    border: none;
     z-index: 1;
   }
 
@@ -419,7 +412,6 @@ const responsiveStyles = `
 
     .tipz-card {
       max-width: 420px;
-      border-radius: 24px;
     }
 
     .tipz-card-content {
@@ -684,7 +676,7 @@ export default function CreatorCardPage() {
                   href="/"
                   className="tipz-powered-by"
                   style={{
-                    marginTop: "32px",
+                    marginTop: "16px",
                     textDecoration: "none",
                     display: "flex",
                     alignItems: "center",
@@ -703,7 +695,7 @@ export default function CreatorCardPage() {
                     fontFamily: "'JetBrains Mono', monospace",
                     fontSize: "12px",
                     fontWeight: 700,
-                    color: "rgba(255, 255, 255, 0.8)",
+                    color: "#FFD700",
                     letterSpacing: "1px",
                   }}>
                     TIPZ
@@ -738,12 +730,12 @@ export default function CreatorCardPage() {
           </div>
         </div>
 
-        {/* Powered by TIPZ footer - 32px below card */}
+        {/* Powered by TIPZ footer */}
         <a
           href="/"
           className="tipz-powered-by"
           style={{
-            marginTop: "32px",
+            marginTop: "16px",
             textDecoration: "none",
             display: "flex",
             alignItems: "center",
@@ -763,7 +755,7 @@ export default function CreatorCardPage() {
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: "12px",
             fontWeight: 700,
-            color: "rgba(255, 255, 255, 0.8)",
+            color: "#FFD700",
             letterSpacing: "1px",
           }}>
             TIPZ

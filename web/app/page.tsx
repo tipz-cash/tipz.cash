@@ -3424,7 +3424,7 @@ export default function HomePage() {
                   textShadow: `0 0 30px ${colors.successGlow}`,
                   fontFamily: "'JetBrains Mono', monospace",
                 }}>
-                  &lt;2min
+                  120s
                 </div>
                 <div style={{
                   fontSize: "10px",
@@ -3568,7 +3568,7 @@ export default function HomePage() {
                   background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
                 }} />
                 <div style={{
-                  fontSize: isMobile ? "32px" : "38px",
+                  fontSize: isMobile ? "36px" : "44px",
                   fontWeight: 800,
                   color: colors.success,
                   lineHeight: 1,
@@ -3857,7 +3857,7 @@ export default function HomePage() {
               lineHeight: 1.8,
               marginBottom: "48px",
             }}>
-              ETH, USDC, USDT, SOL—automatically bridged to shielded ZEC. They pay their way. You receive yours.
+              From any wallet or exchange. ETH, USDC, USDT, and SOL are automatically bridged to shielded ZEC. They pay their way. You receive yours.
             </p>
           </TerminalReveal>
 
