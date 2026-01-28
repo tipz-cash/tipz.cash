@@ -94,85 +94,130 @@ function Cursor({ visible }: { visible: boolean }) {
 
 const manifestoSections = [
   {
-    title: "I. PRIVACY IS NOT A CRIME",
+    title: "I. CREATION IS HUMAN",
+    content: `Machines will generate infinite content. AI will write, paint, compose, code. The feed will flood with synthetic everything.
+
+But machines do not create. They produce.
+
+Creation requires struggle. Requires taste. Requires a soul risking itself in public.
+
+The creator who bleeds into their work—who fails and returns—who says something only they could say—cannot be replaced.
+
+In an age of infinite production, authentic creation becomes the scarcest resource.
+
+Creators are not content factories. They are the last signal in a sea of noise.`
+  },
+  {
+    title: "II. TECHNOFEUDALISM",
+    content: `We were promised a digital commons. We got digital fiefdoms.
+
+The platforms own the land. You work it. They collect the rent. You hope for scraps. They change the rules. You comply or vanish.
+
+This is not capitalism. Capitalists compete. This is feudalism. Lords extract.
+
+Cloud capital replaced factories. Algorithms replaced overseers. Terms of service replaced chains.
+
+You do not own your audience—the platform does.
+You do not own your revenue—the processor does.
+You do not own your money—the bank does.
+
+You own nothing. You rent access to your own life.`
+  },
+  {
+    title: "III. PRIVACY IS NOT A CRIME",
     content: `When you close your curtains, you are not hiding crimes.
 When you seal an envelope, you are not evading detection.
 When you whisper to a friend, you are not conspiring.
 
 Privacy is the default state of human interaction.
+
 The burden of proof lies on those who would surveil—not on those who would be free.
 
 We reject the premise that transparency is virtue.
-We reject the demand that we justify our shadows.
+We reject the demand to justify our shadows.
 We reject surveillance as the price of participation.`
   },
   {
-    title: "II. FINANCIAL SURVEILLANCE IS CONTROL",
+    title: "IV. SURVEILLANCE MEETS AI",
     content: `Every transaction indexed is a behavior tracked.
 Every wallet exposed is a life mapped.
 Every tip amount published is leverage granted.
 
-They call it "transparency." We call it what it is: control.
+This was dangerous before. With AI, it becomes totalizing.
 
-When your employer can see who you support,
-when your government can profile your generosity,
-when your competitors can count your income—
-you are not free. You are observed.
+Models trained on your financial life. Profiles built from your every exchange. Predictions about your loyalty, your politics, your worth.
 
-And the observed self-censors.`
+They call it transparency. We call it control.
+
+When your employer can see who you support—when your government can profile your generosity—when your competitors can count your income—you are not free. You are observed.
+
+And the observed self-censor.`
   },
   {
-    title: "III. CYPHERPUNKS WRITE CODE",
+    title: "V. CYPHERPUNKS WRITE CODE",
     content: `We do not petition for privacy. We build it.
 We do not ask permission. We deploy.
 We do not trust promises. We verify.
 
-For thirty years, cypherpunks have known:
-Privacy in an open society requires cryptography.
+For thirty years, cypherpunks have known: privacy in an open society requires cryptography.
 
-Zcash gave us shielded transactions.
-NEAR gave us trustless swaps.
+Zcash gave us shielded transactions. Solana gave us speed and reach.
+
 We give you TIPZ.
 
-The tools exist. The math is sound.
-Now we ship.`
+The tools exist. The math is sound. Now we ship.`
   },
   {
-    title: "IV. CREATORS DESERVE SOVEREIGNTY",
-    content: `You built an audience with your ideas, your art, your voice.
-That audience wants to support you.
+    title: "VI. CREATOR SOVEREIGNTY",
+    content: `You built an audience with your ideas, your art, your voice. That audience wants to support you.
 
 But the platforms stand between.
-They take their cut. They freeze your funds.
-They demand your identity. They report your income.
-They make your success their product.
 
-We believe creators deserve:
+They take their cut. They freeze your funds. They demand your identity. They report your income. They make your success their product.
+
+The creator economy has grown to hundreds of billions of dollars. Creators remain tenants in someone else's castle.
+
+Creators deserve:
+
 → Self-custody of their earnings
 → Privacy of their financial life
-→ Zero intermediaries skimming value
+→ Zero intermediaries extracting value
 → Freedom from platform capture
 
-Your audience found you. You earned their support.
-No middleman should stand between.`
+Your audience found you. You earned their support. No middleman should stand between.`
   },
   {
-    title: "V. SUPPORT WITHOUT SURVEILLANCE",
-    content: `To tip someone today is to create a permanent record.
-Your wallet. Their wallet. The amount. The timestamp.
-Indexed forever. Analyzed by algorithms. Sold to data brokers.
+    title: "VII. EXIT",
+    content: `You cannot reform the feudal lord. You cannot petition for freedom. You can only leave.
 
-What should be a private act of appreciation
-becomes a node in someone else's graph.
+Exit is the only leverage the serf has ever had.
+
+TIPZ is an exit.
+
+Not a better platform—a way out of platforms.
+Not a fairer landlord—no landlord at all.
+Not improved surveillance—no surveillance.
+
+Private money. Self-custody. Zero extraction.
+
+The door is open.`
+  },
+  {
+    title: "VIII. SUPPORT WITHOUT TRACE",
+    content: `To tip someone today is to create a permanent record.
+
+Your wallet. Their wallet. The amount. The timestamp. Indexed forever. Analyzed by algorithms. Sold to data brokers.
+
+What should be a private act of appreciation becomes a node in someone else's graph.
 
 We build for a different world:
+
 Where generosity leaves no trace.
 Where support needs no justification.
-Where the act of giving is between giver and receiver—
-and no one else.`
+Where the act of giving belongs to giver and receiver alone.`
   },
   {
-    title: "VI. THE PROTOCOL IS THE PRODUCT",
+    title: "IX. PROTOCOL, NOT PLATFORM",
     content: `We do not custody your funds.
 We cannot freeze your account.
 We do not know your balance.
@@ -180,8 +225,7 @@ We cannot see your transactions.
 
 This is not a limitation. This is the design.
 
-TIPZ is a protocol, not a platform.
-We route. We swap. We disappear.
+TIPZ is a protocol, not a platform. We route. We swap. We disappear.
 
 If we are compromised, you are not.
 If we are shut down, the code remains.
@@ -190,37 +234,35 @@ If we are subpoenaed, we have nothing to give.
 Trust math. Not us.`
   },
   {
-    title: "VII. THE FUTURE WE BUILD",
-    content: `We envision an internet where:
+    title: "X. THE FUTURE WE BUILD",
+    content: `An internet where:
 
-Private transactions are the default, not the exception.
+Private transactions are the default—not the exception.
 Creators keep 100% of what they earn.
 Supporters give without surveillance.
 No platform owns the relationship between creator and audience.
 Financial privacy is a right—not a premium feature.
 
 This is not utopia. This is engineering.
-The cryptography exists. The networks are live.
-We are simply connecting the pieces.
+
+The cryptography exists. The networks are live. We are connecting the pieces.
 
 One tip at a time.`
   },
   {
-    title: "VIII. JOIN US",
+    title: "XI. JOIN US",
     content: `If you believe privacy is a right, not a privilege—
 If you believe creators deserve sovereignty—
 If you believe support should be private—
+If you believe the serfs can leave—
 
-Then you are already one of us.
+You are already one of us.
 
-Register your address.
-Install the extension.
-Send a shielded tip.
+Register your address. Send a shielded tip.
 
-The surveillance economy ends when we stop participating in it.
+The surveillance economy ends when we stop participating.
 
-Build the world you want to live in.
-We are.`
+Exit the ledger.`
   }
 ];
 
@@ -272,7 +314,13 @@ export default function ManifestoPage() {
             <Link href="/creators" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>CREATORS</Link>
             <span style={{ color: colors.primary, fontSize: "11px", fontWeight: 600, letterSpacing: "1px", textShadow: `0 0 10px ${colors.primaryGlow}` }}>MANIFESTO</span>
             <Link href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>DOCS</Link>
-            <Link href="/register" className="cta-primary" style={{ color: colors.bg, backgroundColor: colors.primary, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", fontWeight: 600, padding: "8px 16px", borderRadius: "8px" }}>START EARNING</Link>
+            <Link href="/register" className="cta-primary" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`, color: colors.bg, textDecoration: "none", fontSize: "11px", letterSpacing: "0.5px", fontWeight: 600, padding: "8px 14px", borderRadius: "8px", fontFamily: "'JetBrains Mono', monospace", boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)` }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+              Claim Your Tipz ID
+            </Link>
           </nav>
           <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu">
             <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
@@ -294,7 +342,13 @@ export default function ManifestoPage() {
             <Link href="/creators" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>CREATORS</Link>
             <span style={{ display: "block", padding: "16px 0", color: colors.primary, fontSize: "14px", letterSpacing: "1px", fontWeight: 600, borderBottom: `1px solid ${colors.border}` }}>MANIFESTO</span>
             <Link href="/docs" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>DOCS</Link>
-            <Link href="/register" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", marginTop: "16px", padding: "16px", color: colors.bg, backgroundColor: colors.primary, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", fontWeight: 600, borderRadius: "8px", textAlign: "center" }}>START EARNING</Link>
+            <Link href="/register" onClick={() => setMobileMenuOpen(false)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "16px", padding: "16px", background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`, color: colors.bg, textDecoration: "none", fontSize: "14px", letterSpacing: "0.5px", fontWeight: 600, borderRadius: "8px", fontFamily: "'JetBrains Mono', monospace", boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)` }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+              Claim Your Tipz ID
+            </Link>
           </div>
         </>
       )}
