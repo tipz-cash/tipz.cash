@@ -2184,6 +2184,29 @@ function HeroTitle({
     return tipzStartIndex !== -1 && index >= tipzStartIndex && index < tipzStartIndex + 4;
   };
 
+  // Check if character is the final "X" (for X logo)
+  const isXLogoChar = (index: number) => {
+    return text.endsWith("on X") && index === text.length - 1;
+  };
+
+  // X Logo SVG component for inline use - Gold colored, slightly larger for visual weight
+  const XLogo = ({ size = "1.05em" }: { size?: string }) => (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={colors.primary}
+      style={{
+        display: "inline-block",
+        verticalAlign: "-0.08em",
+        marginLeft: "0.15em",
+        filter: `drop-shadow(0 0 8px ${colors.primaryGlow})`,
+      }}
+    >
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+  );
+
   // Dynamic text-shadow that intensifies as typing progresses
   const baseGlow = 40 + glowIntensity * 40; // 40px → 80px
   const flashGlow = completionFlash ? 100 : baseGlow;
@@ -2218,6 +2241,8 @@ function HeroTitle({
             {text.split("").map((char, index) =>
               char === "\n" ? (
                 <br key={index} />
+              ) : isXLogoChar(index) ? (
+                <XLogo key={index} />
               ) : (
                 <span
                   key={index}
@@ -2232,15 +2257,19 @@ function HeroTitle({
           // Full animation: character-by-character with effects
           // Let AnimatedCharacter handle newlines naturally as <br/> elements
           <>
-            {displayText.split("").map((char, index) => (
-              <AnimatedCharacter
-                key={index}
-                char={char}
-                index={index}
-                isNew={index === newCharIndex}
-                isTipzChar={isTipzChar(index)}
-              />
-            ))}
+            {displayText.split("").map((char, index) =>
+              isXLogoChar(index) ? (
+                <XLogo key={index} />
+              ) : (
+                <AnimatedCharacter
+                  key={index}
+                  char={char}
+                  index={index}
+                  isNew={index === newCharIndex}
+                  isTipzChar={isTipzChar(index)}
+                />
+              )
+            )}
             <PremiumCursor
               visible={!isComplete}
               typingComplete={isComplete}
@@ -2449,7 +2478,7 @@ function renderWithTipzHighlight(text: string, primaryColor: string) {
 }
 
 export default function HomePage() {
-  const heroText = "Private TIPZ\nfor creators";
+  const heroText = "Uncensorable\nIncome on X";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [tweetVisible, setTweetVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -2542,16 +2571,36 @@ export default function HomePage() {
               href="/register"
               className="cta-primary"
               style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
                 color: colors.bg,
-                backgroundColor: colors.primary,
                 textDecoration: "none",
                 fontSize: "11px",
-                letterSpacing: "1px",
+                letterSpacing: "0.5px",
                 fontWeight: 600,
-                padding: "8px 16px",
+                padding: "8px 14px",
                 borderRadius: "8px",
+                fontFamily: "'JetBrains Mono', monospace",
+                boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)`,
               }}
-            >START EARNING</a>
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+              Claim Your Tipz ID
+            </a>
           </nav>
           {/* Mobile Hamburger Button */}
           <button
@@ -2623,7 +2672,42 @@ export default function HomePage() {
             <a href="/creators" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>CREATORS</a>
             <a href="/manifesto" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MANIFESTO</a>
             <a href="/docs" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>DOCS</a>
-            <a href="/register" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", marginTop: "16px", padding: "16px", color: colors.bg, backgroundColor: colors.primary, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", fontWeight: 600, borderRadius: "8px", textAlign: "center" }}>START EARNING</a>
+            <a
+              href="/register"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                marginTop: "16px",
+                padding: "16px",
+                color: colors.bg,
+                background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
+                textDecoration: "none",
+                fontSize: "14px",
+                letterSpacing: "0.5px",
+                fontWeight: 600,
+                borderRadius: "10px",
+                fontFamily: "'JetBrains Mono', monospace",
+                boxShadow: `0 0 24px ${colors.primaryGlow}, 0 4px 16px rgba(0,0,0,0.3)`,
+              }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+              Claim Your Tipz ID
+            </a>
           </div>
         </>
       )}
@@ -2687,24 +2771,52 @@ export default function HomePage() {
             paddingTop: isMobile ? "0" : "60px",
           }}>
             {/* Main headline */}
-            <div style={{ marginBottom: "24px" }}>
-              <HeroTitle
-                text={heroText}
-                isMobile={isMobile}
-                onComplete={() => setHeroAnimationReady(true)}
-              />
+            <div style={{ marginBottom: "24px", position: "relative" }}>
+              {/* Ambient glow behind headline */}
+              <div style={{
+                position: "absolute",
+                top: "50%",
+                left: isMobile ? "50%" : "30%",
+                transform: "translate(-50%, -50%)",
+                width: isMobile ? "300px" : "500px",
+                height: isMobile ? "200px" : "300px",
+                borderRadius: "50%",
+                background: `radial-gradient(ellipse, ${colors.primaryGlow} 0%, transparent 70%)`,
+                filter: "blur(60px)",
+                opacity: 0.4,
+                pointerEvents: "none",
+                zIndex: 0,
+              }} />
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <HeroTitle
+                  text={heroText}
+                  isMobile={isMobile}
+                  onComplete={() => setHeroAnimationReady(true)}
+                />
+              </div>
             </div>
 
             {/* Sub-copy */}
             <TerminalReveal delay={heroAnimationReady ? 0 : 99999}>
               <p style={{
-                fontSize: "14px",
+                fontSize: isMobile ? "12px" : "14px",
                 lineHeight: 1.7,
                 marginBottom: "32px",
-                letterSpacing: "0.02em",
-                color: colors.text,
+                letterSpacing: "0.04em",
+                color: colors.textBright,
+                display: "flex",
+                alignItems: "center",
+                gap: isMobile ? "8px" : "14px",
+                flexWrap: "nowrap",
+                whiteSpace: "nowrap",
               }}>
-                No fees. No friction. No trace.
+                <span>Private Tips</span>
+                <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
+                <span>Untaxable</span>
+                <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
+                <span>Unfreezable</span>
+                <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
+                <span>Untrackable</span>
               </p>
             </TerminalReveal>
 
@@ -2718,7 +2830,7 @@ export default function HomePage() {
                     position: "relative",
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "16px",
+                    gap: "12px",
                     background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
                     backgroundSize: "200% 200%",
                     color: colors.bg,
@@ -2751,36 +2863,30 @@ export default function HomePage() {
                     pointerEvents: "none",
                   }} />
 
+                  {/* Shield/Security Icon */}
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ position: "relative", zIndex: 1 }}
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M9 12l2 2 4-4" />
+                  </svg>
+
                   <span style={{ position: "relative", zIndex: 1, fontFamily: "'JetBrains Mono', monospace" }}>
-                    Start Earning TIPZ
+                    Claim Your Tipz ID
                   </span>
                 </a>
+
               </div>
             </TerminalReveal>
 
-            {/* Platform badge - X only per Zero to One strategy */}
-            <TerminalReveal delay={heroAnimationReady ? 400 : 99999}>
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                marginTop: "32px",
-                marginLeft: isMobile ? "auto" : "25px",
-                marginRight: isMobile ? "auto" : "0",
-                opacity: 0.5,
-              }}>
-                {/* X (Twitter) */}
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#FFFFFF" }}>
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
-                <span style={{
-                  fontSize: "11px",
-                  letterSpacing: "0.1em",
-                  color: "#FFFFFF",
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}>BUILT FOR X</span>
-              </div>
-            </TerminalReveal>
           </div>
 
           {/* Right side: Demo Animation */}
@@ -2851,7 +2957,7 @@ export default function HomePage() {
           <TypingHeading
             prefix=">"
             prefixColor={colors.error}
-            text="Tips are taxed and tracked."
+            text="Web2 steals your wealth. Web3 steals your identity."
             style={{ fontSize: isMobile ? "32px" : "40px" }}
           />
 
@@ -2916,7 +3022,7 @@ export default function HomePage() {
                     letterSpacing: "2px",
                     fontWeight: 700,
                   }}>
-                    DAMAGE REPORT: PLATFORMS
+                    SYSTEM ERROR: RENT SEEKING
                   </span>
                 </div>
 
@@ -2929,7 +3035,7 @@ export default function HomePage() {
                   position: "relative",
                   fontStyle: "italic",
                 }}>
-                  &ldquo;For every $5 tip, creators lose almost $2.&rdquo;
+                  &ldquo;You build the leverage. They take the equity.&rdquo;
                 </p>
 
                 {/* Animated progress bar */}
@@ -2947,7 +3053,7 @@ export default function HomePage() {
                     marginBottom: "6px",
                     fontSize: "11px",
                   }}>
-                    <span style={{ color: colors.muted }}>FEE EXTRACTION</span>
+                    <span style={{ color: colors.muted }}>COMPOUNDING DESTROYED</span>
                     <span style={{ color: colors.error, fontWeight: 700 }}>{feeCount}% LOST</span>
                   </div>
                   <div style={{
@@ -2990,15 +3096,15 @@ export default function HomePage() {
                     fontSize: "11px",
                     fontFamily: "var(--font-mono)",
                   }}>
-                    <span style={{ color: colors.muted }}>You send</span>
+                    <span style={{ color: colors.muted }}>Your Labor</span>
                     <span style={{ color: colors.muted, fontSize: "9px" }}></span>
                     <span style={{ color: colors.textBright, textAlign: "right" }}>$5.00</span>
 
-                    <span style={{ color: colors.muted }}>Platform tax</span>
+                    <span style={{ color: colors.muted }}>Platform Rent</span>
                     <span style={{ color: colors.muted, fontSize: "9px" }}>30%</span>
                     <span style={{ color: colors.error, textAlign: "right" }}>−$1.50</span>
 
-                    <span style={{ color: colors.muted }}>Fixed fee</span>
+                    <span style={{ color: colors.muted }}>Middleman Tax</span>
                     <span style={{ color: colors.muted, fontSize: "9px" }}>flat</span>
                     <span style={{ color: colors.error, textAlign: "right" }}>−$0.30</span>
 
@@ -3011,7 +3117,7 @@ export default function HomePage() {
                       borderTop: `1px solid ${colors.error}30`,
                       paddingTop: "6px",
                       marginTop: "4px",
-                    }}>Creator gets</span>
+                    }}>Your Share</span>
                     <span style={{
                       borderTop: `1px solid ${colors.error}30`,
                       paddingTop: "6px",
@@ -3035,7 +3141,7 @@ export default function HomePage() {
                   position: "relative",
                   marginTop: "auto",
                 }}>
-                  Three layers of fees. One broken system.
+                  Platforms rent your audience back to you.
                 </p>
               </div>
             </TerminalReveal>
@@ -3087,7 +3193,7 @@ export default function HomePage() {
                     letterSpacing: "2px",
                     fontWeight: 700,
                   }}>
-                    DAMAGE REPORT: CRYPTO
+                    PRIVACY FAILURE: PERMANENT RECORD
                   </span>
                 </div>
 
@@ -3100,7 +3206,7 @@ export default function HomePage() {
                   position: "relative",
                   fontStyle: "italic",
                 }}>
-                  &ldquo;Public tipping doxxes your entire wallet history.&rdquo;
+                  &ldquo;Transparency is a permanent surveillance state.&rdquo;
                 </p>
 
                 {/* Exposed indicator */}
@@ -3118,8 +3224,8 @@ export default function HomePage() {
                     marginBottom: "6px",
                     fontSize: "11px",
                   }}>
-                    <span style={{ color: colors.muted }}>PRIVACY LEVEL</span>
-                    <span style={{ color: colors.error, fontWeight: 700 }}>{privacyCount}% PRIVATE</span>
+                    <span style={{ color: colors.muted }}>SOVEREIGNTY</span>
+                    <span style={{ color: colors.error, fontWeight: 700 }}>{privacyCount > 0 ? `${privacyCount}%` : "LOST"}</span>
                   </div>
                   <div style={{
                     height: "8px",
@@ -3162,14 +3268,14 @@ export default function HomePage() {
                     fontSize: "11px",
                     fontFamily: "var(--font-mono)",
                   }}>
-                    <span style={{ color: colors.muted }}>Your wallet</span>
-                    <span style={{ color: colors.error }}>0x8f3...a2d</span>
-                    <span style={{ color: colors.muted }}>Their wallet</span>
-                    <span style={{ color: colors.error }}>0x2b1...9c4</span>
-                    <span style={{ color: colors.muted }}>Amount</span>
-                    <span style={{ color: colors.error }}>$50.00</span>
-                    <span style={{ color: colors.muted }}>Timestamp</span>
-                    <span style={{ color: colors.error }}>Jan 23, 2026</span>
+                    <span style={{ color: colors.muted }}>Wallet History</span>
+                    <span style={{ color: colors.error }}>INDEXED</span>
+                    <span style={{ color: colors.muted }}>Net Worth</span>
+                    <span style={{ color: colors.error }}>PUBLIC</span>
+                    <span style={{ color: colors.muted }}>Donors</span>
+                    <span style={{ color: colors.error }}>DOXXED</span>
+                    <span style={{ color: colors.muted }}>Privacy</span>
+                    <span style={{ color: colors.error }}>NONE</span>
                   </div>
                 </div>
 
@@ -3180,11 +3286,25 @@ export default function HomePage() {
                   position: "relative",
                   marginTop: "auto",
                 }}>
-                  Your wallet, their wallet, and the amount—indexed forever.
+                  Every transaction builds your permanent record.
                 </p>
               </div>
             </TerminalReveal>
           </div>
+
+          {/* Unifying Conclusion */}
+          <TerminalReveal delay={500}>
+            <p style={{
+              color: colors.primary,
+              fontSize: isMobile ? "18px" : "22px",
+              fontWeight: 600,
+              textAlign: "center",
+              marginTop: "48px",
+              textShadow: `0 0 20px ${colors.primaryGlow}`,
+            }}>
+              Tipz is the first escape tunnel. 0% Rent. 0% Surveillance. 100% Sovereign.
+            </p>
+          </TerminalReveal>
         </div>
       </SnapSection>
 
@@ -3226,7 +3346,7 @@ export default function HomePage() {
           <TypingHeading
             prefix=">"
             prefixColor={colors.primary}
-            text="What if you kept everything?"
+            text="Build a Sovereign Economy."
             style={{ fontSize: isMobile ? "32px" : "40px" }}
           />
 
@@ -3237,7 +3357,7 @@ export default function HomePage() {
               marginTop: "-16px",
               marginBottom: "40px",
             }}>
-              Every dollar. Every tip. Completely private.
+              Permissionless. Private. Perpetual.
             </p>
           </TerminalReveal>
 
@@ -3282,7 +3402,7 @@ export default function HomePage() {
                   textShadow: `0 0 30px ${colors.successGlow}`,
                   fontFamily: "'JetBrains Mono', monospace",
                 }}>
-                  2min
+                  &lt;2min
                 </div>
                 <div style={{
                   fontSize: "10px",
@@ -3291,14 +3411,14 @@ export default function HomePage() {
                   color: colors.muted,
                   marginBottom: "6px",
                 }}>
-                  SETUP
+                  TO SOVEREIGNTY
                 </div>
                 <div style={{
                   fontSize: "10px",
                   color: colors.muted,
                   lineHeight: 1.4,
                 }}>
-                  Tweet → Done
+                  No banks. No applications. No bans.
                 </div>
               </div>
             </TerminalReveal>
@@ -3380,7 +3500,7 @@ export default function HomePage() {
                     fontFamily: "'JetBrains Mono', monospace",
                     animation: prefersReducedMotion ? "none" : "idle-text-glow-pulse 3s ease-in-out infinite",
                   }}>
-                    0%
+                    100%
                   </div>
                   <div style={{
                     fontSize: "12px",
@@ -3390,7 +3510,7 @@ export default function HomePage() {
                     marginBottom: "12px",
                     position: "relative",
                   }}>
-                    PLATFORM FEES
+                    LEVERAGE
                   </div>
                   <div style={{
                     fontSize: "13px",
@@ -3398,7 +3518,7 @@ export default function HomePage() {
                     lineHeight: 1.5,
                     position: "relative",
                   }}>
-                    Every satisfying cent goes to you.
+                    You own the upside. We take zero rent.
                   </div>
                 </div>
               </div>
@@ -3443,201 +3563,247 @@ export default function HomePage() {
                   color: colors.muted,
                   marginBottom: "6px",
                 }}>
-                  PRIVATE
+                  UNCENSORABLE
                 </div>
                 <div style={{
                   fontSize: "10px",
                   color: colors.muted,
                   lineHeight: 1.4,
                 }}>
-                  Encrypted on-chain
+                  Math-based security. Cannot be frozen.
                 </div>
               </div>
             </TerminalReveal>
           </div>
 
-          {/* Privacy Pipeline */}
+          {/* The Sovereign Pipeline - Refined Design */}
           <TerminalReveal delay={800}>
             <div style={{
-              maxWidth: "480px",
+              maxWidth: "500px",
               margin: "0 auto",
               marginBottom: "20px",
             }}>
-              {/* Privacy Pipeline */}
+              {/* Pipeline Container */}
               <div style={{
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "12px",
-                padding: "28px",
+                padding: "32px",
                 position: "relative",
                 overflow: "hidden",
               }}>
-                <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginBottom: "20px", textAlign: "center" }}>
-                  HOW YOU RECEIVE TIPS PRIVATELY
-                </div>
+                {/* Subtle top accent */}
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "3px",
+                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+                  borderRadius: "12px 12px 0 0",
+                }} />
 
-                {/* Animated vertical pipeline */}
+                {/* Pipeline Steps */}
                 <div style={{
                   display: "flex",
                   flexDirection: "column",
-                  alignItems: "flex-start",
-                  gap: "4px",
-                  paddingLeft: "16px",
+                  gap: "0",
+                  position: "relative",
                 }}>
-                  {/* Step 1: You */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{ width: "56px", display: "flex", justifyContent: "center" }}>
-                      <div style={{
-                        width: "44px",
-                        height: "44px",
-                        borderRadius: "50%",
-                        backgroundColor: colors.bg,
-                        border: `2px solid ${colors.border}`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth="1.5">
-                          <circle cx="12" cy="8" r="4" />
-                          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-                        </svg>
-                      </div>
+
+                  {/* === STEP 1: INPUT === */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "20px",
+                    paddingBottom: "24px",
+                  }}>
+                    {/* Step indicator */}
+                    <div style={{
+                      width: "52px",
+                      height: "52px",
+                      borderRadius: "50%",
+                      backgroundColor: colors.bg,
+                      border: `2px solid ${colors.border}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      position: "relative",
+                      zIndex: 2,
+                    }}>
+                      <span style={{
+                        fontSize: "20px",
+                        fontWeight: 700,
+                        color: colors.text,
+                      }}>01</span>
                     </div>
-                    <div>
-                      <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "1px" }}>STEP 1</div>
-                      <div style={{ fontSize: "12px", color: colors.text }}>Supporter tips in any token</div>
+                    {/* Content */}
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontSize: "11px",
+                        color: colors.muted,
+                        letterSpacing: "1px",
+                        marginBottom: "4px",
+                      }}>INPUT</div>
+                      <div style={{
+                        fontSize: "18px",
+                        color: colors.textBright,
+                        fontWeight: 600,
+                      }}>Any Asset</div>
+                      <div style={{
+                        fontSize: "13px",
+                        color: colors.muted,
+                        marginTop: "4px",
+                      }}>ETH, USDC, SOL — we accept it all</div>
                     </div>
                   </div>
 
-                  {/* Animated connector */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{ width: "56px", display: "flex", justifyContent: "center" }}>
+                  {/* Connector line */}
+                  <div style={{
+                    position: "absolute",
+                    left: "25px",
+                    top: "52px",
+                    width: "3px",
+                    height: "calc(100% - 104px)",
+                    background: `linear-gradient(180deg, ${colors.border} 0%, ${colors.primary} 50%, ${colors.success} 100%)`,
+                    borderRadius: "2px",
+                    zIndex: 1,
+                  }} />
+
+                  {/* === STEP 2: THE BLACK BOX === */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "20px",
+                    paddingTop: "8px",
+                    paddingBottom: "24px",
+                  }}>
+                    {/* Step indicator - highlighted */}
+                    <div style={{
+                      width: "52px",
+                      height: "52px",
+                      borderRadius: "12px",
+                      background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      boxShadow: `0 0 30px ${colors.primaryGlowStrong}`,
+                      position: "relative",
+                      zIndex: 2,
+                    }}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.bg} strokeWidth="2.5">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    </div>
+                    {/* Content */}
+                    <div style={{ flex: 1 }}>
                       <div style={{
-                        width: "2px",
-                        height: "20px",
-                        background: `linear-gradient(180deg, ${colors.border}, ${colors.primary})`,
-                        animation: "flowPulse 2s ease-in-out infinite",
-                      }} />
+                        fontSize: "11px",
+                        color: colors.primary,
+                        letterSpacing: "1px",
+                        marginBottom: "4px",
+                        fontWeight: 600,
+                      }}>THE BLACK BOX</div>
+                      <div style={{
+                        fontSize: "18px",
+                        color: colors.primary,
+                        fontWeight: 600,
+                        textShadow: `0 0 20px ${colors.primaryGlow}`,
+                      }}>Link Severed Forever</div>
+                      <div style={{
+                        fontSize: "13px",
+                        color: colors.muted,
+                        marginTop: "4px",
+                      }}>Zcash shielded pool breaks the chain</div>
                     </div>
                   </div>
 
-                  {/* Step 2: Shielded (Hero) */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{ position: "relative" }}>
-                      {/* Pulsing glow */}
-                      <div style={{
-                        position: "absolute",
-                        left: "50%",
-                        top: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: "80px",
-                        height: "80px",
-                        borderRadius: "50%",
-                        background: `radial-gradient(circle, ${colors.primaryGlowStrong} 0%, transparent 70%)`,
-                        animation: "pulse-glow 2s ease-in-out infinite",
-                        zIndex: 0,
-                      }} />
-                      <div style={{
-                        width: "56px",
-                        height: "56px",
-                        borderRadius: "50%",
-                        background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`,
-                        border: `2px solid ${colors.primary}`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        boxShadow: `0 0 25px ${colors.primaryGlowStrong}`,
-                        position: "relative",
-                        zIndex: 1,
-                      }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.bg} strokeWidth="2">
-                          <rect x="5" y="11" width="14" height="10" rx="2" fill={colors.bg} stroke="none" />
-                          <path d="M8 11V7a4 4 0 1 1 8 0v4" strokeLinecap="round" />
-                          <circle cx="12" cy="16" r="1.5" fill={colors.primary} />
-                        </svg>
-                      </div>
+                  {/* === STEP 3: OUTPUT === */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "20px",
+                    paddingTop: "8px",
+                  }}>
+                    {/* Step indicator */}
+                    <div style={{
+                      width: "52px",
+                      height: "52px",
+                      borderRadius: "50%",
+                      backgroundColor: colors.bg,
+                      border: `2px solid ${colors.success}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      boxShadow: `0 0 20px ${colors.successGlow}`,
+                      position: "relative",
+                      zIndex: 2,
+                    }}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
                     </div>
-                    <div>
-                      <div style={{ fontSize: "10px", color: colors.primary, letterSpacing: "1px", fontWeight: 600 }}>STEP 2: SHIELDED</div>
-                      <div style={{ fontSize: "11px", color: colors.muted }}>Auto-swapped & encrypted</div>
-                    </div>
-                  </div>
-
-                  {/* Animated connector */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{ width: "56px", display: "flex", justifyContent: "center" }}>
+                    {/* Content */}
+                    <div style={{ flex: 1 }}>
                       <div style={{
-                        width: "2px",
-                        height: "20px",
-                        background: `linear-gradient(180deg, ${colors.primary}, ${colors.success})`,
-                        animation: "flowPulse 2s ease-in-out infinite 0.5s",
-                      }} />
+                        fontSize: "11px",
+                        color: colors.success,
+                        letterSpacing: "1px",
+                        marginBottom: "4px",
+                        fontWeight: 600,
+                      }}>OUTPUT</div>
+                      <div style={{
+                        fontSize: "18px",
+                        color: colors.success,
+                        fontWeight: 600,
+                        textShadow: `0 0 20px ${colors.successGlow}`,
+                      }}>Sovereign Wealth</div>
+                      <div style={{
+                        fontSize: "13px",
+                        color: colors.muted,
+                        marginTop: "4px",
+                      }}>100% yours. Untraceable. Unlinkable.</div>
                     </div>
                   </div>
 
-                  {/* Step 3: Creator */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{ width: "56px", display: "flex", justifyContent: "center", position: "relative" }}>
-                      <div style={{
-                        position: "absolute",
-                        left: "50%",
-                        top: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: "60px",
-                        height: "60px",
-                        borderRadius: "50%",
-                        background: `radial-gradient(circle, ${colors.successGlow} 0%, transparent 70%)`,
-                        zIndex: 0,
-                      }} />
-                      <div style={{
-                        width: "44px",
-                        height: "44px",
-                        borderRadius: "50%",
-                        backgroundColor: colors.bg,
-                        border: `2px solid ${colors.success}`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        boxShadow: `0 0 15px ${colors.successGlow}`,
-                        position: "relative",
-                        zIndex: 1,
-                      }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill={colors.success}>
-                          <path d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: "10px", color: colors.success, letterSpacing: "1px", fontWeight: 600 }}>STEP 3: DELIVERED</div>
-                      <div style={{ fontSize: "12px", color: colors.success, fontWeight: 700 }}>Arrives 100% private</div>
-                    </div>
-                  </div>
                 </div>
 
-                {/* UNLINKABLE badge with stamp effect */}
+                {/* Bottom badge */}
                 <div style={{
                   display: "flex",
                   justifyContent: "center",
-                  marginTop: "20px",
+                  marginTop: "28px",
+                  paddingTop: "20px",
+                  borderTop: `1px solid ${colors.border}`,
                 }}>
                   <div style={{
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
                     padding: "8px 16px",
-                    border: `1px solid ${colors.success}50`,
-                    borderRadius: "4px",
-                    background: `${colors.success}10`,
+                    backgroundColor: `${colors.success}10`,
+                    border: `1px solid ${colors.success}30`,
+                    borderRadius: "6px",
                   }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                       <path d="M9 12l2 2 4-4" />
                     </svg>
-                    <span style={{ fontSize: "10px", color: colors.success, fontWeight: 700, letterSpacing: "2px" }}>
-                      UNLINKABLE
+                    <span style={{
+                      fontSize: "12px",
+                      color: colors.success,
+                      fontWeight: 600,
+                      letterSpacing: "0.5px",
+                    }}>
+                      Verified Unlinkable
                     </span>
                   </div>
                 </div>
+
               </div>
             </div>
           </TerminalReveal>
@@ -3645,7 +3811,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
 
-      {/* Chapter 4: Proof - Why Creators Trust TIPZ */}
+      {/* Chapter 4: The Vanguard */}
       <SnapSection id="proof" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
@@ -3655,71 +3821,101 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 04: PROOF
+              CHAPTER 04: THE GENESIS
             </div>
           </TerminalReveal>
 
           <TypingHeading
-            text="Join 127+ X creators keeping 100%."
-            style={{ marginBottom: "48px" }}
+            text="The Genesis Cohort is established."
+            style={{ marginBottom: "16px" }}
           />
 
-          {/* Testimonials Grid */}
+          <TerminalReveal delay={100}>
+            <p style={{
+              fontSize: "16px",
+              color: colors.muted,
+              marginBottom: "48px",
+            }}>
+              Zero rent paid. Zero data leaked. The new standard is set.
+            </p>
+          </TerminalReveal>
+
+          {/* Testimonial Cards - Refined Style */}
           <TerminalReveal delay={200}>
             <div style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
               gap: "24px",
               marginBottom: "40px",
             }}>
+              {/* Testimonial 1 */}
               <div style={{
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "12px",
                 padding: "28px",
                 position: "relative",
+                overflow: "hidden",
               }}>
+                {/* Top accent */}
                 <div style={{
                   position: "absolute",
                   top: 0,
                   left: 0,
                   right: 0,
                   height: "3px",
-                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
                   borderRadius: "12px 12px 0 0",
                 }} />
-                <p style={{ fontSize: "16px", color: colors.text, margin: "0 0 20px", lineHeight: 1.7, fontStyle: "italic" }}>
-                  &quot;Finally, a tipping platform that doesn&apos;t take 5% of my income. TIPZ just works.&quot;
+
+                <p style={{
+                  fontSize: "16px",
+                  color: colors.textBright,
+                  margin: "0 0 24px",
+                  lineHeight: 1.7,
+                  fontStyle: "italic",
+                }}>
+                  &quot;They can shadowban my account, but they can&apos;t freeze my income.&quot;
                 </p>
+
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  {/* Avatar */}
                   <div style={{
                     width: "44px",
                     height: "44px",
                     borderRadius: "50%",
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    background: `linear-gradient(135deg, ${colors.success}40 0%, ${colors.success}20 100%)`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: "white",
-                    boxShadow: "0 0 15px rgba(102, 126, 234, 0.3)",
-                    animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
-                  }}>M</div>
+                    boxShadow: `0 0 15px ${colors.successGlow}`,
+                  }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
                   <div>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>@marcus_dev</div>
-                    <div style={{ fontSize: "12px", color: colors.muted }}>Tech content creator</div>
+                    <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>
+                      Verified Creator
+                    </div>
+                    <div style={{ fontSize: "12px", color: colors.muted }}>
+                      Anonymous • X User
+                    </div>
                   </div>
                 </div>
               </div>
 
+              {/* Testimonial 2 */}
               <div style={{
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "12px",
                 padding: "28px",
                 position: "relative",
+                overflow: "hidden",
               }}>
+                {/* Top accent */}
                 <div style={{
                   position: "absolute",
                   top: 0,
@@ -3729,73 +3925,220 @@ export default function HomePage() {
                   background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
                   borderRadius: "12px 12px 0 0",
                 }} />
-                <p style={{ fontSize: "16px", color: colors.text, margin: "0 0 20px", lineHeight: 1.7, fontStyle: "italic" }}>
-                  &quot;The privacy aspect is huge for me. My supporters can tip without anyone tracking them.&quot;
+
+                <p style={{
+                  fontSize: "16px",
+                  color: colors.textBright,
+                  margin: "0 0 24px",
+                  lineHeight: 1.7,
+                  fontStyle: "italic",
+                }}>
+                  &quot;I fired my bank today. This is what sovereignty feels like.&quot;
                 </p>
+
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  {/* Avatar */}
                   <div style={{
                     width: "44px",
                     height: "44px",
                     borderRadius: "50%",
-                    background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                    background: `linear-gradient(135deg, ${colors.primary}40 0%, ${colors.primary}20 100%)`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: "white",
-                    boxShadow: "0 0 15px rgba(240, 147, 251, 0.3)",
-                    animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite 0.5s",
-                  }}>S</div>
+                    boxShadow: `0 0 15px ${colors.primaryGlow}`,
+                  }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                    </svg>
+                  </div>
                   <div>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>@sarah_writes</div>
-                    <div style={{ fontSize: "12px", color: colors.muted }}>Independent journalist</div>
+                    <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>
+                      Tech Founder
+                    </div>
+                    <div style={{ fontSize: "12px", color: colors.muted }}>
+                      Startup CEO • Anonymous
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </TerminalReveal>
 
-          {/* Stats bar */}
+          {/* Stats Bar - Glass Morphism Style */}
           <TerminalReveal delay={350}>
             <div style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "48px",
-              padding: "24px",
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.border}`,
-              borderRadius: "8px",
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr",
+              gap: "16px",
             }}>
-              <div style={{ textAlign: "center" }}>
+              {/* Stat 1: Rent Paid */}
+              <div style={{
+                backgroundColor: "rgba(26, 26, 26, 0.6)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: `1px solid ${colors.border}`,
+                borderRadius: "12px",
+                padding: isMobile ? "24px 20px" : "24px 28px",
+                position: "relative",
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+              }}>
+                {/* Top gradient accent */}
                 <div style={{
-                  fontSize: "28px",
-                  fontWeight: 800,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "2px",
+                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
+                  borderRadius: "12px 12px 0 0",
+                }} />
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  letterSpacing: "1px",
+                  marginBottom: "8px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>
+                  RENT PAID
+                </div>
+                <div style={{
+                  fontSize: isMobile ? "32px" : "36px",
+                  fontWeight: 700,
+                  color: colors.success,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1,
+                }}>
+                  $0<span style={{ fontSize: "0.6em", opacity: 0.7 }}>.00</span>
+                </div>
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  marginTop: "12px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>
+                  <span style={{ color: colors.success }}>↓ 100%</span> vs. platforms
+                </div>
+              </div>
+
+              {/* Stat 2: Volume (Redacted) */}
+              <div style={{
+                backgroundColor: "rgba(26, 26, 26, 0.6)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: `1px solid ${colors.border}`,
+                borderRadius: "12px",
+                padding: isMobile ? "24px 20px" : "24px 28px",
+                position: "relative",
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+              }}>
+                {/* Top gradient accent */}
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "2px",
+                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+                  borderRadius: "12px 12px 0 0",
+                }} />
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  letterSpacing: "1px",
+                  marginBottom: "8px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>
+                  VOLUME
+                </div>
+                <div style={{
+                  fontSize: isMobile ? "32px" : "36px",
+                  fontWeight: 700,
                   color: colors.primary,
-                  marginBottom: "4px",
-                  animation: prefersReducedMotion ? "none" : "idle-brightness-pulse 3s ease-in-out infinite",
-                }}>127+</div>
-                <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px" }}>CREATORS REGISTERED</div>
-              </div>
-              <div style={{ textAlign: "center" }}>
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1,
+                }}>
+                  [REDACTED]
+                </div>
                 <div style={{
-                  fontSize: "28px",
-                  fontWeight: 800,
-                  color: colors.success,
-                  marginBottom: "4px",
-                  animation: prefersReducedMotion ? "none" : "idle-brightness-pulse 3s ease-in-out infinite 0.3s",
-                }}>0%</div>
-                <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px" }}>PLATFORM FEES</div>
+                  fontSize: "11px",
+                  color: colors.muted,
+                  marginTop: "12px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <span style={{ color: colors.primary }}>Shielded</span>
+                </div>
               </div>
-              <div style={{ textAlign: "center" }}>
+
+              {/* Stat 3: System Status */}
+              <div style={{
+                backgroundColor: "rgba(26, 26, 26, 0.6)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: `1px solid ${colors.border}`,
+                borderRadius: "12px",
+                padding: isMobile ? "24px 20px" : "24px 28px",
+                position: "relative",
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+              }}>
+                {/* Top gradient accent */}
                 <div style={{
-                  fontSize: "28px",
-                  fontWeight: 800,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "2px",
+                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
+                  borderRadius: "12px 12px 0 0",
+                }} />
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  letterSpacing: "1px",
+                  marginBottom: "8px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}>
+                  <span style={{
+                    width: "6px",
+                    height: "6px",
+                    backgroundColor: colors.success,
+                    borderRadius: "50%",
+                    boxShadow: `0 0 8px ${colors.success}`,
+                    animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
+                  }} />
+                  STATUS
+                </div>
+                <div style={{
+                  fontSize: isMobile ? "32px" : "36px",
+                  fontWeight: 700,
                   color: colors.success,
-                  marginBottom: "4px",
-                  animation: prefersReducedMotion ? "none" : "idle-brightness-pulse 3s ease-in-out infinite 0.6s",
-                }}>100%</div>
-                <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px" }}>PRIVATE</div>
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "0.02em",
+                  lineHeight: 1,
+                }}>
+                  ONLINE
+                </div>
+                <div style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  marginTop: "12px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>
+                  <span style={{ color: colors.success }}>100%</span> uptime
+                </div>
               </div>
             </div>
           </TerminalReveal>
@@ -3812,19 +4155,29 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 05: HOW IT WORKS
+              CHAPTER 05: GET STARTED
             </div>
           </TerminalReveal>
 
           <TypingHeading
-            text="Two minutes to go live."
-            style={{ marginBottom: "48px" }}
+            text="Claim your sovereign income."
+            style={{ marginBottom: "16px" }}
           />
+
+          <TerminalReveal delay={50}>
+            <p style={{
+              fontSize: "16px",
+              color: colors.muted,
+              marginBottom: "48px",
+            }}>
+              Three steps to permanent financial independence.
+            </p>
+          </TerminalReveal>
 
           {/* Side-by-side layout for Creators and Supporters */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
             gap: "48px",
           }}>
             {/* For Creators */}
@@ -3841,7 +4194,6 @@ export default function HomePage() {
                   gap: "8px",
                 }}>
                   <span style={{ opacity: 0.5 }}>//</span> FOR CREATORS
-                  <span style={{ fontSize: "11px", opacity: 0.6, fontWeight: 400 }}>• 3 steps</span>
                 </h3>
               </TerminalReveal>
 
@@ -3851,20 +4203,20 @@ export default function HomePage() {
                 items={[
                   {
                     step: "01",
-                    title: "Get a wallet",
-                    desc: "Download Zashi (free). Copy your shielded address.",
+                    title: "Link your wallet",
+                    desc: "Connect a Zashi shielded wallet. Takes 2 mins to set up.",
                     icon: "/icons/wallet.svg",
                   },
                   {
                     step: "02",
-                    title: "Tweet to verify",
-                    desc: "One tweet links your address to your handle.",
+                    title: "Verify your identity",
+                    desc: "One tweet binds your X handle to your keys.",
                     icon: "/icons/link.svg",
                   },
                   {
                     step: "03",
-                    title: "Share your link",
-                    desc: "tipz.cash/yourname is live. Bio, tweets, anywhere.",
+                    title: "Go live",
+                    desc: "Your uncensorable payment link is now active.",
                     icon: "/icons/coins.svg",
                   },
                 ]}
@@ -3946,7 +4298,6 @@ export default function HomePage() {
                   gap: "8px",
                 }}>
                   <span style={{ opacity: 0.5 }}>//</span> FOR SUPPORTERS
-                  <span style={{ fontSize: "11px", opacity: 0.6, fontWeight: 400 }}>• 3 steps</span>
                 </h3>
               </TerminalReveal>
 
@@ -3956,20 +4307,20 @@ export default function HomePage() {
                 items={[
                   {
                     step: "01",
-                    title: "Click the link",
-                    desc: "No app. No signup. Just click.",
+                    title: "Open their link",
+                    desc: "No account. No tracking. Just click.",
                     icon: "/icons/link.svg",
                   },
                   {
                     step: "02",
-                    title: "Choose amount",
-                    desc: "$1, $5, $10, $25 — pay with any token.",
+                    title: "Pick your amount",
+                    desc: "Any token works. Any amount converts.",
                     icon: "/icons/coins.svg",
                   },
                   {
                     step: "03",
-                    title: "Send",
-                    desc: "Connect wallet, confirm. 100% goes to them.",
+                    title: "Confirm & send",
+                    desc: "100% arrives instantly. Zero fees. Zero trace.",
                     icon: "/icons/lock.svg",
                   },
                 ]}
@@ -4227,7 +4578,7 @@ export default function HomePage() {
                       width: "40px",
                       height: "40px",
                       borderRadius: "50%",
-                      backgroundImage: "url('https://pbs.twimg.com/profile_images/1860329630885003264/K5LKN4le_400x400.jpg')",
+                      backgroundImage: "url('https://pbs.twimg.com/profile_images/1975912876243095552/YlVLO4Oz_400x400.jpg')",
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                       flexShrink: 0,
@@ -4365,8 +4716,8 @@ export default function HomePage() {
         </div>
       </SnapSection>
 
-      {/* Chapter 7: Any Token */}
-      <SnapSection id="any-token" style={{ padding: "0 48px" }}>
+      {/* Chapter 7: Any Token - Privacy Conversion Terminal */}
+      <SnapSection id="any-token" style={{ padding: isMobile ? "0 24px" : "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -4375,14 +4726,12 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 07: ANY TOKEN
+              CHAPTER 07: UNIVERSAL INTAKE
             </div>
           </TerminalReveal>
 
           <TypingHeading
-            prefix="{}"
-            prefixColor={colors.primary}
-            text="Receive TIPZ from any token and from any chain."
+            text="Accept anything. Receive privacy."
           />
 
           <TerminalReveal delay={200}>
@@ -4392,162 +4741,435 @@ export default function HomePage() {
               lineHeight: 1.8,
               marginBottom: "48px",
             }}>
-              Don't limit your income. Fans can send funds from multiple networks (ETH, SOL, USDC), but you always receive shielded ZEC. We handle the complexity.
+              ETH, USDC, USDT, SOL—automatically bridged to shielded ZEC. They pay their way. You receive yours.
             </p>
           </TerminalReveal>
 
           <TerminalReveal delay={350}>
+            {/* Main Terminal Container */}
             <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "24px",
-              padding: "40px 32px",
               backgroundColor: colors.surface,
               border: `1px solid ${colors.border}`,
-              borderRadius: "8px",
+              borderRadius: "12px",
+              padding: isMobile ? "32px 20px" : "48px 32px",
               position: "relative",
               overflow: "hidden",
             }}>
-              {/* Background glow effect */}
+              {/* Dot Grid Background Pattern */}
+              <div style={{
+                position: "absolute",
+                inset: 0,
+                backgroundImage: `radial-gradient(circle, ${colors.border} 1px, transparent 1px)`,
+                backgroundSize: "24px 24px",
+                opacity: 0.3,
+                pointerEvents: "none",
+              }} />
+
+              {/* Central Radial Glow */}
               <div style={{
                 position: "absolute",
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
-                width: "200px",
-                height: "200px",
-                background: `radial-gradient(circle, ${colors.primaryGlow}20 0%, transparent 70%)`,
+                width: "400px",
+                height: "400px",
+                background: `radial-gradient(circle, ${colors.primaryGlow}15 0%, ${colors.primaryGlow}05 40%, transparent 70%)`,
                 pointerEvents: "none",
               }} />
 
-              {/* Input tokens */}
-              <div style={{ textAlign: "center", position: "relative" }}>
-                <div style={{
-                  display: "flex",
-                  gap: "12px",
-                  marginBottom: "12px",
-                  justifyContent: "center",
-                }}>
-                  <img
-                    src="/icons/eth.svg"
-                    alt="ETH"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      animation: prefersReducedMotion ? "none" : "idle-float-small 3s ease-in-out infinite",
-                    }}
-                  />
-                  <img
-                    src="/icons/usdc.svg"
-                    alt="USDC"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      animation: prefersReducedMotion ? "none" : "idle-float-small 3s ease-in-out infinite 0.3s",
-                    }}
-                  />
-                  <img
-                    src="/icons/sol.svg"
-                    alt="SOL"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      animation: prefersReducedMotion ? "none" : "idle-float-small 3s ease-in-out infinite 0.6s",
-                    }}
-                  />
-                </div>
-                <div style={{ fontSize: "13px", color: colors.textBright, fontWeight: 500 }}>ETH, USDC, SOL</div>
-                <div style={{ fontSize: "11px", color: colors.muted, marginTop: "4px" }}>+ 50 more tokens</div>
-              </div>
-
-              {/* Arrow and swap box */}
+              {/* Three Column Layout */}
               <div style={{
-                display: "flex",
+                display: "grid",
+                gridTemplateColumns: isMobile ? "1fr" : "1fr auto 1fr",
+                gap: isMobile ? "24px" : "32px",
                 alignItems: "center",
-                gap: "12px",
-                color: colors.primary,
+                position: "relative",
+                zIndex: 1,
               }}>
-                <span style={{
-                  fontSize: "20px",
-                  animation: prefersReducedMotion ? "none" : "idle-arrow-pulse 2s ease-in-out infinite",
-                }}>→</span>
-                <div style={{
-                  padding: "12px 20px",
-                  border: `2px solid ${colors.primary}`,
-                  borderRadius: "8px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  letterSpacing: "1px",
-                  backgroundColor: `${colors.primary}10`,
-                  boxShadow: `0 0 20px ${colors.primaryGlow}`,
-                  animation: prefersReducedMotion ? "none" : "idle-glow-pulse 2.5s ease-in-out infinite",
-                }}>
-                  <img
-                    src="/icons/zap.svg"
-                    alt=""
-                    style={{
-                      width: "14px",
-                      height: "14px",
-                      marginRight: "6px",
-                      filter: "invert(70%) sepia(50%) saturate(500%) hue-rotate(5deg) brightness(100%)",
-                      verticalAlign: "middle",
-                    }}
-                  />
-                  AUTO-SWAP
-                </div>
-                <span style={{
-                  fontSize: "20px",
-                  animation: prefersReducedMotion ? "none" : "idle-arrow-pulse 2s ease-in-out infinite 0.5s",
-                }}>→</span>
-              </div>
 
-              {/* Output - Private ZEC tip */}
-              <div style={{ textAlign: "center", position: "relative" }}>
+                {/* INPUT SECTION - Left Column */}
                 <div style={{
-                  width: "56px",
-                  height: "56px",
-                  borderRadius: "50%",
-                  backgroundColor: "#F4B728",
                   display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                  order: isMobile ? 1 : 0,
+                }}>
+                  <div style={{
+                    fontSize: "10px",
+                    color: colors.muted,
+                    letterSpacing: "2px",
+                    marginBottom: "8px",
+                    textAlign: "center",
+                  }}>
+                    INPUT CHAINS
+                  </div>
+
+                  {/* Token Slots */}
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr",
+                    gap: "12px",
+                  }}>
+                    {[
+                      { icon: "/icons/eth.svg", name: "ETH", chain: "Ethereum", delay: 0 },
+                      { icon: "/icons/usdc.svg", name: "USDC", chain: "Multi-chain", delay: 0.1 },
+                      { icon: "/icons/usdt.svg", name: "USDT", chain: "Multi-chain", delay: 0.2 },
+                      { icon: "/icons/sol.svg", name: "SOL", chain: "Solana", delay: 0.3 },
+                    ].map((token, idx) => (
+                      <div
+                        key={token.name}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: isMobile ? "8px" : "12px",
+                          padding: isMobile ? "10px 12px" : "12px 16px",
+                          backgroundColor: `${colors.bg}80`,
+                          border: `1px solid ${colors.border}`,
+                          borderRadius: "8px",
+                          animation: prefersReducedMotion ? "none" : `idle-float-micro 4s ease-in-out infinite ${token.delay}s`,
+                        }}
+                      >
+                        <img
+                          src={token.icon}
+                          alt={token.name}
+                          style={{
+                            width: isMobile ? "24px" : "32px",
+                            height: isMobile ? "24px" : "32px",
+                          }}
+                        />
+                        <div>
+                          <div style={{ fontSize: isMobile ? "12px" : "14px", fontWeight: 600, color: colors.textBright }}>
+                            {token.name}
+                          </div>
+                          {!isMobile && (
+                            <div style={{ fontSize: "10px", color: colors.muted }}>
+                              {token.chain}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* CONVERSION CORE - Center */}
+                <div style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "24px",
+                  order: isMobile ? 0 : 1,
+                }}>
+                  {/* Left Flow Arrow - hidden on mobile */}
+                  <div style={{
+                    position: "absolute",
+                    left: "calc(33.33% - 24px)",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    display: isMobile ? "none" : "flex",
+                    alignItems: "center",
+                  }}>
+                    <svg width="48" height="24" viewBox="0 0 48 24" style={{ overflow: "visible" }}>
+                      <defs>
+                        <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor={colors.muted} stopOpacity="0.3" />
+                          <stop offset="100%" stopColor={colors.primary} stopOpacity="0.8" />
+                        </linearGradient>
+                      </defs>
+                      <line
+                        x1="0" y1="12" x2="36" y2="12"
+                        stroke="url(#flowGradient)"
+                        strokeWidth="2"
+                        strokeDasharray="6 4"
+                        style={{
+                          animation: prefersReducedMotion ? "none" : "data-stream 1s linear infinite",
+                        }}
+                      />
+                      <polygon
+                        points="36,6 48,12 36,18"
+                        fill={colors.primary}
+                        style={{ opacity: 0.8 }}
+                      />
+                    </svg>
+                  </div>
+
+                  {/* Right Flow Arrow - hidden on mobile */}
+                  <div style={{
+                    position: "absolute",
+                    right: "calc(33.33% - 24px)",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    display: isMobile ? "none" : "flex",
+                    alignItems: "center",
+                  }}>
+                    <svg width="48" height="24" viewBox="0 0 48 24" style={{ overflow: "visible" }}>
+                      <line
+                        x1="0" y1="12" x2="36" y2="12"
+                        stroke="url(#flowGradient)"
+                        strokeWidth="2"
+                        strokeDasharray="6 4"
+                        style={{
+                          animation: prefersReducedMotion ? "none" : "data-stream 1s linear infinite",
+                        }}
+                      />
+                      <polygon
+                        points="36,6 48,12 36,18"
+                        fill={colors.primary}
+                        style={{ opacity: 0.8 }}
+                      />
+                    </svg>
+                  </div>
+
+                  {/* Protocol Box */}
+                  <div style={{
+                    padding: isMobile ? "20px 24px" : "32px 40px",
+                    border: `2px solid ${colors.primary}`,
+                    borderRadius: "12px",
+                    backgroundColor: `${colors.bg}95`,
+                    boxShadow: `0 0 40px ${colors.primaryGlow}30, inset 0 0 20px ${colors.primaryGlow}05`,
+                    animation: prefersReducedMotion ? "none" : "idle-glow-pulse 3s ease-in-out infinite",
+                    textAlign: "center",
+                    minWidth: isMobile ? "160px" : "200px",
+                  }}>
+                    {/* Header */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      marginBottom: "20px",
+                    }}>
+                      <img
+                        src="/icons/zap.svg"
+                        alt=""
+                        style={{
+                          width: "18px",
+                          height: "18px",
+                          filter: "invert(70%) sepia(50%) saturate(500%) hue-rotate(5deg) brightness(100%)",
+                        }}
+                      />
+                      <span style={{
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        letterSpacing: "2px",
+                        color: colors.primary,
+                      }}>
+                        INTENTS PROTOCOL
+                      </span>
+                    </div>
+
+                    {/* Animated Status Lines */}
+                    <div style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "12px",
+                    }}>
+                      <div style={{ color: colors.success, display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ opacity: 0.7 }}>▸</span>
+                        <span>ROUTING</span>
+                        <span style={{
+                          animation: prefersReducedMotion ? "none" : "terminal-blink 1.5s ease-in-out infinite",
+                        }}>...</span>
+                      </div>
+                      <div style={{ color: colors.primary, display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ opacity: 0.7 }}>▸</span>
+                        <span>BRIDGING</span>
+                        <span style={{
+                          animation: prefersReducedMotion ? "none" : "terminal-blink 1.5s ease-in-out infinite 0.3s",
+                        }}>...</span>
+                      </div>
+                      <div style={{ color: "#a855f7", display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ opacity: 0.7 }}>▸</span>
+                        <span>SHIELDING</span>
+                        <span style={{
+                          animation: prefersReducedMotion ? "none" : "terminal-blink 1.5s ease-in-out infinite 0.6s",
+                        }}>...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* OUTPUT SECTION - Right Column */}
+                <div style={{
+                  display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  margin: "0 auto 12px",
-                  boxShadow: "0 0 30px rgba(244, 183, 40, 0.3)",
-                  animation: prefersReducedMotion ? "none" : "idle-glow-pulse 3s ease-in-out infinite",
+                  gap: isMobile ? "12px" : "16px",
+                  order: isMobile ? 2 : 2,
                 }}>
-                  <img
-                    src="/zec/brandmark-black.svg"
-                    alt="ZEC"
-                    style={{
-                      width: "32px",
-                      height: "32px",
-                      animation: prefersReducedMotion ? "none" : "idle-zec-rotate 8s linear infinite",
-                    }}
-                  />
+                  <div style={{
+                    fontSize: "10px",
+                    color: colors.muted,
+                    letterSpacing: "2px",
+                    marginBottom: "8px",
+                  }}>
+                    SHIELDED OUTPUT
+                  </div>
+
+                  {/* Large ZEC Coin with Dramatic Glow */}
+                  <div style={{
+                    position: "relative",
+                    width: isMobile ? "80px" : "120px",
+                    height: isMobile ? "80px" : "120px",
+                  }}>
+                    {/* Outer glow rings */}
+                    <div style={{
+                      position: "absolute",
+                      inset: "-20px",
+                      borderRadius: "50%",
+                      background: `radial-gradient(circle, ${colors.primaryGlow}20 0%, transparent 70%)`,
+                      animation: prefersReducedMotion ? "none" : "idle-glow-pulse 2s ease-in-out infinite",
+                    }} />
+                    <div style={{
+                      position: "absolute",
+                      inset: "-10px",
+                      borderRadius: "50%",
+                      border: `1px solid ${colors.primaryGlow}30`,
+                      animation: prefersReducedMotion ? "none" : "idle-glow-pulse 2s ease-in-out infinite 0.5s",
+                    }} />
+
+                    {/* Main coin - using yellow brandmark directly */}
+                    <img
+                      src="/zec/brandmark-yellow.svg"
+                      alt="ZEC"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        filter: `drop-shadow(0 0 30px ${colors.primaryGlow}60) drop-shadow(0 0 15px ${colors.primaryGlow}40)`,
+                        animation: prefersReducedMotion ? "none" : "idle-float-small 3s ease-in-out infinite",
+                      }}
+                    />
+
+                    {/* Shield badge */}
+                    <div style={{
+                      position: "absolute",
+                      bottom: isMobile ? "-6px" : "-8px",
+                      right: isMobile ? "-6px" : "-8px",
+                      width: isMobile ? "28px" : "36px",
+                      height: isMobile ? "28px" : "36px",
+                      borderRadius: "50%",
+                      backgroundColor: colors.surface,
+                      border: `2px solid ${colors.success}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: `0 0 15px ${colors.success}40`,
+                    }}>
+                      <svg width={isMobile ? "14" : "18"} height={isMobile ? "14" : "18"} viewBox="0 0 24 24" fill={colors.success}>
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Labels */}
+                  <div style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "6px 14px",
+                    backgroundColor: `${colors.success}15`,
+                    border: `1px solid ${colors.success}40`,
+                    borderRadius: "20px",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    color: colors.success,
+                    letterSpacing: "1px",
+                  }}>
+                    <span style={{
+                      width: "6px",
+                      height: "6px",
+                      borderRadius: "50%",
+                      backgroundColor: colors.success,
+                      animation: prefersReducedMotion ? "none" : "terminal-blink 2s ease-in-out infinite",
+                    }} />
+                    SHIELDED
+                  </div>
+
+                  <div style={{ fontSize: "12px", color: colors.muted, textAlign: "center" }}>
+                    Private • Instant
+                  </div>
                 </div>
-                <div style={{ fontSize: "13px", color: "#F4B728", fontWeight: 600 }}>Private ZEC</div>
-                <div style={{ fontSize: "11px", color: colors.muted, marginTop: "4px" }}>Arrives instantly</div>
               </div>
             </div>
           </TerminalReveal>
 
-          {/* Trust elements */}
+          {/* Trust Footer - Terminal Status Cards */}
           <TerminalReveal delay={500}>
             <div style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "32px",
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+              gap: isMobile ? "12px" : "16px",
               marginTop: "24px",
-              fontSize: "11px",
-              color: colors.muted,
             }}>
-              <span>✓ Fair market rates</span>
-              <span>✓ No extra fees</span>
-              <span>✓ ~30 second conversion</span>
+              {[
+                { label: "RATES", value: "Market", icon: "●" },
+                { label: "PLATFORM FEE", value: "None", icon: "●" },
+                { label: "SETTLE", value: "~5 min", icon: "●" },
+              ].map((item, idx) => (
+                <div
+                  key={item.label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    padding: "16px 20px",
+                    backgroundColor: colors.surface,
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: "8px",
+                    transition: "border-color 0.2s, background-color 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = colors.primary + "40";
+                    e.currentTarget.style.backgroundColor = colors.surface + "cc";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = colors.border;
+                    e.currentTarget.style.backgroundColor = colors.surface;
+                  }}
+                >
+                  <span style={{
+                    color: colors.success,
+                    fontSize: "10px",
+                  }}>
+                    {item.icon}
+                  </span>
+                  <div>
+                    <div style={{
+                      fontSize: "10px",
+                      color: colors.muted,
+                      letterSpacing: "1px",
+                      marginBottom: "2px",
+                    }}>
+                      {item.label}
+                    </div>
+                    <div style={{
+                      fontSize: "14px",
+                      color: colors.textBright,
+                      fontWeight: 500,
+                    }}>
+                      {item.value}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </TerminalReveal>
         </div>
+
+        {/* CSS Keyframes for Chapter 7 animations */}
+        <style jsx>{`
+          @keyframes data-stream {
+            0% { stroke-dashoffset: 20; }
+            100% { stroke-dashoffset: 0; }
+          }
+          @keyframes terminal-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+          }
+        `}</style>
       </SnapSection>
 
       {/* Chapter 7: FAQ - Common Questions */}
@@ -4653,10 +5275,10 @@ export default function HomePage() {
             </div>
           </TerminalReveal>
 
-          {/* copywriting: outcome without pain point formula */}
+          {/* copywriting: definite vision statement */}
           <TypingHeading
-            text="Keep 100% of your "
-            suffix="TIPZ."
+            text="Monetize the "
+            suffix="Timeline."
             suffixColor={colors.primary}
             style={{ fontSize: "44px", lineHeight: 1.2 }}
           />
@@ -4667,49 +5289,11 @@ export default function HomePage() {
               fontSize: "18px",
               marginBottom: "32px",
             }}>
-              Join 127+ X creators who registered for fee-free tipping.
-              <br />Set up in 2 minutes. Private by default.
+              Stop leaking users to external links. Accept private tips directly on your X profile. Zero friction. Zero fees.
             </p>
           </TerminalReveal>
 
-          {/* marketing-psychology: anchoring with competitor comparison */}
           <TerminalReveal delay={300}>
-            <div style={{
-              display: "inline-flex",
-              gap: "24px",
-              padding: "16px 24px",
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.border}`,
-              borderRadius: "8px",
-              marginBottom: "32px",
-              fontSize: "14px",
-            }}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ color: colors.error, fontWeight: 600, marginBottom: "4px" }}>Ko-fi</div>
-                <div style={{
-                  color: colors.muted,
-                  animation: prefersReducedMotion ? "none" : "idle-pulse-red 3s ease-in-out infinite",
-                }}>-5%</div>
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ color: colors.error, fontWeight: 600, marginBottom: "4px" }}>PayPal</div>
-                <div style={{
-                  color: colors.muted,
-                  animation: prefersReducedMotion ? "none" : "idle-pulse-red 3s ease-in-out infinite 0.3s",
-                }}>-3%</div>
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ color: colors.success, fontWeight: 700, marginBottom: "4px" }}>TIPZ</div>
-                <div style={{
-                  color: colors.success,
-                  fontWeight: 700,
-                  animation: prefersReducedMotion ? "none" : "idle-pulse-green 3s ease-in-out infinite",
-                }}>$0</div>
-              </div>
-            </div>
-          </TerminalReveal>
-
-          <TerminalReveal delay={400}>
             <div style={{ display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap", marginBottom: "24px" }}>
               <a
                 href="/register"
@@ -4733,7 +5317,7 @@ export default function HomePage() {
                   letterSpacing: "0.03em",
                 }}
               >
-                Start Earning TIPZ →
+                Claim Your Tipz ID →
               </a>
             </div>
           </TerminalReveal>
@@ -4778,7 +5362,7 @@ export default function HomePage() {
             boxShadow: `0 0 10px ${colors.success}`,
             animation: "pulse-glow 2s ease-in-out infinite",
           }} />
-          <span style={{ fontSize: "11px", letterSpacing: "1px" }}>PRIVATE BY DEFAULT</span>
+          <span style={{ fontSize: "11px", letterSpacing: "1px" }}>SYSTEM STATUS: OPERATIONAL</span>
         </div>
       </footer>
 
@@ -5068,6 +5652,39 @@ export default function HomePage() {
           }
           50% {
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.5);
+          }
+        }
+
+        /* Sovereign Wealth Reactor animations */
+        @keyframes pipeFlow {
+          0% {
+            top: -20px;
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            top: calc(100% + 20px);
+            opacity: 0;
+          }
+        }
+
+        @keyframes reactorCore {
+          0%, 100% {
+            box-shadow:
+              0 0 20px rgba(245, 166, 35, 0.6),
+              0 0 40px rgba(245, 166, 35, 0.3),
+              inset 0 1px 0 rgba(255,255,255,0.2);
+          }
+          50% {
+            box-shadow:
+              0 0 30px rgba(245, 166, 35, 0.8),
+              0 0 60px rgba(245, 166, 35, 0.4),
+              inset 0 1px 0 rgba(255,255,255,0.3);
           }
         }
 
