@@ -348,17 +348,26 @@ export default function CreatorsPage() {
                 href="/register"
                 className="cta-primary"
                 style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
                   color: colors.bg,
-                  backgroundColor: colors.primary,
                   textDecoration: "none",
                   fontSize: "11px",
-                  letterSpacing: "1px",
+                  letterSpacing: "0.5px",
                   fontWeight: 600,
-                  padding: "8px 16px",
+                  padding: "8px 14px",
                   borderRadius: "8px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)`,
                 }}
               >
-                START EARNING
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+                Claim Your Tipz ID
               </a>
             </nav>
 
@@ -488,20 +497,28 @@ export default function CreatorsPage() {
                 href="/register"
                 onClick={() => setMobileMenuOpen(false)}
                 style={{
-                  display: "block",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
                   marginTop: "16px",
                   padding: "16px",
+                  background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
                   color: colors.bg,
-                  backgroundColor: colors.primary,
                   textDecoration: "none",
                   fontSize: "14px",
-                  letterSpacing: "1px",
+                  letterSpacing: "0.5px",
                   fontWeight: 600,
                   borderRadius: "8px",
-                  textAlign: "center",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)`,
                 }}
               >
-                START EARNING
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+                Claim Your Tipz ID
               </a>
             </div>
           </>
