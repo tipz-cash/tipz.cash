@@ -2990,7 +2990,7 @@ export default function HomePage() {
               fontSize: "11px",
               color: colors.error,
               letterSpacing: "2px",
-              marginBottom: "32px",
+              marginBottom: "20px",
               display: "flex",
               alignItems: "center",
               gap: "12px",
@@ -3018,9 +3018,9 @@ export default function HomePage() {
           <div style={{
             display: "grid",
             gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-            gap: "32px",
+            gap: "24px",
             alignItems: "stretch",
-            marginTop: "48px",
+            marginTop: "32px",
           }}>
 
             {/* THE DRAIN - Feudal Model */}
@@ -3029,7 +3029,7 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "20px",
-                padding: "40px",
+                padding: "28px",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
@@ -3041,7 +3041,7 @@ export default function HomePage() {
                   fontSize: "12px",
                   color: colors.muted,
                   letterSpacing: "2px",
-                  marginBottom: "32px",
+                  marginBottom: "20px",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -3140,7 +3140,7 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "20px",
-                padding: "40px",
+                padding: "28px",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
@@ -3152,7 +3152,7 @@ export default function HomePage() {
                   fontSize: "12px",
                   color: colors.muted,
                   letterSpacing: "2px",
-                  marginBottom: "32px",
+                  marginBottom: "20px",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -3347,7 +3347,7 @@ export default function HomePage() {
               fontSize: "11px",
               color: colors.success,
               letterSpacing: "2px",
-              marginBottom: "32px",
+              marginBottom: "16px",
               display: "flex",
               alignItems: "center",
               gap: "12px",
@@ -3376,8 +3376,8 @@ export default function HomePage() {
             <p style={{
               color: colors.muted,
               fontSize: "16px",
-              marginTop: "-16px",
-              marginBottom: "40px",
+              marginTop: "-12px",
+              marginBottom: "24px",
             }}>
               Permissionless. Private. Perpetual.
             </p>
@@ -3388,9 +3388,9 @@ export default function HomePage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: isMobile ? "16px" : "24px",
-            marginTop: "32px",
-            marginBottom: "40px",
+            gap: isMobile ? "16px" : "20px",
+            marginTop: "20px",
+            marginBottom: "28px",
             position: "relative",
             flexWrap: isMobile ? "wrap" : "nowrap",
           }}>
@@ -3400,12 +3400,12 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "12px",
-                padding: "24px 20px",
+                padding: "18px 16px",
                 textAlign: "center",
                 position: "relative",
                 overflow: "hidden",
-                width: isMobile ? "140px" : "160px",
-                transform: isMobile ? "none" : "translateY(20px)",
+                width: isMobile ? "130px" : "145px",
+                transform: isMobile ? "none" : "translateY(16px)",
               }}>
                 <div style={{
                   position: "absolute",
@@ -3478,7 +3478,7 @@ export default function HomePage() {
                   backgroundColor: colors.surface,
                   border: `2px solid ${colors.success}`,
                   borderRadius: "16px",
-                  padding: isMobile ? "28px 32px" : "32px 48px",
+                  padding: isMobile ? "22px 28px" : "24px 40px",
                   textAlign: "center",
                   position: "relative",
                   overflow: "hidden",
@@ -3511,11 +3511,11 @@ export default function HomePage() {
                     animation: "pulse-glow 3s ease-in-out infinite",
                   }} />
                   <div style={{
-                    fontSize: isMobile ? "64px" : "80px",
+                    fontSize: isMobile ? "56px" : "68px",
                     fontWeight: 800,
                     color: colors.success,
                     lineHeight: 0.9,
-                    marginBottom: "8px",
+                    marginBottom: "6px",
                     textShadow: `0 0 60px ${colors.successGlow}`,
                     position: "relative",
                     letterSpacing: "-0.05em",
@@ -3552,12 +3552,12 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "12px",
-                padding: "24px 20px",
+                padding: "18px 16px",
                 textAlign: "center",
                 position: "relative",
                 overflow: "hidden",
-                width: isMobile ? "140px" : "160px",
-                transform: isMobile ? "none" : "translateY(20px)",
+                width: isMobile ? "130px" : "145px",
+                transform: isMobile ? "none" : "translateY(16px)",
               }}>
                 <div style={{
                   position: "absolute",
@@ -3603,14 +3603,14 @@ export default function HomePage() {
             <div style={{
               maxWidth: "500px",
               margin: "0 auto",
-              marginBottom: "20px",
+              marginBottom: "12px",
             }}>
               {/* Pipeline Container */}
               <div style={{
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "12px",
-                padding: "32px",
+                padding: "24px",
                 position: "relative",
                 overflow: "hidden",
               }}>
@@ -3637,8 +3637,8 @@ export default function HomePage() {
                   <div style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "20px",
-                    paddingBottom: "24px",
+                    gap: "16px",
+                    paddingBottom: "18px",
                   }}>
                     {/* Step indicator */}
                     <div style={{
@@ -3697,9 +3697,9 @@ export default function HomePage() {
                   <div style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "20px",
-                    paddingTop: "8px",
-                    paddingBottom: "24px",
+                    gap: "16px",
+                    paddingTop: "6px",
+                    paddingBottom: "18px",
                   }}>
                     {/* Step indicator - highlighted */}
                     <div style={{
@@ -3747,8 +3747,8 @@ export default function HomePage() {
                   <div style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "20px",
-                    paddingTop: "8px",
+                    gap: "16px",
+                    paddingTop: "6px",
                   }}>
                     {/* Step indicator */}
                     <div style={{
