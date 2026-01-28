@@ -29,11 +29,11 @@ const colors = {
 
 const chapters = [
   { id: "hero", num: "01", title: "THE PROMISE" },
-  { id: "broken", num: "02", title: "WHY TIPPING IS BROKEN" },
+  { id: "broken", num: "02", title: "THE FALSE CHOICE" },
   { id: "solution", num: "03", title: "THE SOLUTION" },
   { id: "proof", num: "04", title: "PROOF" },
   { id: "how-it-works", num: "05", title: "HOW IT WORKS" },
-  { id: "creator-tools", num: "06", title: "CREATOR TOOLS" },
+  { id: "creator-tools", num: "06", title: "SOVEREIGN DISTRIBUTION" },
   { id: "any-token", num: "07", title: "ANY TOKEN" },
   { id: "faq", num: "08", title: "FAQ" },
   { id: "join", num: "09", title: "JOIN" },
@@ -655,7 +655,7 @@ function TerminalReveal({
 // Animated tip notification that triggers on scroll
 function TipNotification() {
   const { ref, isInView } = useInView(0.3);
-  const [stage, setStage] = useState(0); // 0: hidden, 1: pop-in, 2: header, 3: amount, 4: subtitle, 5: complete
+  const [stage, setStage] = useState(0); // 0: hidden, 1: pop-in, 2: header, 3: amount, 4: message, 5: complete
   const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
@@ -670,7 +670,7 @@ function TipNotification() {
       setTimeout(() => setStage(1), 1200),  // Pop-in starts
       setTimeout(() => setStage(2), 1400),  // Header fades in
       setTimeout(() => setStage(3), 1700),  // Amount bounces in
-      setTimeout(() => setStage(4), 2100),  // Subtitle fades in
+      setTimeout(() => setStage(4), 2100),  // Message fades in
       setTimeout(() => setStage(5), 2400),  // All complete, glow starts
     ];
 
@@ -685,14 +685,16 @@ function TipNotification() {
       className={stage >= 5 ? "tip-notification-glow" : ""}
       style={{
         position: "absolute",
-        top: "12%",
-        right: "-8%",
-        background: "linear-gradient(145deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 165, 0, 0.15) 100%)",
+        top: "-12%",
+        right: "-45%",
+        background: "linear-gradient(145deg, rgba(18, 20, 26, 0.95) 0%, rgba(8, 9, 10, 0.95) 100%)",
         backdropFilter: "blur(20px)",
-        border: "1px solid rgba(255, 215, 0, 0.5)",
+        border: "1px solid rgba(255, 215, 0, 0.4)",
         borderRadius: "16px",
-        padding: "16px 22px",
+        padding: "16px 20px",
         zIndex: 10,
+        minWidth: "200px",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.1)",
         opacity: shouldAnimate ? (stage >= 1 ? 1 : 0) : 1,
         transform: shouldAnimate
           ? stage === 0
@@ -712,17 +714,23 @@ function TipNotification() {
       <div style={{
         display: "flex",
         alignItems: "center",
-        gap: "8px",
-        marginBottom: "8px",
+        justifyContent: "space-between",
+        marginBottom: "10px",
         opacity: shouldAnimate ? (stage >= 2 ? 1 : 0) : 1,
         transform: shouldAnimate ? (stage >= 2 ? "translateY(0)" : "translateY(8px)") : "none",
         transition: "opacity 0.3s ease-out, transform 0.3s ease-out",
       }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFD700" stroke="none">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-        <span style={{ color: "#FFD700", fontSize: "10px", fontWeight: 700, letterSpacing: "1px" }}>
-          TIP RECEIVED
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {/* Bolt Icon */}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFD700" stroke="none">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
+          <span style={{ color: "#FFD700", fontSize: "10px", fontWeight: 700, letterSpacing: "1px" }}>
+            TIP RECEIVED
+          </span>
+        </div>
+        <span style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "9px", fontWeight: 500 }}>
+          JUST NOW
         </span>
       </div>
 
@@ -730,10 +738,11 @@ function TipNotification() {
       <div
         className={stage >= 3 ? "tip-amount-shimmer" : ""}
         style={{
-          color: "#fff",
+          color: "#22C55E",
           fontSize: "28px",
           fontWeight: 800,
           lineHeight: 1,
+          marginBottom: "12px",
           opacity: shouldAnimate ? (stage >= 3 ? 1 : 0) : 1,
           transform: shouldAnimate
             ? stage < 3
@@ -750,16 +759,39 @@ function TipNotification() {
         +$25.00
       </div>
 
-      {/* Subtitle */}
+      {/* Private Message */}
       <div style={{
-        color: "rgba(255, 255, 255, 0.5)",
-        fontSize: "10px",
-        marginTop: "6px",
+        background: "rgba(255, 255, 255, 0.05)",
+        borderRadius: "8px",
+        padding: "10px 12px",
         opacity: shouldAnimate ? (stage >= 4 ? 1 : 0) : 1,
         transform: shouldAnimate ? (stage >= 4 ? "translateY(0)" : "translateY(6px)") : "none",
         transition: "opacity 0.3s ease-out, transform 0.3s ease-out",
       }}>
-        Shielded • Just now
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          marginBottom: "6px",
+        }}>
+          {/* Lock Icon */}
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255, 215, 0, 0.7)" strokeWidth="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span style={{ color: "rgba(255, 215, 0, 0.7)", fontSize: "8px", fontWeight: 600, letterSpacing: "0.5px" }}>
+            PRIVATE MESSAGE
+          </span>
+        </div>
+        <p style={{
+          color: "rgba(255, 255, 255, 0.8)",
+          fontSize: "12px",
+          lineHeight: 1.4,
+          margin: 0,
+          fontStyle: "italic",
+        }}>
+          &quot;Great article! Finally someone said it.&quot;
+        </p>
       </div>
     </div>
   );
@@ -775,11 +807,27 @@ const IRONMAN_BASE_HEIGHT = 580;
 const IRONMAN_TWEET_WIDTH = 400;
 const IRONMAN_CARD_WIDTH = 340;
 
+// Naval avatar URL - preloaded to prevent animation lag
+const NAVAL_AVATAR_URL = "https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2_400x400.jpg";
+
 function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: number }) {
   // 4-phase animation: 0=tweet, 1=card, 2=processing, 3=receipt
   const [phase, setPhase] = useState(0);
   const [sendButtonClicked, setSendButtonClicked] = useState(false);
+  const [imageReady, setImageReady] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
+
+  // Preload Naval avatar image to prevent animation lag
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setImageReady(true);
+    img.onerror = () => setImageReady(true); // Proceed even if image fails
+    img.src = NAVAL_AVATAR_URL;
+
+    // Fallback timeout - proceed after 1.5s even if image isn't loaded
+    const fallback = setTimeout(() => setImageReady(true), 1500);
+    return () => clearTimeout(fallback);
+  }, []);
 
   // Animation timeline - 7 second loop matching the motion script
   // Phase 0: The Hook (0-2s) - Tweet context with cursor animation
@@ -788,8 +836,11 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
   // Phase 3: The Payoff (5-7s) - Receipt with SEALED badge
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0, visible: false, hovering: null as string | null });
 
+  // Gate animation on both visibility and image readiness
+  const animationReady = isVisible && imageReady;
+
   useEffect(() => {
-    if (!isVisible || prefersReducedMotion) return;
+    if (!animationReady || prefersReducedMotion) return;
 
     const LOOP_DURATION = 7000;
 
@@ -844,7 +895,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
       clearInterval(loopInterval);
       clearAllTimers();
     };
-  }, [isVisible, prefersReducedMotion]);
+  }, [animationReady, prefersReducedMotion]);
 
   const shouldAnimate = !prefersReducedMotion;
 
@@ -902,7 +953,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
             {/* Avatar Column with Thread Line */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
               <img
-                src="https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2_400x400.jpg"
+                src={NAVAL_AVATAR_URL}
                 alt="Naval"
                 style={{
                   width: `${40 * scale}px`,
@@ -981,7 +1032,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
           <div style={{ display: "flex", gap: `${12 * scale}px`, marginTop: `${4 * scale}px` }}>
             {/* Avatar */}
             <img
-              src="https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2_400x400.jpg"
+              src={NAVAL_AVATAR_URL}
               alt="Naval"
               style={{
                 width: `${40 * scale}px`,
@@ -1045,7 +1096,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                     }}>
                       {/* Avatar - Squircle */}
                       <img
-                        src="https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2_400x400.jpg"
+                        src={NAVAL_AVATAR_URL}
                         alt="Naval"
                         style={{
                           width: `${24 * scale}px`,
@@ -1362,7 +1413,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
         }}>
           {/* Avatar - squircle with inner glow */}
           <img
-            src="https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2_400x400.jpg"
+            src={NAVAL_AVATAR_URL}
             alt="Naval"
             style={{
               width: `${48 * scale}px`,
@@ -2482,15 +2533,29 @@ export default function HomePage() {
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [tweetVisible, setTweetVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const currentChapter = useCurrentChapter();
   const isMobile = useIsMobile(768);
   const parallaxOffset = useParallax(0.3);
   const parallaxOffsetSlow = useParallax(0.15);
   const prefersReducedMotion = usePrefersReducedMotion();
 
+  // Track mount state for hydration-safe animations
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
   // Animated counters for damage report
   const { ref: feeRef, count: feeCount } = useCountUp(39, 2500, 400);
   const { ref: privacyRef, count: privacyCount } = useCountDown(2500, 400);
+
+  // Fallback timeout for heroAnimationReady - ensures animations proceed
+  // even if HeroTitle.onComplete never fires (e.g., font loading issues)
+  useEffect(() => {
+    if (heroAnimationReady) return;
+    const fallbackTimer = setTimeout(() => setHeroAnimationReady(true), 2000);
+    return () => clearTimeout(fallbackTimer);
+  }, [heroAnimationReady]);
 
   // Gate button/modal animations until tweet is visible
   useEffect(() => {
@@ -2917,20 +2982,10 @@ export default function HomePage() {
         </div>
       </SnapSection>
 
-      {/* Chapter 2: Why Tipping is Broken */}
+      {/* Chapter 2: The False Choice - Simplified Visual Storytelling */}
       <SnapSection id="broken" style={{ padding: "0 48px" }}>
-        {/* Diagonal noise texture overlay */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`,
-          backgroundSize: "150px 150px",
-          pointerEvents: "none",
-          opacity: 0.5,
-        }} />
-
-
         <div style={contentPadding}>
+          {/* Chapter Header */}
           <TerminalReveal delay={0}>
             <div style={{
               fontSize: "11px",
@@ -2947,363 +3002,332 @@ export default function HomePage() {
                 height: "8px",
                 background: colors.error,
                 borderRadius: "50%",
-                animation: "pulse 1.5s ease-in-out infinite",
                 boxShadow: `0 0 10px ${colors.error}`,
               }} />
-              CHAPTER 02: WHY TIPPING IS BROKEN
+              CHAPTER 02: THE FALSE CHOICE
             </div>
           </TerminalReveal>
 
           <TypingHeading
             prefix=">"
             prefixColor={colors.error}
-            text="Web2 steals your wealth. Web3 steals your identity."
-            style={{ fontSize: isMobile ? "32px" : "40px" }}
+            text="The False Choice."
+            style={{ fontSize: isMobile ? "32px" : "44px" }}
           />
 
-          <TerminalReveal delay={100}>
-            <p style={{
-              color: colors.muted,
-              fontSize: "16px",
-              marginTop: "-16px",
-              marginBottom: "40px",
-            }}>
-            </p>
-          </TerminalReveal>
-
-          {/* Damage Report Cards */}
+          {/* The Two Traps - Visual Cards */}
           <div style={{
             display: "grid",
             gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-            gap: "20px",
-            marginTop: "32px",
+            gap: "32px",
             alignItems: "stretch",
+            marginTop: "48px",
           }}>
-            {/* DAMAGE REPORT: PLATFORMS */}
+
+            {/* THE DRAIN - Feudal Model */}
             <TerminalReveal delay={200} style={{ height: "100%" }}>
               <div style={{
                 backgroundColor: colors.surface,
-                border: `1px solid ${colors.error}50`,
-                borderRadius: "12px",
-                padding: "24px",
-                position: "relative",
-                overflow: "hidden",
-                transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+                border: `1px solid ${colors.border}`,
+                borderRadius: "20px",
+                padding: "40px",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
+                position: "relative",
+                overflow: "hidden",
               }}>
-                {/* Pulsing border glow */}
+                {/* Label */}
                 <div style={{
-                  position: "absolute",
-                  inset: -1,
-                  borderRadius: "12px",
-                  background: `linear-gradient(135deg, ${colors.error}20, transparent, ${colors.error}10)`,
-                  animation: prefersReducedMotion ? "none" : "idle-border-glow 3s ease-in-out infinite",
-                  pointerEvents: "none",
-                }} />
-
-                <div style={{
+                  fontSize: "12px",
+                  color: colors.muted,
+                  letterSpacing: "2px",
+                  marginBottom: "32px",
+                  fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
-                  marginBottom: "16px",
-                  position: "relative",
                 }}>
-                  <span style={{
-                    color: colors.error,
-                    fontSize: "16px",
-                    display: "inline-block",
-                    animation: prefersReducedMotion ? "none" : "idle-breathe 2s ease-in-out infinite",
-                  }}>&#9888;</span>
-                  <span style={{
-                    fontSize: "10px",
-                    color: colors.error,
-                    letterSpacing: "2px",
-                    fontWeight: 700,
-                  }}>
-                    SYSTEM ERROR: RENT SEEKING
-                  </span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.muted} strokeWidth="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                  </svg>
+                  OPTION A: SERFDOM
                 </div>
 
-                <p style={{
-                  color: colors.textBright,
-                  fontSize: "18px",
-                  fontWeight: 500,
-                  lineHeight: 1.5,
-                  margin: "0 0 20px 0",
+                {/* THE OWNERSHIP AUDIT - Who owns what */}
+                <div ref={feeRef} style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
                   position: "relative",
-                  fontStyle: "italic",
                 }}>
-                  &ldquo;You build the leverage. They take the equity.&rdquo;
-                </p>
+                  {/* Audit container - matches Receipt style on right */}
+                  <div style={{
+                    backgroundColor: colors.bg,
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: "12px",
+                    padding: "24px",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "13px",
+                  }}>
+                    {/* Each asset status row */}
+                    {[
+                      { asset: "CONTENT", status: "YOURS", safe: true },
+                      { asset: "AUDIENCE", status: "RENTED", safe: false },
+                      { asset: "DISTRIBUTION", status: "THROTTLED", safe: false },
+                      { asset: "INCOME", status: "SEIZABLE", safe: false },
+                    ].map((row, i) => (
+                      <div key={i} style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "12px 0",
+                        borderBottom: i < 3 ? `1px solid ${colors.border}` : "none",
+                      }}>
+                        <span style={{ color: colors.muted }}>{row.asset}</span>
+                        <span style={{
+                          color: row.safe ? colors.success : colors.error,
+                          fontWeight: 600,
+                        }}>
+                          {row.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
 
-                {/* Animated progress bar */}
-                <motion.div
-                  ref={feeRef}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                  style={{ position: "relative", marginBottom: "12px" }}
-                >
+                  {/* Status indicator - matches "FULLY EXPOSED" on right */}
                   <div style={{
                     display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "6px",
-                    fontSize: "11px",
-                  }}>
-                    <span style={{ color: colors.muted }}>COMPOUNDING DESTROYED</span>
-                    <span style={{ color: colors.error, fontWeight: 700 }}>{feeCount}% LOST</span>
-                  </div>
-                  <div style={{
-                    height: "8px",
-                    background: colors.bg,
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                  }}>
-                    <div style={{
-                      width: `${feeCount}%`,
-                      height: "100%",
-                      background: `linear-gradient(90deg, ${colors.error}, ${colors.error}80)`,
-                      borderRadius: "4px",
-                      boxShadow: feeCount > 0 ? `0 0 12px ${colors.error}60` : "none",
-                    }} />
-                  </div>
-                </motion.div>
-
-                {/* $5 Tip Breakdown box */}
-                <div style={{
-                  background: `${colors.error}08`,
-                  border: `1px solid ${colors.error}30`,
-                  borderRadius: "6px",
-                  padding: "12px",
-                  marginBottom: "12px",
-                }}>
-                  <div style={{
-                    fontSize: "9px",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    marginTop: "20px",
+                    fontSize: "12px",
                     color: colors.error,
-                    letterSpacing: "1.5px",
-                    marginBottom: "10px",
-                    fontWeight: 600,
-                  }}>
-                    $5 TIP BREAKDOWN
-                  </div>
-                  <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr auto auto",
-                    gap: "4px 8px",
-                    fontSize: "11px",
                     fontFamily: "var(--font-mono)",
                   }}>
-                    <span style={{ color: colors.muted }}>Your Labor</span>
-                    <span style={{ color: colors.muted, fontSize: "9px" }}></span>
-                    <span style={{ color: colors.textBright, textAlign: "right" }}>$5.00</span>
-
-                    <span style={{ color: colors.muted }}>Platform Rent</span>
-                    <span style={{ color: colors.muted, fontSize: "9px" }}>30%</span>
-                    <span style={{ color: colors.error, textAlign: "right" }}>−$1.50</span>
-
-                    <span style={{ color: colors.muted }}>Middleman Tax</span>
-                    <span style={{ color: colors.muted, fontSize: "9px" }}>flat</span>
-                    <span style={{ color: colors.error, textAlign: "right" }}>−$0.30</span>
-
-                    <span style={{ color: colors.muted }}>Processing</span>
-                    <span style={{ color: colors.muted, fontSize: "9px" }}>2.9%</span>
-                    <span style={{ color: colors.error, textAlign: "right" }}>−$0.15</span>
-
-                    <span style={{
-                      color: colors.muted,
-                      borderTop: `1px solid ${colors.error}30`,
-                      paddingTop: "6px",
-                      marginTop: "4px",
-                    }}>Your Share</span>
-                    <span style={{
-                      borderTop: `1px solid ${colors.error}30`,
-                      paddingTop: "6px",
-                      marginTop: "4px",
-                    }}></span>
-                    <span style={{
-                      color: colors.error,
-                      fontWeight: 700,
-                      textAlign: "right",
-                      borderTop: `1px solid ${colors.error}30`,
-                      paddingTop: "6px",
-                      marginTop: "4px",
-                    }}>$3.05</span>
+                    <span
+                      className={hasMounted ? "warning-flash" : undefined}
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderRadius: "50%",
+                        backgroundColor: colors.error,
+                        boxShadow: `0 0 10px ${colors.error}`,
+                      }}
+                    />
+                    CONTROL: REVOKED
                   </div>
                 </div>
 
-                <p style={{
-                  color: colors.muted,
-                  fontSize: "13px",
-                  margin: 0,
-                  position: "relative",
-                  marginTop: "auto",
+                {/* Bottom line */}
+                <div style={{
+                  fontSize: "15px",
+                  color: colors.textBright,
+                  textAlign: "center",
+                  marginTop: "24px",
+                  lineHeight: 1.5,
                 }}>
-                  Platforms rent your audience back to you.
-                </p>
+                  You feed the algorithm. <span style={{ color: colors.error, fontWeight: 600 }}>They own the audience</span>.
+                </div>
               </div>
             </TerminalReveal>
 
-            {/* DAMAGE REPORT: CRYPTO */}
-            <TerminalReveal delay={350} style={{ height: "100%" }}>
+            {/* THE LOCK - Surveillance Model */}
+            <TerminalReveal delay={300} style={{ height: "100%" }}>
               <div style={{
                 backgroundColor: colors.surface,
-                border: `1px solid ${colors.error}50`,
-                borderRadius: "12px",
-                padding: "24px",
-                position: "relative",
-                overflow: "hidden",
+                border: `1px solid ${colors.border}`,
+                borderRadius: "20px",
+                padding: "40px",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
+                position: "relative",
+                overflow: "hidden",
               }}>
-                {/* Glitch overlay */}
+                {/* Label */}
                 <div style={{
-                  position: "absolute",
-                  inset: 0,
-                  background: `repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 2px,
-                    ${colors.error}05 2px,
-                    ${colors.error}05 4px
-                  )`,
-                  pointerEvents: "none",
-                  opacity: 0.5,
-                }} />
-
-                <div style={{
+                  fontSize: "12px",
+                  color: colors.muted,
+                  letterSpacing: "2px",
+                  marginBottom: "32px",
+                  fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
-                  marginBottom: "16px",
-                  position: "relative",
                 }}>
-                  <span style={{
-                    color: colors.error,
-                    fontSize: "16px",
-                    display: "inline-block",
-                    animation: prefersReducedMotion ? "none" : "idle-breathe 2s ease-in-out infinite 0.5s",
-                  }}>&#9888;</span>
-                  <span style={{
-                    fontSize: "10px",
-                    color: colors.error,
-                    letterSpacing: "2px",
-                    fontWeight: 700,
-                  }}>
-                    PRIVACY FAILURE: PERMANENT RECORD
-                  </span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.muted} strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  OPTION B: SURVEILLANCE
                 </div>
 
-                <p style={{
-                  color: colors.textBright,
-                  fontSize: "18px",
-                  fontWeight: 500,
-                  lineHeight: 1.5,
-                  margin: "0 0 20px 0",
+                {/* THE LOCK ANIMATION - Data being exposed */}
+                <div ref={privacyRef} style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
                   position: "relative",
-                  fontStyle: "italic",
                 }}>
-                  &ldquo;Transparency is a permanent surveillance state.&rdquo;
-                </p>
+                  {/* Transaction being exposed */}
+                  <div style={{
+                    backgroundColor: colors.bg,
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: "12px",
+                    padding: "24px",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "13px",
+                  }}>
+                    {/* Each row lights up red as privacy count drops */}
+                    {[
+                      { label: "FROM", value: "0x7a2f...4e3d", threshold: 80 },
+                      { label: "TO", value: "@creator_handle", threshold: 60 },
+                      { label: "AMOUNT", value: "$50.00", threshold: 40 },
+                      { label: "TIME", value: "2024-01-15 14:32", threshold: 20 },
+                    ].map((row, i) => {
+                      const isExposed = privacyCount <= row.threshold;
+                      return (
+                        <div key={i} style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "12px 0",
+                          borderBottom: i < 3 ? `1px solid ${colors.border}` : "none",
+                          transition: "all 0.5s ease",
+                        }}>
+                          <span style={{ color: colors.muted }}>{row.label}</span>
+                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            <span style={{
+                              color: isExposed ? colors.error : colors.text,
+                              transition: "color 0.3s ease",
+                            }}>
+                              {isExposed ? row.value : "••••••••"}
+                            </span>
+                            {/* Eye icon - open when exposed, closed when hidden */}
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke={isExposed ? colors.error : colors.muted}
+                              strokeWidth="2"
+                              style={{ transition: "all 0.3s ease" }}
+                            >
+                              {isExposed ? (
+                                // Eye open - being watched
+                                <>
+                                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                  <circle cx="12" cy="12" r="3"/>
+                                </>
+                              ) : (
+                                // Eye closed - hidden
+                                <>
+                                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                                  <line x1="1" y1="1" x2="23" y2="23"/>
+                                </>
+                              )}
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
 
-                {/* Exposed indicator */}
-                <motion.div
-                  ref={privacyRef}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                  style={{ position: "relative", marginBottom: "12px" }}
-                >
+                  {/* Status indicator */}
                   <div style={{
                     display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "6px",
-                    fontSize: "11px",
-                  }}>
-                    <span style={{ color: colors.muted }}>SOVEREIGNTY</span>
-                    <span style={{ color: colors.error, fontWeight: 700 }}>{privacyCount > 0 ? `${privacyCount}%` : "LOST"}</span>
-                  </div>
-                  <div style={{
-                    height: "8px",
-                    background: colors.bg,
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                    border: `1px solid ${colors.error}30`,
-                  }}>
-                    <div style={{
-                      width: `${privacyCount}%`,
-                      height: "100%",
-                      background: `linear-gradient(90deg, ${colors.success}, ${colors.success}80)`,
-                      borderRadius: "4px",
-                      boxShadow: privacyCount > 0 ? `0 0 12px ${colors.success}60` : "none",
-                    }} />
-                  </div>
-                </motion.div>
-
-                {/* Exposed on-chain data box */}
-                <div style={{
-                  background: `${colors.error}08`,
-                  border: `1px solid ${colors.error}30`,
-                  borderRadius: "6px",
-                  padding: "12px",
-                  marginBottom: "12px",
-                }}>
-                  <div style={{
-                    fontSize: "9px",
-                    color: colors.error,
-                    letterSpacing: "1.5px",
-                    marginBottom: "10px",
-                    fontWeight: 600,
-                  }}>
-                    EXPOSED ON-CHAIN
-                  </div>
-                  <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "auto 1fr",
-                    gap: "6px 12px",
-                    fontSize: "11px",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    marginTop: "20px",
+                    fontSize: "12px",
+                    color: privacyCount <= 20 ? colors.error : colors.muted,
                     fontFamily: "var(--font-mono)",
+                    transition: "color 0.3s ease",
                   }}>
-                    <span style={{ color: colors.muted }}>Wallet History</span>
-                    <span style={{ color: colors.error }}>INDEXED</span>
-                    <span style={{ color: colors.muted }}>Net Worth</span>
-                    <span style={{ color: colors.error }}>PUBLIC</span>
-                    <span style={{ color: colors.muted }}>Donors</span>
-                    <span style={{ color: colors.error }}>DOXXED</span>
-                    <span style={{ color: colors.muted }}>Privacy</span>
-                    <span style={{ color: colors.error }}>NONE</span>
+                    <span
+                      className={hasMounted && privacyCount <= 20 ? "warning-flash" : undefined}
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderRadius: "50%",
+                        backgroundColor: privacyCount <= 20 ? colors.error : colors.muted,
+                        boxShadow: privacyCount <= 20 ? `0 0 10px ${colors.error}` : "none",
+                        transition: "all 0.3s ease",
+                      }}
+                    />
+                    {privacyCount <= 20 ? "FULLY EXPOSED" : "SCANNING..."}
                   </div>
                 </div>
 
-                <p style={{
-                  color: colors.muted,
-                  fontSize: "13px",
-                  margin: 0,
-                  position: "relative",
-                  marginTop: "auto",
+                {/* Bottom line */}
+                <div style={{
+                  fontSize: "15px",
+                  color: colors.textBright,
+                  textAlign: "center",
+                  marginTop: "24px",
+                  lineHeight: 1.5,
                 }}>
-                  Every transaction builds your permanent record.
-                </p>
+                  Every transaction. <span style={{ color: colors.error, fontWeight: 600 }}>Forever public</span>.
+                </div>
               </div>
             </TerminalReveal>
           </div>
 
-          {/* Unifying Conclusion */}
+          {/* The Third Way - Simple, Confident */}
           <TerminalReveal delay={500}>
-            <p style={{
-              color: colors.primary,
-              fontSize: isMobile ? "18px" : "22px",
-              fontWeight: 600,
+            <div style={{
+              marginTop: "64px",
               textAlign: "center",
-              marginTop: "48px",
-              textShadow: `0 0 20px ${colors.primaryGlow}`,
+              position: "relative",
             }}>
-              Tipz is the first escape tunnel. 0% Rent. 0% Surveillance. 100% Sovereign.
-            </p>
+              {/* Simple golden glow */}
+              <div style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: isMobile ? "300px" : "500px",
+                height: "150px",
+                borderRadius: "50%",
+                background: `radial-gradient(ellipse, ${colors.primaryGlow} 0%, transparent 70%)`,
+                filter: "blur(40px)",
+                opacity: 0.5,
+                pointerEvents: "none",
+              }} />
+
+              <div style={{
+                display: "inline-block",
+                padding: "32px 48px",
+                borderRadius: "16px",
+                border: `2px solid ${colors.primary}40`,
+                backgroundColor: `${colors.surface}`,
+                position: "relative",
+                boxShadow: `0 0 60px ${colors.primaryGlow}`,
+              }}>
+                <p style={{
+                  color: colors.primary,
+                  fontSize: isMobile ? "24px" : "32px",
+                  fontWeight: 700,
+                  marginBottom: "8px",
+                  letterSpacing: "-0.01em",
+                }}>
+                  The Third Way.
+                </p>
+                <p style={{
+                  color: colors.text,
+                  fontSize: "16px",
+                }}>
+                  Ownership without surveillance.
+                </p>
+              </div>
+            </div>
           </TerminalReveal>
         </div>
       </SnapSection>
@@ -3554,7 +3578,7 @@ export default function HomePage() {
                   textShadow: `0 0 30px ${colors.successGlow}`,
                   fontFamily: "'JetBrains Mono', monospace",
                 }}>
-                  100%
+                  0
                 </div>
                 <div style={{
                   fontSize: "10px",
@@ -3563,14 +3587,14 @@ export default function HomePage() {
                   color: colors.muted,
                   marginBottom: "6px",
                 }}>
-                  UNCENSORABLE
+                  GATEKEEPERS
                 </div>
                 <div style={{
                   fontSize: "10px",
                   color: colors.muted,
                   lineHeight: 1.4,
                 }}>
-                  Math-based security. Cannot be frozen.
+                  No middlemen. No freeze risk.
                 </div>
               </div>
             </TerminalReveal>
@@ -4391,7 +4415,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
 
-      {/* Chapter 6: Command Center - Apple-Style Minimal */}
+      {/* Chapter 6: Sovereign Distribution - Apple-Style Minimal */}
       <SnapSection id="creator-tools" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
@@ -4401,7 +4425,7 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 06: COMMAND CENTER
+              CHAPTER 06: SOVEREIGN DISTRIBUTION
             </div>
           </TerminalReveal>
 
@@ -4415,7 +4439,7 @@ export default function HomePage() {
             {/* Left: Minimal Copy */}
             <div>
               <TypingHeading
-                text="Your income, on autopilot."
+                text="The Sovereign Dashboard."
                 style={{ marginBottom: "20px", fontSize: "clamp(32px, 4vw, 42px)" }}
               />
 
@@ -4426,19 +4450,20 @@ export default function HomePage() {
                   lineHeight: 1.6,
                   marginBottom: "36px",
                 }}>
-                  We auto-stamp your content. You watch the tips roll in.
+                  Monitor your income in real-time. Distribute your link instantly. Read private messages that X can never see.
                 </p>
               </TerminalReveal>
 
-              {/* Feature Deck - Horizontal Row */}
+              {/* Feature Deck - Vertical Stack with Descriptions */}
               <TerminalReveal delay={200}>
                 <div style={{
                   display: "flex",
-                  gap: "24px",
+                  flexDirection: "column",
+                  gap: "20px",
                   marginBottom: "40px",
                 }}>
-                  {/* Auto-QR */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  {/* Smart Watermark */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                     <svg
                       width="24"
                       height="24"
@@ -4446,20 +4471,22 @@ export default function HomePage() {
                       fill="none"
                       stroke="#FFD700"
                       strokeWidth="2"
-                      style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite" }}
+                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite" }}
                     >
-                      <rect x="3" y="3" width="7" height="7"/>
-                      <rect x="14" y="3" width="7" height="7"/>
-                      <rect x="3" y="14" width="7" height="7"/>
-                      <rect x="14" y="14" width="7" height="7"/>
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 500 }}>
-                      Auto-QR
-                    </span>
+                    <div>
+                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
+                        Smart Watermark
+                      </span>
+                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
+                        Auto-stamp your media with your payment signal. If your content spreads, your income grows.
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Instant Alerts */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  {/* Live Stream */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                     <svg
                       width="24"
                       height="24"
@@ -4467,17 +4494,22 @@ export default function HomePage() {
                       fill="none"
                       stroke="#FFD700"
                       strokeWidth="2"
-                      style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.3s" }}
+                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.3s" }}
                     >
                       <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 500 }}>
-                      Instant Alerts
-                    </span>
+                    <div>
+                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
+                        Live Stream
+                      </span>
+                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
+                        Watch tips land in your wallet the second they are sent. No monthly payouts. No delays.
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Revenue Analytics */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  {/* Priority Inbox */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                     <svg
                       width="24"
                       height="24"
@@ -4485,13 +4517,19 @@ export default function HomePage() {
                       fill="none"
                       stroke="#FFD700"
                       strokeWidth="2"
-                      style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.6s" }}
+                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.6s" }}
                     >
-                      <path d="M18 20V10M12 20V4M6 20v-6" strokeLinecap="round" strokeLinejoin="round"/>
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 500 }}>
-                      Revenue Analytics
-                    </span>
+                    <div>
+                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
+                        Priority Inbox
+                      </span>
+                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
+                        Receive private, encrypted messages attached to every tip. A direct line to your biggest fans.
+                      </span>
+                    </div>
                   </div>
                 </div>
               </TerminalReveal>
@@ -4518,7 +4556,7 @@ export default function HomePage() {
                     transition: "all 0.2s ease",
                   }}
                 >
-                  INSTALL COMMAND CENTER
+                  GET THE EXTENSION
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -4613,50 +4651,30 @@ export default function HomePage() {
                       backgroundPosition: "center",
                       position: "relative",
                     }}>
-                      {/* TIPZ QR Code watermark - black QR, gold text */}
+                      {/* TIPZ Smart Watermark - Frosted glass pill */}
                       <div style={{
                         position: "absolute",
-                        bottom: "6px",
-                        right: "6px",
+                        bottom: "4px",
+                        right: "4px",
+                        background: "rgba(0, 0, 0, 0.5)",
+                        backdropFilter: "blur(6px)",
+                        WebkitBackdropFilter: "blur(6px)",
+                        padding: "2px 6px",
+                        borderRadius: "6px",
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
                         display: "flex",
-                        flexDirection: "column",
                         alignItems: "center",
+                        justifyContent: "center",
                       }}>
-                        <div style={{
-                          width: "28px",
-                          height: "28px",
-                          display: "grid",
-                          gridTemplateColumns: "repeat(7, 1fr)",
-                          gridTemplateRows: "repeat(7, 1fr)",
-                          gap: "0.5px",
-                          background: "#F5A623",
-                          padding: "2px",
-                          borderRadius: "2px",
-                        }}>
-                          {[
-                            1,1,1,0,1,1,1,
-                            1,0,1,0,1,0,1,
-                            1,1,1,0,1,1,1,
-                            0,0,0,0,0,0,0,
-                            1,1,1,0,1,0,1,
-                            1,0,1,0,0,1,0,
-                            1,1,1,0,1,1,1,
-                          ].map((cell, i) => (
-                            <div key={i} style={{
-                              background: cell ? "#000" : "#F5A623",
-                            }} />
-                          ))}
-                        </div>
-                        <div style={{
-                          color: "#F5A623",
-                          fontSize: "7px",
+                        <span style={{
+                          color: "rgba(255, 255, 255, 0.9)",
+                          fontSize: "8px",
                           fontFamily: "'JetBrains Mono', monospace",
-                          fontWeight: 700,
-                          marginTop: "3px",
-                          textShadow: "0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.5)",
+                          fontWeight: 500,
+                          letterSpacing: "0.2px",
                         }}>
                           tipz.cash/mert
-                        </div>
+                        </span>
                       </div>
                     </div>
                     {/* Article Meta */}
@@ -5853,6 +5871,228 @@ export default function HomePage() {
         @keyframes idle-arrow-pulse {
           0%, 100% { opacity: 0.6; }
           50% { opacity: 1; }
+        }
+
+        /* Chapter 2: The False Choice - Simplified Animations */
+
+        /* Coin drain animation - simple horizontal flow */
+        @keyframes coin-drain {
+          0% {
+            transform: translateX(-20px);
+            opacity: 0;
+          }
+          20% {
+            opacity: 1;
+          }
+          80% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateX(20px);
+            opacity: 0;
+          }
+        }
+
+        /* Legacy animations kept for compatibility */
+        @keyframes tear-glitch {
+          0%, 90% {
+            opacity: 0.6;
+            transform: translateX(-50%) scaleY(1);
+          }
+          92% {
+            opacity: 0.9;
+            transform: translateX(-48%) scaleY(1.1);
+          }
+          94% {
+            opacity: 0.3;
+            transform: translateX(-52%) scaleY(0.9);
+          }
+          96% {
+            opacity: 1;
+            transform: translateX(-50%) scaleY(1.15);
+          }
+          98% {
+            opacity: 0.5;
+            transform: translateX(-50%) scaleY(0.95);
+          }
+          100% {
+            opacity: 0.6;
+            transform: translateX(-50%) scaleY(1);
+          }
+        }
+
+        /* Prison bars pulsing shadow */
+        @keyframes prison-bars {
+          0%, 100% {
+            opacity: 0.3;
+            transform: translateX(0);
+          }
+          50% {
+            opacity: 0.5;
+            transform: translateX(2px);
+          }
+        }
+
+        /* Portcullis closing animation */
+        @keyframes portcullis {
+          0%, 100% {
+            stroke-dasharray: 0 0;
+            opacity: 0.7;
+          }
+          50% {
+            stroke-dasharray: 2 1;
+            opacity: 1;
+          }
+        }
+
+        /* Lock indicator pulse */
+        @keyframes lock-pulse {
+          0%, 100% { r: 3; opacity: 0.6; }
+          50% { r: 3.5; opacity: 1; }
+        }
+
+        /* Particle flow from YOU to PLATFORM */
+        @keyframes particle-flow {
+          0% {
+            transform: translateX(0) translateY(-50%);
+            opacity: 0;
+          }
+          20% {
+            opacity: 0.8;
+          }
+          80% {
+            opacity: 0.8;
+          }
+          100% {
+            transform: translateX(-200px) translateY(-50%);
+            opacity: 0;
+          }
+        }
+
+        /* Ownership bar pulse */
+        @keyframes ownership-pulse {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(245, 166, 35, 0.2);
+          }
+          50% {
+            box-shadow: 0 0 35px rgba(245, 166, 35, 0.4);
+          }
+        }
+
+        /* Scrolling hex addresses */
+        @keyframes scroll-hex {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+
+        @keyframes scroll-hex-reverse {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
+        }
+
+        /* Vertical scan line */
+        @keyframes scan-line-vertical {
+          0% { top: -2px; }
+          100% { top: 100%; }
+        }
+
+        /* Eye pupil tracking */
+        @keyframes eye-track {
+          0%, 100% { transform: translateX(-2px); }
+          50% { transform: translateX(2px); }
+        }
+
+        /* Eye iris pulse */
+        @keyframes eye-pulse {
+          0%, 100% {
+            stroke: #EF4444;
+            opacity: 0.8;
+          }
+          50% {
+            stroke: #F87171;
+            opacity: 1;
+          }
+        }
+
+        /* Eye scanning sweep */
+        @keyframes eye-sweep {
+          0%, 100% { transform: rotate(-30deg); opacity: 0.3; }
+          50% { transform: rotate(30deg); opacity: 0.6; }
+        }
+
+        /* Golden particle burst */
+        @keyframes golden-burst {
+          0% {
+            transform: rotate(var(--rotation, 0deg)) translateX(0);
+            opacity: 0;
+          }
+          20% {
+            opacity: 0.8;
+          }
+          100% {
+            transform: rotate(var(--rotation, 0deg)) translateX(80px);
+            opacity: 0;
+          }
+        }
+
+        /* Hope glow aura */
+        @keyframes hope-glow {
+          0%, 100% {
+            opacity: 0.3;
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% {
+            opacity: 0.5;
+            transform: translate(-50%, -50%) scale(1.1);
+          }
+        }
+
+        /* Gradient shift for border */
+        @keyframes gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        /* Ring pulse for proof section decorative rings */
+        /* Note: Only opacity is animated since transform is handled by idle-spin-slow */
+        @keyframes ringPulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 0.8; }
+        }
+
+        /* Feudal card hover effects */
+        .feudal-card:hover {
+          border-color: rgba(245, 166, 35, 0.4) !important;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 30px rgba(245, 166, 35, 0.1) !important;
+          transform: perspective(1000px) rotateY(2deg) !important;
+        }
+
+        .feudal-card:hover .chain-corner {
+          opacity: 1 !important;
+        }
+
+        /* Surveillance card hover effects */
+        .surveillance-card:hover {
+          border-color: rgba(239, 68, 68, 0.4) !important;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 30px rgba(239, 68, 68, 0.1) !important;
+          transform: perspective(1000px) rotateY(-2deg) !important;
+        }
+
+        .surveillance-card:hover .eye-glow {
+          opacity: 1 !important;
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+          .feudal-card,
+          .surveillance-card {
+            transition: none !important;
+          }
+          .feudal-card:hover,
+          .surveillance-card:hover {
+            transform: none !important;
+          }
         }
 
         .cta-hero {

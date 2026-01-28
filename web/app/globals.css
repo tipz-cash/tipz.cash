@@ -306,6 +306,22 @@ body {
   }
 }
 
+/* Warning flash for status indicators */
+.warning-flash {
+  animation: warning-flash 0.8s ease-in-out infinite;
+}
+
+@keyframes warning-flash {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1.5);
+  }
+  50% {
+    opacity: 0.3;
+    filter: brightness(1);
+  }
+}
+
 /* Float animation for atmospheric orbs */
 @keyframes float {
   0%, 100% {
