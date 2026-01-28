@@ -3400,11 +3400,11 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "12px",
-                padding: "18px 16px",
+                padding: "20px 18px",
                 textAlign: "center",
                 position: "relative",
                 overflow: "hidden",
-                width: isMobile ? "130px" : "145px",
+                width: isMobile ? "140px" : "155px",
                 transform: isMobile ? "none" : "translateY(16px)",
               }}>
                 <div style={{
@@ -3552,11 +3552,11 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "12px",
-                padding: "18px 16px",
+                padding: "20px 18px",
                 textAlign: "center",
                 position: "relative",
                 overflow: "hidden",
-                width: isMobile ? "130px" : "145px",
+                width: isMobile ? "140px" : "155px",
                 transform: isMobile ? "none" : "translateY(16px)",
               }}>
                 <div style={{
