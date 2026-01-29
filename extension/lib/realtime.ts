@@ -22,6 +22,8 @@ export interface MessageEvent {
   depositAddress: string
   encryptedBlob: string
   receivedAt: number
+  amountZec?: string    // e.g., "0.0500"
+  amountUsd?: string    // e.g., "$2.50"
 }
 
 export type TipEventCallback = (tip: TipEvent) => void
@@ -324,6 +326,8 @@ class MessageRealtimeClient {
         depositAddress: data.payload.payload.depositAddress,
         encryptedBlob: data.payload.payload.encryptedBlob,
         receivedAt: data.payload.payload.receivedAt,
+        amountZec: data.payload.payload.amountZec,
+        amountUsd: data.payload.payload.amountUsd,
       }
 
       this.callbacks.forEach((callback) => callback(message))
