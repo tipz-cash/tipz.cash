@@ -95,6 +95,59 @@ Remaining:
 
 ### P1: Important
 
+#### Mesh Connect (Exchange Payments)
+**Priority**: P1
+**Status**: Not started
+
+**Overview**: Add Mesh Connect as an alternative payment method. Allows users to tip directly from their Coinbase/Binance accounts without needing a wallet. This completes the "Universal Intake" story.
+
+**Flow (non-custodial):**
+```
+User clicks "Pay with Exchange"
+    ↓
+Backend gets NEAR Intents quote → deposit address
+    ↓
+Backend creates Mesh linkToken with toAddress = deposit address
+    ↓
+Frontend opens Mesh modal
+    ↓
+User logs into Coinbase, confirms payment
+    ↓
+Mesh sends USDC directly to NEAR Intents deposit address
+    ↓
+NEAR Intents automatically processes swap
+    ↓
+ZEC delivered to creator's shielded address
+```
+
+**Files to Create/Modify:**
+| File | Action | Purpose |
+|------|--------|---------|
+| `web/.env.example` | Modify | Add `MESH_CLIENT_ID`, `MESH_CLIENT_SECRET`, `NEXT_PUBLIC_MESH_CLIENT_ID` |
+| `web/app/api/mesh/link-token/route.ts` | Create | Generate Mesh linkToken + NEAR Intents quote |
+| `web/lib/mesh.ts` | Create | Mesh API client utilities |
+| `web/components/tipping/TippingFlow.tsx` | Modify | Add Mesh payment option |
+| `web/components/tipping/MeshPayButton.tsx` | Create | Mesh payment button + modal trigger |
+
+**Prerequisites:**
+1. Sign up at dashboard.meshconnect.com, get sandbox API keys
+2. Verify Mesh supports Polygon USDC transfers and get exact `networkId` value
+3. Contact Mesh sales to understand production costs
+
+See: `docs/technical/near-intents-integration.md` for full Mesh implementation details.
+
+#### Direct ZEC (Memo Field Support)
+**Priority**: P1
+**Status**: Not started
+
+**Overview**: Allow tippers with Zcash wallets to send directly to creator's shielded address with encrypted memo field for messages.
+
+Tasks:
+- [ ] Add "Direct ZEC" payment option in TippingFlow
+- [ ] Generate payment request with memo field instructions
+- [ ] Display creator's shielded address with copy button
+- [ ] Document memo field encryption format
+
 #### Rate Limiting ✅
 **Status**: Implemented on /api/register
 
@@ -121,9 +174,89 @@ Completed:
 
 ---
 
-## Phase 2: Stability 🔄 In Progress
+## Phase 2: Private Messaging (The Monopoly Feature) 🔜 Next
 
-**Goal**: Production-ready reliability
+**Goal**: Zero-Knowledge DMs on payments — "X cannot compete"
+
+> **Strategic Note**: This is the 0→1 monopoly play. Per Zero to One analysis, private messaging is the only feature where "X cannot compete" is structurally true. X will never offer encrypted DMs on payments because it undermines their advertising model.
+
+### RSA-OAEP Key Generation
+**Priority**: P0 (Critical Path)
+**Status**: Not started
+
+Tasks:
+- [ ] Generate RSA-OAEP key pair in extension on first link
+- [ ] Store private key in `chrome.storage.local` (never transmits)
+- [ ] Send public key to server on creator registration
+- [ ] Update creators table schema to store public keys
+- [ ] Add key rotation mechanism (future enhancement)
+
+Technical approach:
+- 4096-bit RSA-OAEP for key exchange (40+ year security margin)
+- Hybrid encryption: AES-256-GCM (message) + RSA-OAEP (key)
+- Password-protected private key storage (optional)
+- ~50 lines of crypto code, no dependencies (`window.crypto.subtle`)
+
+See `docs/engineering/private-messaging-spec.md` for full implementation.
+
+### Blind Relay Endpoint
+**Priority**: P0 (Critical Path)
+**Status**: Not started
+
+Tasks:
+- [ ] Create `POST /api/messages/relay` endpoint
+- [ ] Accept `[depositAddress, encryptedBlob, timestamp]`
+- [ ] Push to creator via Supabase Realtime
+- [ ] Log ONLY delivery timestamp (no content, no sender)
+- [ ] Implement rate limiting (10 messages/minute per IP)
+
+Architecture:
+```
+Tipper encrypts message with creator's public key
+    ↓
+POST /api/messages/relay { depositAddress, encryptedBlob }
+    ↓
+Server validates depositAddress exists
+    ↓
+Server pushes to creator's Realtime channel
+    ↓
+Server logs: { timestamp, delivered: true } (nothing else)
+    ↓
+Extension decrypts with local private key
+```
+
+Security guarantees:
+- Server cannot read message content (RSA-OAEP encryption)
+- Server cannot identify sender (no IP logging on message content)
+- Server cannot correlate messages to tips (depositAddress is already public)
+
+### Encrypted Notification UI
+**Priority**: P1
+**Status**: Not started
+
+Tasks:
+- [ ] Update extension notification format: `+$5 • [Message]` with lock icon
+- [ ] Add message preview in popup (decrypted client-side)
+- [ ] Handle messages without tips (future: paid DMs)
+- [ ] Add "Messages" tab to extension popup
+
+### Security Documentation
+**Priority**: P1
+**Status**: Not started
+
+Tasks:
+- [ ] Write "We cannot read your DMs" security documentation
+- [ ] Create threat model document
+- [ ] Document key recovery implications (lost key = lost messages)
+- [ ] Add security FAQ to landing page
+
+See: `docs/engineering/private-messaging-spec.md` for full technical specification.
+
+---
+
+## Phase 2.5: Stability (Bundled with Launch)
+
+**Goal**: Production-ready reliability (ship alongside Phase 2)
 
 ### Error Monitoring
 **Priority**: P1
@@ -178,9 +311,9 @@ Completed:
 
 ---
 
-## Phase 3: Growth Features (Week 4+)
+## Phase 3: Growth Features (Post-Launch)
 
-**Goal**: Features that drive adoption
+**Goal**: Features that drive adoption after core loop + private messaging are live
 
 ### Creator Dashboard
 **Priority**: P2
@@ -199,7 +332,7 @@ Technical:
 - Aggregated analytics only
 
 ### Recurring Tips
-**Priority**: P2
+**Priority**: P3
 **Owner**: Full Stack
 **Effort**: Large
 
@@ -237,59 +370,27 @@ Technical:
 - Generic "creator" positioning
 - Multi-platform dashboard analytics
 
-### Mesh Connect (Exchange Payments)
-**Priority**: P2
-**Owner**: Full Stack
-**Effort**: Medium
+---
 
-**Overview**: Add Mesh Connect as an alternative payment method. Allows users to tip directly from their Coinbase/Binance accounts without needing a wallet.
+## Phase 4: Mobile (DEFERRED)
 
-**Flow (non-custodial):**
-```
-User clicks "Pay with Exchange"
-    ↓
-Backend gets NEAR Intents quote → deposit address
-    ↓
-Backend creates Mesh linkToken with toAddress = deposit address
-    ↓
-Frontend opens Mesh modal
-    ↓
-User logs into Coinbase, confirms payment
-    ↓
-Mesh sends USDC directly to NEAR Intents deposit address
-    ↓
-NEAR Intents automatically processes swap
-    ↓
-ZEC delivered to creator's shielded address
-```
+**Status**: DEFERRED until proven demand
 
-**Architecture Decision**: Two payment paths, same NEAR Intents destination:
-1. **Wallet Connect (existing):** User connects wallet → sends to NEAR Intents deposit address → ZEC to creator
-2. **Mesh (new):** User logs into exchange → Mesh sends to NEAR Intents deposit address → ZEC to creator
+> **Strategic Note**: Per Zero to One power law analysis, mobile is deferred to maintain concentration on the 0→1 monopoly feature (Private Messaging). Build mobile only when:
+> 1. X privacy creators are saturated (extension/web)
+> 2. Creators are explicitly pulling for mobile
+> 3. Clear 10x mobile insight emerges (not just "convenience")
 
-**TIPZ never custodies funds.** Both paths route through NEAR Intents deposit addresses. We're just orchestrating the connection between Mesh and NEAR Intents.
+**Potential Features** (when demand proven):
+- Mobile wallet for creators
+- Push notifications for tips
+- Auto-divestment (ZEC → stablecoin) - novel feature
+- "Swiss Vault" / Relationship Manager
 
-**Files to Create/Modify:**
-| File | Action | Purpose |
-|------|--------|---------|
-| `web/.env.example` | Modify | Add `MESH_CLIENT_ID`, `MESH_CLIENT_SECRET`, `NEXT_PUBLIC_MESH_CLIENT_ID` |
-| `web/app/api/mesh/link-token/route.ts` | Create | Generate Mesh linkToken + NEAR Intents quote |
-| `web/lib/mesh.ts` | Create | Mesh API client utilities |
-| `web/components/tipping/TippingFlow.tsx` | Modify | Add Mesh payment option |
-| `web/components/tipping/MeshPayButton.tsx` | Create | Mesh payment button + modal trigger |
-
-**Prerequisites:**
-1. Sign up at dashboard.meshconnect.com, get sandbox API keys
-2. Verify Mesh supports Polygon USDC transfers and get exact `networkId` value
-3. Contact Mesh sales to understand production costs
-
-**Edge Cases:**
-- Quote expiry: NEAR Intents quotes expire in ~10 minutes. If user takes too long in Mesh modal, show error and prompt to retry
-- Mesh transfer fails: Funds stay in user's exchange - show error message
-- NEAR Intents swap fails: Funds refund to the `refundTo` address
-- Network mismatch: Ensure Mesh `networkId` matches the chain NEAR Intents deposit address is on
-
-See: `docs/technical/near-intents-integration.md` for full technical implementation details.
+**Evaluation Criteria**:
+- [ ] 50+ creator requests for mobile functionality
+- [ ] Clear use case that can't be served by web/extension
+- [ ] Identified 10x insight specific to mobile
 
 ---
 
@@ -322,13 +423,76 @@ See: `docs/technical/near-intents-integration.md` for full technical implementat
 | MVP Launch | Week 1 | ✅ Complete | Tip flow works end-to-end (demo mode) |
 | Testnet Ready | Week 2 | ✅ Complete | NEAR testnet integration working |
 | Mainnet Ready | Week 4 | 🔄 In Progress | Production NEAR + Twitter API |
-| Stable | Week 6 | Pending | No critical bugs in 48hr, error monitoring |
-| Growth Ready | Week 10 | Pending | Creator analytics dashboard |
-| Scale | Week 16 | Pending | 10K+ active creators |
+| Private Messaging | Week 6 | Pending | RSA-OAEP + Blind Relay working |
+| Genesis Launch | Week 8 | Pending | Ship to Genesis 50 with full feature set |
+| Stable | Week 10 | Pending | No critical bugs in 48hr, error monitoring |
+| Growth Ready | Week 14 | Pending | Creator analytics dashboard |
+| Scale | Week 20 | Pending | 10K+ active creators |
+
+### Pre-Launch Bundle
+
+> **Decision**: Bundle Phase 1 + Phase 2 before public launch. Ship the complete 0→1 story.
+
+```
+Pre-Launch Build (Ship Together)
+├── Phase 1: Core Loop
+│   ├── NEAR Intents mainnet deployment
+│   ├── Mesh Connect integration (Universal Intake)
+│   ├── Watermark auto-stamp polish
+│   └── Direct ZEC (memo field support)
+│
+├── Phase 2: Private Messaging
+│   ├── RSA-OAEP key gen in extension
+│   ├── Blind Relay endpoint
+│   ├── Encrypted notification UI (+$5 • [Message])
+│   └── Security documentation
+│
+└── Launch Assets
+    ├── Landing page chapters ready
+    ├── Zooko-style pill mockup
+    └── "Zero-Knowledge DMs" marketing copy
+
+Launch
+├── Genesis 50 onboarding (privacy-affinity creators)
+├── Zooko / Shielded Labs outreach with complete story
+└── Public announcement with full feature set
+```
+
+**Rationale**: Launching without private messaging would position TIPZ as "another tipping app." Bundling both features ships the complete monopoly story: "Private payments + Zero-Knowledge DMs. X cannot compete."
 
 ---
 
 ## Decision Log
+
+### Bundle Phase 1 + Phase 2 for Launch
+**Date**: 2026-01-29
+**Decision**: Ship Private Messaging alongside Core Loop, not after
+**Rationale**: Per Zero to One analysis, partial launch = 1→n positioning. Complete story = monopoly positioning. "Private payments + Zero-Knowledge DMs. X cannot compete."
+**Framework**: Zero to One: Monopoly
+
+### Phase 2 Before Mobile
+**Date**: 2026-01-29
+**Decision**: Prioritize Private Messaging over mobile app development
+**Rationale**: Private messaging is the 0→1 monopoly feature. Mobile is 1→n (many wallets exist). Power law thinking = concentrate resources on the feature that creates structural moat.
+**Framework**: Zero to One: Power law concentration
+
+### Defer Mobile Until Demand Proven
+**Date**: 2026-01-29
+**Decision**: No mobile development until explicit creator pull
+**Rationale**: Avoid resource spread. Mobile is expensive. No clear 10x mobile insight yet. Extension/web serves current needs.
+**Framework**: Zero to One: Definite optimism vs option-hoarding
+
+### Genesis 50 = Privacy Affinity
+**Date**: 2026-01-29
+**Decision**: Select Genesis creators by privacy alignment, not volume
+**Rationale**: Smaller but aligned > large but indifferent. Privacy-aligned creators become evangelists, not just users. Specific knowledge compounds.
+**Framework**: Naval: Long-term games with long-term people
+
+### Private Messaging = Free Tier
+**Date**: 2026-01-29
+**Decision**: Encrypted messages are free, not premium-gated
+**Rationale**: This is the monopoly mechanic, not a revenue gate. Network effects compound when everyone can send private messages. Gate premium features that benefit from scale (analytics, badges).
+**Framework**: Zero to One: Network effects
 
 ### Why Plasmo for Extension?
 **Date**: Project start

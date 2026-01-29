@@ -14,6 +14,8 @@
 
 4. **Privacy is the product** — No data sales. No surveillance partnerships. No exceptions.
 
+5. **Monopoly features stay free** — Private messaging (Zero-Knowledge DMs) is free forever. This is the moat, not the revenue gate. Network effects compound when everyone can use it.
+
 ---
 
 ## Revenue Phases (Reordered for Power Law)
@@ -36,6 +38,23 @@
 | Proof of concept | 50 creators receiving tips | Month 2 |
 | Usage validation | $10,000 monthly tip volume | Month 4 |
 | Market fit signal | 20 creators each receiving $500+/month | Month 6 |
+
+**Genesis 50 Selection Criteria:**
+
+> **Principle**: Privacy affinity > volume. Aligned evangelists > indifferent users.
+
+Selection criteria (in order of priority):
+1. **Privacy alignment** — Creator already discusses privacy, surveillance, sovereignty
+2. **Zcash/crypto familiarity** — Understands shielded addresses, self-custody
+3. **Active X presence** — Posts regularly, engaged audience
+4. **Audience fit** — Followers likely to value private support
+
+**NOT** selection criteria:
+- ❌ Follower count alone
+- ❌ Volume of tips on other platforms
+- ❌ "Influencer" status without privacy alignment
+
+**Rationale**: Genesis creators become the narrative. If they're privacy-aligned, they'll explain *why* TIPZ matters, not just *that* it exists. This creates compounding evangelism vs. one-time promotion.
 
 ---
 
@@ -75,9 +94,11 @@
 
 | Tier | Price | Features | Monopoly Mechanic |
 |------|-------|----------|-------------------|
-| **Free** | $0 | Core tipping, auto-stamp, basic stats, notifications | — |
+| **Free** | $0 | Core tipping, auto-stamp, basic stats, notifications, **Zero-Knowledge DMs** | Private messaging = monopoly feature, stays free forever |
 | **Verified** | $8/mo | Badge, priority directory placement, custom themes | Badge = trust signal, more tips = more want badge |
 | **Pro** | $20/mo | Aggregate insights, API, data export, white-label embed | Insights only possible with TIPZ scale = lock-in |
+
+> **Note**: Zero-Knowledge DMs (encrypted messages on tips) are included in the Free tier. This is the 0→1 monopoly feature — "X cannot compete" only works if everyone has access. Gating it would undermine the network effect.
 
 **Key Differences from v0.1:**
 - Higher prices ($8/$20 vs $5/$15) — validated with anchor creators first
@@ -175,6 +196,7 @@ Before each phase launch, validate:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1 | 2026-01-29 | Added Genesis 50 selection criteria (privacy affinity), clarified private messaging as free tier monopoly mechanic |
 | 1.0 | 2026-01-27 | Complete rewrite optimized for Zero to One framework |
 | 0.2 | 2026-01-27 | Added Zero to One strategic analysis |
 | 0.1 | 2026-01-27 | Initial roadmap draft |
