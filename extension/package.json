@@ -2,7 +2,7 @@
   "name": "tipz-extension",
   "displayName": "TIPZ",
   "version": "0.0.1",
-  "description": "Private micro-tipping for X and Substack creators",
+  "description": "Private micro-tipping for X creators",
   "author": "",
   "scripts": {
     "dev": "plasmo dev",
@@ -25,9 +25,7 @@
   },
   "manifest": {
     "host_permissions": [
-      "https://x.com/*",
-      "https://twitter.com/*",
-      "https://tipz.cash/*"
+      "<all_urls>"
     ],
     "permissions": [
       "storage",
