@@ -13,6 +13,7 @@ import { PaymentRow, LogoDisplay, type ExchangeOption } from "./PaymentMethodPic
 import { openMeshTransfer } from "@/lib/mesh"
 import { tokens, keyframes } from "./designTokens"
 import type { WalletType, SupportedToken } from "@/lib/wallet"
+import { encryptMessage, serializeEncryptedMessage, isValidPublicKey } from "@/lib/message-encryption"
 
 // Animation variants for content transitions - fast and subtle
 const contentVariants = {
@@ -27,14 +28,16 @@ interface TippingFlowProps {
   isMobile?: boolean
   avatarColor?: string
   avatarUrl?: string
+  publicKey?: JsonWebKey  // Creator's public key for message encryption
 }
 
-export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, avatarColor = "#4B5563", avatarUrl }: TippingFlowProps) {
+export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, avatarColor = "#4B5563", avatarUrl, publicKey }: TippingFlowProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [showZecDirect, setShowZecDirect] = useState(false)
   const [showPaymentPicker, setShowPaymentPicker] = useState(false)
   const [showTokenSelector, setShowTokenSelector] = useState(false)
   const [pendingWalletType, setPendingWalletType] = useState<WalletType | null>(null)
+  const [messageSent, setMessageSent] = useState(false)
 
   // Wallet hook
   const {
@@ -96,6 +99,44 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
   // Check if amount is selected
   const hasAmount = selectedAmount !== null || (customAmount && parseFloat(customAmount) > 0)
   const displayAmount = selectedAmount || (customAmount ? parseFloat(customAmount) : 0) || 0
+
+  // Can the creator receive encrypted messages?
+  const canReceiveMessages = isValidPublicKey(publicKey)
+
+  // Send encrypted message when tip succeeds
+  useEffect(() => {
+    if (flowState === "success" && depositAddress && privateMessage.trim() && publicKey && canReceiveMessages && !messageSent) {
+      const sendEncryptedMessage = async () => {
+        try {
+          const encrypted = await encryptMessage(privateMessage, publicKey)
+          const blob = serializeEncryptedMessage(encrypted)
+
+          await fetch("/api/messages/relay", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              depositAddress,
+              encryptedBlob: blob,
+            }),
+          })
+
+          setMessageSent(true)
+          console.log("[TippingFlow] Encrypted message relayed")
+        } catch (error) {
+          console.error("[TippingFlow] Failed to relay encrypted message:", error)
+        }
+      }
+
+      sendEncryptedMessage()
+    }
+  }, [flowState, depositAddress, privateMessage, publicKey, canReceiveMessages, messageSent])
+
+  // Reset messageSent when flow resets
+  useEffect(() => {
+    if (flowState === "idle") {
+      setMessageSent(false)
+    }
+  }, [flowState])
 
   // Glass card container styles
   const cardStyles = {
@@ -531,12 +572,13 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
           />
         </div>
 
-        {/* Message Trench - always visible, always enabled */}
+        {/* Message Trench - only show if creator can receive messages */}
         <div style={{ marginBottom: tokens.space.md }}>
           <MessageTrench
             value={privateMessage}
             onChange={setPrivateMessage}
             disabled={false}
+            canReceiveMessages={canReceiveMessages}
           />
         </div>
 

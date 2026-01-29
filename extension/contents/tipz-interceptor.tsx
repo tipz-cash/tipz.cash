@@ -1,6 +1,7 @@
 import cssText from "data-text:~styles.css"
 import type { PlasmoCSConfig } from "plasmo"
 import { useEffect } from "react"
+import { setupMessagingForCreator } from "~lib/identity"
 
 export const config: PlasmoCSConfig = {
   matches: [
@@ -50,13 +51,22 @@ function readLocalStorageIdentity(): CreatorIdentity | null {
 }
 
 /**
- * Store verified identity in chrome.storage.local for extension-wide access
+ * Store verified identity in chrome.storage.local for extension-wide access.
+ * Also sets up messaging keypair if not already present.
  */
 async function storeIdentityInChromeStorage(identity: CreatorIdentity): Promise<boolean> {
   try {
     if (typeof chrome !== "undefined" && chrome.storage?.local) {
       await chrome.storage.local.set({ [CHROME_STORAGE_KEY]: identity })
       console.log("TIPZ Interceptor: Identity stored in chrome.storage.local", identity.handle)
+
+      // Setup messaging keypair (generates if needed, uploads public key)
+      setupMessagingForCreator(identity.handle).then((result) => {
+        if (result.enabled) {
+          console.log("TIPZ Interceptor: Private messaging enabled for", identity.handle)
+        }
+      })
+
       return true
     }
     return false

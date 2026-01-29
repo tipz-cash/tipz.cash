@@ -185,6 +185,12 @@ My shielded address: ${shieldedAddress || "[your address]"}`
           verified: true,
           verifiedAt: Date.now()
         }))
+
+        // Dispatch custom event for TIPZ extension to auto-link
+        // The extension's tipz-interceptor.tsx listens for this event
+        window.dispatchEvent(new CustomEvent('tipz-registration-success', {
+          detail: { handle, verified: true }
+        }))
       } catch (e) {
         console.warn('Could not store creator identity in localStorage', e)
       }

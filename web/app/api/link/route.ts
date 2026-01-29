@@ -16,10 +16,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
   }
 
-  const { handle } = body
+  const { handle, publicKey } = body
 
   if (!handle || typeof handle !== "string") {
     return NextResponse.json({ error: "Handle is required" }, { status: 400 })
+  }
+
+  // Validate publicKey if provided (optional for backwards compatibility)
+  if (publicKey !== undefined && publicKey !== null) {
+    const key = publicKey as Record<string, unknown>
+    if (typeof publicKey !== "object" || key.kty !== "RSA") {
+      return NextResponse.json({ error: "Invalid public key format" }, { status: 400 })
+    }
   }
 
   const normalizedHandle = normalizeHandle(handle)
@@ -57,10 +65,27 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // If publicKey provided, store it for private messaging
+  if (publicKey) {
+    const { error: updateError } = await supabase
+      .from("creators")
+      .update({
+        public_key: publicKey,
+        key_created_at: new Date().toISOString(),
+      })
+      .eq("id", typedCreator.id)
+
+    if (updateError) {
+      console.error("[link] Failed to store public key:", updateError.message)
+      // Don't fail the link - just log the error
+    }
+  }
+
   // Return success - the frontend will set localStorage
   return NextResponse.json({
     success: true,
     handle: typedCreator.handle,
-    verified: typedCreator.verification_status === "verified"
+    verified: typedCreator.verification_status === "verified",
+    messagingEnabled: !!publicKey,
   })
 }

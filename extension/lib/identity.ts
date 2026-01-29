@@ -2,16 +2,21 @@
  * Creator Identity Management
  *
  * Handles storing and retrieving the linked creator identity
- * across the extension using chrome.storage.local
+ * across the extension using chrome.storage.local.
+ * Also manages keypair generation for private messaging.
  */
+
+import { generateKeyPair, storePrivateKey, hasPrivateKey } from "./crypto"
 
 export interface CreatorIdentity {
   handle: string
   verified: boolean
   verifiedAt: number
+  creatorId?: string  // UUID from database, used for message subscriptions
 }
 
 const CHROME_STORAGE_KEY = 'tipz_linked_creator'
+const API_URL = process.env.PLASMO_PUBLIC_API_URL || "https://tipz.cash"
 
 /**
  * Get the linked creator identity from chrome.storage.local
@@ -89,5 +94,70 @@ export function onLinkedCreatorChange(
 
   return () => {
     chrome.storage.onChanged.removeListener(listener)
+  }
+}
+
+/**
+ * Link creator and set up private messaging (generate keypair if needed).
+ * This should be called after the creator identity is verified.
+ *
+ * @param handle - The creator's handle
+ * @returns Object with messaging status and creator ID
+ */
+export async function setupMessagingForCreator(handle: string): Promise<{ enabled: boolean; creatorId?: string }> {
+  try {
+    // First, fetch creator info to get the creator ID
+    const creatorResponse = await fetch(`${API_URL}/api/creator?platform=x&handle=${encodeURIComponent(handle)}`)
+    if (!creatorResponse.ok) {
+      console.error("TIPZ Identity: Failed to fetch creator info")
+      return { enabled: false }
+    }
+
+    const creatorData = await creatorResponse.json()
+    if (!creatorData.found || !creatorData.creator) {
+      console.error("TIPZ Identity: Creator not found")
+      return { enabled: false }
+    }
+
+    const creatorId = creatorData.creator.id
+
+    // Update stored identity with creator ID
+    const identity = await getLinkedCreator()
+    if (identity) {
+      await setLinkedCreator({ ...identity, creatorId })
+    }
+
+    // Check if we already have a private key
+    const hasKey = await hasPrivateKey()
+
+    if (hasKey) {
+      console.log("TIPZ Identity: Private key already exists")
+      return { enabled: true, creatorId }
+    }
+
+    // Generate new keypair for private messaging
+    console.log("TIPZ Identity: Generating keypair for private messaging...")
+    const { publicKey, privateKey } = await generateKeyPair()
+
+    // Store private key locally (never leaves device)
+    await storePrivateKey(privateKey)
+
+    // Send public key to server
+    const response = await fetch(`${API_URL}/api/link`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ handle, publicKey }),
+    })
+
+    if (!response.ok) {
+      console.error("TIPZ Identity: Failed to upload public key to server")
+      return { enabled: false, creatorId }
+    }
+
+    console.log("TIPZ Identity: Keypair generated and public key uploaded")
+    return { enabled: true, creatorId }
+  } catch (error) {
+    console.error("TIPZ Identity: Failed to setup messaging:", error)
+    return { enabled: false }
   }
 }
