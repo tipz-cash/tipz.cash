@@ -3440,7 +3440,7 @@ export default function HomePage() {
                   color: colors.muted,
                   lineHeight: 1.4,
                 }}>
-                  No banks. No applications. No bans.
+                  No banks. No applications.
                 </div>
               </div>
             </TerminalReveal>
@@ -4302,7 +4302,7 @@ export default function HomePage() {
           </TerminalReveal>
 
           <TypingHeading
-            text="The Genesis Cohort is established."
+            text="Join the Genesis Cohort."
             style={{ marginBottom: "16px" }}
           />
 
@@ -4312,7 +4312,7 @@ export default function HomePage() {
               color: colors.muted,
               marginBottom: "48px",
             }}>
-              Zero rent paid. Zero data leaked. The new standard is set.
+              The first 1,000 sovereigns set the standard. Reserve your handle. Secure your privacy.
             </p>
           </TerminalReveal>
 
@@ -4351,7 +4351,7 @@ export default function HomePage() {
                   lineHeight: 1.7,
                   fontStyle: "italic",
                 }}>
-                  &quot;They can shadowban my account, but they can&apos;t freeze my income.&quot;
+                  &quot;Direct settlement means no middlemen holding my funds for 30 days. The capital efficiency of receiving instant, global payments is unmatched.&quot;
                 </p>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -4409,7 +4409,7 @@ export default function HomePage() {
                   lineHeight: 1.7,
                   fontStyle: "italic",
                 }}>
-                  &quot;I fired my bank today. This is what sovereignty feels like.&quot;
+                  &quot;In a world of surveillance, unlinkable wealth is the only asset that truly belongs to you. This is the new standard for digital ownership.&quot;
                 </p>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -4431,10 +4431,10 @@ export default function HomePage() {
                   </div>
                   <div>
                     <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>
-                      Tech Founder
+                      Private Investor
                     </div>
                     <div style={{ fontSize: "12px", color: colors.muted }}>
-                      Startup CEO • Anonymous
+                      Tech Founder • Anonymous
                     </div>
                   </div>
                 </div>
