@@ -11,7 +11,7 @@ interface AmountSelectorProps {
   disabled?: boolean
 }
 
-const PRESET_AMOUNTS = [1, 5, 10, 25]
+const PRESET_AMOUNTS = [1, 5, 10, 25, 50]
 
 export function AmountSelector({
   selectedAmount,
@@ -66,6 +66,7 @@ export function AmountSelector({
   }
 
   const currentUsdAmount = selectedAmount || parseFloat(inputValue) || 0
+  const isCustomTooLow = isCustom && inputValue && parseFloat(inputValue) > 0 && parseFloat(inputValue) < 1
 
   return (
     <div style={{ width: "100%" }}>
@@ -235,6 +236,20 @@ export function AmountSelector({
           )}
         </div>
       </div>
+
+      {/* Minimum amount warning */}
+      {isCustomTooLow && (
+        <p
+          style={{
+            marginTop: tokens.space.sm,
+            color: tokens.colors.gold,
+            fontSize: "12px",
+            fontFamily: tokens.font.sans,
+          }}
+        >
+          Minimum tip is $1
+        </p>
+      )}
 
       <style>{keyframes}</style>
     </div>

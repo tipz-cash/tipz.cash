@@ -57,17 +57,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ found: false })
   }
 
-  // Use Supabase's normalizeHandle for production
-  const dbNormalizedHandle = normalizeHandle(handle)
-
+  // Lookup by handle (already normalized to lowercase)
   const { data, error } = await supabase
     .from("creators")
-    .select("id, platform, handle, shielded_address, public_key")
+    .select("id, platform, handle, shielded_address")
     .eq("platform", platform)
-    .eq("handle_normalized", dbNormalizedHandle)
+    .eq("handle", normalizedHandle)
     .single()
 
   if (error || !data) {
+    console.log("[creator] Lookup failed:", { platform, normalizedHandle, error: error?.message })
     return NextResponse.json({ found: false })
   }
 
@@ -78,8 +77,6 @@ export async function GET(request: NextRequest) {
       platform: data.platform,
       handle: data.handle,
       shielded_address: data.shielded_address,
-      publicKey: data.public_key,
-      canReceiveMessages: !!data.public_key,
     }
   })
 }

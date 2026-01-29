@@ -195,11 +195,37 @@ let currentSolanaPublicKey: string | null = null
 
 /**
  * Get the Ethereum provider from window
+ * @param preferredType - Optional: specific wallet type to look for
  */
-function getEthereumProvider(): Eip1193Provider | null {
+function getEthereumProvider(preferredType?: WalletType): Eip1193Provider | null {
   if (typeof window === "undefined") return null
   const ethereum = (window as any).ethereum
   if (!ethereum) return null
+
+  // If a specific wallet type is requested, try to find it
+  if (preferredType && preferredType !== "phantom") {
+    // Check for providers array (EIP-6963 / multiple wallets installed)
+    const providers = (ethereum as any).providers as any[] | undefined
+    if (providers && Array.isArray(providers)) {
+      for (const provider of providers) {
+        if (preferredType === "rabby" && provider.isRabby) {
+          return provider as Eip1193Provider
+        }
+        if (preferredType === "metamask" && provider.isMetaMask && !provider.isRabby) {
+          return provider as Eip1193Provider
+        }
+      }
+    }
+
+    // Check the main ethereum object
+    if (preferredType === "rabby" && (ethereum as any).isRabby) {
+      return ethereum as Eip1193Provider
+    }
+    if (preferredType === "metamask" && (ethereum as any).isMetaMask) {
+      return ethereum as Eip1193Provider
+    }
+  }
+
   return ethereum as Eip1193Provider
 }
 
@@ -215,21 +241,25 @@ function getPhantomProvider(): any | null {
 
 /**
  * Detect which wallet is available
+ * Prioritizes EVM wallets (Rabby, MetaMask) over Solana (Phantom)
  */
 export function detectWallet(): WalletType | null {
   if (typeof window === "undefined") return null
 
-  // Check for Phantom Solana wallet first
+  // Check EVM wallets first (more commonly used for tipping)
+  const ethereum = (window as any).ethereum
+  if (ethereum) {
+    if (ethereum.isRabby) return "rabby"
+    if (ethereum.isMetaMask) return "metamask"
+    if (ethereum.isCoinbaseWallet) return "coinbase"
+    return "metamask" // Default to metamask for generic EVM providers
+  }
+
+  // Fall back to Phantom only if no EVM wallet is available
   const phantom = getPhantomProvider()
   if (phantom) return "phantom"
 
-  const ethereum = (window as any).ethereum
-  if (!ethereum) return null
-
-  if (ethereum.isRabby) return "rabby"
-  if (ethereum.isMetaMask) return "metamask"
-  if (ethereum.isCoinbaseWallet) return "coinbase"
-  return "metamask" // Default to metamask for generic providers
+  return null
 }
 
 /**
@@ -328,7 +358,8 @@ export async function connectWallet(preferredType?: WalletType): Promise<WalletS
     return connectPhantomWallet()
   }
 
-  const ethereum = getEthereumProvider()
+  // Get the ethereum provider, preferring the user's selection
+  const ethereum = getEthereumProvider(preferredType)
   if (!ethereum) {
     // Fallback to Phantom if no EVM wallet but Phantom is available
     const phantom = getPhantomProvider()
@@ -441,7 +472,8 @@ export async function restoreWalletSession(): Promise<WalletState | null> {
   }
 
   // Handle EVM wallet session restoration
-  const ethereum = getEthereumProvider()
+  // Use the saved wallet type to get the correct provider
+  const ethereum = getEthereumProvider(session.walletType)
   if (!ethereum) {
     clearWalletSession()
     return null
@@ -617,10 +649,35 @@ export async function switchChain(chainId: number): Promise<boolean> {
 // ============================================================================
 
 /**
- * Get supported tokens for chain
+ * Get all supported tokens across all chains
+ * Used for multi-chain token selection with auto-switching
+ */
+export function getAllSupportedTokens(): SupportedToken[] {
+  const allTokens: SupportedToken[] = []
+  const supportedChainIds = [1, 137, 42161, 10, 501] // All EVM chains + Solana
+
+  for (const chainId of supportedChainIds) {
+    allTokens.push(...getSupportedTokens(chainId))
+  }
+
+  return allTokens
+}
+
+/**
+ * Get chain name from chain ID
+ */
+export function getChainName(chainId: number): string {
+  return SUPPORTED_CHAINS[chainId]?.chainName || `Chain ${chainId}`
+}
+
+/**
+ * Get supported tokens for chain - only tokens NEAR Intents can swap to ZEC
+ * Addresses must match those in near-intents.ts ASSET_IDS
  */
 export function getSupportedTokens(chainId: number): SupportedToken[] {
+  // Only tokens supported by NEAR Intents for ZEC swaps
   const tokens: Record<number, SupportedToken[]> = {
+    // Ethereum Mainnet
     1: [
       {
         symbol: "ETH",
@@ -628,33 +685,26 @@ export function getSupportedTokens(chainId: number): SupportedToken[] {
         address: "0x0000000000000000000000000000000000000000",
         chainId: 1,
         decimals: 18,
-        logoUrl: "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
+        logoUrl: "/icons/eth.svg",
       },
       {
         symbol: "USDC",
         name: "USD Coin",
-        address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         chainId: 1,
         decimals: 6,
-        logoUrl: "https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png",
+        logoUrl: "/icons/usdc.svg",
       },
       {
         symbol: "USDT",
-        name: "Tether USD",
-        address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        name: "Tether",
+        address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
         chainId: 1,
         decimals: 6,
-        logoUrl: "https://assets.coingecko.com/coins/images/325/small/Tether.png",
-      },
-      {
-        symbol: "DAI",
-        name: "Dai Stablecoin",
-        address: "0x6B175474E89094C44Da98b954EesP6F9eb3a26f",
-        chainId: 1,
-        decimals: 18,
-        logoUrl: "https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png",
+        logoUrl: "/icons/usdt.svg",
       },
     ],
+    // Polygon
     137: [
       {
         symbol: "MATIC",
@@ -662,17 +712,26 @@ export function getSupportedTokens(chainId: number): SupportedToken[] {
         address: "0x0000000000000000000000000000000000000000",
         chainId: 137,
         decimals: 18,
-        logoUrl: "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png",
+        logoUrl: "/icons/matic.svg",
       },
       {
         symbol: "USDC",
         name: "USD Coin",
-        address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        address: "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
         chainId: 137,
         decimals: 6,
-        logoUrl: "https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png",
+        logoUrl: "/icons/usdc.svg",
+      },
+      {
+        symbol: "USDT",
+        name: "Tether",
+        address: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+        chainId: 137,
+        decimals: 6,
+        logoUrl: "/icons/usdt.svg",
       },
     ],
+    // Arbitrum
     42161: [
       {
         symbol: "ETH",
@@ -680,17 +739,26 @@ export function getSupportedTokens(chainId: number): SupportedToken[] {
         address: "0x0000000000000000000000000000000000000000",
         chainId: 42161,
         decimals: 18,
-        logoUrl: "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
+        logoUrl: "/icons/eth.svg",
       },
       {
         symbol: "USDC",
         name: "USD Coin",
-        address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        address: "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
         chainId: 42161,
         decimals: 6,
-        logoUrl: "https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png",
+        logoUrl: "/icons/usdc.svg",
+      },
+      {
+        symbol: "USDT",
+        name: "Tether",
+        address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+        chainId: 42161,
+        decimals: 6,
+        logoUrl: "/icons/usdt.svg",
       },
     ],
+    // Optimism
     10: [
       {
         symbol: "ETH",
@@ -698,22 +766,31 @@ export function getSupportedTokens(chainId: number): SupportedToken[] {
         address: "0x0000000000000000000000000000000000000000",
         chainId: 10,
         decimals: 18,
-        logoUrl: "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
+        logoUrl: "/icons/eth.svg",
       },
       {
         symbol: "USDC",
         name: "USD Coin",
-        address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+        address: "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
         chainId: 10,
         decimals: 6,
-        logoUrl: "https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png",
+        logoUrl: "/icons/usdc.svg",
+      },
+      {
+        symbol: "USDT",
+        name: "Tether",
+        address: "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58",
+        chainId: 10,
+        decimals: 6,
+        logoUrl: "/icons/usdt.svg",
       },
     ],
+    // Solana
     501: [
       {
         symbol: "SOL",
         name: "Solana",
-        address: "native", // SOL native token indicator
+        address: "native",
         chainId: 501,
         decimals: 9,
         logoUrl: "/icons/sol.svg",

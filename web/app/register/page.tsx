@@ -42,12 +42,23 @@ function validateHandle(handle: string): string | null {
 
 function validateShieldedAddress(address: string): string | null {
   if (!address) return "Shielded address is required";
-  if (!address.startsWith("zs1")) return "Must start with 'zs1' (Sapling address)";
+  // Accept Sapling (zs1...) or Unified (u1...) addresses
+  if (!address.startsWith("zs1") && !address.startsWith("u1")) {
+    return "Must be a shielded address (starts with 'zs1' or 'u1')";
+  }
   return null;
 }
 
 function isAddressComplete(address: string): boolean {
-  return address.startsWith("zs1") && address.length === 78;
+  // Sapling addresses (zs1): exactly 78 characters
+  // Unified addresses (u1): 141+ characters (variable, typically 141-216)
+  if (address.startsWith("zs1")) {
+    return address.length === 78;
+  }
+  if (address.startsWith("u1")) {
+    return address.length >= 141;
+  }
+  return false;
 }
 
 function validateTweetUrl(url: string): string | null {
@@ -129,7 +140,9 @@ My shielded address: ${shieldedAddress || "[your address]"}`
     if (!isAddressComplete(shieldedAddress)) {
       errors.shielded_address = shieldedAddress.length === 0
         ? "Shielded address is required"
-        : `Address must be 78 characters (${shieldedAddress.length}/78)`;
+        : shieldedAddress.startsWith("u1")
+          ? `Unified address too short (${shieldedAddress.length} chars, need 141+)`
+          : `Sapling address must be 78 characters (${shieldedAddress.length}/78)`;
     }
 
     const tweetError = validateTweetUrl(tweetUrl);
@@ -328,63 +341,62 @@ My shielded address: ${shieldedAddress || "[your address]"}`
           BACK TO HOME
         </Link>
 
-        {/* Value Prop Header - Optimized copy */}
+        {/* Value Prop Header - Matches home page aesthetic */}
         <div style={{
           marginBottom: "32px",
           padding: "28px",
           backgroundColor: colors.surface,
           border: `1px solid ${colors.border}`,
-          borderRadius: "12px",
+          borderRadius: "20px",
           position: "relative",
           overflow: "hidden",
         }}>
-          {/* Gold gradient border at top */}
+          {/* Chapter-style header */}
           <div style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: "2px",
-            background: colors.gradientGoldSweep,
-          }} />
+            fontSize: "11px",
+            color: colors.primary,
+            letterSpacing: "2px",
+            marginBottom: "20px",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}>
+            <span style={{
+              display: "inline-block",
+              width: "8px",
+              height: "8px",
+              background: colors.primary,
+              borderRadius: "50%",
+              boxShadow: `0 0 10px ${colors.primary}`,
+              animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
+            }} />
+            SOVEREIGN IDENTITY
+          </div>
 
+          {/* Main headline */}
           <h1 style={{
             margin: "0 0 12px",
-            fontSize: "clamp(32px, 6vw, 44px)",
+            fontSize: "clamp(28px, 5vw, 38px)",
             fontWeight: 700,
-            letterSpacing: "-0.03em",
-            color: colors.primary,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.15,
+            color: colors.textBright,
             fontFamily: "'JetBrains Mono', monospace",
-            textShadow: `0 0 40px ${colors.primaryGlow}`,
           }}>
-            Monetize Without Intermediaries.
+            <span style={{ color: colors.primary }}>{">"}</span>{" "}
+            Claim Your Sovereign Identity.
           </h1>
 
+          {/* Subheadline */}
           <p style={{
-            margin: "0 0 20px",
-            color: colors.text,
-            fontSize: "15px",
-            lineHeight: 1.6,
-            fontFamily: "Inter, -apple-system, sans-serif",
+            margin: "0",
+            color: colors.muted,
+            fontSize: "14px",
+            lineHeight: 1.7,
+            fontFamily: "'JetBrains Mono', monospace",
           }}>
-            Platforms extract. We don&apos;t. Direct to your shielded wallet.
+            One handle for every asset. Your universal address for the private web.
           </p>
-
-          {/* Trust signals - Sovereign focus */}
-          <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <LockIcon size={14} color={colors.success} />
-              <span style={{ fontSize: "12px", color: colors.text }}>Non-custodial</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <CheckIcon size={14} color={colors.success} />
-              <span style={{ fontSize: "12px", color: colors.text }}>0% fees</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <CheckIcon size={14} color={colors.success} />
-              <span style={{ fontSize: "12px", color: colors.text }}>Shielded delivery</span>
-            </div>
-          </div>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -395,7 +407,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
               <span style={stepNumberStyle(1, currentStep >= 1)}>1</span>
-              <label style={{ ...labelStyle, marginBottom: 0 }}>Claim your handle</label>
+              <label style={{ ...labelStyle, marginBottom: 0 }}>Reserve your handle</label>
               {handle && !validateHandle(handle) && (
                 <span style={{
                   animation: prefersReducedMotion ? "none" : "fadeIn 0.3s ease-out",
@@ -422,7 +434,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                     setFieldErrors({ ...fieldErrors, handle: "" })
                   }
                 }}
-                placeholder="yourhandle"
+                placeholder="yourXhandle"
                 style={{
                   ...inputStyle,
                   paddingLeft: "36px",
@@ -507,8 +519,10 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                   color: isAddressComplete(shieldedAddress) ? colors.success : colors.muted
                 }}>
                   {shieldedAddress.length > 0
-                    ? `${shieldedAddress.length}/78 characters`
-                    : "Sapling address (starts with zs1)"}
+                    ? shieldedAddress.startsWith("u1")
+                      ? `${shieldedAddress.length} characters (unified address)`
+                      : `${shieldedAddress.length}/78 characters`
+                    : "Shielded address (zs1... or u1...)"}
                 </p>
               )}
 
@@ -916,24 +930,28 @@ My shielded address: ${shieldedAddress || "[your address]"}`
             fontSize: "12px",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted }}>
-              <LockIcon size={12} color={colors.muted} />
-              <span>Non-custodial</span>
+              {/* Shield icon for Uncensorable */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              <span>Uncensorable</span>
             </div>
             <div style={{ width: "1px", height: "16px", backgroundColor: colors.border }} />
             <div style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted }}>
-              <span style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                backgroundColor: colors.success,
-                boxShadow: `0 0 8px ${colors.success}`,
-                animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
-              }} />
-              <span>Direct delivery</span>
+              {/* Ban/slash icon for Zero Rent */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+              </svg>
+              <span>Zero Rent</span>
             </div>
             <div style={{ width: "1px", height: "16px", backgroundColor: colors.border }} />
             <div style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted }}>
-              <span style={{ color: colors.success, fontWeight: 700 }}>0%</span> fees
+              {/* Infinity icon for Permanent */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.585 0-4.585 8 0 8 5.606 0 7.644-8 12.74-8z" />
+              </svg>
+              <span>Permanent</span>
             </div>
           </div>
         )}

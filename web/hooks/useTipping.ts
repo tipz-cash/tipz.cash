@@ -5,6 +5,7 @@ import {
   getSwapQuote,
   executeTip,
   getSupportedTokens,
+  getAllSupportedTokens,
   getTokenBalance,
   type SupportedToken,
   type SwapQuote,
@@ -86,7 +87,7 @@ interface UseTippingReturn {
   expand: () => void
   collapse: () => void
   setAmount: (amount: number | null, custom?: string) => void
-  setToken: (token: SupportedToken) => void
+  setToken: (token: SupportedToken | null) => void
   setPrivateMessage: (message: string) => void
   getQuote: () => Promise<void>
   confirmTip: () => Promise<void>
@@ -194,27 +195,33 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     fetchZecPrice()
   }, [])
 
-  // Update available tokens when chain changes
+  // Load all supported tokens from all chains (for multi-chain selection)
   useEffect(() => {
-    if (chainId) {
-      const tokens = getSupportedTokens(chainId)
-      setAvailableTokens(tokens)
-      if (tokens.length > 0 && !selectedToken) {
-        setSelectedToken(tokens[0])
+    const tokens = getAllSupportedTokens()
+    setAvailableTokens(tokens)
+    // Auto-select first token on current chain if none selected
+    if (tokens.length > 0 && !selectedToken && chainId) {
+      const currentChainToken = tokens.find(t => t.chainId === chainId)
+      if (currentChainToken) {
+        setSelectedToken(currentChainToken)
       }
     }
   }, [chainId])
 
-  // Fetch token balances when wallet is connected
+  // Fetch token balances only for tokens on the current chain
   useEffect(() => {
     if (!walletAddress || !chainId || availableTokens.length === 0) return
 
     const fetchBalances = async () => {
       const balances: Record<string, TokenBalance> = {}
-      for (const token of availableTokens) {
+      // Only fetch balances for tokens on the current chain
+      const currentChainTokens = availableTokens.filter(t => t.chainId === chainId)
+      for (const token of currentChainTokens) {
         const balance = await getTokenBalance(token.address, walletAddress)
         if (balance) {
-          balances[token.symbol] = balance
+          // Use a unique key combining symbol and chainId to differentiate same tokens on different chains
+          const tokenKey = `${token.symbol}-${token.chainId}`
+          balances[tokenKey] = balance
         }
       }
       setTokenBalances(balances)
@@ -417,7 +424,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     setSwapStatus(null)
   }, [])
 
-  const setToken = useCallback((token: SupportedToken) => {
+  const setToken = useCallback((token: SupportedToken | null) => {
     setSelectedToken(token)
     setQuote(null) // Reset quote when token changes
     setQuoteExpiresAt(null)

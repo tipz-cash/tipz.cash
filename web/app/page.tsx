@@ -36,7 +36,7 @@ const chapters = [
   { id: "creator-tools", num: "06", title: "COMMAND CENTER" },
   { id: "faq", num: "07", title: "FAQ" },
   { id: "how-it-works", num: "08", title: "GET STARTED" },
-  { id: "join", num: "09", title: "JOIN" },
+  { id: "join", num: "09", title: "EXIT" },
 ];
 
 // Check for reduced motion preference
@@ -2540,9 +2540,34 @@ export default function HomePage() {
   const parallaxOffsetSlow = useParallax(0.15);
   const prefersReducedMotion = usePrefersReducedMotion();
 
+  // Scroll-triggered checklist animation
+  const [checklistVisible, setChecklistVisible] = useState(false);
+  const checklistRef = useRef<HTMLDivElement>(null);
+
   // Track mount state for hydration-safe animations
   useEffect(() => {
     setHasMounted(true);
+  }, []);
+
+  // Intersection Observer for checklist scroll-triggered animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setChecklistVisible(true);
+            observer.disconnect(); // Only trigger once
+          }
+        });
+      },
+      { threshold: 0.5 } // Trigger when 50% visible
+    );
+
+    if (checklistRef.current) {
+      observer.observe(checklistRef.current);
+    }
+
+    return () => observer.disconnect();
   }, []);
 
   // Animated counters for damage report
@@ -3976,77 +4001,29 @@ export default function HomePage() {
                   gap: "24px",
                   order: isMobile ? 0 : 1,
                 }}>
-                  {/* Left Flow Arrow - hidden on mobile */}
-                  <div style={{
-                    position: "absolute",
-                    left: "calc(33.33% - 24px)",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    display: isMobile ? "none" : "flex",
-                    alignItems: "center",
-                  }}>
-                    <svg width="48" height="24" viewBox="0 0 48 24" style={{ overflow: "visible" }}>
-                      <defs>
-                        <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor={colors.muted} stopOpacity="0.3" />
-                          <stop offset="100%" stopColor={colors.primary} stopOpacity="0.8" />
-                        </linearGradient>
-                      </defs>
-                      <line
-                        x1="0" y1="12" x2="36" y2="12"
-                        stroke="url(#flowGradient)"
-                        strokeWidth="2"
-                        strokeDasharray="6 4"
-                        style={{
-                          animation: prefersReducedMotion ? "none" : "data-stream 1s linear infinite",
-                        }}
-                      />
-                      <polygon
-                        points="36,6 48,12 36,18"
-                        fill={colors.primary}
-                        style={{ opacity: 0.8 }}
-                      />
-                    </svg>
-                  </div>
-
-                  {/* Right Flow Arrow - hidden on mobile */}
-                  <div style={{
-                    position: "absolute",
-                    right: "calc(33.33% - 24px)",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    display: isMobile ? "none" : "flex",
-                    alignItems: "center",
-                  }}>
-                    <svg width="48" height="24" viewBox="0 0 48 24" style={{ overflow: "visible" }}>
-                      <line
-                        x1="0" y1="12" x2="36" y2="12"
-                        stroke="url(#flowGradient)"
-                        strokeWidth="2"
-                        strokeDasharray="6 4"
-                        style={{
-                          animation: prefersReducedMotion ? "none" : "data-stream 1s linear infinite",
-                        }}
-                      />
-                      <polygon
-                        points="36,6 48,12 36,18"
-                        fill={colors.primary}
-                        style={{ opacity: 0.8 }}
-                      />
-                    </svg>
-                  </div>
-
                   {/* Protocol Box */}
-                  <div style={{
-                    padding: isMobile ? "20px 24px" : "32px 40px",
-                    border: `2px solid ${colors.primary}`,
-                    borderRadius: "12px",
-                    backgroundColor: `${colors.bg}95`,
-                    boxShadow: `0 0 40px ${colors.primaryGlow}30, inset 0 0 20px ${colors.primaryGlow}05`,
-                    animation: prefersReducedMotion ? "none" : "idle-glow-pulse 3s ease-in-out infinite",
+                  <div
+                    ref={checklistRef}
+                    style={{
+                    padding: isMobile ? "20px 24px" : "28px 36px",
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: "8px",
+                    backgroundColor: `${colors.surface}`,
+                    boxShadow: `0 4px 24px rgba(0,0,0,0.4)`,
                     textAlign: "center",
-                    minWidth: isMobile ? "160px" : "200px",
+                    minWidth: isMobile ? "180px" : "220px",
+                    position: "relative",
                   }}>
+                    {/* Subtle top accent line */}
+                    <div style={{
+                      position: "absolute",
+                      top: 0,
+                      left: "20%",
+                      right: "20%",
+                      height: "1px",
+                      background: `linear-gradient(90deg, transparent, ${colors.primary}60, transparent)`,
+                    }} />
+
                     {/* Header */}
                     <div style={{
                       display: "flex",
@@ -4054,55 +4031,162 @@ export default function HomePage() {
                       justifyContent: "center",
                       gap: "8px",
                       marginBottom: "20px",
+                      paddingBottom: "12px",
+                      borderBottom: `1px solid ${colors.border}40`,
                     }}>
                       <img
                         src="/icons/zap.svg"
                         alt=""
                         style={{
-                          width: "18px",
-                          height: "18px",
+                          width: "14px",
+                          height: "14px",
                           filter: "invert(70%) sepia(50%) saturate(500%) hue-rotate(5deg) brightness(100%)",
+                          opacity: 0.9,
                         }}
                       />
                       <span style={{
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        letterSpacing: "2px",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        letterSpacing: "1.5px",
                         color: colors.primary,
+                        fontFamily: "var(--font-mono)",
                       }}>
                         INTENTS PROTOCOL
                       </span>
                     </div>
 
-                    {/* Animated Status Lines */}
-                    <div style={{
+                    {/* Sequential Progress Checklist */}
+                    <div className="intents-checklist" style={{
                       display: "flex",
                       flexDirection: "column",
-                      gap: "8px",
+                      gap: "0",
                       fontFamily: "var(--font-mono)",
-                      fontSize: "12px",
+                      fontSize: "11px",
+                      position: "relative",
                     }}>
-                      <div style={{ color: colors.success, display: "flex", alignItems: "center", gap: "8px" }}>
-                        <span style={{ opacity: 0.7 }}>▸</span>
-                        <span>ROUTING</span>
-                        <span style={{
-                          animation: prefersReducedMotion ? "none" : "terminal-blink 1.5s ease-in-out infinite",
-                        }}>...</span>
-                      </div>
-                      <div style={{ color: colors.primary, display: "flex", alignItems: "center", gap: "8px" }}>
-                        <span style={{ opacity: 0.7 }}>▸</span>
-                        <span>BRIDGING</span>
-                        <span style={{
-                          animation: prefersReducedMotion ? "none" : "terminal-blink 1.5s ease-in-out infinite 0.3s",
-                        }}>...</span>
-                      </div>
-                      <div style={{ color: "#a855f7", display: "flex", alignItems: "center", gap: "8px" }}>
-                        <span style={{ opacity: 0.7 }}>▸</span>
-                        <span>SHIELDING</span>
-                        <span style={{
-                          animation: prefersReducedMotion ? "none" : "terminal-blink 1.5s ease-in-out infinite 0.6s",
-                        }}>...</span>
-                      </div>
+                      {[
+                        { label: "ROUTING", color: colors.success, stepDelay: 0.3 },
+                        { label: "BRIDGING", color: colors.primary, stepDelay: 0.9 },
+                        { label: "SHIELDING", color: "#a855f7", stepDelay: 1.5 },
+                      ].map((item, index, arr) => (
+                        <div
+                          key={item.label}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                            padding: "8px 0",
+                            position: "relative",
+                          }}
+                        >
+                          {/* Vertical connector line */}
+                          {index < arr.length - 1 && (
+                            <div style={{
+                              position: "absolute",
+                              left: "9px",
+                              top: "26px",
+                              width: "2px",
+                              height: "16px",
+                              backgroundColor: colors.border,
+                              overflow: "hidden",
+                            }}>
+                              <div
+                                className="connector-fill"
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  backgroundColor: item.color,
+                                  transform: prefersReducedMotion ? "translateY(0)" : "translateY(-100%)",
+                                  animationName: (prefersReducedMotion || !checklistVisible) ? "none" : "connectorFill",
+                                  animationDuration: "0.3s",
+                                  animationTimingFunction: "ease-out",
+                                  animationFillMode: "forwards",
+                                  animationDelay: `${item.stepDelay + 0.35}s`,
+                                }}
+                              />
+                            </div>
+                          )}
+
+                          {/* Step indicator */}
+                          <div style={{
+                            width: "20px",
+                            height: "20px",
+                            borderRadius: "50%",
+                            border: `2px solid ${colors.border}`,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            position: "relative",
+                            backgroundColor: colors.bg,
+                            flexShrink: 0,
+                            overflow: "hidden",
+                          }}>
+                            {/* Background fill on complete */}
+                            <div
+                              className="step-bg-fill"
+                              style={{
+                                position: "absolute",
+                                inset: 0,
+                                backgroundColor: item.color,
+                                opacity: prefersReducedMotion ? 1 : 0,
+                                animationName: (prefersReducedMotion || !checklistVisible) ? "none" : "stepBgFill",
+                                animationDuration: "0.2s",
+                                animationTimingFunction: "ease-out",
+                                animationFillMode: "forwards",
+                                animationDelay: `${item.stepDelay + 0.15}s`,
+                              }}
+                            />
+                            {/* Checkmark */}
+                            <svg
+                              width="10"
+                              height="10"
+                              viewBox="0 0 12 12"
+                              fill="none"
+                              style={{
+                                position: "relative",
+                                zIndex: 1,
+                              }}
+                            >
+                              <path
+                                d="M2.5 6L5 8.5L9.5 3.5"
+                                stroke={colors.bg}
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                style={{
+                                  strokeDasharray: 12,
+                                  strokeDashoffset: prefersReducedMotion ? 0 : 12,
+                                  animationName: (prefersReducedMotion || !checklistVisible) ? "none" : "drawCheckmark",
+                                  animationDuration: "0.25s",
+                                  animationTimingFunction: "ease-out",
+                                  animationFillMode: "forwards",
+                                  animationDelay: `${item.stepDelay + 0.2}s`,
+                                }}
+                              />
+                            </svg>
+                          </div>
+
+                          {/* Label */}
+                          <span
+                            className="step-label"
+                            style={{
+                              color: prefersReducedMotion ? item.color : colors.muted,
+                              letterSpacing: "1px",
+                              fontWeight: 500,
+                              transition: "color 0.2s ease",
+                              animationName: (prefersReducedMotion || !checklistVisible) ? "none" : "labelHighlight",
+                              animationDuration: "0.3s",
+                              animationTimingFunction: "ease-out",
+                              animationFillMode: "forwards",
+                              animationDelay: `${item.stepDelay + 0.1}s`,
+                            }}
+                            data-active-color={item.color}
+                          >
+                            {item.label}
+                          </span>
+
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -4856,27 +4940,24 @@ export default function HomePage() {
                       backgroundPosition: "center",
                       position: "relative",
                     }}>
-                      {/* TIPZ Smart Watermark - Frosted glass pill */}
+                      {/* TIPZ Smart Stamp - Matches command centre */}
                       <div style={{
                         position: "absolute",
-                        bottom: "4px",
-                        right: "4px",
-                        background: "rgba(0, 0, 0, 0.5)",
-                        backdropFilter: "blur(6px)",
-                        WebkitBackdropFilter: "blur(6px)",
-                        padding: "2px 6px",
-                        borderRadius: "6px",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        bottom: "8px",
+                        right: "8px",
+                        background: "rgba(0, 0, 0, 0.8)",
+                        padding: "4px 8px",
+                        borderRadius: "4px",
+                        border: "2px solid #F4B728",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                       }}>
                         <span style={{
-                          color: "rgba(255, 255, 255, 0.9)",
-                          fontSize: "8px",
+                          color: "#F4B728",
+                          fontSize: "10px",
                           fontFamily: "'JetBrains Mono', monospace",
-                          fontWeight: 500,
-                          letterSpacing: "0.2px",
+                          fontWeight: 600,
                         }}>
                           tipz.cash/mert
                         </span>
@@ -5281,14 +5362,14 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 09: JOIN THE MOVEMENT
+              CHAPTER 09: THE SOVEREIGN EXIT
             </div>
           </TerminalReveal>
 
           {/* copywriting: definite vision statement */}
           <TypingHeading
-            text="Monetize the "
-            suffix="Timeline."
+            text="Exit the Rental "
+            suffix="Economy."
             suffixColor={colors.primary}
             style={{ fontSize: "44px", lineHeight: 1.2 }}
           />
@@ -5299,7 +5380,7 @@ export default function HomePage() {
               fontSize: "18px",
               marginBottom: "32px",
             }}>
-              Stop leaking users to external links. Accept private tips directly on your X profile. Zero friction. Zero fees.
+              Platforms tax your income and survey your data. Tipz is 0% rent and 100% private. Stop working for the algorithm. Start building equity.
             </p>
           </TerminalReveal>
 
@@ -5327,7 +5408,7 @@ export default function HomePage() {
                   letterSpacing: "0.03em",
                 }}
               >
-                Claim Your Tipz ID →
+                CLAIM SOVEREIGNTY →
               </a>
             </div>
           </TerminalReveal>
@@ -5335,9 +5416,9 @@ export default function HomePage() {
           {/* signup-flow-cro: trust signals near CTA */}
           <TerminalReveal delay={500}>
             <div style={{ display: "flex", justifyContent: "center", gap: "24px", fontSize: "12px", color: colors.muted }}>
-              <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite" }}>✓ No credit card</span>
-              <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite 0.3s" }}>✓ 2 min setup</span>
-              <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite 0.6s" }}>✓ Forever free</span>
+              <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite" }}>✓ No KYC</span>
+              <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite 0.3s" }}>✓ Instant Deployment</span>
+              <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite 0.6s" }}>✓ Zero Rent Protocol</span>
             </div>
           </TerminalReveal>
         </div>
@@ -5382,6 +5463,30 @@ export default function HomePage() {
           0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
           40% { transform: translateY(-10px); }
           60% { transform: translateY(-5px); }
+        }
+
+        /* Sequential checklist animations for intents protocol */
+        @keyframes stepBgFill {
+          0% { opacity: 0; transform: scale(0); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes drawCheckmark {
+          to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes connectorFill {
+          to { transform: translateY(0); }
+        }
+
+        @keyframes labelHighlight {
+          0% { color: #6B7280; }
+          100% { color: #F9FAFB; }
+        }
+
+        @keyframes statusReveal {
+          0% { opacity: 0; transform: translateX(-4px); }
+          100% { opacity: 1; transform: translateX(0); }
         }
 
         /* Character entrance animation for premium typing */

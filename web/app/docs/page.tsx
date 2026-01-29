@@ -367,7 +367,7 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* 02 // THE DELIVERY - Creator Experience (NEW) */}
+        {/* 02 // NO WALLET - Exchange Flow */}
         <section style={{ marginBottom: "64px" }}>
           <h2
             style={{
@@ -378,7 +378,186 @@ export default function DocsPage() {
               textShadow: `0 0 10px ${colors.primaryGlow}`,
             }}
           >
-            02 // THE_DELIVERY
+            02 // NO_WALLET
+          </h2>
+
+          <p style={{ color: colors.text, fontSize: "14px", marginBottom: "24px", lineHeight: 1.7 }}>
+            No MetaMask? No problem. Tip directly from your exchange account.
+          </p>
+
+          <div
+            style={{
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.border}`,
+              padding: "32px",
+              marginBottom: "24px",
+              borderRadius: "4px",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "2px",
+              background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+            }} />
+
+            <div style={{ display: "grid", gap: "24px" }}>
+              {[
+                {
+                  num: "01",
+                  title: "Click \"Pay with Exchange\"",
+                  desc: "On any creator's tip page, choose this option instead of connecting a wallet.",
+                },
+                {
+                  num: "02",
+                  title: "Log into your exchange",
+                  desc: "Coinbase, Kraken, Binance, or 300+ others. Mesh handles the secure connection.",
+                },
+                {
+                  num: "03",
+                  title: "Confirm and send",
+                  desc: "Approve the withdrawal. Your tip arrives as shielded ZEC—same privacy, no wallet needed.",
+                },
+              ].map((step) => (
+                <div key={step.num}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "8px" }}>
+                    <span style={{
+                      color: colors.primary,
+                      fontSize: "24px",
+                      fontWeight: 700,
+                      textShadow: `0 0 15px ${colors.primaryGlow}`,
+                    }}>
+                      {step.num}
+                    </span>
+                    <span style={{ fontWeight: 600, color: colors.textBright }}>
+                      {step.title}
+                    </span>
+                  </div>
+                  <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginLeft: "56px" }}>
+                    {step.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* How it works diagram */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
+              padding: "32px",
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.border}`,
+              fontSize: "12px",
+              flexWrap: "wrap",
+              borderRadius: "4px",
+              marginBottom: "24px",
+            }}
+          >
+            <span style={{ color: colors.text }}>Exchange</span>
+            <span style={{ color: colors.primary, fontSize: "18px" }}>→</span>
+            <span
+              style={{
+                padding: "8px 16px",
+                border: `2px solid ${colors.primary}`,
+                color: colors.primary,
+                fontWeight: 600,
+              }}
+            >
+              MESH
+            </span>
+            <span style={{ color: colors.primary, fontSize: "18px" }}>→</span>
+            <span
+              style={{
+                padding: "8px 16px",
+                border: `2px solid ${colors.primary}`,
+                color: colors.primary,
+                fontWeight: 600,
+                boxShadow: `0 0 15px ${colors.primaryGlow}`,
+              }}
+            >
+              NEAR INTENTS
+            </span>
+            <span style={{ color: colors.primary, fontSize: "18px" }}>→</span>
+            <span
+              style={{
+                padding: "8px 16px",
+                border: `2px solid ${colors.success}`,
+                color: colors.success,
+                fontWeight: 600,
+                boxShadow: `0 0 15px ${colors.successGlow}`,
+              }}
+            >
+              SHIELDED ZEC
+            </span>
+          </div>
+
+          {/* Supported exchanges */}
+          <div
+            style={{
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.border}`,
+              padding: "24px",
+              borderRadius: "4px",
+            }}
+          >
+            <div style={{ fontSize: "12px", color: colors.textBright, marginBottom: "12px", fontWeight: 600 }}>
+              Supported Exchanges
+            </div>
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
+              {["Coinbase", "Kraken", "Binance", "Gemini", "Crypto.com"].map((exchange) => (
+                <span
+                  key={exchange}
+                  style={{
+                    padding: "6px 12px",
+                    backgroundColor: colors.bg,
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    color: colors.text,
+                  }}
+                >
+                  {exchange}
+                </span>
+              ))}
+              <span
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.primary}`,
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                  color: colors.primary,
+                }}
+              >
+                + 300 more via Mesh
+              </span>
+            </div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>
+              <a href="https://www.meshconnect.com/" target="_blank" rel="noopener noreferrer" style={{ color: colors.primary }}>Mesh Connect</a> securely links to your exchange via OAuth. TIPZ never sees your login credentials.
+            </p>
+          </div>
+        </section>
+
+        {/* 03 // THE DELIVERY - Creator Experience */}
+        <section style={{ marginBottom: "64px" }}>
+          <h2
+            style={{
+              fontSize: "14px",
+              color: colors.primary,
+              letterSpacing: "2px",
+              marginBottom: "24px",
+              textShadow: `0 0 10px ${colors.primaryGlow}`,
+            }}
+          >
+            03 // THE_DELIVERY
           </h2>
 
           <p style={{ color: colors.text, fontSize: "14px", marginBottom: "24px", lineHeight: 1.7 }}>
@@ -465,7 +644,7 @@ export default function DocsPage() {
               textShadow: `0 0 10px ${colors.primaryGlow}`,
             }}
           >
-            03 // POWERED_BY
+            04 // POWERED_BY
           </h2>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
@@ -498,11 +677,38 @@ export default function DocsPage() {
               <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginBottom: "16px" }}>
                 You send ETH or SOL. Market makers compete for the best rate. No bridges. No DEX routing. Just results.
               </p>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: "12px", color: colors.muted }}>
-                <li style={{ marginBottom: "8px" }}><span style={{ color: colors.primary }}>→</span> Cross-chain in one step</li>
-                <li style={{ marginBottom: "8px" }}><span style={{ color: colors.primary }}>→</span> Best execution via solver competition</li>
-                <li><span style={{ color: colors.primary }}>→</span> No custody risk</li>
-              </ul>
+              <div className="intents-checklist" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {[
+                  { label: "ROUTING", delay: "0s" },
+                  { label: "BRIDGING", delay: "0.4s" },
+                  { label: "SHIELDING", delay: "0.8s" },
+                ].map((item) => (
+                  <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <svg
+                      className="check-icon"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      style={{ animationDelay: item.delay }}
+                    >
+                      <circle cx="12" cy="12" r="10" stroke={colors.border} strokeWidth="2" />
+                      <path
+                        className="check-path"
+                        d="M8 12l3 3 5-6"
+                        stroke={colors.primary}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ animationDelay: item.delay }}
+                      />
+                    </svg>
+                    <span style={{ fontSize: "12px", fontWeight: 600, color: colors.text, letterSpacing: "1px" }}>
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div
@@ -554,7 +760,7 @@ export default function DocsPage() {
               textShadow: `0 0 10px ${colors.primaryGlow}`,
             }}
           >
-            04 // TECHNICAL_SPECS
+            05 // TECHNICAL_SPECS
           </h2>
 
           <CollapsibleSection title="Supported Tokens" defaultOpen>
@@ -755,7 +961,7 @@ export default function DocsPage() {
               textShadow: `0 0 10px ${colors.primaryGlow}`,
             }}
           >
-            05 // QUESTIONS
+            06 // QUESTIONS
           </h2>
 
           <div style={{ display: "grid", gap: "16px" }}>
@@ -779,6 +985,10 @@ export default function DocsPage() {
               {
                 q: "Which wallets work?",
                 a: "MetaMask, Rabby, Coinbase Wallet (EVM chains), and Phantom (Solana). Any wallet that supports WalletConnect should work.",
+              },
+              {
+                q: "Can I tip without a wallet?",
+                a: "Yes. Use \"Pay with Exchange\" to tip directly from Coinbase, Kraken, Binance, or 300+ other exchanges via Mesh Connect. Same privacy, no browser extension needed.",
               },
               {
                 q: "Do I need a Zcash wallet to tip?",
@@ -990,6 +1200,25 @@ export default function DocsPage() {
           transform: translateY(-2px);
           border-color: #3d4450 !important;
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .intents-checklist .check-icon {
+          opacity: 0;
+          animation: fadeInCheck 0.3s ease forwards;
+        }
+
+        .intents-checklist .check-path {
+          stroke-dasharray: 20;
+          stroke-dashoffset: 20;
+          animation: drawCheck 0.4s ease forwards;
+        }
+
+        @keyframes fadeInCheck {
+          to { opacity: 1; }
+        }
+
+        @keyframes drawCheck {
+          to { stroke-dashoffset: 0; }
         }
 
         .header-inner { padding: 20px 48px; }
