@@ -1,18 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// Plain [TIPZ] text logo used throughout
-import { CreatorCard, SkeletonCard } from "@/components/CreatorCard";
+import { CreatorCard, SkeletonCard, Creator } from "@/components/CreatorCard";
+import { CreatorModal } from "@/components/CreatorModal";
 import { colors } from "@/lib/colors";
 import { animationKeyframes } from "@/lib/animations";
-
-interface Creator {
-  id: string;
-  platform: string;
-  handle: string;
-  shielded_address: string;
-  created_at: string;
-}
 
 interface ApiResponse {
   creators: Creator[];
@@ -58,6 +50,7 @@ export default function CreatorsPage() {
   const [isDemo, setIsDemo] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const limit = 50;
 
   // Filter creators based on search query
@@ -765,7 +758,12 @@ export default function CreatorsPage() {
               <>
                 <div className="creators-grid">
                   {filteredCreators.map((creator, index) => (
-                    <CreatorCard key={creator.id} creator={creator} index={index} />
+                    <CreatorCard
+                      key={creator.id}
+                      creator={creator}
+                      index={index}
+                      onClick={() => setSelectedCreator(creator)}
+                    />
                   ))}
                 </div>
 
@@ -808,6 +806,14 @@ export default function CreatorsPage() {
             </div>
           </section>
         </main>
+
+        {/* Creator Modal */}
+        {selectedCreator && (
+          <CreatorModal
+            creator={selectedCreator}
+            onClose={() => setSelectedCreator(null)}
+          />
+        )}
       </div>
     </>
   );
