@@ -20,6 +20,18 @@ function hashToHue(str: string): number {
   return Math.abs(hash % 360);
 }
 
+// Category options for creator cards
+const CATEGORIES = ["Tech", "Journalism", "Art", "Music", "Gaming", "Finance", "Science", "Culture"];
+
+// Generate a consistent category from handle
+function hashToCategory(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return CATEGORIES[Math.abs(hash) % CATEGORIES.length];
+}
+
 interface CreatorCardProps {
   creator: Creator;
   index: number;
@@ -29,6 +41,7 @@ interface CreatorCardProps {
 export function CreatorCard({ creator, index, compact = false }: CreatorCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const hue = hashToHue(creator.handle);
+  const category = hashToCategory(creator.handle);
 
   return (
     <>
@@ -75,6 +88,26 @@ export function CreatorCard({ creator, index, compact = false }: CreatorCardProp
             : "0 4px 16px rgba(0, 0, 0, 0.3)",
         }}
       >
+        {/* Category Tag */}
+        <div
+          style={{
+            position: "absolute",
+            top: compact ? "12px" : "16px",
+            right: compact ? "12px" : "16px",
+            backgroundColor: `hsl(${hue}, 50%, 35%, 0.15)`,
+            border: `1px solid hsl(${hue}, 50%, 45%, 0.4)`,
+            borderRadius: "4px",
+            padding: "4px 8px",
+            fontSize: "10px",
+            fontWeight: 600,
+            color: `hsl(${hue}, 60%, 65%)`,
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+          }}
+        >
+          {category}
+        </div>
+
         {/* Avatar with gold ring on hover */}
         <div style={{ position: "relative", marginBottom: compact ? "12px" : "16px" }}>
           {/* Gold ring - visible on hover */}
