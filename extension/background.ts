@@ -8,7 +8,7 @@
  * - Background sync of creator identity
  */
 
-import { subscribeToTips, subscribeToMessages, type TipEvent, type MessageEvent } from "~lib/realtime"
+import { subscribeToTips, subscribeToMessages, onConnectionStatusChange, type TipEvent, type MessageEvent, type ConnectionStatus } from "~lib/realtime"
 import { getLinkedCreator, onLinkedCreatorChange, type CreatorIdentity } from "~lib/identity"
 import { decryptMessage, hasPrivateKey } from "~lib/crypto"
 import { sanitizeMessage, truncateText } from "~lib/sanitize"
@@ -22,8 +22,10 @@ const LOCAL_TIPS_KEY = 'tipz_local_tips'
 // State
 let currentSubscription: (() => void) | null = null
 let currentMessageSubscription: (() => void) | null = null
+let currentStatusSubscription: (() => void) | null = null
 let currentHandle: string | null = null
 let currentCreatorId: string | null = null
+let currentConnectionStatus: ConnectionStatus = 'disconnected'
 
 /**
  * Initialize the background service worker
@@ -60,6 +62,8 @@ async function init() {
     } else if (message.type === 'GET_LOCAL_TIPS') {
       getLocalTips().then((tips) => sendResponse({ tips }))
       return true
+    } else if (message.type === 'GET_CONNECTION_STATUS') {
+      sendResponse({ status: currentConnectionStatus })
     } else if (message.type === 'TEST_TIP_NOTIFICATION') {
       // DEV: Test tip notification
       handleNewTip({
@@ -99,6 +103,18 @@ function startTipSubscription(identity: CreatorIdentity) {
     handleNewTip(tip)
   })
 
+  // Subscribe to connection status changes
+  currentStatusSubscription = onConnectionStatusChange((status) => {
+    currentConnectionStatus = status
+    // Broadcast status change to popup
+    chrome.runtime.sendMessage({
+      type: "TIPZ_CONNECTION_STATUS_CHANGED",
+      data: { status }
+    }).catch(() => {
+      // Popup not open, ignore
+    })
+  })
+
   // Also start message subscription if we have a creator ID
   if (identity.creatorId) {
     startMessageSubscription(identity.creatorId)
@@ -120,6 +136,13 @@ function stopTipSubscription() {
     currentMessageSubscription = null
     currentCreatorId = null
   }
+
+  if (currentStatusSubscription) {
+    currentStatusSubscription()
+    currentStatusSubscription = null
+  }
+
+  currentConnectionStatus = 'disconnected'
 
   // Clear badge
   updateBadge(0)

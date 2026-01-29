@@ -1053,7 +1053,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                 <span style={{ color: "rgb(113, 118, 123)", fontSize: `${15 * scale}px` }}>3h</span>
               </div>
               <p style={{ fontSize: `${15 * scale}px`, lineHeight: 1.5, color: "#E7E9EA", margin: `${8 * scale}px 0 ${12 * scale}px 0` }}>
-                Shielded tips open here 👇
+                Private tips open here 👇
               </p>
 
               {/* Link Preview Card (click effect on phase 1) - Wall-to-Wall Dense Terminal */}
@@ -2877,7 +2877,7 @@ export default function HomePage() {
               }}>
                 <span>Private Tips</span>
                 <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
-                <span>Untaxable</span>
+                <span>Unlinkable</span>
                 <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
                 <span>Unfreezable</span>
                 <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
