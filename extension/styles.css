@@ -1,11 +1,28 @@
-/* TIPZ Extension Styles */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+/* TIPZ Extension Styles - Matching tipz.cash website */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* Keyframe animations */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* ===== Keyframe Animations ===== */
+
+/* Basic utilities */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -16,6 +33,7 @@
   to { transform: rotate(360deg); }
 }
 
+/* Entrance animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -27,18 +45,126 @@
   }
 }
 
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(245, 166, 35, 0.2); }
-  50% { box-shadow: 0 0 30px rgba(245, 166, 35, 0.4); }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
+/* Stagger reveal for list items */
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero stat count-up glow */
+@keyframes heroGlow {
+  0%, 100% {
+    text-shadow: 0 0 40px rgba(245, 166, 35, 0.2);
+  }
+  50% {
+    text-shadow: 0 0 60px rgba(245, 166, 35, 0.35);
+  }
+}
+
+/* Card glow effect for empty state */
+@keyframes cardGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(244, 183, 40, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(244, 183, 40, 0.25);
+  }
+}
+
+/* Subtle pulse for new items */
+@keyframes newItemPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(245, 166, 35, 0);
+  }
+}
+
+/* Status indicator pulse */
 @keyframes statusPulse {
   0%, 100% {
     opacity: 1;
     box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
   }
   50% {
-    opacity: 0.8;
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+    opacity: 0.85;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0);
+  }
+}
+
+/* Slide transitions for tabs */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Scale up for interactive elements */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Underline animation for links */
+@keyframes underlineExpand {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* ===== Utility Classes ===== */
+
+/* Stagger delay utilities for list items */
+.stagger-1 { animation-delay: 0ms; }
+.stagger-2 { animation-delay: 50ms; }
+.stagger-3 { animation-delay: 100ms; }
+.stagger-4 { animation-delay: 150ms; }
+.stagger-5 { animation-delay: 200ms; }
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
