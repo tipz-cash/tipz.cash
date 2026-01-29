@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabase
     .from("creators")
-    .select("id, platform, handle, shielded_address")
+    .select("id, platform, handle, shielded_address, public_key")
     .eq("platform", platform)
     .eq("handle_normalized", dbNormalizedHandle)
     .single()
@@ -77,7 +77,9 @@ export async function GET(request: NextRequest) {
       id: data.id,
       platform: data.platform,
       handle: data.handle,
-      shielded_address: data.shielded_address
+      shielded_address: data.shielded_address,
+      publicKey: data.public_key,
+      canReceiveMessages: !!data.public_key,
     }
   })
 }

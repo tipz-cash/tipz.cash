@@ -2,7 +2,7 @@ import cssText from "data-text:~styles.css"
 import type { PlasmoCSConfig, PlasmoGetInlineAnchorList } from "plasmo"
 import { useState, useEffect, useCallback } from "react"
 
-import { AutoStampBadge } from "~components/AutoStampToggle"
+import { AutoStampToggle } from "~components/AutoStampToggle"
 import { getLinkedCreator, type CreatorIdentity } from "~lib/identity"
 import { colors, fonts, radius, transitions } from "~lib/theme"
 
@@ -246,11 +246,21 @@ function TipzAutoStamp({ anchor }: TipzAutoStampProps) {
     )
   }
 
+  /**
+   * Toggle auto-stamp enabled state
+   */
+  const handleToggle = useCallback(async (enabled: boolean) => {
+    setIsAutoStampEnabled(enabled)
+    await setAutoStampEnabled(enabled)
+  }, [])
+
   return (
     <div style={{ marginLeft: "8px", display: "flex", alignItems: "center" }}>
-      <AutoStampBadge
+      <AutoStampToggle
         handle={linkedCreator.handle}
-        onClick={handleStamp}
+        onStamp={handleStamp}
+        isEnabled={isAutoStampEnabled}
+        onToggle={handleToggle}
       />
     </div>
   )

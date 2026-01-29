@@ -18,7 +18,14 @@ export interface TipEvent {
   recipient_handle: string
 }
 
+export interface MessageEvent {
+  depositAddress: string
+  encryptedBlob: string
+  receivedAt: number
+}
+
 export type TipEventCallback = (tip: TipEvent) => void
+export type MessageEventCallback = (message: MessageEvent) => void
 
 // Simple WebSocket-based realtime subscription
 // This is a lightweight alternative to the full Supabase client
@@ -226,4 +233,150 @@ export function subscribeToTips(handle: string, callback: TipEventCallback): () 
   }
 
   return realtimeClient.subscribe(handle, callback)
+}
+
+// Messages realtime client for encrypted messages
+class MessageRealtimeClient {
+  private ws: WebSocket | null = null
+  private creatorId: string | null = null
+  private callbacks: Set<MessageEventCallback> = new Set()
+  private reconnectAttempts = 0
+  private maxReconnectAttempts = 5
+  private reconnectTimeout: ReturnType<typeof setTimeout> | null = null
+
+  /**
+   * Subscribe to encrypted messages for a specific creator ID
+   */
+  subscribe(creatorId: string, callback: MessageEventCallback): () => void {
+    this.creatorId = creatorId
+    this.callbacks.add(callback)
+
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      this.connect()
+    }
+
+    return () => {
+      this.callbacks.delete(callback)
+      if (this.callbacks.size === 0) {
+        this.disconnect()
+      }
+    }
+  }
+
+  private connect() {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      console.warn("TIPZ Messages: Supabase credentials not configured")
+      return
+    }
+
+    try {
+      const wsUrl = SUPABASE_URL.replace('https://', 'wss://').replace('http://', 'ws://')
+      const realtimeUrl = `${wsUrl}/realtime/v1/websocket?apikey=${SUPABASE_ANON_KEY}&vsn=1.0.0`
+
+      this.ws = new WebSocket(realtimeUrl)
+
+      this.ws.onopen = () => {
+        console.log("TIPZ Messages: Connected")
+        this.reconnectAttempts = 0
+        this.subscribeToChannel()
+      }
+
+      this.ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          this.handleMessage(data)
+        } catch (e) {
+          console.warn("TIPZ Messages: Failed to parse message", e)
+        }
+      }
+
+      this.ws.onerror = (error) => {
+        console.error("TIPZ Messages: WebSocket error", error)
+      }
+
+      this.ws.onclose = () => {
+        console.log("TIPZ Messages: Disconnected")
+        this.attemptReconnect()
+      }
+    } catch (e) {
+      console.error("TIPZ Messages: Failed to connect", e)
+    }
+  }
+
+  private subscribeToChannel() {
+    if (!this.ws || !this.creatorId) return
+
+    // Subscribe to broadcast channel for this creator's messages
+    const payload = {
+      topic: `realtime:messages:${this.creatorId}`,
+      event: "phx_join",
+      payload: {},
+      ref: "2"
+    }
+
+    this.ws.send(JSON.stringify(payload))
+  }
+
+  private handleMessage(data: any) {
+    // Handle broadcast messages
+    if (data.event === "broadcast" && data.payload?.event === "new_message") {
+      const message: MessageEvent = {
+        depositAddress: data.payload.payload.depositAddress,
+        encryptedBlob: data.payload.payload.encryptedBlob,
+        receivedAt: data.payload.payload.receivedAt,
+      }
+
+      this.callbacks.forEach((callback) => callback(message))
+    }
+
+    if (data.event === "phx_reply" && data.payload?.status === "ok") {
+      console.log("TIPZ Messages: Subscribed to channel")
+    }
+  }
+
+  private attemptReconnect() {
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.log("TIPZ Messages: Max reconnect attempts reached")
+      return
+    }
+
+    this.reconnectAttempts++
+    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000)
+
+    console.log(`TIPZ Messages: Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`)
+
+    this.reconnectTimeout = setTimeout(() => {
+      this.connect()
+    }, delay)
+  }
+
+  private disconnect() {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout)
+      this.reconnectTimeout = null
+    }
+
+    if (this.ws) {
+      this.ws.close()
+      this.ws = null
+    }
+
+    this.creatorId = null
+  }
+}
+
+let messageClient: MessageRealtimeClient | null = null
+
+/**
+ * Subscribe to encrypted message notifications for a creator
+ * @param creatorId - The creator's UUID (not handle)
+ * @param callback - Function called when a new encrypted message arrives
+ * @returns Unsubscribe function
+ */
+export function subscribeToMessages(creatorId: string, callback: MessageEventCallback): () => void {
+  if (!messageClient) {
+    messageClient = new MessageRealtimeClient()
+  }
+
+  return messageClient.subscribe(creatorId, callback)
 }

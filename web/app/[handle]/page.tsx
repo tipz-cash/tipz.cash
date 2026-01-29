@@ -459,6 +459,8 @@ interface Creator {
   platform: string
   handle: string
   shielded_address: string
+  publicKey?: JsonWebKey
+  canReceiveMessages?: boolean
 }
 
 type PageState = "loading" | "found" | "not_found" | "error"
@@ -669,6 +671,7 @@ export default function CreatorCardPage() {
                   shieldedAddress={creator?.shielded_address || ""}
                   isMobile={isMobile}
                   avatarColor={getAvatarColor(creator?.handle || handle)}
+                  publicKey={creator?.publicKey}
                 />
 
                 {/* Powered by TIPZ footer */}
@@ -726,6 +729,7 @@ export default function CreatorCardPage() {
               shieldedAddress={creator?.shielded_address || ""}
               isMobile={isMobile}
               avatarColor={getAvatarColor(creator?.handle || handle)}
+              publicKey={creator?.publicKey}
             />
           </div>
         </div>

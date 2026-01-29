@@ -238,22 +238,46 @@ function NotLinkedView() {
         Register Now
       </a>
 
+      {/* Link Existing Account Button */}
+      <button
+        onClick={() => {
+          chrome.tabs.create({ url: WEB_URL })
+        }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "8px",
+          width: "100%",
+          marginTop: "12px",
+          padding: "12px 16px",
+          fontSize: "13px",
+          fontWeight: 500,
+          color: colors.textWhite,
+          backgroundColor: "transparent",
+          border: `1px solid ${colors.border}`,
+          borderRadius: radius.lg,
+          cursor: "pointer",
+          fontFamily: fonts.mono,
+          boxSizing: "border-box",
+          transition: `all ${transitions.fast}`,
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+        </svg>
+        Link Existing Account
+      </button>
+
       <p style={{
-        margin: "20px 0 0",
-        fontSize: "12px",
+        margin: "16px 0 0",
+        fontSize: "11px",
         color: colors.muted,
         fontFamily: fonts.sans,
+        textAlign: "center",
       }}>
-        Already registered?{" "}
-        <a
-          href={WEB_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: colors.primary, textDecoration: "none" }}
-        >
-          Visit tipz.cash
-        </a>
-        {" "}to link.
+        Visit tipz.cash to link your account
       </p>
     </div>
   )
