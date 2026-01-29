@@ -26,6 +26,16 @@ interface ActivityItem {
 
 const WEB_URL = process.env.PLASMO_PUBLIC_API_URL || "https://tipz.cash"
 
+// Connection status type (matches lib/realtime.ts)
+type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'polling'
+
+// Toast notification for errors/feedback
+interface Toast {
+  id: string
+  type: "error" | "success" | "info"
+  message: string
+}
+
 // In-popup tip notification
 interface PopupNotification {
   type: "tip" | "message"
@@ -35,8 +45,59 @@ interface PopupNotification {
   text?: string
 }
 
+// Connection status indicator with tooltip
+function ConnectionIndicator({ status }: { status: ConnectionStatus }) {
+  const [showTooltip, setShowTooltip] = useState(false)
+
+  const statusConfig: Record<ConnectionStatus, { color: string; label: string; animate: boolean }> = {
+    connected: { color: colors.success, label: "Live", animate: true },
+    connecting: { color: colors.primary, label: "Connecting...", animate: true },
+    polling: { color: colors.primary, label: "Polling", animate: false },
+    disconnected: { color: colors.error, label: "Offline", animate: false },
+  }
+
+  const config = statusConfig[status]
+
+  return (
+    <div
+      style={{ position: "relative" }}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      <div style={{
+        width: "8px",
+        height: "8px",
+        borderRadius: radius.full,
+        backgroundColor: config.color,
+        animation: config.animate ? "statusPulse 2s ease-in-out infinite" : "none",
+        cursor: "help",
+      }} />
+      {showTooltip && (
+        <div style={{
+          position: "absolute",
+          top: "100%",
+          right: 0,
+          marginTop: "6px",
+          padding: "6px 10px",
+          background: colors.surface,
+          border: `1px solid ${colors.border}`,
+          borderRadius: radius.sm,
+          fontSize: "11px",
+          fontFamily: fonts.sans,
+          color: colors.text,
+          whiteSpace: "nowrap",
+          zIndex: 100,
+          boxShadow: shadows.md,
+        }}>
+          {config.label}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // Compact header with logo and status
-function Header({ identity }: { identity: CreatorIdentity | null }) {
+function Header({ identity, connectionStatus }: { identity: CreatorIdentity | null; connectionStatus: ConnectionStatus }) {
   return (
     <div style={{
       padding: "14px 20px",
@@ -84,13 +145,16 @@ function Header({ identity }: { identity: CreatorIdentity | null }) {
             @{identity.handle}
           </span>
         )}
-        <div style={{
-          width: "8px",
-          height: "8px",
-          borderRadius: radius.full,
-          backgroundColor: identity ? colors.success : colors.muted,
-          animation: identity ? "statusPulse 2s ease-in-out infinite" : "none",
-        }} />
+        {identity ? (
+          <ConnectionIndicator status={connectionStatus} />
+        ) : (
+          <div style={{
+            width: "8px",
+            height: "8px",
+            borderRadius: radius.full,
+            backgroundColor: colors.muted,
+          }} />
+        )}
       </div>
     </div>
   )
@@ -1099,6 +1163,245 @@ function NotLinkedView() {
   )
 }
 
+// Toast notification component
+function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: string) => void }) {
+  if (toasts.length === 0) return null
+
+  return (
+    <div style={{
+      position: "absolute",
+      top: "60px",
+      left: "12px",
+      right: "12px",
+      zIndex: 900,
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px",
+    }}>
+      {toasts.map((toast) => (
+        <div
+          key={toast.id}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            padding: "12px 14px",
+            background: colors.surface,
+            border: `1px solid ${
+              toast.type === "error" ? colors.error :
+              toast.type === "success" ? colors.success :
+              colors.border
+            }`,
+            borderRadius: radius.sm,
+            boxShadow: shadows.md,
+            animation: "fadeInUp 0.2s ease-out",
+          }}
+        >
+          {/* Icon */}
+          {toast.type === "error" && (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.error} strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          )}
+          {toast.type === "success" && (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          )}
+          {toast.type === "info" && (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          )}
+          {/* Message */}
+          <span style={{
+            flex: 1,
+            fontSize: "12px",
+            fontFamily: fonts.sans,
+            color: colors.text,
+          }}>
+            {toast.message}
+          </span>
+          {/* Dismiss */}
+          <button
+            onClick={() => onDismiss(toast.id)}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: colors.muted,
+              cursor: "pointer",
+              padding: "2px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Styled unlink confirmation modal
+function UnlinkModal({
+  isOpen,
+  onConfirm,
+  onCancel,
+  isUnlinking,
+}: {
+  isOpen: boolean
+  onConfirm: () => void
+  onCancel: () => void
+  isUnlinking: boolean
+}) {
+  if (!isOpen) return null
+
+  return (
+    <div style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: "rgba(0, 0, 0, 0.85)",
+      backdropFilter: "blur(4px)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000,
+      padding: "20px",
+      animation: "fadeIn 0.15s ease-out",
+    }}>
+      <div style={{
+        background: colors.surface,
+        borderRadius: radius.lg,
+        border: `1px solid ${colors.border}`,
+        padding: "24px",
+        width: "100%",
+        maxWidth: "280px",
+        animation: "scaleIn 0.2s ease-out",
+      }}>
+        {/* Icon */}
+        <div style={{
+          width: "48px",
+          height: "48px",
+          borderRadius: radius.md,
+          background: colors.errorGlow,
+          border: `1px solid ${colors.error}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          margin: "0 auto 16px",
+        }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.error} strokeWidth="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            <line x1="4" y1="4" x2="20" y2="20" strokeWidth="2.5"/>
+          </svg>
+        </div>
+
+        {/* Title */}
+        <h3 style={{
+          margin: "0 0 8px",
+          fontSize: "16px",
+          fontWeight: 600,
+          color: colors.textBright,
+          fontFamily: fonts.sans,
+          textAlign: "center",
+        }}>
+          Unlink Account?
+        </h3>
+
+        {/* Description */}
+        <p style={{
+          margin: "0 0 20px",
+          fontSize: "13px",
+          color: colors.muted,
+          fontFamily: fonts.sans,
+          textAlign: "center",
+          lineHeight: 1.5,
+        }}>
+          You'll stop receiving tip notifications. You can re-link anytime by visiting tipz.cash.
+        </p>
+
+        {/* Buttons */}
+        <div style={{
+          display: "flex",
+          gap: "10px",
+        }}>
+          <button
+            onClick={onCancel}
+            disabled={isUnlinking}
+            style={{
+              flex: 1,
+              padding: "12px",
+              fontSize: "13px",
+              fontWeight: 500,
+              color: colors.text,
+              background: "transparent",
+              border: `1px solid ${colors.border}`,
+              borderRadius: radius.sm,
+              cursor: isUnlinking ? "not-allowed" : "pointer",
+              fontFamily: fonts.sans,
+              opacity: isUnlinking ? 0.5 : 1,
+              transition: `all ${transitions.fast}`,
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isUnlinking}
+            style={{
+              flex: 1,
+              padding: "12px",
+              fontSize: "13px",
+              fontWeight: 600,
+              color: colors.textBright,
+              background: colors.error,
+              border: "none",
+              borderRadius: radius.sm,
+              cursor: isUnlinking ? "not-allowed" : "pointer",
+              fontFamily: fonts.sans,
+              opacity: isUnlinking ? 0.7 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "6px",
+              transition: `all ${transitions.fast}`,
+            }}
+          >
+            {isUnlinking ? (
+              <>
+                <div style={{
+                  width: "14px",
+                  height: "14px",
+                  border: `2px solid ${colors.textBright}`,
+                  borderTopColor: "transparent",
+                  borderRadius: radius.full,
+                  animation: "spin 0.8s linear infinite",
+                }} />
+                Unlinking...
+              </>
+            ) : (
+              "Unlink"
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Local tip type from background
 interface LocalTip {
   id: string
@@ -1109,13 +1412,23 @@ interface LocalTip {
 }
 
 // Creator dashboard view
-function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
+function CreatorDashboard({
+  identity,
+  onError,
+  onSuccess,
+}: {
+  identity: CreatorIdentity
+  onError: (message: string) => void
+  onSuccess: (message: string) => void
+}) {
   const [stats, setStats] = useState<RevenueStats | null>(null)
   const [recentTips, setRecentTips] = useState<ReceivedTip[]>([])
   const [localTips, setLocalTips] = useState<LocalTip[]>([])
   const [messages, setMessages] = useState<StoredMessage[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [stampOpen, setStampOpen] = useState(false)
+  const [showUnlinkModal, setShowUnlinkModal] = useState(false)
+  const [isUnlinking, setIsUnlinking] = useState(false)
 
   useEffect(() => {
     async function loadData() {
@@ -1131,6 +1444,7 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
         setRecentTips(tipsData.tips)
       } catch (e) {
         console.error("TIPZ: Failed to load dashboard data", e)
+        onError("Failed to load earnings data")
       } finally {
         setIsLoading(false)
       }
@@ -1174,12 +1488,32 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
     return () => {
       chrome.runtime.onMessage.removeListener(handleNewTip)
     }
-  }, [identity.handle])
+  }, [identity.handle, onError])
 
-  const handleUnlink = async () => {
-    if (confirm("Are you sure you want to unlink your account?")) {
-      await clearLinkedCreator()
+  const handleUnlinkClick = () => {
+    setShowUnlinkModal(true)
+  }
+
+  const handleUnlinkConfirm = async () => {
+    setIsUnlinking(true)
+    try {
+      const success = await clearLinkedCreator()
+      if (success) {
+        onSuccess("Account unlinked successfully")
+      } else {
+        onError("Failed to unlink account")
+      }
+    } catch (e) {
+      console.error("TIPZ: Failed to unlink", e)
+      onError("Failed to unlink account")
+    } finally {
+      setIsUnlinking(false)
+      setShowUnlinkModal(false)
     }
+  }
+
+  const handleUnlinkCancel = () => {
+    setShowUnlinkModal(false)
   }
 
   const handleShare = () => {
@@ -1188,6 +1522,14 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
 
   return (
     <div>
+      {/* Unlink confirmation modal */}
+      <UnlinkModal
+        isOpen={showUnlinkModal}
+        onConfirm={handleUnlinkConfirm}
+        onCancel={handleUnlinkCancel}
+        isUnlinking={isUnlinking}
+      />
+
       {/* Hero stat */}
       <HeroStat stats={stats} isLoading={isLoading} />
 
@@ -1222,7 +1564,7 @@ function CreatorDashboard({ identity }: { identity: CreatorIdentity }) {
         marginTop: "12px",
       }}>
         <button
-          onClick={handleUnlink}
+          onClick={handleUnlinkClick}
           style={{
             display: "block",
             width: "100%",
@@ -1394,6 +1736,25 @@ function IndexPopup() {
   const [linkedCreator, setLinkedCreator] = useState<CreatorIdentity | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [notification, setNotification] = useState<PopupNotification | null>(null)
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected')
+  const [toasts, setToasts] = useState<Toast[]>([])
+
+  // Toast management
+  const addToast = (type: Toast["type"], message: string) => {
+    const id = `toast-${Date.now()}`
+    setToasts((prev) => [...prev, { id, type, message }])
+    // Auto-dismiss after 4 seconds
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id))
+    }, 4000)
+  }
+
+  const dismissToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
+
+  const handleError = (message: string) => addToast("error", message)
+  const handleSuccess = (message: string) => addToast("success", message)
 
   useEffect(() => {
     // Load initial state
@@ -1402,17 +1763,26 @@ function IndexPopup() {
       setIsLoading(false)
     })
 
+    // Get initial connection status
+    chrome.runtime.sendMessage({ type: "GET_CONNECTION_STATUS" }, (response) => {
+      if (response?.status) {
+        setConnectionStatus(response.status)
+      }
+    })
+
     // Listen for changes
     const unsubscribe = onLinkedCreatorChange((identity) => {
       setLinkedCreator(identity)
     })
 
-    // Listen for tip/message notifications while popup is open
+    // Listen for tip/message notifications and connection status changes
     const handleMessage = (message: any) => {
       if (message.type === "TIPZ_SHOW_TIP_NOTIFICATION") {
         setNotification({ type: "tip", ...message.data })
       } else if (message.type === "TIPZ_SHOW_MESSAGE_NOTIFICATION") {
         setNotification({ type: "message", ...message.data })
+      } else if (message.type === "TIPZ_CONNECTION_STATUS_CHANGED") {
+        setConnectionStatus(message.data.status)
       }
     }
     chrome.runtime.onMessage.addListener(handleMessage)
@@ -1434,6 +1804,9 @@ function IndexPopup() {
         position: "relative",
       }}
     >
+      {/* Toast notifications */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
       {/* Notification overlay */}
       <PopupNotificationOverlay
         notification={notification}
@@ -1441,7 +1814,7 @@ function IndexPopup() {
       />
 
       {/* Header */}
-      <Header identity={linkedCreator} />
+      <Header identity={linkedCreator} connectionStatus={connectionStatus} />
 
       {/* Content */}
       {isLoading ? (
@@ -1457,7 +1830,11 @@ function IndexPopup() {
           }} />
         </div>
       ) : linkedCreator ? (
-        <CreatorDashboard identity={linkedCreator} />
+        <CreatorDashboard
+          identity={linkedCreator}
+          onError={handleError}
+          onSuccess={handleSuccess}
+        />
       ) : (
         <NotLinkedView />
       )}

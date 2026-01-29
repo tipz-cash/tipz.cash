@@ -29,15 +29,47 @@ export interface MessageEvent {
 export type TipEventCallback = (tip: TipEvent) => void
 export type MessageEventCallback = (message: MessageEvent) => void
 
+// Connection status type
+export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'polling'
+
+// Callback for connection status changes
+export type ConnectionStatusCallback = (status: ConnectionStatus) => void
+
 // Simple WebSocket-based realtime subscription
 // This is a lightweight alternative to the full Supabase client
 class TipRealtimeClient {
   private ws: WebSocket | null = null
   private handle: string | null = null
   private callbacks: Set<TipEventCallback> = new Set()
+  private statusCallbacks: Set<ConnectionStatusCallback> = new Set()
   private reconnectAttempts = 0
   private maxReconnectAttempts = 5
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null
+  private _status: ConnectionStatus = 'disconnected'
+
+  /**
+   * Get current connection status
+   */
+  get status(): ConnectionStatus {
+    return this._status
+  }
+
+  /**
+   * Subscribe to connection status changes
+   */
+  onStatusChange(callback: ConnectionStatusCallback): () => void {
+    this.statusCallbacks.add(callback)
+    // Immediately call with current status
+    callback(this._status)
+    return () => this.statusCallbacks.delete(callback)
+  }
+
+  private setStatus(status: ConnectionStatus) {
+    if (this._status !== status) {
+      this._status = status
+      this.statusCallbacks.forEach(cb => cb(status))
+    }
+  }
 
   /**
    * Subscribe to tips for a specific creator handle
@@ -67,6 +99,8 @@ class TipRealtimeClient {
       return
     }
 
+    this.setStatus('connecting')
+
     try {
       // Convert https URL to wss for WebSocket
       const wsUrl = SUPABASE_URL.replace('https://', 'wss://').replace('http://', 'ws://')
@@ -77,6 +111,7 @@ class TipRealtimeClient {
       this.ws.onopen = () => {
         console.log("TIPZ Realtime: Connected")
         this.reconnectAttempts = 0
+        this.setStatus('connected')
         this.subscribeToChannel()
       }
 
@@ -95,10 +130,12 @@ class TipRealtimeClient {
 
       this.ws.onclose = () => {
         console.log("TIPZ Realtime: Disconnected")
+        this.setStatus('disconnected')
         this.attemptReconnect()
       }
     } catch (e) {
       console.error("TIPZ Realtime: Failed to connect", e)
+      this.setStatus('disconnected')
       this.startPolling()
     }
   }
@@ -169,6 +206,7 @@ class TipRealtimeClient {
 
     this.handle = null
     this.stopPolling()
+    this.setStatus('disconnected')
   }
 
   // Polling fallback when WebSocket is not available
@@ -179,6 +217,7 @@ class TipRealtimeClient {
     if (this.pollingInterval) return
 
     console.log("TIPZ Realtime: Starting polling fallback")
+    this.setStatus('polling')
 
     // Poll every 30 seconds
     this.pollingInterval = setInterval(() => this.poll(), 30000)
@@ -235,6 +274,26 @@ export function subscribeToTips(handle: string, callback: TipEventCallback): () 
   }
 
   return realtimeClient.subscribe(handle, callback)
+}
+
+/**
+ * Get current connection status
+ */
+export function getConnectionStatus(): ConnectionStatus {
+  if (!realtimeClient) return 'disconnected'
+  return realtimeClient.status
+}
+
+/**
+ * Subscribe to connection status changes
+ * @param callback - Function called when connection status changes
+ * @returns Unsubscribe function
+ */
+export function onConnectionStatusChange(callback: ConnectionStatusCallback): () => void {
+  if (!realtimeClient) {
+    realtimeClient = new TipRealtimeClient()
+  }
+  return realtimeClient.onStatusChange(callback)
 }
 
 // Messages realtime client for encrypted messages
