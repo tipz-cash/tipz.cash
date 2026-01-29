@@ -11,6 +11,8 @@ interface TokenSelectorProps {
   onSelect: (token: SupportedToken) => void
   disabled?: boolean
   compact?: boolean
+  currentChainId?: number | null  // Current connected chain for showing "switch" indicators
+  isSwitchingChain?: boolean  // Whether a chain switch is in progress
 }
 
 export function TokenSelector({
@@ -20,6 +22,8 @@ export function TokenSelector({
   onSelect,
   disabled = false,
   compact = false,
+  currentChainId = null,
+  isSwitchingChain = false,
 }: TokenSelectorProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [hoveredToken, setHoveredToken] = useState<string | null>(null)
@@ -73,10 +77,40 @@ export function TokenSelector({
     setIsOpen(false)
   }
 
-  const getBalance = (symbol: string): string => {
-    const balance = balances[symbol]
+  const getBalance = (symbol: string, chainId: number): string => {
+    // Use the compound key format: symbol-chainId
+    const tokenKey = `${symbol}-${chainId}`
+    const balance = balances[tokenKey]
     if (!balance) return "--"
     return formatTokenAmount(balance.amount, 4)
+  }
+
+  // Check if token is on a different chain than the currently connected one
+  const isOnDifferentChain = (tokenChainId: number): boolean => {
+    if (!currentChainId) return false
+    return tokenChainId !== currentChainId
+  }
+
+  // Group tokens: current chain first, then other chains
+  const sortedTokens = [...availableTokens].sort((a, b) => {
+    const aOnCurrent = a.chainId === currentChainId
+    const bOnCurrent = b.chainId === currentChainId
+    if (aOnCurrent && !bOnCurrent) return -1
+    if (!aOnCurrent && bOnCurrent) return 1
+    // Within same group, sort by chainId then symbol
+    if (a.chainId !== b.chainId) return a.chainId - b.chainId
+    return a.symbol.localeCompare(b.symbol)
+  })
+
+  // Map chainId to human-readable chain name
+  const getChainName = (chainId: number): string => {
+    const chainNames: Record<number, string> = {
+      1: "Ethereum",
+      137: "Polygon",
+      42161: "Arbitrum",
+      10: "Optimism",
+    }
+    return chainNames[chainId] || `Chain ${chainId}`
   }
 
   if (availableTokens.length === 0) {
@@ -153,7 +187,7 @@ export function TokenSelector({
                 {selectedToken.symbol[0]}
               </div>
             )}
-            {/* Compact: symbol + balance inline. Full: symbol + balance stacked */}
+            {/* Compact: symbol + chain + balance inline. Full: symbol + chain + balance stacked */}
             {compact ? (
               <span
                 style={{
@@ -164,8 +198,11 @@ export function TokenSelector({
                 }}
               >
                 {selectedToken.symbol}
+                <span style={{ color: tokens.colors.textSubtle, fontWeight: 400, fontSize: "11px" }}>
+                  {" "}on {getChainName(selectedToken.chainId)}
+                </span>
                 <span style={{ color: tokens.colors.textMuted, fontWeight: 400 }}>
-                  {" · "}{getBalance(selectedToken.symbol)}
+                  {" · "}{getBalance(selectedToken.symbol, selectedToken.chainId)}
                 </span>
               </span>
             ) : (
@@ -179,6 +216,9 @@ export function TokenSelector({
                   }}
                 >
                   {selectedToken.symbol}
+                  <span style={{ color: tokens.colors.textSubtle, fontWeight: 400, fontSize: "11px", marginLeft: "6px" }}>
+                    on {getChainName(selectedToken.chainId)}
+                  </span>
                 </div>
                 <div
                   style={{
@@ -187,7 +227,7 @@ export function TokenSelector({
                     fontFamily: tokens.font.sans,
                   }}
                 >
-                  Balance: {getBalance(selectedToken.symbol)}
+                  Balance: {getBalance(selectedToken.symbol, selectedToken.chainId)}
                 </div>
               </div>
             )}
@@ -244,16 +284,20 @@ export function TokenSelector({
             overflowY: "auto",
           }}
         >
-          {availableTokens.map((token, index) => {
-            const isSelected = selectedToken?.symbol === token.symbol
-            const isHovered = hoveredToken === token.symbol
+          {sortedTokens.map((token, index) => {
+            // Use compound key for uniqueness across chains
+            const tokenKey = `${token.symbol}-${token.chainId}`
+            const isSelected = selectedToken?.symbol === token.symbol && selectedToken?.chainId === token.chainId
+            const isHovered = hoveredToken === tokenKey
+            const isDifferentChain = isOnDifferentChain(token.chainId)
 
             return (
               <button
-                key={token.symbol}
+                key={tokenKey}
                 onClick={() => handleSelect(token)}
-                onMouseEnter={() => setHoveredToken(token.symbol)}
+                onMouseEnter={() => setHoveredToken(tokenKey)}
                 onMouseLeave={() => setHoveredToken(null)}
+                disabled={isSwitchingChain}
                 style={{
                   width: "100%",
                   minHeight: "48px",
@@ -267,8 +311,9 @@ export function TokenSelector({
                     ? "rgba(255, 255, 255, 0.05)"
                     : "transparent",
                   border: "none",
-                  borderBottom: index < availableTokens.length - 1 ? `1px solid rgba(255, 255, 255, 0.05)` : "none",
-                  cursor: "pointer",
+                  borderBottom: index < sortedTokens.length - 1 ? `1px solid rgba(255, 255, 255, 0.05)` : "none",
+                  cursor: isSwitchingChain ? "wait" : "pointer",
+                  opacity: isSwitchingChain ? 0.7 : 1,
                   transition: `all ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
                 }}
               >
@@ -282,6 +327,7 @@ export function TokenSelector({
                         width: "24px",
                         height: "24px",
                         borderRadius: "50%",
+                        opacity: isDifferentChain ? 0.7 : 1,
                       }}
                     />
                   ) : (
@@ -298,6 +344,7 @@ export function TokenSelector({
                         fontWeight: 700,
                         color: tokens.colors.bg,
                         fontFamily: tokens.font.mono,
+                        opacity: isDifferentChain ? 0.7 : 1,
                       }}
                     >
                       {token.symbol[0]}
@@ -306,7 +353,7 @@ export function TokenSelector({
                   <div style={{ textAlign: "left" }}>
                     <div
                       style={{
-                        color: tokens.colors.textBright,
+                        color: isDifferentChain ? tokens.colors.text : tokens.colors.textBright,
                         fontSize: "13px",
                         fontWeight: 500,
                         fontFamily: tokens.font.mono,
@@ -316,22 +363,47 @@ export function TokenSelector({
                     </div>
                     <div style={{ color: tokens.colors.textMuted, fontSize: "11px", fontFamily: tokens.font.sans }}>
                       {token.name}
+                      <span style={{ color: isDifferentChain ? tokens.colors.gold : tokens.colors.textSubtle, marginLeft: "4px" }}>
+                        · {getChainName(token.chainId)}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: tokens.space.sm }}>
-                  {/* Balance with tabular nums */}
-                  <span
-                    style={{
-                      color: tokens.colors.text,
-                      fontSize: "12px",
-                      fontFamily: tokens.font.mono,
-                      fontFeatureSettings: "'tnum' 1",
-                    }}
-                  >
-                    {getBalance(token.symbol)}
-                  </span>
+                  {/* Show balance for current chain tokens, "Switch" for others */}
+                  {isDifferentChain ? (
+                    <span
+                      style={{
+                        color: tokens.colors.gold,
+                        fontSize: "11px",
+                        fontFamily: tokens.font.sans,
+                        fontWeight: 500,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M17 1l4 4-4 4" />
+                        <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                        <path d="M7 23l-4-4 4-4" />
+                        <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                      </svg>
+                      Switch
+                    </span>
+                  ) : (
+                    <span
+                      style={{
+                        color: tokens.colors.text,
+                        fontSize: "12px",
+                        fontFamily: tokens.font.mono,
+                        fontFeatureSettings: "'tnum' 1",
+                      }}
+                    >
+                      {getBalance(token.symbol, token.chainId)}
+                    </span>
+                  )}
 
                   {/* Selected checkmark */}
                   {isSelected && (

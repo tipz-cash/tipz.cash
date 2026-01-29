@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import {
   connectWallet as connectWalletLib,
   disconnectWallet as disconnectWalletLib,
@@ -17,6 +17,7 @@ import {
 interface UseWalletReturn {
   walletState: WalletState
   isConnecting: boolean
+  isSwitchingChain: boolean
   isAvailable: boolean
   detectedWallet: WalletType | null
   error: string | null
@@ -35,9 +36,13 @@ export function useWallet(): UseWalletReturn {
     balance: null,
   })
   const [isConnecting, setIsConnecting] = useState(false)
+  const [isSwitchingChain, setIsSwitchingChain] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isAvailable, setIsAvailable] = useState(false)
   const [detectedWallet, setDetectedWallet] = useState<WalletType | null>(null)
+
+  // Ref to track chain switching state for event listeners (avoids stale closure)
+  const isSwitchingChainRef = useRef(false)
 
   // Check wallet availability on mount
   useEffect(() => {
@@ -69,9 +74,12 @@ export function useWallet(): UseWalletReturn {
         }
       },
       async (chainId) => {
-        // Chain changed
-        const newState = await getWalletState()
-        setWalletState(newState)
+        // Chain changed - only handle external changes (user changed in wallet extension)
+        // Programmatic changes are handled by switchChain function
+        if (!isSwitchingChainRef.current) {
+          const newState = await getWalletState()
+          setWalletState(newState)
+        }
       },
       () => {
         // Disconnected
@@ -116,12 +124,19 @@ export function useWallet(): UseWalletReturn {
   }, [])
 
   const switchChain = useCallback(async (chainId: number): Promise<boolean> => {
-    const success = await switchChainLib(chainId)
-    if (success) {
-      const newState = await getWalletState()
-      setWalletState(newState)
+    setIsSwitchingChain(true)
+    isSwitchingChainRef.current = true
+    try {
+      const success = await switchChainLib(chainId)
+      if (success) {
+        const newState = await getWalletState()
+        setWalletState(newState)
+      }
+      return success
+    } finally {
+      setIsSwitchingChain(false)
+      isSwitchingChainRef.current = false
     }
-    return success
   }, [])
 
   const refreshState = useCallback(async () => {
@@ -133,6 +148,7 @@ export function useWallet(): UseWalletReturn {
   return {
     walletState,
     isConnecting,
+    isSwitchingChain,
     isAvailable,
     detectedWallet,
     error,

@@ -47,7 +47,10 @@ export const config = {
      * - public files (images, etc)
      * - opengraph-image, twitter-image, apple-icon (for social previews)
      * - api/og (dynamic OG images)
+     * - api/tips (extension API - public for realtime)
+     * - api/creator (extension API - public for lookups)
+     * - api/zec-price (public price endpoint)
      */
-    "/((?!_next/static|_next/image|favicon.ico|opengraph-image|twitter-image|apple-icon|icon|api/og|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|opengraph-image|twitter-image|apple-icon|icon|api/og|api/tips|api/creator|api/zec-price|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

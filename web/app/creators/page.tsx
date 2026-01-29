@@ -762,7 +762,15 @@ export default function CreatorsPage() {
                       key={creator.id}
                       creator={creator}
                       index={index}
-                      onClick={() => setSelectedCreator(creator)}
+                      onClick={() => {
+                        // If creator has a shielded address, navigate to their tip page
+                        if (creator.shielded_address) {
+                          window.location.href = `/${creator.handle}`;
+                        } else {
+                          // Otherwise show the invite modal
+                          setSelectedCreator(creator);
+                        }
+                      }}
                     />
                   ))}
                 </div>
