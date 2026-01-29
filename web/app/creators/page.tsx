@@ -57,7 +57,13 @@ export default function CreatorsPage() {
   const [offset, setOffset] = useState(0);
   const [isDemo, setIsDemo] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const limit = 50;
+
+  // Filter creators based on search query
+  const filteredCreators = creators.filter((creator) =>
+    creator.handle.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   async function fetchCreators(newOffset: number = 0, append: boolean = false) {
     try {
@@ -537,18 +543,66 @@ export default function CreatorsPage() {
                 letterSpacing: "-1px",
               }}
             >
-              TIP A CREATOR
+              The Sovereign Directory.
             </h1>
             <p
               style={{
                 fontSize: "18px",
                 color: colors.muted,
-                margin: 0,
+                margin: "0 0 32px",
                 fontFamily: "monospace",
               }}
             >
-              Private. Zero fees. 100% goes to them.
+              The uncensorable voices of the new web.
             </p>
+
+            {/* Search Bar */}
+            <div style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "8px",
+            }}>
+              <div style={{
+                position: "relative",
+                width: "100%",
+                maxWidth: "400px",
+              }}>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke={colors.muted}
+                  strokeWidth="2"
+                  style={{
+                    position: "absolute",
+                    left: "16px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                  }}
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search creators..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "14px 16px 14px 48px",
+                    backgroundColor: colors.surface,
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: "8px",
+                    color: colors.textBright,
+                    fontSize: "14px",
+                    fontFamily: "inherit",
+                    outline: "none",
+                  }}
+                />
+              </div>
+            </div>
 
             {/* Demo mode indicator */}
             {isDemo && !loading && (
@@ -663,17 +717,60 @@ export default function CreatorsPage() {
                   REGISTER NOW
                 </a>
               </div>
+            ) : filteredCreators.length === 0 && searchQuery ? (
+              // No search results
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "60px 24px",
+                  background: colors.cardBg,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: "16px",
+                  maxWidth: "400px",
+                  margin: "0 auto",
+                }}
+              >
+                <p
+                  style={{
+                    color: colors.textBright,
+                    fontSize: "18px",
+                    fontWeight: 600,
+                    margin: "0 0 8px",
+                  }}
+                >
+                  No creators found
+                </p>
+                <p style={{ color: colors.muted, margin: "0 0 24px" }}>
+                  No results for &quot;{searchQuery}&quot;
+                </p>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  style={{
+                    background: "transparent",
+                    color: colors.primary,
+                    border: `1px solid ${colors.primary}`,
+                    padding: "12px 24px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    letterSpacing: "1px",
+                    cursor: "pointer",
+                    borderRadius: "4px",
+                  }}
+                >
+                  CLEAR SEARCH
+                </button>
+              </div>
             ) : (
               // Creators grid
               <>
                 <div className="creators-grid">
-                  {creators.map((creator, index) => (
+                  {filteredCreators.map((creator, index) => (
                     <CreatorCard key={creator.id} creator={creator} index={index} />
                   ))}
                 </div>
 
                 {/* Load more button */}
-                {hasMore && (
+                {hasMore && !searchQuery && (
                   <div style={{ textAlign: "center", marginTop: "48px" }}>
                     <button
                       onClick={handleLoadMore}

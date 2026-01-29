@@ -1,20 +1,27 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 
-// Demo creators for client demos and when no real creators exist
+// Demo creators - known figures in Zcash, privacy, and crypto communities
 const DEMO_CREATORS = [
-  { id: "demo-1", platform: "x", handle: "jack", shielded_address: "zs1demo..." },
-  { id: "demo-2", platform: "x", handle: "elonmusk", shielded_address: "zs1demo..." },
-  { id: "demo-3", platform: "x", handle: "naval", shielded_address: "zs1demo..." },
-  { id: "demo-4", platform: "x", handle: "balajis", shielded_address: "zs1demo..." },
-  { id: "demo-5", platform: "x", handle: "VitalikButerin", shielded_address: "zs1demo..." },
-  { id: "demo-6", platform: "x", handle: "zolotor", shielded_address: "zs1demo..." },
-  { id: "demo-7", platform: "substack", handle: "gwern", shielded_address: "zs1demo..." },
-  { id: "demo-8", platform: "x", handle: "punk6529", shielded_address: "zs1demo..." },
-  { id: "demo-9", platform: "x", handle: "zcaboramas", shielded_address: "zs1demo..." },
-  { id: "demo-10", platform: "x", handle: "electriccoin", shielded_address: "zs1demo..." },
-  { id: "demo-11", platform: "substack", handle: "molly0xfff", shielded_address: "zs1demo..." },
-  { id: "demo-12", platform: "x", handle: "MessariCrypto", shielded_address: "zs1demo..." },
+  // Zcash ecosystem
+  { id: "demo-1", platform: "x", handle: "zoaboramas", shielded_address: "", created_at: "2025-01-15T00:00:00Z" },
+  { id: "demo-2", platform: "x", handle: "ElectricCoinCo", shielded_address: "", created_at: "2025-01-14T00:00:00Z" },
+  { id: "demo-3", platform: "x", handle: "zcaboramas", shielded_address: "", created_at: "2025-01-13T00:00:00Z" },
+  { id: "demo-4", platform: "x", handle: "zcaboramaswife", shielded_address: "", created_at: "2025-01-12T00:00:00Z" },
+  { id: "demo-5", platform: "x", handle: "str4d", shielded_address: "", created_at: "2025-01-11T00:00:00Z" },
+  { id: "demo-6", platform: "x", handle: "ZcashFoundation", shielded_address: "", created_at: "2025-01-10T00:00:00Z" },
+  // Privacy advocates
+  { id: "demo-7", platform: "x", handle: "Snowden", shielded_address: "", created_at: "2025-01-09T00:00:00Z" },
+  { id: "demo-8", platform: "x", handle: "torproject", shielded_address: "", created_at: "2025-01-08T00:00:00Z" },
+  { id: "demo-9", platform: "x", handle: "signalapp", shielded_address: "", created_at: "2025-01-07T00:00:00Z" },
+  { id: "demo-10", platform: "x", handle: "EFF", shielded_address: "", created_at: "2025-01-06T00:00:00Z" },
+  { id: "demo-11", platform: "x", handle: "matthew_d_green", shielded_address: "", created_at: "2025-01-05T00:00:00Z" },
+  // Crypto privacy
+  { id: "demo-12", platform: "x", handle: "TornadoCash", shielded_address: "", created_at: "2025-01-04T00:00:00Z" },
+  { id: "demo-13", platform: "x", handle: "monaboramas", shielded_address: "", created_at: "2025-01-03T00:00:00Z" },
+  { id: "demo-14", platform: "x", handle: "flaboramas", shielded_address: "", created_at: "2025-01-02T00:00:00Z" },
+  { id: "demo-15", platform: "x", handle: "aztaboramas", shielded_address: "", created_at: "2025-01-01T00:00:00Z" },
+  { id: "demo-16", platform: "x", handle: "VitalikButerin", shielded_address: "", created_at: "2024-12-31T00:00:00Z" },
 ]
 
 function getDemoResponse(limit: number, offset: number, platform?: string | null) {
