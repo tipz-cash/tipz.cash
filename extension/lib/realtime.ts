@@ -16,6 +16,7 @@ export interface TipEvent {
   message?: string
   created_at: string
   recipient_handle: string
+  amountUsd?: string  // e.g., "$1.25"
 }
 
 export interface MessageEvent {
@@ -39,6 +40,7 @@ export type ConnectionStatusCallback = (status: ConnectionStatus) => void
 // This is a lightweight alternative to the full Supabase client
 class TipRealtimeClient {
   private ws: WebSocket | null = null
+  private creatorId: string | null = null
   private handle: string | null = null
   private callbacks: Set<TipEventCallback> = new Set()
   private statusCallbacks: Set<ConnectionStatusCallback> = new Set()
@@ -72,9 +74,13 @@ class TipRealtimeClient {
   }
 
   /**
-   * Subscribe to tips for a specific creator handle
+   * Subscribe to tips for a specific creator
+   * @param creatorId - The creator's UUID from database
+   * @param handle - The creator's handle (for display/fallback)
+   * @param callback - Function called when a new tip arrives
    */
-  subscribe(handle: string, callback: TipEventCallback): () => void {
+  subscribe(creatorId: string, handle: string, callback: TipEventCallback): () => void {
+    this.creatorId = creatorId
     this.handle = handle
     this.callbacks.add(callback)
 
@@ -141,38 +147,44 @@ class TipRealtimeClient {
   }
 
   private subscribeToChannel() {
-    if (!this.ws || !this.handle) return
+    if (!this.ws || !this.creatorId) return
 
-    // Subscribe to tips table for this handle
+    // Subscribe to transactions table for this creator
     const payload = {
-      topic: `realtime:public:tips:recipient_handle=eq.${this.handle}`,
+      topic: `realtime:public:transactions:creator_id=eq.${this.creatorId}`,
       event: "phx_join",
       payload: {},
       ref: "1"
     }
 
     this.ws.send(JSON.stringify(payload))
+    console.log("TIPZ Realtime: Subscribing to transactions for creator:", this.creatorId)
   }
 
   private handleMessage(data: any) {
     // Handle Supabase Realtime protocol messages
     if (data.event === "INSERT" && data.payload?.record) {
+      const record = data.payload.record
+      // Map transaction table columns to TipEvent
       const tip: TipEvent = {
-        id: data.payload.record.id,
-        amount: data.payload.record.amount,
-        from_address: data.payload.record.from_address,
-        message: data.payload.record.message,
-        created_at: data.payload.record.created_at,
-        recipient_handle: data.payload.record.recipient_handle,
+        id: record.id,
+        amount: String(record.amount_zec),
+        from_address: record.sender_address,
+        message: record.memo,
+        created_at: record.created_at,
+        recipient_handle: this.handle || "",
+        // Include USD amount from metadata if available
+        amountUsd: record.amount_usd ? `$${Number(record.amount_usd).toFixed(2)}` : undefined,
       }
 
+      console.log("TIPZ Realtime: New transaction received:", tip.id)
       // Notify all callbacks
       this.callbacks.forEach((callback) => callback(tip))
     }
 
     // Handle heartbeat
     if (data.event === "phx_reply" && data.payload?.status === "ok") {
-      console.log("TIPZ Realtime: Subscribed to channel")
+      console.log("TIPZ Realtime: Subscribed to transactions channel")
     }
   }
 
@@ -204,6 +216,7 @@ class TipRealtimeClient {
       this.ws = null
     }
 
+    this.creatorId = null
     this.handle = null
     this.stopPolling()
     this.setStatus('disconnected')
@@ -264,16 +277,17 @@ let realtimeClient: TipRealtimeClient | null = null
 
 /**
  * Subscribe to tip notifications for a creator
- * @param handle - The creator's handle
+ * @param creatorId - The creator's UUID from database
+ * @param handle - The creator's handle (for display)
  * @param callback - Function called when a new tip arrives
  * @returns Unsubscribe function
  */
-export function subscribeToTips(handle: string, callback: TipEventCallback): () => void {
+export function subscribeToTips(creatorId: string, handle: string, callback: TipEventCallback): () => void {
   if (!realtimeClient) {
     realtimeClient = new TipRealtimeClient()
   }
 
-  return realtimeClient.subscribe(handle, callback)
+  return realtimeClient.subscribe(creatorId, handle, callback)
 }
 
 /**

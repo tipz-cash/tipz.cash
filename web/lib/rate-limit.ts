@@ -238,5 +238,33 @@ export const RATE_LIMITS = {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 10,
     name: "batch-lookup"
+  } as RateLimitConfig,
+
+  /** Swap quote: 30 requests per minute per IP */
+  swapQuote: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 30,
+    name: "swap-quote"
+  } as RateLimitConfig,
+
+  /** Swap execute: 10 requests per minute per IP */
+  swapExecute: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 10,
+    name: "swap-execute"
+  } as RateLimitConfig,
+
+  /** Swap status: 60 requests per minute per IP (polling) */
+  swapStatus: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 60,
+    name: "swap-status"
+  } as RateLimitConfig,
+
+  /** Link challenge: 10 requests per minute per IP */
+  linkChallenge: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 10,
+    name: "link-challenge"
   } as RateLimitConfig
 } as const

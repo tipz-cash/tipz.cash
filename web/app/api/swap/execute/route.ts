@@ -13,6 +13,12 @@ import {
   type TransactionSource,
 } from "@/lib/transactions"
 import { supabase } from "@/lib/supabase"
+import {
+  rateLimit,
+  rateLimitHeaders,
+  getClientIP,
+  RATE_LIMITS
+} from "@/lib/rate-limit"
 
 /**
  * Swap Execute API
@@ -44,7 +50,9 @@ interface ExecuteRequest {
   destinationAddress: string
   sourceTxHash?: string // The tx hash from user's wallet transaction (deposit to deposit address)
   depositAddress?: string // The deposit address from the quote (for real swaps)
-  creatorId?: string // Optional creator ID for logging
+  // SECURITY NOTE: creatorId is no longer accepted from request body.
+  // We look up the creator by destinationAddress (shielded address) instead.
+  // This prevents transaction misattribution attacks.
   sourcePlatform?: TransactionSource // Where the tip originated
   sourceUrl?: string // URL of content being tipped
   quote: {
@@ -104,6 +112,24 @@ function isValidShieldedAddress(address: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const clientIP = getClientIP(request.headers)
+  const rateLimitResult = rateLimit(clientIP, RATE_LIMITS.swapExecute)
+  const headers = rateLimitHeaders(rateLimitResult)
+
+  if (!rateLimitResult.allowed) {
+    return NextResponse.json(
+      {
+        error: "Too many swap requests. Please try again later.",
+        retryAfter: rateLimitResult.retryAfter
+      },
+      {
+        status: 429,
+        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) }
+      }
+    )
+  }
+
   try {
     const body: ExecuteRequest = await request.json()
     const {
@@ -114,7 +140,6 @@ export async function POST(request: NextRequest) {
       destinationAddress,
       sourceTxHash,
       depositAddress: requestDepositAddress,
-      creatorId,
       sourcePlatform,
       sourceUrl,
       quote,
@@ -219,37 +244,51 @@ export async function POST(request: NextRequest) {
     }
 
     // Log transaction to database if configured
-    if (supabase && creatorId) {
+    // SECURITY: Look up creator by shielded address instead of accepting creatorId from request
+    // This prevents transaction misattribution attacks
+    if (supabase) {
       try {
-        const transaction = await logTransaction({
-          creatorId,
-          senderAddress: walletAddress,
-          recipientAddress: destinationAddress,
-          amountZec: parseFloat(quote.toAmount),
-          amountUsd: parseFloat(fromAmount) * parseFloat(quote.exchangeRate),
-          txHash: txHash || undefined,
-          sourcePlatform: sourcePlatform || "web",
-          sourceUrl,
-          metadata: {
-            intentId,
-            fromChain,
-            fromToken,
-            fromAmount,
-            exchangeRate: parseFloat(quote.exchangeRate),
-            route: quote.route,
-            demo: !useRealSwaps,
-            depositAddress: depositAddress,
-            swapStatus: status,
-          },
-        })
+        // Look up creator by their shielded address
+        const { data: creator, error: creatorError } = await supabase
+          .from("creators")
+          .select("id")
+          .eq("shielded_address", destinationAddress)
+          .single()
 
-        transactionId = transaction.id
-        console.log("[swap/execute] Transaction logged:", {
-          transactionId,
-          creatorId,
-          amountZec: quote.toAmount,
-          depositAddress,
-        })
+        if (creatorError || !creator) {
+          console.log("[swap/execute] Creator not found for address:", destinationAddress.slice(0, 12) + "...")
+          // Continue without logging - swap still works, just not tracked
+        } else {
+          const transaction = await logTransaction({
+            creatorId: creator.id,
+            senderAddress: walletAddress,
+            recipientAddress: destinationAddress,
+            amountZec: parseFloat(quote.toAmount),
+            amountUsd: parseFloat(fromAmount) * parseFloat(quote.exchangeRate),
+            txHash: txHash || undefined,
+            sourcePlatform: sourcePlatform || "web",
+            sourceUrl,
+            metadata: {
+              intentId,
+              fromChain,
+              fromToken,
+              fromAmount,
+              exchangeRate: parseFloat(quote.exchangeRate),
+              route: quote.route,
+              demo: !useRealSwaps,
+              depositAddress: depositAddress,
+              swapStatus: status,
+            },
+          })
+
+          transactionId = transaction.id
+          console.log("[swap/execute] Transaction logged:", {
+            transactionId,
+            creatorId: creator.id,
+            amountZec: quote.toAmount,
+            depositAddress,
+          })
+        }
       } catch (dbError) {
         // Log error but don't fail the request - the swap was successful
         console.error("[swap/execute] Failed to log transaction:", dbError)

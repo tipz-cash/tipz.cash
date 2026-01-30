@@ -95,8 +95,22 @@ async function deriveKeyFromPassword(
  * Store private key in chrome.storage.local, optionally encrypted with user password.
  * This key NEVER leaves the device in plaintext.
  *
+ * SECURITY NOTES:
+ * - Password-protected storage is STRONGLY RECOMMENDED for production use
+ * - Plaintext storage (no password) has security implications:
+ *   - Local malware with chrome.storage access could steal the key
+ *   - Other extensions with "<all_urls>" permission may access storage
+ *   - Browser exploits could potentially access storage
+ * - For v1, plaintext storage is accepted for UX simplicity
+ * - TODO v2: Consider making password mandatory or using platform keychain
+ *
+ * The threat model assumes:
+ * - The user's device is not compromised
+ * - The user trusts other installed extensions
+ * - The key is only used for tip message decryption (limited blast radius)
+ *
  * @param privateKey - The RSA private key to store
- * @param password - User-provided password for encryption (optional for v1)
+ * @param password - User-provided password for encryption (RECOMMENDED)
  */
 export async function storePrivateKey(
   privateKey: JsonWebKey,
@@ -109,7 +123,7 @@ export async function storePrivateKey(
   let storageData: StoredPrivateKey
 
   if (password) {
-    // Password-protected storage (recommended)
+    // Password-protected storage (RECOMMENDED)
     const salt = crypto.getRandomValues(new Uint8Array(16))
     const iv = crypto.getRandomValues(new Uint8Array(12))
     const derivedKey = await deriveKeyFromPassword(password, salt)
@@ -128,7 +142,9 @@ export async function storePrivateKey(
       data: Array.from(new Uint8Array(encryptedKey)),
     }
   } else {
-    // Plaintext storage (simpler, less secure)
+    // Plaintext storage - SECURITY TRADEOFF for v1 UX
+    // See security notes above for implications
+    console.warn("TIPZ Crypto: Storing private key without password protection")
     storageData = {
       encrypted: false,
       data: privateKey,

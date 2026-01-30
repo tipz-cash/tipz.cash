@@ -7,9 +7,10 @@ Welcome to the TIPZ documentation hub. This directory contains all planning, str
 ```
 docs/
 ├── design/           # Brand, components, UX flows
-├── marketing/        # Messaging, content, assets
-├── gtm/              # Go-to-market, partnerships, launch
 ├── engineering/      # Architecture, API, roadmap
+├── gtm/              # Go-to-market, partnerships, launch
+├── guides/           # User-facing how-to guides
+├── marketing/        # Messaging, content, assets
 └── operations/       # Deployment, monitoring, support
 ```
 
@@ -39,6 +40,11 @@ docs/
 ### Operations
 - [Runbook](./operations/runbook.md) - Deployment, monitoring
 - [Support](./operations/support.md) - FAQ, troubleshooting
+
+### Guides
+- [Tipping from Exchange](./guides/tipping-from-exchange.md) - Tip without a wallet via Mesh Connect
+- [Creator Onboarding](./guides/creator-onboarding.md) - Set up your tip page
+- [Privacy Guarantees](./guides/privacy-guarantees.md) - How TIPZ protects your privacy
 
 ## Product Overview
 

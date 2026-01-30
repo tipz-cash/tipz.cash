@@ -9,6 +9,12 @@ import {
 } from "@/lib/near-intents"
 // NEAR credentials not needed for 1Click API
 import { supabase } from "@/lib/supabase"
+import {
+  rateLimit,
+  rateLimitHeaders,
+  getClientIP,
+  RATE_LIMITS
+} from "@/lib/rate-limit"
 
 /**
  * Swap Status API
@@ -88,6 +94,24 @@ function getDemoStatus(depositAddress: string): StatusResponse {
 }
 
 export async function GET(request: NextRequest) {
+  // Apply rate limiting
+  const clientIP = getClientIP(request.headers)
+  const rateLimitResult = rateLimit(clientIP, RATE_LIMITS.swapStatus)
+  const headers = rateLimitHeaders(rateLimitResult)
+
+  if (!rateLimitResult.allowed) {
+    return NextResponse.json(
+      {
+        error: "Too many status requests. Please try again later.",
+        retryAfter: rateLimitResult.retryAfter
+      },
+      {
+        status: 429,
+        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) }
+      }
+    )
+  }
+
   try {
     const address = request.nextUrl.searchParams.get("depositAddress")
 

@@ -25,7 +25,11 @@
   },
   "manifest": {
     "host_permissions": [
-      "<all_urls>"
+      "https://x.com/*",
+      "https://twitter.com/*",
+      "https://tipz.cash/*",
+      "http://localhost:3000/*",
+      "http://localhost:3001/*"
     ],
     "permissions": [
       "storage",
