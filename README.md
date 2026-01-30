@@ -12,11 +12,6 @@ TIPZ lets creators receive tips directly to their Zcash shielded address. Suppor
 
 ### For Creators
 
-- **Creator Command Center** (Browser Extension)
-  - **Identity Linking**: Secure web bridge connects extension to your tipz.cash registration
-  - **Auto-Stamp**: Automatically embeds `tipz.cash/{handle}` links in your X posts
-  - **Instant Alerts**: Real-time browser notifications when tips arrive (Supabase Realtime with polling fallback)
-  - **Revenue Dashboard**: Track total earnings, tip count, and recent tips
 - **Zero Fees**: 100% of tips go to you
 - **Private Income**: Shielded addresses keep your earnings private
 - **Easy Setup**: 4-step registration with tweet verification
@@ -32,45 +27,32 @@ TIPZ lets creators receive tips directly to their Zcash shielded address. Suppor
 ```
 tipz/
 ├── web/               # Next.js 16 app + API
-├── extension/         # Creator Command Center (Plasmo)
 ├── supabase/          # Database migrations
-└── docs/              # Strategy, marketing, engineering docs
-    ├── MASTER-TASK-LIST.md
-    ├── LAUNCH-FLOWCHART.md
-    ├── design/
-    ├── marketing/
-    ├── gtm/
-    ├── engineering/
-    ├── grants/
-    └── outreach/
+└── docs/              # Technical documentation
+    ├── engineering/   # Architecture, roadmap
+    ├── technical/     # Implementation guides
+    └── operations/    # Runbooks, support
 ```
+
+## Related Repos
+
+- [tipz-extension](https://github.com/defi-naly/tipz-extension) - Creator Command Center browser extension
+- [tipz-internal](https://github.com/defi-naly/tipz-internal) - Marketing, GTM, and internal docs (private)
 
 ## Tech Stack
 
 - **Web**: Next.js 16, React, Tailwind CSS
 - **Database**: Supabase (PostgreSQL)
-- **Extension**: Plasmo (Chrome MV3)
 - **Payments**: NEAR Intents (cross-chain swaps)
 - **Privacy**: Zcash shielded addresses
 
 ## Quick Start
-
-### Web App
 
 ```bash
 cd web
 npm install
 cp .env.example .env.local
 # Configure Supabase credentials
-npm run dev
-```
-
-### Extension
-
-```bash
-cd extension
-npm install
-cp .env.example .env.local
 npm run dev
 ```
 
@@ -131,7 +113,7 @@ CREATE INDEX idx_transactions_status ON transactions(status);
 
 ## Environment Variables
 
-See `.env.example` files in `/web` and `/extension` for required configuration:
+See `.env.example` in `/web` for required configuration:
 
 - **Supabase credentials** (required)
 - **NEAR credentials** (required for real payments)
@@ -140,10 +122,8 @@ See `.env.example` files in `/web` and `/extension` for required configuration:
 ## Documentation
 
 - [MVP Launch Checklist](./MVP-LAUNCH-CHECKLIST.md) — Technical deployment guide
-- [Master Task List](./docs/MASTER-TASK-LIST.md) — All launch workstreams
-- [Launch Flowchart](./docs/LAUNCH-FLOWCHART.md) — Visual dependencies
 - [Engineering Roadmap](./docs/engineering/roadmap.md) — Feature priorities
-- [Brand Guidelines](./docs/design/brand-guidelines.md) — Design system
+- [Architecture](./docs/engineering/) — System design
 
 ## License
 
