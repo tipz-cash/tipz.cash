@@ -254,7 +254,141 @@ See: `docs/engineering/private-messaging-spec.md` for full technical specificati
 
 ---
 
-## Phase 2.5: Stability (Bundled with Launch)
+## Phase 2.5: Antifragility (System Resilience)
+
+**Goal**: Eliminate single points of failure, ensure system improves from stress
+
+> **Strategic Note**: Per Taleb's Antifragile framework, TIPZ currently scores 3/10 on resilience. Core payment infrastructure depends on a single provider (NEAR Intents). A single outage = complete service failure. This phase addresses structural fragilities before they become trust-destroying incidents.
+
+See full assessment: `docs/engineering/antifragility.md`
+
+### Swap Provider Redundancy
+**Priority**: P0 (Critical Path)
+**Status**: Not started
+
+**Problem**: NEAR Intents is the only swap provider. If NEAR is down, all tips fail.
+
+Tasks:
+- [ ] Create swap provider abstraction layer (`lib/swap-providers/`)
+- [ ] Implement THORChain provider as backup
+- [ ] Add circuit breaker pattern for automatic failover
+- [ ] Test failover scenarios in staging
+
+Technical approach:
+```typescript
+interface SwapProvider {
+  name: string
+  getQuote(params: QuoteParams): Promise<Quote>
+  executeSwap(quote: Quote): Promise<SwapResult>
+  getStatus(id: string): Promise<SwapStatus>
+  isHealthy(): Promise<boolean>
+}
+
+class SwapProviderManager {
+  providers: SwapProvider[] // Ordered by preference
+  circuitBreaker: CircuitBreaker
+
+  async executeWithFallback(params): Promise<SwapResult> {
+    for (const provider of this.providers) {
+      if (await this.circuitBreaker.isOpen(provider.name)) continue
+      try {
+        return await provider.executeSwap(params)
+      } catch (e) {
+        this.circuitBreaker.recordFailure(provider.name)
+      }
+    }
+    throw new Error('All providers failed')
+  }
+}
+```
+
+### Honest Success Messaging
+**Priority**: P0 (Critical Path)
+**Status**: Not started
+
+**Problem**: "Fire-and-forget" pattern shows success before ZEC is delivered. User closes page, swap fails silently, trust destroyed.
+
+Tasks:
+- [ ] Change `success` state to `processing_swap` until confirmed
+- [ ] Add `pending_confirmation` UI state with clear messaging
+- [ ] Implement email/push notification on actual completion
+- [ ] Add pending tip tracking to user dashboard
+
+UI States (Before → After):
+```
+BEFORE:
+  Wallet confirms deposit → "Success! Tip sent"
+
+AFTER:
+  Wallet confirms deposit → "Processing... ZEC delivery in progress"
+  NEAR confirms swap → "Success! ZEC delivered to creator"
+```
+
+### Local Persistence (IndexedDB)
+**Priority**: P1
+**Status**: Not started
+
+**Problem**: All state in Supabase. If Supabase down, users can't see their tip history or resume pending tips.
+
+Tasks:
+- [ ] Create IndexedDB persistence layer (`lib/tip-persistence.ts`)
+- [ ] Store pending tips locally with full state
+- [ ] Sync with Supabase when online
+- [ ] Resume incomplete tips on page reload
+- [ ] Enable offline read access to tip history
+
+Schema:
+```typescript
+interface LocalTipRecord {
+  id: string
+  depositAddress: string
+  creatorHandle: string
+  amount: string
+  tokenSymbol: string
+  status: 'pending' | 'processing' | 'confirmed' | 'failed'
+  createdAt: number
+  lastChecked: number
+  remoteId?: string // Supabase ID when synced
+}
+```
+
+### Circuit Breaker Implementation
+**Priority**: P1
+**Status**: Not started
+
+**Problem**: No graceful degradation. API failures cascade to complete outage.
+
+Tasks:
+- [ ] Implement circuit breaker class (`lib/circuit-breaker.ts`)
+- [ ] Track failure rates per provider (5-minute sliding window)
+- [ ] Auto-open circuit after 3 failures in 60 seconds
+- [ ] Half-open state for recovery testing
+- [ ] Expose circuit state in `/api/health`
+
+States:
+```
+CLOSED → (failures exceed threshold) → OPEN
+OPEN → (timeout expires) → HALF-OPEN
+HALF-OPEN → (success) → CLOSED
+HALF-OPEN → (failure) → OPEN
+```
+
+### Chaos Testing
+**Priority**: P2
+**Status**: Not started
+
+**Problem**: Can't verify resilience without controlled failure injection.
+
+Tasks:
+- [ ] Create staging environment with chaos flags
+- [ ] Implement random API failure injection (10% rate)
+- [ ] Test quote expiration mid-signing
+- [ ] Test network partition scenarios
+- [ ] Document chaos test playbook
+
+---
+
+## Phase 2.6: Stability (Bundled with Launch)
 
 **Goal**: Production-ready reliability (ship alongside Phase 2)
 
@@ -512,17 +646,37 @@ Launch
 **Rationale**: Better cross-chain privacy routing, direct Zcash shielded support, decentralized solver network
 **Trade-offs**: Dependency on NEAR network, requires NEAR account for API signing
 
+### Antifragility Assessment
+**Date**: 2026-01-29
+**Decision**: Prioritize system resilience before scale
+**Rationale**: Per Taleb's Antifragile framework, TIPZ has critical single points of failure. A single NEAR Intents outage = complete service failure. "Fire-and-forget" success pattern risks silent failures that destroy trust. Trust loss compounds faster than trust gain.
+**Framework**: Antifragile (Taleb) + Thinking in Systems (Meadows)
+**Action**: Add Phase 2.5 (Antifragility) with swap provider redundancy, honest success messaging, and local persistence.
+**Documentation**: `docs/engineering/antifragility.md`
+
+### THORChain as Backup Provider
+**Date**: 2026-01-29 (Planned)
+**Decision**: Add THORChain as fallback when NEAR Intents unavailable
+**Rationale**: Proven cross-chain infrastructure (~4 years, Lindy-tested), native ZEC support, decentralized
+**Trade-offs**: Additional integration complexity, different fee structure, need to abstract provider interface
+
 ---
 
 ## Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| NEAR Intents solver availability | High | Demo mode fallback, error handling |
-| Zcash network issues | High | Error handling, retry logic |
-| Twitter API rate limits | Medium | Caching, graceful degradation |
-| Extension store rejection | Medium | Follow guidelines, prepare appeals |
-| Low adoption | Medium | Focus on community building |
+| Risk | Impact | Mitigation | Status |
+|------|--------|------------|--------|
+| **NEAR Intents single dependency** | **Critical** | THORChain backup provider, circuit breaker | Planned (Phase 2.5) |
+| **Silent swap failures** | **Critical** | Honest success messaging, pending tip tracking | Planned (Phase 2.5) |
+| **Supabase as SPOF** | High | IndexedDB local persistence layer | Planned (Phase 2.5) |
+| NEAR Intents solver availability | High | Demo mode fallback, error handling | Implemented |
+| Zcash network issues | High | Error handling, retry logic | Implemented |
+| Twitter API rate limits | Medium | Caching, graceful degradation | Implemented |
+| Quote expiry race condition | Medium | Auto-refresh quotes before execution | Planned |
+| Extension store rejection | Medium | Follow guidelines, prepare appeals | Monitoring |
+| Low adoption | Medium | Focus on community building | Ongoing |
+
+See detailed fragility analysis: `docs/engineering/antifragility.md`
 
 ---
 

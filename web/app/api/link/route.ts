@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase, normalizeHandle, type Creator } from "@/lib/supabase"
 import { verifyTweetContent, isTwitterApiConfigured } from "@/lib/twitter-api"
+import { verifyChallenge } from "./challenge/route"
 
 /**
  * POST /api/link
  *
- * Re-links a returning creator's extension by verifying their original tweet still exists.
- * Sets up the localStorage bridge for the extension to read.
+ * Links a creator's extension and uploads their public key for private messaging.
+ *
+ * SECURITY: This endpoint requires a valid challenge token from /api/link/challenge.
+ * The challenge proves the request originated from the tipz.cash web app where the
+ * creator verified ownership via tweet.
+ *
+ * Flow:
+ * 1. Creator visits tipz.cash (already registered via tweet verification)
+ * 2. Web app calls /api/link/challenge to get a short-lived token
+ * 3. Extension calls this endpoint with the challenge token + public key
+ * 4. Server verifies challenge and stores the public key
  */
 export async function POST(request: NextRequest) {
   let body: Record<string, unknown>
@@ -16,17 +26,39 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
   }
 
-  const { handle, publicKey } = body
+  const { handle, publicKey, challenge } = body
 
   if (!handle || typeof handle !== "string") {
     return NextResponse.json({ error: "Handle is required" }, { status: 400 })
   }
 
-  // Validate publicKey if provided (optional for backwards compatibility)
+  // SECURITY: Require challenge token for public key upload
+  if (publicKey) {
+    if (!challenge || typeof challenge !== "string") {
+      return NextResponse.json({
+        error: "Challenge token required for public key upload. Request a challenge first.",
+        code: "CHALLENGE_REQUIRED"
+      }, { status: 401 })
+    }
+
+    // Verify challenge token
+    if (!verifyChallenge(handle, challenge)) {
+      return NextResponse.json({
+        error: "Invalid or expired challenge token. Request a new challenge.",
+        code: "CHALLENGE_INVALID"
+      }, { status: 401 })
+    }
+  }
+
+  // Validate publicKey format if provided
   if (publicKey !== undefined && publicKey !== null) {
     const key = publicKey as Record<string, unknown>
     if (typeof publicKey !== "object" || key.kty !== "RSA") {
       return NextResponse.json({ error: "Invalid public key format" }, { status: 400 })
+    }
+    // Additional validation: check key has required RSA fields
+    if (typeof key.n !== "string" || typeof key.e !== "string") {
+      return NextResponse.json({ error: "Invalid RSA public key: missing n or e" }, { status: 400 })
     }
   }
 
@@ -78,6 +110,8 @@ export async function POST(request: NextRequest) {
     if (updateError) {
       console.error("[link] Failed to store public key:", updateError.message)
       // Don't fail the link - just log the error
+    } else {
+      console.log("[link] Public key stored for creator:", typedCreator.handle)
     }
   }
 

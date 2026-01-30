@@ -65,19 +65,31 @@ async function init() {
     } else if (message.type === 'GET_CONNECTION_STATUS') {
       sendResponse({ status: currentConnectionStatus })
     } else if (message.type === 'TEST_TIP_NOTIFICATION') {
-      // DEV: Test tip notification
-      handleNewTip({
-        id: `test-${Date.now()}`,
-        amount: "0.0250",
-        amountUsd: "$1.25",
-        message: "Great content! Keep it up!",
-        created_at: new Date().toISOString()
-      })
-      sendResponse({ success: true })
+      // DEV ONLY: Test tip notification
+      // SECURITY: Only allow in development builds
+      if (process.env.NODE_ENV !== 'production' && process.env.PLASMO_PUBLIC_DEV_MODE === 'true') {
+        handleNewTip({
+          id: `test-${Date.now()}`,
+          amount: "0.0250",
+          amountUsd: "$1.25",
+          message: "Great content! Keep it up!",
+          created_at: new Date().toISOString()
+        })
+        sendResponse({ success: true })
+      } else {
+        console.warn("TIPZ Background: TEST_TIP_NOTIFICATION blocked in production")
+        sendResponse({ success: false, error: "Not available in production" })
+      }
     } else if (message.type === 'TEST_MESSAGE_NOTIFICATION') {
-      // DEV: Test message notification
-      showMessageNotification("This is a test private message from a supporter!")
-      sendResponse({ success: true })
+      // DEV ONLY: Test message notification
+      // SECURITY: Only allow in development builds
+      if (process.env.NODE_ENV !== 'production' && process.env.PLASMO_PUBLIC_DEV_MODE === 'true') {
+        showMessageNotification("This is a test private message from a supporter!")
+        sendResponse({ success: true })
+      } else {
+        console.warn("TIPZ Background: TEST_MESSAGE_NOTIFICATION blocked in production")
+        sendResponse({ success: false, error: "Not available in production" })
+      }
     }
   })
 
@@ -87,7 +99,7 @@ async function init() {
 /**
  * Start subscribing to tips for the linked creator
  */
-function startTipSubscription(identity: CreatorIdentity) {
+async function startTipSubscription(identity: CreatorIdentity) {
   // Don't resubscribe if already subscribed to same handle
   if (currentHandle === identity.handle && currentSubscription) {
     return
@@ -99,7 +111,30 @@ function startTipSubscription(identity: CreatorIdentity) {
   console.log("TIPZ Background: Subscribing to tips for", identity.handle)
   currentHandle = identity.handle
 
-  currentSubscription = subscribeToTips(identity.handle, (tip) => {
+  // Get or fetch creatorId - needed for realtime subscription
+  let creatorId = identity.creatorId
+  if (!creatorId) {
+    // Fetch creator info to get the UUID
+    try {
+      const response = await fetch(`https://tipz.cash/api/creator?platform=x&handle=${encodeURIComponent(identity.handle)}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.found && data.creator?.id) {
+          creatorId = data.creator.id
+          currentCreatorId = creatorId
+        }
+      }
+    } catch (e) {
+      console.error("TIPZ Background: Failed to fetch creator ID:", e)
+    }
+  }
+
+  if (!creatorId) {
+    console.warn("TIPZ Background: No creator ID available, cannot subscribe to realtime")
+    return
+  }
+
+  currentSubscription = subscribeToTips(creatorId, identity.handle, (tip) => {
     handleNewTip(tip)
   })
 

@@ -101,6 +101,9 @@ export function onLinkedCreatorChange(
  * Link creator and set up private messaging (generate keypair if needed).
  * This should be called after the creator identity is verified.
  *
+ * SECURITY: Uses challenge-response to prevent unauthorized public key uploads.
+ * The challenge is requested from tipz.cash which verifies creator ownership.
+ *
  * @param handle - The creator's handle
  * @returns Object with messaging status and creator ID
  */
@@ -142,19 +145,37 @@ export async function setupMessagingForCreator(handle: string): Promise<{ enable
     // Store private key locally (never leaves device)
     await storePrivateKey(privateKey)
 
-    // Send public key to server
-    const response = await fetch(`${API_URL}/api/link`, {
+    // Request a challenge token for secure public key upload
+    console.log("TIPZ Identity: Requesting challenge for public key upload...")
+    const challengeResponse = await fetch(`${API_URL}/api/link/challenge`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ handle, publicKey }),
+      body: JSON.stringify({ handle }),
     })
 
-    if (!response.ok) {
-      console.error("TIPZ Identity: Failed to upload public key to server")
+    if (!challengeResponse.ok) {
+      const errorData = await challengeResponse.json().catch(() => ({}))
+      console.error("TIPZ Identity: Failed to get challenge:", errorData.error || challengeResponse.status)
+      // Key is stored locally, but not uploaded - will retry on next link
       return { enabled: false, creatorId }
     }
 
-    console.log("TIPZ Identity: Keypair generated and public key uploaded")
+    const { challenge } = await challengeResponse.json()
+
+    // Send public key to server with challenge
+    const response = await fetch(`${API_URL}/api/link`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ handle, publicKey, challenge }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error("TIPZ Identity: Failed to upload public key:", errorData.error || response.status)
+      return { enabled: false, creatorId }
+    }
+
+    console.log("TIPZ Identity: Keypair generated and public key uploaded securely")
     return { enabled: true, creatorId }
   } catch (error) {
     console.error("TIPZ Identity: Failed to setup messaging:", error)

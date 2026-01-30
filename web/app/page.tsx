@@ -4371,7 +4371,322 @@ export default function HomePage() {
           }
         `}</style>
       </SnapSection>
-      {/* Chapter 05: The Vanguard */}
+      {/* Chapter 05: Sovereign Dashboard */}
+      <SnapSection id="creator-tools" style={{ padding: "0 48px" }}>
+        <div style={contentPadding}>
+          <TerminalReveal delay={0}>
+            <div style={{
+              fontSize: "11px",
+              color: colors.muted,
+              letterSpacing: "2px",
+              marginBottom: "32px",
+            }}>
+              CHAPTER 05: COMMAND CENTER
+            </div>
+          </TerminalReveal>
+
+          {/* Split layout: Minimal Copy left, Hero Visual right */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1.2fr",
+            gap: "80px",
+            alignItems: "center",
+          }}>
+            {/* Left: Minimal Copy */}
+            <div>
+              <TypingHeading
+                text="The Sovereign Dashboard."
+                style={{ marginBottom: "20px", fontSize: "clamp(32px, 4vw, 42px)" }}
+              />
+
+              <TerminalReveal delay={100}>
+                <p style={{
+                  color: colors.muted,
+                  fontSize: "18px",
+                  lineHeight: 1.6,
+                  marginBottom: "36px",
+                }}>
+                  Monitor your income in real-time. Distribute your link instantly. Read private messages that X can never see.
+                </p>
+              </TerminalReveal>
+
+              {/* Feature Deck - Vertical Stack with Descriptions */}
+              <TerminalReveal delay={200}>
+                <div style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "20px",
+                  marginBottom: "40px",
+                }}>
+                  {/* Smart Watermark */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFD700"
+                      strokeWidth="2"
+                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite" }}
+                    >
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <div>
+                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
+                        Smart Watermark
+                      </span>
+                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
+                        Auto-stamp your media with your payment signal. If your content spreads, your income grows.
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Live Stream */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFD700"
+                      strokeWidth="2"
+                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.3s" }}
+                    >
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <div>
+                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
+                        Live Stream
+                      </span>
+                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
+                        Watch tips land in your wallet the second they are sent. No monthly payouts. No delays.
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Priority Inbox */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFD700"
+                      strokeWidth="2"
+                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.6s" }}
+                    >
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <div>
+                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
+                        Priority Inbox
+                      </span>
+                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
+                        Receive private, encrypted messages attached to every tip. A direct line to your biggest fans.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </TerminalReveal>
+
+              {/* CTA Button */}
+              <TerminalReveal delay={300}>
+                <a
+                  href="https://chrome.google.com/webstore"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    padding: "16px 32px",
+                    background: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+                    borderRadius: "8px",
+                    color: "#050505",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    letterSpacing: "0.5px",
+                    boxShadow: "0 4px 24px rgba(255, 215, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  GET THE EXTENSION
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </a>
+                <p style={{
+                  color: colors.muted,
+                  fontSize: "12px",
+                  marginTop: "16px",
+                }}>
+                  100% Free. Open Source. No Setup Fees.
+                </p>
+              </TerminalReveal>
+            </div>
+
+            {/* Right: "The Augmented Tweet" - Realistic X Post */}
+            <TerminalReveal delay={150}>
+              <div style={{
+                position: "relative",
+                height: "480px",
+              }}>
+                {/* Subtle background glow */}
+                <div style={{
+                  position: "absolute",
+                  top: "40%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: "350px",
+                  height: "350px",
+                  background: "radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%)",
+                  borderRadius: "50%",
+                  filter: "blur(50px)",
+                  animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
+                }} />
+
+                {/* Layer 1: X Article Card - @mert style */}
+                <div style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -45%)",
+                  width: "340px",
+                  background: "#000000",
+                  border: "1px solid #2f3336",
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  boxShadow: "0 25px 60px rgba(0, 0, 0, 0.5)",
+                }}>
+                  {/* Tweet Header */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "12px",
+                    padding: "16px 16px 12px",
+                  }}>
+                    {/* Avatar - Mert's actual profile picture */}
+                    <div style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      backgroundImage: "url('https://pbs.twimg.com/profile_images/1975912876243095552/YlVLO4Oz_400x400.jpg')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      flexShrink: 0,
+                    }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <span style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 700 }}>mert</span>
+                        <svg width="18" height="18" viewBox="0 0 22 22" fill="#1d9bf0">
+                          <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/>
+                        </svg>
+                      </div>
+                      <span style={{ color: "#71767b", fontSize: "15px" }}>@mert · 4h</span>
+                    </div>
+                    {/* X Logo */}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#71767b" style={{ flexShrink: 0 }}>
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                  </div>
+
+                  {/* Article Card */}
+                  <div style={{
+                    margin: "0 16px 12px",
+                    border: "1px solid #2f3336",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                  }}>
+                    {/* Article Image - Privacy Thesis cover */}
+                    <div style={{
+                      height: "140px",
+                      backgroundImage: "url('https://pbs.twimg.com/media/G48VC29aUAAO__P?format=jpg&name=medium')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      position: "relative",
+                    }}>
+                      {/* TIPZ Smart Stamp - Matches command centre */}
+                      <div style={{
+                        position: "absolute",
+                        bottom: "8px",
+                        right: "8px",
+                        background: "rgba(0, 0, 0, 0.8)",
+                        padding: "4px 8px",
+                        borderRadius: "4px",
+                        border: "2px solid #F4B728",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}>
+                        <span style={{
+                          color: "#F4B728",
+                          fontSize: "10px",
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontWeight: 600,
+                        }}>
+                          tipz.cash/mert
+                        </span>
+                      </div>
+                    </div>
+                    {/* Article Meta */}
+                    <div style={{
+                      padding: "12px",
+                      background: "#000",
+                    }}>
+                      <div style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 500, lineHeight: 1.3 }}>
+                        The Last 1000x in Crypto: A Privacy Thesis
+                      </div>
+                      <div style={{ color: "#71767b", fontSize: "13px", marginTop: "4px" }}>
+                        Bitcoin solved legitimacy, Solana/Ethereum solved scale. Privacy is next.
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Engagement Row - X style */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "0 16px 12px",
+                    maxWidth: "300px",
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/>
+                      </svg>
+                      <span>156</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/>
+                      </svg>
+                      <span>892</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>
+                      </svg>
+                      <span>2.4K</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/>
+                      </svg>
+                      <span>89K</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Layer 3: Floating Notification Toast - Animated on scroll */}
+                <TipNotification />
+              </div>
+            </TerminalReveal>
+          </div>
+        </div>
+      </SnapSection>
+      {/* Chapter 06: Genesis Cohort */}
       <SnapSection id="proof" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
@@ -4381,7 +4696,7 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 05: GENESIS COHORT
+              CHAPTER 06: GENESIS COHORT
             </div>
           </TerminalReveal>
 
@@ -4702,321 +5017,6 @@ export default function HomePage() {
               </div>
             </div>
           </TerminalReveal>
-        </div>
-      </SnapSection>
-      {/* Chapter 06: Sovereign Distribution - Apple-Style Minimal */}
-      <SnapSection id="creator-tools" style={{ padding: "0 48px" }}>
-        <div style={contentPadding}>
-          <TerminalReveal delay={0}>
-            <div style={{
-              fontSize: "11px",
-              color: colors.muted,
-              letterSpacing: "2px",
-              marginBottom: "32px",
-            }}>
-              CHAPTER 06: COMMAND CENTER
-            </div>
-          </TerminalReveal>
-
-          {/* Split layout: Minimal Copy left, Hero Visual right */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1.2fr",
-            gap: "80px",
-            alignItems: "center",
-          }}>
-            {/* Left: Minimal Copy */}
-            <div>
-              <TypingHeading
-                text="The Sovereign Dashboard."
-                style={{ marginBottom: "20px", fontSize: "clamp(32px, 4vw, 42px)" }}
-              />
-
-              <TerminalReveal delay={100}>
-                <p style={{
-                  color: colors.muted,
-                  fontSize: "18px",
-                  lineHeight: 1.6,
-                  marginBottom: "36px",
-                }}>
-                  Monitor your income in real-time. Distribute your link instantly. Read private messages that X can never see.
-                </p>
-              </TerminalReveal>
-
-              {/* Feature Deck - Vertical Stack with Descriptions */}
-              <TerminalReveal delay={200}>
-                <div style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "20px",
-                  marginBottom: "40px",
-                }}>
-                  {/* Smart Watermark */}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#FFD700"
-                      strokeWidth="2"
-                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite" }}
-                    >
-                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <div>
-                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
-                        Smart Watermark
-                      </span>
-                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
-                        Auto-stamp your media with your payment signal. If your content spreads, your income grows.
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Live Stream */}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#FFD700"
-                      strokeWidth="2"
-                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.3s" }}
-                    >
-                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <div>
-                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
-                        Live Stream
-                      </span>
-                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
-                        Watch tips land in your wallet the second they are sent. No monthly payouts. No delays.
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Priority Inbox */}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#FFD700"
-                      strokeWidth="2"
-                      style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.6s" }}
-                    >
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <div>
-                      <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
-                        Priority Inbox
-                      </span>
-                      <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
-                        Receive private, encrypted messages attached to every tip. A direct line to your biggest fans.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </TerminalReveal>
-
-              {/* CTA Button */}
-              <TerminalReveal delay={300}>
-                <a
-                  href="https://chrome.google.com/webstore"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    padding: "16px 32px",
-                    background: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
-                    borderRadius: "8px",
-                    color: "#050505",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    letterSpacing: "0.5px",
-                    boxShadow: "0 4px 24px rgba(255, 215, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)",
-                    transition: "all 0.2s ease",
-                  }}
-                >
-                  GET THE EXTENSION
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </a>
-                <p style={{
-                  color: colors.muted,
-                  fontSize: "12px",
-                  marginTop: "16px",
-                }}>
-                  100% Free. Open Source. No Setup Fees.
-                </p>
-              </TerminalReveal>
-            </div>
-
-            {/* Right: "The Augmented Tweet" - Realistic X Post */}
-            <TerminalReveal delay={150}>
-              <div style={{
-                position: "relative",
-                height: "480px",
-              }}>
-                {/* Subtle background glow */}
-                <div style={{
-                  position: "absolute",
-                  top: "40%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  width: "350px",
-                  height: "350px",
-                  background: "radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%)",
-                  borderRadius: "50%",
-                  filter: "blur(50px)",
-                  animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
-                }} />
-
-                {/* Layer 1: X Article Card - @mert style */}
-                <div style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -45%)",
-                  width: "340px",
-                  background: "#000000",
-                  border: "1px solid #2f3336",
-                  borderRadius: "16px",
-                  overflow: "hidden",
-                  boxShadow: "0 25px 60px rgba(0, 0, 0, 0.5)",
-                }}>
-                  {/* Tweet Header */}
-                  <div style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "12px",
-                    padding: "16px 16px 12px",
-                  }}>
-                    {/* Avatar - Mert's actual profile picture */}
-                    <div style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      backgroundImage: "url('https://pbs.twimg.com/profile_images/1975912876243095552/YlVLO4Oz_400x400.jpg')",
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      flexShrink: 0,
-                    }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <span style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 700 }}>mert</span>
-                        <svg width="18" height="18" viewBox="0 0 22 22" fill="#1d9bf0">
-                          <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/>
-                        </svg>
-                      </div>
-                      <span style={{ color: "#71767b", fontSize: "15px" }}>@mert · 4h</span>
-                    </div>
-                    {/* X Logo */}
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#71767b" style={{ flexShrink: 0 }}>
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                  </div>
-
-                  {/* Article Card */}
-                  <div style={{
-                    margin: "0 16px 12px",
-                    border: "1px solid #2f3336",
-                    borderRadius: "16px",
-                    overflow: "hidden",
-                  }}>
-                    {/* Article Image - Privacy Thesis cover */}
-                    <div style={{
-                      height: "140px",
-                      backgroundImage: "url('https://pbs.twimg.com/media/G48VC29aUAAO__P?format=jpg&name=medium')",
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      position: "relative",
-                    }}>
-                      {/* TIPZ Smart Stamp - Matches command centre */}
-                      <div style={{
-                        position: "absolute",
-                        bottom: "8px",
-                        right: "8px",
-                        background: "rgba(0, 0, 0, 0.8)",
-                        padding: "4px 8px",
-                        borderRadius: "4px",
-                        border: "2px solid #F4B728",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}>
-                        <span style={{
-                          color: "#F4B728",
-                          fontSize: "10px",
-                          fontFamily: "'JetBrains Mono', monospace",
-                          fontWeight: 600,
-                        }}>
-                          tipz.cash/mert
-                        </span>
-                      </div>
-                    </div>
-                    {/* Article Meta */}
-                    <div style={{
-                      padding: "12px",
-                      background: "#000",
-                    }}>
-                      <div style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 500, lineHeight: 1.3 }}>
-                        The Last 1000x in Crypto: A Privacy Thesis
-                      </div>
-                      <div style={{ color: "#71767b", fontSize: "13px", marginTop: "4px" }}>
-                        Bitcoin solved legitimacy, Solana/Ethereum solved scale. Privacy is next.
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Engagement Row - X style */}
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "0 16px 12px",
-                    maxWidth: "300px",
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/>
-                      </svg>
-                      <span>156</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/>
-                      </svg>
-                      <span>892</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>
-                      </svg>
-                      <span>2.4K</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/>
-                      </svg>
-                      <span>89K</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Layer 3: Floating Notification Toast - Animated on scroll */}
-                <TipNotification />
-              </div>
-            </TerminalReveal>
-          </div>
         </div>
       </SnapSection>
       {/* Chapter 07: FAQ - Common Questions */}
