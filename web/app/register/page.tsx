@@ -341,229 +341,62 @@ My shielded address: ${shieldedAddress || "[your address]"}`
           BACK TO HOME
         </Link>
 
-        {/* Value Prop Header - Bloomberg Terminal Aesthetic */}
+        {/* Value Prop Header - Matches home page aesthetic */}
         <div style={{
           marginBottom: "32px",
+          padding: "28px",
+          backgroundColor: colors.surface,
+          border: `1px solid ${colors.border}`,
+          borderRadius: "20px",
           position: "relative",
-          borderRadius: "2px",
           overflow: "hidden",
         }}>
-          {/* Outer glow border */}
+          {/* Chapter-style header */}
           <div style={{
-            position: "absolute",
-            inset: 0,
-            borderRadius: "2px",
-            padding: "1px",
-            background: `linear-gradient(135deg, ${colors.primary} 0%, transparent 50%, ${colors.primary} 100%)`,
-            WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-            WebkitMaskComposite: "xor",
-            maskComposite: "exclude",
-            opacity: 0.6,
-          }} />
-
-          {/* Main container */}
-          <div style={{
-            position: "relative",
-            backgroundColor: colors.bg,
-            border: `1px solid ${colors.border}`,
-            borderRadius: "2px",
-            overflow: "hidden",
+            fontSize: "11px",
+            color: colors.primary,
+            letterSpacing: "2px",
+            marginBottom: "20px",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
           }}>
-            {/* Grid pattern overlay */}
-            <div style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: `
-                linear-gradient(rgba(245, 166, 35, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(245, 166, 35, 0.03) 1px, transparent 1px)
-              `,
-              backgroundSize: "20px 20px",
-              pointerEvents: "none",
+            <span style={{
+              display: "inline-block",
+              width: "8px",
+              height: "8px",
+              background: colors.primary,
+              borderRadius: "50%",
+              boxShadow: `0 0 10px ${colors.primary}`,
+              animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
             }} />
-
-            {/* Scanline effect */}
-            <div style={{
-              position: "absolute",
-              inset: 0,
-              background: `repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 0, 0, 0.1) 2px,
-                rgba(0, 0, 0, 0.1) 4px
-              )`,
-              pointerEvents: "none",
-              opacity: 0.3,
-            }} />
-
-            {/* Top status bar */}
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "10px 16px",
-              borderBottom: `1px solid ${colors.border}`,
-              backgroundColor: "rgba(245, 166, 35, 0.03)",
-            }}>
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}>
-                <span style={{
-                  display: "inline-block",
-                  width: "6px",
-                  height: "6px",
-                  background: colors.success,
-                  borderRadius: "50%",
-                  boxShadow: `0 0 8px ${colors.success}`,
-                  animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
-                }} />
-                <span style={{
-                  fontSize: "10px",
-                  color: colors.muted,
-                  letterSpacing: "1.5px",
-                  textTransform: "uppercase",
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}>
-                  SYSTEM_ONLINE
-                </span>
-              </div>
-              <span style={{
-                fontSize: "10px",
-                color: colors.primary,
-                letterSpacing: "1px",
-                fontFamily: "'JetBrains Mono', monospace",
-              }}>
-                TIPZ://REGISTER
-              </span>
-            </div>
-
-            {/* Content area */}
-            <div style={{ padding: "28px 24px 24px" }}>
-              {/* Terminal prompt headline */}
-              <div style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "12px",
-                marginBottom: "16px",
-              }}>
-                <span style={{
-                  color: colors.primary,
-                  fontSize: "clamp(24px, 5vw, 32px)",
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  textShadow: `0 0 20px ${colors.primaryGlow}`,
-                }}>
-                  {">"}
-                </span>
-                <h1 style={{
-                  margin: 0,
-                  fontSize: "clamp(24px, 5vw, 32px)",
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1.2,
-                  color: colors.textBright,
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}>
-                  Claim Your
-                  <br />
-                  <span style={{
-                    color: colors.primary,
-                    textShadow: `0 0 30px ${colors.primaryGlow}`,
-                  }}>
-                    Sovereign Identity
-                  </span>
-                  <span style={{
-                    display: "inline-block",
-                    width: "3px",
-                    height: "1.1em",
-                    backgroundColor: colors.primary,
-                    marginLeft: "4px",
-                    verticalAlign: "text-bottom",
-                    animation: prefersReducedMotion ? "none" : "blink 1s step-end infinite",
-                  }} />
-                </h1>
-              </div>
-
-              {/* Subheadline */}
-              <p style={{
-                margin: "0 0 24px",
-                paddingLeft: "36px",
-                color: colors.muted,
-                fontSize: "13px",
-                lineHeight: 1.6,
-                fontFamily: "'JetBrains Mono', monospace",
-              }}>
-                One handle. Every asset. Zero extraction.
-                <br />
-                <span style={{ color: colors.text }}>Your universal address for the private web.</span>
-              </p>
-
-              {/* Trust badges - horizontal cards */}
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "8px",
-              }}>
-                {[
-                  { icon: "shield", label: "UNCENSORABLE", desc: "Self-custody" },
-                  { icon: "slash", label: "ZERO RENT", desc: "0% fees forever" },
-                  { icon: "infinity", label: "PERMANENT", desc: "Your keys" },
-                ].map((badge, i) => (
-                  <div key={badge.label} style={{
-                    padding: "12px 10px",
-                    backgroundColor: "rgba(245, 166, 35, 0.04)",
-                    border: `1px solid rgba(245, 166, 35, 0.15)`,
-                    borderRadius: "4px",
-                    textAlign: "center",
-                    transition: "all 0.2s ease",
-                  }}>
-                    <div style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      marginBottom: "8px",
-                    }}>
-                      {badge.icon === "shield" && (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ filter: `drop-shadow(0 0 6px ${colors.primary})` }}>
-                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                        </svg>
-                      )}
-                      {badge.icon === "slash" && (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ filter: `drop-shadow(0 0 6px ${colors.primary})` }}>
-                          <circle cx="12" cy="12" r="10" />
-                          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-                        </svg>
-                      )}
-                      {badge.icon === "infinity" && (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ filter: `drop-shadow(0 0 6px ${colors.primary})` }}>
-                          <path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.585 0-4.585 8 0 8 5.606 0 7.644-8 12.74-8z" />
-                        </svg>
-                      )}
-                    </div>
-                    <div style={{
-                      fontSize: "9px",
-                      fontWeight: 700,
-                      letterSpacing: "1px",
-                      color: colors.primary,
-                      marginBottom: "2px",
-                      fontFamily: "'JetBrains Mono', monospace",
-                    }}>
-                      {badge.label}
-                    </div>
-                    <div style={{
-                      fontSize: "10px",
-                      color: colors.muted,
-                      fontFamily: "'JetBrains Mono', monospace",
-                    }}>
-                      {badge.desc}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            SOVEREIGN IDENTITY
           </div>
+
+          {/* Main headline */}
+          <h1 style={{
+            margin: "0 0 12px",
+            fontSize: "clamp(28px, 5vw, 38px)",
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.15,
+            color: colors.textBright,
+            fontFamily: "'JetBrains Mono', monospace",
+          }}>
+            <span style={{ color: colors.primary }}>{">"}</span>{" "}
+            Claim Your Sovereign Identity.
+          </h1>
+
+          {/* Subheadline */}
+          <p style={{
+            margin: "0",
+            color: colors.muted,
+            fontSize: "14px",
+            lineHeight: 1.7,
+            fontFamily: "'JetBrains Mono', monospace",
+          }}>
+            One handle for every asset. Your universal address for the private web.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -1082,30 +915,44 @@ My shielded address: ${shieldedAddress || "[your address]"}`
           )}
         </form>
 
-        {/* Bottom tech stack bar - only show when not on success */}
+        {/* Bottom trust bar - only show when not on success */}
         {!message?.type && (
           <div style={{
             marginTop: "32px",
-            padding: "12px 16px",
-            backgroundColor: "rgba(245, 166, 35, 0.02)",
+            padding: "16px 20px",
+            backgroundColor: colors.surface,
             border: `1px solid ${colors.border}`,
-            borderRadius: "2px",
+            borderRadius: "8px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: "8px",
-            fontSize: "10px",
-            color: colors.muted,
-            fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: "0.5px",
+            gap: "24px",
+            fontSize: "12px",
           }}>
-            <span style={{ color: colors.primary }}>POWERED_BY</span>
-            <span style={{ opacity: 0.4 }}>|</span>
-            <span>Zcash Shielded</span>
-            <span style={{ opacity: 0.4 }}>•</span>
-            <span>NEAR Intents</span>
-            <span style={{ opacity: 0.4 }}>•</span>
-            <span>Self-Custody</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted }}>
+              {/* Shield icon for Uncensorable */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              <span>Uncensorable</span>
+            </div>
+            <div style={{ width: "1px", height: "16px", backgroundColor: colors.border }} />
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted }}>
+              {/* Ban/slash icon for Zero Rent */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+              </svg>
+              <span>Zero Rent</span>
+            </div>
+            <div style={{ width: "1px", height: "16px", backgroundColor: colors.border }} />
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: colors.muted }}>
+              {/* Infinity icon for Permanent */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.585 0-4.585 8 0 8 5.606 0 7.644-8 12.74-8z" />
+              </svg>
+              <span>Permanent</span>
+            </div>
           </div>
         )}
       </div>
@@ -1115,10 +962,6 @@ My shielded address: ${shieldedAddress || "[your address]"}`
         ${animationKeyframes}
         @keyframes spin {
           to { transform: rotate(360deg); }
-        }
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
         }
         @media (prefers-reduced-motion: reduce) {
           * {
