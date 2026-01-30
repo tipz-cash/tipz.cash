@@ -58,13 +58,15 @@ We evaluated several privacy solutions and chose Zcash for specific reasons:
 
 ### How It Benefits Zcash Adoption
 
-We believe TIPZ can meaningfully grow Zcash usage:
+Zcash has world-class privacy infrastructure but limited consumer adoption. TIPZ addresses the distribution problem directly:
 
-**New users**: Every creator who registers needs a shielded address, which means downloading a Zcash wallet. Every tipper who wants to send ZEC directly needs to acquire it.
+**New wallets**: Every creator who registers needs a shielded address. We're driving wallet downloads for a real use case.
 
-**Real utility**: This isn't speculation - it's people using ZEC for an actual purpose. "I use ZEC to receive tips" is a concrete use case.
+**Shielded pool deposits**: Every tip adds volume to the shielded pool. More deposits = stronger privacy guarantees for everyone.
 
-**Regular transactions**: Active creators receive tips regularly, driving ongoing shielded transaction volume.
+**Real utility**: This isn't speculation - it's people using ZEC for an actual purpose. "I use ZEC to receive tips privately" is a concrete, relatable use case.
+
+**Regular transactions**: Active creators receive tips regularly, driving ongoing shielded transaction volume and on-chain activity.
 
 **Positive narrative**: "Private creator income" is a use case that's easy to explain and hard to criticize. It reframes privacy as protection, not evasion.
 
@@ -81,10 +83,16 @@ We're building TIPZ because we think every creator deserves financial privacy, a
 
 ### Current Status
 
-- **Web app**: Live at tipz.cash
+- **Web app**: Live at tipz.cash - real cross-chain swaps working
 - **Extension**: Available for Chrome (Firefox coming)
 - **Platforms**: X.com support live, Substack in development
 - **Architecture**: Fully non-custodial, direct to shielded addresses
+- **Payments**: ETH, USDC, USDT, SOL → shielded ZEC via NEAR Intents
+
+**Recent improvements:**
+- **Honest status tracking**: We show "Delivering ZEC..." during swap processing, not premature "Success" - because trust matters more than UX polish
+- **Pending tip persistence**: If you close the page, we track your tip in the background and notify you if anything goes wrong
+- **Real-time notifications**: Creators get instant browser notifications when tips arrive
 
 ### What We'd Like From This Community
 

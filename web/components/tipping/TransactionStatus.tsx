@@ -32,8 +32,8 @@ const TUNNEL_PHASES = [
 // Real swap phases based on NEAR Intents status
 const REAL_SWAP_PHASES: Record<SwapStatusType, { primary: string; subtext: string }> = {
   PENDING_DEPOSIT: { primary: "Awaiting Deposit...", subtext: "Send funds to complete the swap" },
-  PROCESSING: { primary: "Processing Swap...", subtext: "Market makers are routing your funds" },
-  SUCCESS: { primary: "Swap Complete!", subtext: "ZEC delivered to creator" },
+  PROCESSING: { primary: "Delivering ZEC...", subtext: "Your tip is being routed to the creator" },
+  SUCCESS: { primary: "Delivered!", subtext: "ZEC arrived in creator's wallet" },
   REFUNDED: { primary: "Swap Refunded", subtext: "Funds returned to your wallet" },
   FAILED: { primary: "Swap Failed", subtext: "Please try again" },
   EXPIRED: { primary: "Quote Expired", subtext: "Please get a new quote" },
@@ -318,6 +318,254 @@ export function TransactionStatus({
     )
   }
 
+  // Delivering state - Honest messaging while ZEC is in transit
+  if (flowState === "delivering" && transaction) {
+    const zecAmount = parseFloat(formatTokenAmount(transaction.toAmount, 6))
+    const estimatedUsd = transaction.usdAmount || usdAmount || parseFloat(transaction.fromAmount) || zecAmount * 40
+
+    return (
+      <div style={{ width: "100%", textAlign: "center", padding: `${tokens.space.xl}px 0`, position: "relative" }}>
+        {/* Vertical Light Beam */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "2px",
+            height: "100%",
+            background: `linear-gradient(to bottom, transparent, ${tokens.colors.primaryMuted}, transparent)`,
+            animation: "beamPulse 2s ease-in-out infinite",
+            zIndex: 0,
+          }}
+        />
+
+        {/* Hero: Flying Shield */}
+        <div
+          style={{
+            width: "100px",
+            height: "100px",
+            margin: "0 auto 24px",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          {/* Outer pulsing ring */}
+          <div
+            style={{
+              position: "absolute",
+              inset: "-4px",
+              borderRadius: "50%",
+              border: `2px solid ${tokens.colors.gold}`,
+              animation: "breathingGlow 2s ease-in-out infinite",
+            }}
+          />
+
+          {/* Shield container */}
+          <div
+            style={{
+              position: "absolute",
+              inset: "8px",
+              borderRadius: "50%",
+              background: `radial-gradient(circle at 30% 30%, ${tokens.colors.primaryMuted}, rgba(255, 215, 0, 0.05))`,
+              border: `2px solid ${tokens.colors.gold}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: `0 0 20px ${tokens.colors.goldMuted}`,
+            }}
+          >
+            {/* Shield Icon */}
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={tokens.colors.gold}
+              strokeWidth="1.5"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M12 8v4m0 4h.01" stroke={tokens.colors.gold} strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Status Header */}
+        <h3
+          style={{
+            color: tokens.colors.gold,
+            fontSize: "18px",
+            fontWeight: 700,
+            fontFamily: tokens.font.mono,
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            marginBottom: tokens.space.xs,
+          }}
+        >
+          DELIVERING ZEC
+        </h3>
+
+        {/* Amount Info */}
+        <p
+          style={{
+            color: tokens.colors.textMuted,
+            fontSize: "13px",
+            fontFamily: tokens.font.mono,
+            marginBottom: tokens.space.sm,
+          }}
+        >
+          ~{zecAmount.toFixed(4)} ZEC (${estimatedUsd.toFixed(2)}) to <span style={{ color: tokens.colors.textBright }}>@{creatorHandle}</span>
+        </p>
+
+        {/* Progress Steps */}
+        <div style={{ marginBottom: tokens.space.lg }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: tokens.space.md, marginBottom: tokens.space.sm }}>
+            {/* Step 1: Deposit - Complete */}
+            <div style={{ display: "flex", alignItems: "center", gap: tokens.space.sm }}>
+              <div
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  background: tokens.colors.success,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <div
+                style={{
+                  width: "40px",
+                  height: "2px",
+                  background: tokens.colors.success,
+                }}
+              />
+            </div>
+
+            {/* Step 2: Delivering - Active */}
+            <div style={{ display: "flex", alignItems: "center", gap: tokens.space.sm }}>
+              <div
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  background: tokens.colors.gold,
+                  border: `2px solid ${tokens.colors.gold}`,
+                  boxShadow: `0 0 12px ${tokens.colors.goldMuted}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  animation: "breathingGlow 1.5s ease-in-out infinite",
+                }}
+              >
+                <div
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    background: tokens.colors.bg,
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  width: "40px",
+                  height: "2px",
+                  background: "rgba(255, 255, 255, 0.1)",
+                }}
+              />
+            </div>
+
+            {/* Step 3: Confirmed - Pending */}
+            <div>
+              <div
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  background: "rgba(255, 255, 255, 0.1)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontWeight: 700 }}>3</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Status Labels */}
+          <div style={{ display: "flex", justifyContent: "center", gap: "50px" }}>
+            <span style={{ color: tokens.colors.success, fontSize: "10px", fontFamily: tokens.font.mono }}>SENT</span>
+            <span style={{ color: tokens.colors.gold, fontSize: "10px", fontFamily: tokens.font.mono }}>DELIVERING</span>
+            <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>CONFIRMED</span>
+          </div>
+        </div>
+
+        {/* Key Message: You can close this page */}
+        <div
+          style={{
+            background: "rgba(255, 215, 0, 0.08)",
+            border: `1px solid ${tokens.colors.goldMuted}`,
+            borderRadius: tokens.radius.md,
+            padding: `${tokens.space.md}px ${tokens.space.lg}px`,
+            marginBottom: tokens.space.lg,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: tokens.space.sm, marginBottom: tokens.space.xs }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.gold} strokeWidth="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M9 12l2 2 4-4" stroke={tokens.colors.gold} strokeWidth="2" />
+            </svg>
+            <span style={{ color: tokens.colors.gold, fontSize: "12px", fontWeight: 600, fontFamily: tokens.font.mono }}>
+              You can close this page
+            </span>
+          </div>
+          <p
+            style={{
+              color: tokens.colors.textMuted,
+              fontSize: "11px",
+              fontFamily: tokens.font.mono,
+              margin: 0,
+            }}
+          >
+            We're tracking your tip. @{creatorHandle} will be notified when it arrives.
+          </p>
+        </div>
+
+        {/* Done button to dismiss */}
+        <button
+          onClick={onDone}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          style={{
+            width: "100%",
+            padding: "14px",
+            background: isHovered ? "rgba(255, 255, 255, 0.08)" : "transparent",
+            border: `1px solid rgba(255, 255, 255, ${isHovered ? 0.3 : 0.2})`,
+            borderRadius: tokens.radius.md,
+            color: tokens.colors.textBright,
+            fontSize: "13px",
+            fontWeight: 600,
+            fontFamily: tokens.font.mono,
+            letterSpacing: "2px",
+            textTransform: "uppercase",
+            cursor: "pointer",
+            transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
+          }}
+        >
+          CLOSE
+        </button>
+
+        <style>{keyframes}</style>
+      </div>
+    )
+  }
+
   // Success state - "The Shielded Receipt"
   if (flowState === "success" && transaction) {
     // Calculate amounts from transaction (stored at time of tip) or props as fallback
@@ -356,37 +604,28 @@ export function TransactionStatus({
               height="60"
               viewBox="0 0 24 24"
               fill="none"
-              style={{ filter: "drop-shadow(0 0 12px rgba(255, 215, 0, 0.5))" }}
+              style={{ filter: "drop-shadow(0 0 12px rgba(34, 197, 94, 0.5))" }}
             >
               {/* Shield body */}
               <path
                 d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                fill="rgba(255, 215, 0, 0.15)"
-                stroke={tokens.colors.gold}
+                fill="rgba(34, 197, 94, 0.15)"
+                stroke={tokens.colors.success}
                 strokeWidth="1.5"
               />
-              {/* Lock shackle - animated */}
+              {/* Checkmark */}
               <path
-                d="M9 11V8a3 3 0 0 1 6 0v3"
+                d="M9 12l2 2 4-4"
                 fill="none"
-                stroke={tokens.colors.gold}
-                strokeWidth="1.5"
+                stroke={tokens.colors.success}
+                strokeWidth="2.5"
                 strokeLinecap="round"
+                strokeLinejoin="round"
                 style={{ animation: "shackleDrop 0.5s ease-out 0.3s forwards" }}
-              />
-              {/* Lock body */}
-              <rect
-                x="8"
-                y="11"
-                width="8"
-                height="6"
-                rx="1"
-                fill={tokens.colors.gold}
-                style={{ animation: "lockFlash 0.3s ease-out 0.8s forwards" }}
               />
             </svg>
           </div>
-          {/* Green flash overlay */}
+          {/* Success flash overlay */}
           <div
             style={{
               position: "absolute",
@@ -394,15 +633,15 @@ export function TransactionStatus({
               borderRadius: "50%",
               background: tokens.colors.success,
               opacity: 0,
-              animation: "greenFlash 0.2s ease-out 0.8s forwards",
+              animation: "greenFlash 0.3s ease-out 0.5s forwards",
             }}
           />
         </div>
 
-        {/* Header: TIP SENT */}
+        {/* Header: ZEC DELIVERED */}
         <h3
           style={{
-            color: tokens.colors.gold,
+            color: tokens.colors.success,
             fontSize: "18px",
             fontWeight: 700,
             fontFamily: tokens.font.mono,
@@ -411,7 +650,7 @@ export function TransactionStatus({
             marginBottom: tokens.space.xs,
           }}
         >
-          TIP SENT!
+          ZEC DELIVERED
         </h3>
         <p
           style={{
@@ -421,7 +660,7 @@ export function TransactionStatus({
             marginBottom: tokens.space.xs,
           }}
         >
-          ~{zecAmount.toFixed(4)} ZEC is on the way to <span style={{ color: tokens.colors.textBright }}>@{creatorHandle}</span>
+          ~{zecAmount.toFixed(4)} ZEC has arrived in <span style={{ color: tokens.colors.textBright }}>@{creatorHandle}</span>'s wallet
         </p>
         <p
           style={{
@@ -431,7 +670,7 @@ export function TransactionStatus({
             marginBottom: tokens.space.lg,
           }}
         >
-          They'll be notified when it arrives
+          Your tip is complete and confirmed
         </p>
 
         {/* Receipt Table */}

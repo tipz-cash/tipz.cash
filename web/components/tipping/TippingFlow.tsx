@@ -69,6 +69,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
     swapStatus,
     isRealSwap,
     failedTipNotification,
+    pendingTipNotification,
     expand,
     sendTip,
     reset,
@@ -77,6 +78,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
     setToken,
     setPrivateMessage,
     dismissFailedTipNotification,
+    dismissPendingTipNotification,
   } = useTipping({
     creatorHandle,
     shieldedAddress,
@@ -271,7 +273,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
 
   // Helper to get unique key for each view
   const getContentKey = () => {
-    if (["signing", "processing", "success", "error", "refunded"].includes(flowState)) {
+    if (["signing", "processing", "delivering", "success", "error", "refunded"].includes(flowState)) {
       return "transaction"
     }
     if (showZecDirect) return "zec-direct"
@@ -285,6 +287,54 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
   // Render unified container with animated content
   return (
     <div style={{ ...cardStyles }}>
+      {/* Pending tip notification banner */}
+      {pendingTipNotification && (
+        <div
+          style={{
+            background: "rgba(34, 197, 94, 0.08)",
+            borderBottom: `1px solid rgba(34, 197, 94, 0.2)`,
+            padding: `${tokens.space.sm}px ${tokens.space.lg}px`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: tokens.space.sm,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: tokens.space.sm }}>
+            <div
+              style={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                background: tokens.colors.success,
+                animation: "pulse 2s ease-in-out infinite",
+              }}
+            />
+            <p style={{ color: tokens.colors.success, fontSize: "11px", margin: 0, fontFamily: tokens.font.mono }}>
+              Delivering {pendingTipNotification.amount} {pendingTipNotification.tokenSymbol} to @{pendingTipNotification.creatorHandle}...
+            </p>
+          </div>
+          <button
+            onClick={dismissPendingTipNotification}
+            style={{
+              background: "none",
+              border: "none",
+              color: tokens.colors.textMuted,
+              cursor: "pointer",
+              padding: "4px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Failed tip notification banner */}
       {failedTipNotification && (
         <div
