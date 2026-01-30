@@ -24,6 +24,7 @@ export type TippingFlowState =
   | "awaiting_deposit" // New: Waiting for user to send funds to deposit address
   | "signing"
   | "processing"
+  | "delivering" // New: Deposit confirmed, ZEC delivery in progress (honest messaging)
   | "success"
   | "error"
   | "refunded" // New: Swap was refunded
@@ -80,8 +81,9 @@ interface UseTippingReturn {
   depositAddress: string | null
   swapStatus: SwapStatusType | null
   isRealSwap: boolean
-  // Fire-and-forget: failed tip from previous session
+  // Fire-and-forget: tip status from previous session
   failedTipNotification: FailedTip | null
+  pendingTipNotification: PendingTip | null
 
   // Actions
   expand: () => void
@@ -95,6 +97,7 @@ interface UseTippingReturn {
   reset: () => void
   retry: () => void
   dismissFailedTipNotification: () => void
+  dismissPendingTipNotification: () => void
 }
 
 const PRESET_AMOUNTS = [1, 5, 10, 25]
@@ -125,6 +128,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
   // Fire-and-forget: track if we showed optimistic success
   const [shownOptimisticSuccess, setShownOptimisticSuccess] = useState(false)
   const [failedTipNotification, setFailedTipNotification] = useState<FailedTip | null>(null)
+  const [pendingTipNotification, setPendingTipNotification] = useState<PendingTip | null>(null)
 
   // Polling ref
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
@@ -169,6 +173,8 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
           setDepositAddress(pendingTip.depositAddress)
           setIsRealSwap(true)
           setShownOptimisticSuccess(true)
+          // Show pending tip notification to user
+          setPendingTipNotification(pendingTip)
           // Start silent background polling
           startBackgroundPolling(pendingTip.depositAddress, pendingTip.creatorHandle, pendingTip.amount)
         } else {
@@ -247,10 +253,8 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
 
       const data = await response.json()
 
-      // Only update UI status if we haven't shown optimistic success
-      if (!shownOptimisticSuccess) {
-        setSwapStatus(data.status)
-      }
+      // Always update swap status for UI feedback
+      setSwapStatus(data.status)
 
       // Handle completion states
       if (data.complete) {
@@ -265,16 +269,16 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
 
         if (data.success) {
           console.log("[useTipping] Swap completed successfully")
-          // Only update UI if we haven't shown optimistic success
-          if (!shownOptimisticSuccess) {
-            setFlowState("success")
-            if (transaction) {
-              setTransaction({
-                ...transaction,
-                status: "completed",
-                completedAt: Date.now(),
-              })
-            }
+          // Clear pending notification
+          setPendingTipNotification(null)
+          // Transition from "delivering" to "success" when confirmed
+          setFlowState("success")
+          if (transaction) {
+            setTransaction({
+              ...transaction,
+              status: "completed",
+              completedAt: Date.now(),
+            })
           }
         } else if (data.status === "REFUNDED") {
           // Swap was refunded
@@ -375,8 +379,9 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
           }
           pollingAddressRef.current = null
 
-          // Clear pending tip from localStorage
+          // Clear pending tip from localStorage and UI
           localStorage.removeItem(PENDING_TIP_KEY)
+          setPendingTipNotification(null)
 
           if (data.success) {
             console.log("[useTipping] Background swap completed successfully")
@@ -390,6 +395,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
               timestamp: Date.now(),
             }
             localStorage.setItem(FAILED_TIP_KEY, JSON.stringify(failedTip))
+            setFailedTipNotification(failedTip)
             console.log("[useTipping] Background swap failed, stored for notification")
           }
         }
@@ -538,8 +544,9 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         const pollAddress = depositAddress || txData.depositAddress
         setDepositAddress(pollAddress)
 
-        // Fire-and-forget: Show success immediately after wallet confirmation
-        setFlowState("success")
+        // Honest messaging: Show "delivering" state, not "success"
+        // ZEC delivery is still in progress - user can close page
+        setFlowState("delivering")
         setShownOptimisticSuccess(true)
 
         // Store pending tip in localStorage for persistence
@@ -552,9 +559,10 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         }
         localStorage.setItem(PENDING_TIP_KEY, JSON.stringify(pendingTip))
 
-        // Continue background polling silently
+        // Continue background polling - will transition to "success" when confirmed
         startStatusPolling(pollAddress)
       } else {
+        // Demo mode or immediate swaps - show success directly
         setFlowState("success")
       }
     } catch (err: any) {
@@ -595,6 +603,12 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
   const dismissFailedTipNotification = useCallback(() => {
     setFailedTipNotification(null)
     localStorage.removeItem(FAILED_TIP_KEY)
+  }, [])
+
+  const dismissPendingTipNotification = useCallback(() => {
+    setPendingTipNotification(null)
+    // Don't remove from localStorage - still need to track the tip
+    // Just hide the UI notification
   }, [])
 
   const retry = useCallback(() => {
@@ -691,8 +705,9 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         const pollAddress = quoteData.depositAddress || txData.depositAddress
         setDepositAddress(pollAddress)
 
-        // Fire-and-forget: Show success immediately after wallet confirmation
-        setFlowState("success")
+        // Honest messaging: Show "delivering" state, not "success"
+        // ZEC delivery is still in progress - user can close page
+        setFlowState("delivering")
         setShownOptimisticSuccess(true)
 
         // Store pending tip in localStorage for persistence
@@ -705,9 +720,10 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         }
         localStorage.setItem(PENDING_TIP_KEY, JSON.stringify(pendingTip))
 
-        // Continue background polling silently
+        // Continue background polling - will transition to "success" when confirmed
         startStatusPolling(pollAddress)
       } else {
+        // Demo mode or immediate swaps - show success directly
         setFlowState("success")
       }
     } catch (err: any) {
@@ -749,6 +765,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     swapStatus,
     isRealSwap,
     failedTipNotification,
+    pendingTipNotification,
 
     expand,
     collapse,
@@ -761,5 +778,6 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     reset,
     retry,
     dismissFailedTipNotification,
+    dismissPendingTipNotification,
   }
 }
