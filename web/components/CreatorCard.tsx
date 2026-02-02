@@ -57,14 +57,12 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
           alignItems: "center",
           textDecoration: "none",
           cursor: "pointer",
-          background: "rgba(26, 26, 26, 0.6)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
+          background: colors.surface,
           borderTop: "1px solid rgba(255, 215, 0, 0.4)",
-          borderLeft: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : "rgba(255, 255, 255, 0.08)"}`,
-          borderRight: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : "rgba(255, 255, 255, 0.08)"}`,
-          borderBottom: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : "rgba(0, 0, 0, 0.3)"}`,
-          borderRadius: compact ? "12px" : "16px",
+          borderLeft: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : colors.border}`,
+          borderRight: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : colors.border}`,
+          borderBottom: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : colors.border}`,
+          borderRadius: compact ? "12px" : "20px",
           padding: compact ? "20px 16px" : "32px 24px",
           opacity: 0,
           animation: "fadeInUp 0.4s ease forwards",
@@ -74,8 +72,20 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
           boxShadow: isHovered
             ? `0 16px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.15)`
             : "0 4px 16px rgba(0, 0, 0, 0.3)",
+          overflow: "hidden",
         }}
       >
+        {/* Dot grid texture background - matches hero cards */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `radial-gradient(circle, ${colors.border} 1px, transparent 1px)`,
+            backgroundSize: "24px 24px",
+            opacity: 0.3,
+            pointerEvents: "none",
+          }}
+        />
         {/* Avatar with gold ring on hover */}
         <div style={{ position: "relative", marginBottom: compact ? "12px" : "16px" }}>
           {/* Gold ring - visible on hover */}
@@ -211,9 +221,9 @@ export function SkeletonCard({ index }: { index: number }) {
       `}</style>
       <div
         style={{
-          background: colors.cardBg,
-          border: `1px solid ${colors.cardBorder}`,
-          borderRadius: "16px",
+          background: colors.surface,
+          border: `1px solid ${colors.border}`,
+          borderRadius: "20px",
           padding: "32px 24px",
           display: "flex",
           flexDirection: "column",
@@ -222,8 +232,21 @@ export function SkeletonCard({ index }: { index: number }) {
           animation: `fadeInUp 0.4s ease forwards, shimmerSkeleton 1.5s infinite`,
           animationDelay: `${index * 0.05}s`,
           opacity: 0,
+          position: "relative",
+          overflow: "hidden",
         }}
       >
+        {/* Dot grid texture background */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `radial-gradient(circle, ${colors.border} 1px, transparent 1px)`,
+            backgroundSize: "24px 24px",
+            opacity: 0.3,
+            pointerEvents: "none",
+          }}
+        />
         {/* Avatar skeleton */}
         <div
           style={{
