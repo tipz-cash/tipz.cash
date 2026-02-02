@@ -18,7 +18,11 @@ interface Cell {
   highlightBrightness: number
 }
 
-export function LetterGridBackground() {
+interface LetterGridBackgroundProps {
+  fillCenter?: boolean
+}
+
+export function LetterGridBackground({ fillCenter = false }: LetterGridBackgroundProps) {
   // Use ref for grid state to avoid React re-renders on every frame
   const gridRef = useRef<Cell[][]>([])
   const [renderKey, setRenderKey] = useState(0)
@@ -157,10 +161,18 @@ export function LetterGridBackground() {
   const grid = gridRef.current
   if (grid.length === 0) return null
 
+  const gridStyle: React.CSSProperties = {
+    ...styles.grid,
+    ...(fillCenter ? {} : {
+      maskImage: `radial-gradient(circle at 50% 50%, transparent 0%, transparent 16%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%)`,
+      WebkitMaskImage: `radial-gradient(circle at 50% 50%, transparent 0%, transparent 16%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%)`,
+    }),
+  }
+
   return (
     <div style={styles.container}>
       <style>{cssStyles}</style>
-      <div style={styles.grid}>
+      <div style={gridStyle}>
         {grid.map((row, rowIdx) =>
           row.map((cell, colIdx) => {
             const isGlowing = cell.highlightBrightness > 0.05
@@ -233,19 +245,5 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 500,
     textAlign: "center",
     lineHeight: 1,
-    maskImage: `radial-gradient(
-      circle at 50% 50%,
-      transparent 0%,
-      transparent 16%,
-      rgba(0,0,0,1) 22%,
-      rgba(0,0,0,1) 100%
-    )`,
-    WebkitMaskImage: `radial-gradient(
-      circle at 50% 50%,
-      transparent 0%,
-      transparent 16%,
-      rgba(0,0,0,1) 22%,
-      rgba(0,0,0,1) 100%
-    )`,
   },
 }

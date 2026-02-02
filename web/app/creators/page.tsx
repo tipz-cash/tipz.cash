@@ -5,6 +5,7 @@ import { CreatorCard, SkeletonCard, Creator } from "@/components/CreatorCard";
 import { CreatorModal } from "@/components/CreatorModal";
 import { ActivityTicker } from "@/components/ActivityTicker";
 import { Leaderboard } from "@/components/Leaderboard";
+import { LetterGridBackground } from "@/components/LetterGridBackground";
 import { colors } from "@/lib/colors";
 import { animationKeyframes } from "@/lib/animations";
 
@@ -525,11 +526,23 @@ export default function CreatorsPage() {
           </>
         )}
 
+        {/* Letter grid background - fixed behind all main content */}
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        >
+          <LetterGridBackground fillCenter />
+        </div>
+
         {/* Main content */}
         <main style={{ position: "relative", zIndex: 1 }}>
-          {/* Activity Feed Ticker - Privacy-preserving tip notifications */}
-          <ActivityTicker />
-
           {/* Hero section */}
           <section className="hero-section">
             <h1
@@ -636,6 +649,9 @@ export default function CreatorsPage() {
               </div>
             )}
           </section>
+
+          {/* Activity Ticker - Social proof before browsing */}
+          <ActivityTicker />
 
           {/* Creators grid */}
           <section className="creators-grid-section">
