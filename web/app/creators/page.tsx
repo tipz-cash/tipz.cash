@@ -527,6 +527,9 @@ export default function CreatorsPage() {
 
         {/* Main content */}
         <main style={{ position: "relative", zIndex: 1 }}>
+          {/* Activity Feed Ticker - Privacy-preserving tip notifications */}
+          <ActivityTicker />
+
           {/* Hero section */}
           <section className="hero-section">
             <h1
@@ -633,9 +636,6 @@ export default function CreatorsPage() {
               </div>
             )}
           </section>
-
-          {/* Activity Feed Ticker - Privacy-preserving tip notifications */}
-          <ActivityTicker />
 
           {/* Creators grid */}
           <section className="creators-grid-section">
