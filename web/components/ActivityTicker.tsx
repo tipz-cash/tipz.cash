@@ -13,27 +13,35 @@ interface ActivityResponse {
   demo?: boolean
 }
 
-// Demo data shown when no real activity exists
+// Demo data shown when no real activity exists - uses actual demo creators
 const demoActivity: ActivityItem[] = [
   {
-    creator_handle: "privacy_advocate",
+    creator_handle: "zooko",
     displayed_at: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
   },
   {
-    creator_handle: "crypto_builder",
+    creator_handle: "naval",
     displayed_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
   },
   {
-    creator_handle: "journalist_x",
+    creator_handle: "balajis",
     displayed_at: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
   },
   {
-    creator_handle: "open_source_dev",
+    creator_handle: "zcash",
     displayed_at: new Date(Date.now() - 18 * 60 * 1000).toISOString(),
   },
   {
-    creator_handle: "anon_writer",
+    creator_handle: "ZcashFoundation",
     displayed_at: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+  },
+  {
+    creator_handle: "mert",
+    displayed_at: new Date(Date.now() - 32 * 60 * 1000).toISOString(),
+  },
+  {
+    creator_handle: "shieldedlabs",
+    displayed_at: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
   },
 ]
 

@@ -9,6 +9,7 @@ export interface Creator {
   handle: string;
   shielded_address: string;
   created_at: string;
+  avatar_url?: string;
 }
 
 // Generate a consistent hue from a string
@@ -100,28 +101,44 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
             }}
           />
           {/* Avatar */}
-          <div
-            style={{
-              position: "relative",
-              width: compact ? "56px" : "72px",
-              height: compact ? "56px" : "72px",
-              borderRadius: "50%",
-              background: `linear-gradient(135deg, hsl(${hue}, 50%, 35%) 0%, hsl(${hue}, 60%, 25%) 100%)`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: compact ? "22px" : "28px",
-              fontWeight: 700,
-              color: "#fff",
-              textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-              textTransform: "uppercase",
-              fontFamily: "'JetBrains Mono', monospace",
-              border: `2px solid ${isHovered ? "transparent" : colors.border}`,
-              transition: "border-color 0.25s ease",
-            }}
-          >
-            {creator.handle[0]}
-          </div>
+          {creator.avatar_url ? (
+            <img
+              src={creator.avatar_url}
+              alt={creator.handle}
+              style={{
+                position: "relative",
+                width: compact ? "56px" : "72px",
+                height: compact ? "56px" : "72px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                border: `2px solid ${isHovered ? "transparent" : colors.border}`,
+                transition: "border-color 0.25s ease",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                position: "relative",
+                width: compact ? "56px" : "72px",
+                height: compact ? "56px" : "72px",
+                borderRadius: "50%",
+                background: `linear-gradient(135deg, hsl(${hue}, 50%, 35%) 0%, hsl(${hue}, 60%, 25%) 100%)`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: compact ? "22px" : "28px",
+                fontWeight: 700,
+                color: "#fff",
+                textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                textTransform: "uppercase",
+                fontFamily: "'JetBrains Mono', monospace",
+                border: `2px solid ${isHovered ? "transparent" : colors.border}`,
+                transition: "border-color 0.25s ease",
+              }}
+            >
+              {creator.handle[0]}
+            </div>
+          )}
         </div>
 
         {/* Handle */}

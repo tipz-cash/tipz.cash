@@ -8,6 +8,7 @@ interface LeaderboardEntry {
   handle: string
   tip_count: number
   tier: "bronze" | "silver" | "gold"
+  avatar_url?: string
 }
 
 interface LeaderboardResponse {
@@ -347,10 +348,36 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
           {entry.rank}
         </div>
 
+        {/* Avatar */}
+        {entry.avatar_url && (
+          <div
+            style={{
+              marginTop: "8px",
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+              overflow: "hidden",
+              border: `2px solid ${isHovered ? tierColor : colors.border}`,
+              transition: "border-color 0.3s ease",
+              boxShadow: isHovered ? `0 0 12px ${tierGlow}` : "none",
+            }}
+          >
+            <img
+              src={entry.avatar_url}
+              alt={entry.handle}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </div>
+        )}
+
         {/* Handle with text glow on hover */}
         <span
           style={{
-            marginTop: "12px",
+            marginTop: entry.avatar_url ? "8px" : "12px",
             fontSize: "14px",
             fontWeight: 600,
             color: colors.textBright,
