@@ -145,17 +145,6 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
             transform: translateY(0);
           }
         }
-
-        @keyframes ambientGlow {
-          0%, 100% {
-            opacity: 0.3;
-            transform: translate(-50%, -50%) scale(1);
-          }
-          50% {
-            opacity: 0.5;
-            transform: translate(-50%, -50%) scale(1.05);
-          }
-        }
       `}</style>
 
       <div
@@ -166,50 +155,6 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
           padding: "0 24px",
         }}
       >
-        {/* Morphing ambient glow behind leaderboard */}
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "120%",
-            height: "250%",
-            background: `radial-gradient(ellipse, ${colors.primaryGlow} 0%, transparent 70%)`,
-            pointerEvents: "none",
-            filter: "blur(50px)",
-            animation: prefersReducedMotion ? "none" : "ambientGlow 6s ease-in-out infinite",
-          }}
-        />
-
-        {/* Left fade mask */}
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: "60px",
-            background: `linear-gradient(90deg, ${colors.pageBg} 0%, transparent 100%)`,
-            zIndex: 2,
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* Right fade mask */}
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: "60px",
-            background: `linear-gradient(270deg, ${colors.pageBg} 0%, transparent 100%)`,
-            zIndex: 2,
-            pointerEvents: "none",
-          }}
-        />
-
         {/* Section header with stagger animation */}
         <div
           style={{
@@ -296,7 +241,6 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
   const tierColor = tierColors[tier]
   const tierGlow = tierGlows[tier]
   const tierGlowStrong = tierGlowsStrong[tier]
-  const isFirstPlace = entry.rank === 1
 
   return (
     <>
@@ -323,15 +267,6 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
           100% {
             transform: translateX(-50%) scale(1);
             opacity: 1;
-          }
-        }
-
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%) rotate(15deg);
-          }
-          100% {
-            transform: translateX(200%) rotate(15deg);
           }
         }
 
@@ -383,40 +318,6 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
             : `0 4px 16px rgba(0, 0, 0, 0.3), 0 0 16px ${tierGlow}`,
         }}
       >
-        {/* Shimmer sweep effect for first place */}
-        {isFirstPlace && !prefersReducedMotion && (
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              overflow: "hidden",
-              borderRadius: "16px",
-              pointerEvents: "none",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                top: "-50%",
-                left: "-50%",
-                width: "50%",
-                height: "200%",
-                background: `linear-gradient(
-                  90deg,
-                  transparent 0%,
-                  rgba(255, 255, 255, 0.08) 50%,
-                  transparent 100%
-                )`,
-                animation: "shimmer 4s ease-in-out infinite",
-                animationDelay: "1s",
-              }}
-            />
-          </div>
-        )}
-
         {/* Rank badge with pop animation */}
         <div
           style={{

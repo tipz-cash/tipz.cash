@@ -110,10 +110,10 @@ export function ActivityTicker({
       <style jsx>{`
         @keyframes ticker-scroll {
           0% {
-            transform: translateX(0);
+            transform: translate3d(0, 0, 0);
           }
           100% {
-            transform: translateX(-33.333%);
+            transform: translate3d(-33.333%, 0, 0);
           }
         }
 
@@ -122,8 +122,43 @@ export function ActivityTicker({
             opacity: 1;
           }
           50% {
-            opacity: 0.5;
+            opacity: 0.4;
           }
+        }
+
+        .ticker-track {
+          display: flex;
+          align-items: center;
+          white-space: nowrap;
+          width: max-content;
+          padding: 16px 0;
+          will-change: transform;
+          contain: layout style;
+        }
+
+        .ticker-track:not(.reduced-motion) {
+          animation: ticker-scroll 50s linear infinite;
+        }
+
+        .ticker-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 13px;
+          padding: 0 32px;
+          contain: layout style;
+        }
+
+        .pulse-dot {
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background: ${colors.success};
+        }
+
+        .pulse-dot:not(.reduced-motion) {
+          animation: soft-pulse 3s ease-in-out infinite;
         }
       `}</style>
 
@@ -133,25 +168,10 @@ export function ActivityTicker({
           overflow: "hidden",
           position: "relative",
           margin: "40px 0 48px",
+          contain: "layout style",
         }}
       >
-        {/* Subtle ambient glow behind ticker */}
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "80%",
-            height: "200%",
-            background: `radial-gradient(ellipse, ${colors.primaryGlow} 0%, transparent 70%)`,
-            opacity: 0.3,
-            pointerEvents: "none",
-            filter: "blur(40px)",
-          }}
-        />
-
-        {/* Left fade */}
+        {/* Left fade - using opacity gradient instead of blur */}
         <div
           style={{
             position: "absolute",
@@ -179,31 +199,50 @@ export function ActivityTicker({
           }}
         />
 
-        {/* Ticker content */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            whiteSpace: "nowrap",
-            animation: prefersReducedMotion
-              ? "none"
-              : "ticker-scroll 50s linear infinite",
-            width: "max-content",
-            padding: "16px 0",
-          }}
-        >
+        {/* Ticker content - GPU accelerated */}
+        <div className={`ticker-track ${prefersReducedMotion ? "reduced-motion" : ""}`}>
           {tickerItems.map((item, index) => (
-            <TickerItem
-              key={`${item.creator_handle}-${index}`}
-              handle={item.creator_handle}
-              displayedAt={item.displayed_at}
-              isDemo={isDemo}
-              prefersReducedMotion={prefersReducedMotion}
-            />
+            <div key={`${item.creator_handle}-${index}`} className="ticker-item">
+              {/* Shield icon - simple, no blur */}
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill={colors.primary}
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+
+              {/* Handle */}
+              <span style={{ color: colors.textBright, fontWeight: 500 }}>
+                @{item.creator_handle}
+              </span>
+
+              {/* Action text */}
+              <span style={{ color: colors.muted }}>received a tip</span>
+
+              {/* Dot separator */}
+              <span
+                style={{
+                  width: "3px",
+                  height: "3px",
+                  borderRadius: "50%",
+                  background: colors.border,
+                }}
+              />
+
+              {/* Time */}
+              <span style={{ color: colors.muted, opacity: 0.6, fontSize: "12px" }}>
+                {formatRelativeTime(item.displayed_at)}
+              </span>
+
+              {/* Live pulse indicator - no box-shadow */}
+              <div className={`pulse-dot ${prefersReducedMotion ? "reduced-motion" : ""}`} />
+            </div>
           ))}
         </div>
 
-        {/* Demo indicator - subtle, bottom right */}
+        {/* Demo indicator */}
         {isDemo && (
           <div
             style={{
@@ -222,109 +261,5 @@ export function ActivityTicker({
         )}
       </div>
     </>
-  )
-}
-
-interface TickerItemProps {
-  handle: string
-  displayedAt: string
-  isDemo: boolean
-  prefersReducedMotion: boolean
-}
-
-function TickerItem({ handle, displayedAt, prefersReducedMotion }: TickerItemProps) {
-  const relativeTime = formatRelativeTime(displayedAt)
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        fontFamily: "'JetBrains Mono', monospace",
-        fontSize: "13px",
-        padding: "0 32px",
-      }}
-    >
-      {/* Shield icon with glow */}
-      <div
-        style={{
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/* Glow behind icon */}
-        <div
-          style={{
-            position: "absolute",
-            width: "20px",
-            height: "20px",
-            borderRadius: "50%",
-            background: colors.primary,
-            filter: "blur(8px)",
-            opacity: 0.3,
-          }}
-        />
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill={colors.primary}
-          style={{ position: "relative", zIndex: 1 }}
-        >
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-      </div>
-
-      {/* Handle */}
-      <span
-        style={{
-          color: colors.textBright,
-          fontWeight: 500,
-        }}
-      >
-        @{handle}
-      </span>
-
-      {/* Action text */}
-      <span style={{ color: colors.muted }}>
-        received a tip
-      </span>
-
-      {/* Dot separator */}
-      <span
-        style={{
-          width: "3px",
-          height: "3px",
-          borderRadius: "50%",
-          background: colors.border,
-        }}
-      />
-
-      {/* Time */}
-      <span
-        style={{
-          color: colors.muted,
-          opacity: 0.6,
-          fontSize: "12px",
-        }}
-      >
-        {relativeTime}
-      </span>
-
-      {/* Live pulse indicator */}
-      <div
-        style={{
-          width: "4px",
-          height: "4px",
-          borderRadius: "50%",
-          background: colors.success,
-          animation: prefersReducedMotion ? "none" : "soft-pulse 3s ease-in-out infinite",
-          boxShadow: `0 0 6px ${colors.successGlow}`,
-        }}
-      />
-    </div>
   )
 }
