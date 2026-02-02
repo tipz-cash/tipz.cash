@@ -3006,6 +3006,7 @@ export default function HomePage() {
           </TerminalReveal>
         </div>
       </SnapSection>
+
       {/* Chapter 02: The False Choice - Simplified Visual Storytelling */}
       <SnapSection id="broken" style={{ padding: "0 48px" }}>
         <div style={contentPadding}>
@@ -3151,7 +3152,8 @@ export default function HomePage() {
                   fontSize: "15px",
                   color: colors.textBright,
                   textAlign: "center",
-                  marginTop: "24px",
+                  marginTop: "auto",
+                  paddingTop: "24px",
                   lineHeight: 1.5,
                 }}>
                   You feed the algorithm. <span style={{ color: colors.error, fontWeight: 600 }}>They own the audience</span>.
@@ -3295,7 +3297,8 @@ export default function HomePage() {
                   fontSize: "15px",
                   color: colors.textBright,
                   textAlign: "center",
-                  marginTop: "24px",
+                  marginTop: "auto",
+                  paddingTop: "24px",
                   lineHeight: 1.5,
                 }}>
                   Every transaction. <span style={{ color: colors.error, fontWeight: 600 }}>Forever public</span>.
