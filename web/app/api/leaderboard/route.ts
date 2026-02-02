@@ -16,6 +16,7 @@ export interface LeaderboardEntry {
   handle: string
   tip_count: number
   tier: "bronze" | "silver" | "gold" | "diamond"
+  avatar_url?: string
 }
 
 interface LeaderboardResponse {
@@ -23,11 +24,11 @@ interface LeaderboardResponse {
   demo: boolean
 }
 
-// Demo data shown when no real data exists
+// Demo data shown when no real data exists - uses actual demo creators
 const demoLeaderboard: LeaderboardEntry[] = [
-  { rank: 1, handle: "privacy_advocate", tip_count: 247, tier: "diamond" },
-  { rank: 2, handle: "crypto_builder", tip_count: 89, tier: "gold" },
-  { rank: 3, handle: "anon_writer", tip_count: 34, tier: "silver" },
+  { rank: 1, handle: "zooko", tip_count: 247, tier: "diamond", avatar_url: "https://unavatar.io/twitter/zooko" },
+  { rank: 2, handle: "naval", tip_count: 89, tier: "gold", avatar_url: "https://unavatar.io/twitter/naval" },
+  { rank: 3, handle: "balajis", tip_count: 34, tier: "silver", avatar_url: "https://unavatar.io/twitter/balajis" },
 ]
 
 function getTier(tipCount: number): LeaderboardEntry["tier"] {

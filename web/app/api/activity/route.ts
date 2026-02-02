@@ -16,13 +16,24 @@ interface ActivityItem {
   displayed_at: string
 }
 
+// Demo activity using actual demo creators
+const demoActivity: ActivityItem[] = [
+  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 2 * 60 * 1000).toISOString() },
+  { creator_handle: "naval", displayed_at: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
+  { creator_handle: "balajis", displayed_at: new Date(Date.now() - 12 * 60 * 1000).toISOString() },
+  { creator_handle: "zcash", displayed_at: new Date(Date.now() - 18 * 60 * 1000).toISOString() },
+  { creator_handle: "ZcashFoundation", displayed_at: new Date(Date.now() - 25 * 60 * 1000).toISOString() },
+  { creator_handle: "mert", displayed_at: new Date(Date.now() - 32 * 60 * 1000).toISOString() },
+  { creator_handle: "shieldedlabs", displayed_at: new Date(Date.now() - 40 * 60 * 1000).toISOString() },
+]
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50)
 
   if (!supabase) {
-    // Return empty array when Supabase is not configured
-    return NextResponse.json({ activity: [] })
+    // Return demo data when Supabase is not configured
+    return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
   }
 
   try {
@@ -40,7 +51,11 @@ export async function GET(request: NextRequest) {
         return await getFallbackActivity(limit)
       }
       console.error("[activity] Error:", error)
-      return NextResponse.json({ activity: [] })
+      return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
+    }
+
+    if (!transactions || transactions.length === 0) {
+      return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
     }
 
     const activity: ActivityItem[] = (transactions || []).map(
@@ -56,7 +71,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("[activity] Error:", error)
-    return NextResponse.json({ activity: [] })
+    return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
   }
 }
 
