@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { CreatorCard, SkeletonCard, Creator } from "@/components/CreatorCard";
 import { CreatorModal } from "@/components/CreatorModal";
+import { ActivityTicker } from "@/components/ActivityTicker";
+import { Leaderboard } from "@/components/Leaderboard";
 import { colors } from "@/lib/colors";
 import { animationKeyframes } from "@/lib/animations";
 
@@ -549,6 +551,9 @@ export default function CreatorsPage() {
               The uncensorable voices of the new web.
             </p>
 
+            {/* Leaderboard - Top supported creators by tip count */}
+            <Leaderboard />
+
             {/* Search Bar */}
             <div style={{
               display: "flex",
@@ -628,6 +633,9 @@ export default function CreatorsPage() {
               </div>
             )}
           </section>
+
+          {/* Activity Feed Ticker - Privacy-preserving tip notifications */}
+          <ActivityTicker />
 
           {/* Creators grid */}
           <section className="creators-grid-section">
