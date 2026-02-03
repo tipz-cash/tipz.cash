@@ -459,6 +459,7 @@ interface Creator {
   platform: string
   handle: string
   shielded_address: string
+  avatar_url?: string
   publicKey?: JsonWebKey
   canReceiveMessages?: boolean
 }
@@ -468,10 +469,25 @@ type PageState = "loading" | "found" | "not_found" | "error"
 export default function CreatorCardPage() {
   const params = useParams()
   const handle = params.handle as string
+  const [demoMode, setDemoMode] = useState(true)
   const [state, setState] = useState<PageState>("loading")
   const [creator, setCreator] = useState<Creator | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [showBackground, setShowBackground] = useState(false)
+
+  // Initialize demo mode from localStorage (defaults to true if not set)
+  useEffect(() => {
+    const stored = localStorage.getItem("tipz_demo_mode")
+    // Only turn off if explicitly set to "false"
+    if (stored === "false") {
+      setDemoMode(false)
+    }
+    // URL param can override
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get("demo") === "true") {
+      setDemoMode(true)
+    }
+  }, [])
 
   // Lazy load background to prioritize content rendering
   useEffect(() => {
@@ -507,16 +523,38 @@ export default function CreatorCardPage() {
         if (data.found && data.creator) {
           setCreator(data.creator)
           setState("found")
+        } else if (demoMode) {
+          // In demo mode, create a mock creator so tipping flow works
+          setCreator({
+            id: `demo-${handle}`,
+            platform: "x",
+            handle: handle,
+            shielded_address: "zs1demo000000000000000000000000000000000000000000000000000000000000000000demo",
+            avatar_url: `https://unavatar.io/twitter/${handle}`,
+          })
+          setState("found")
         } else {
           setState("not_found")
         }
       } catch {
-        setState("error")
+        if (demoMode) {
+          // In demo mode, create a mock creator even on error
+          setCreator({
+            id: `demo-${handle}`,
+            platform: "x",
+            handle: handle,
+            shielded_address: "zs1demo000000000000000000000000000000000000000000000000000000000000000000demo",
+            avatar_url: `https://unavatar.io/twitter/${handle}`,
+          })
+          setState("found")
+        } else {
+          setState("error")
+        }
       }
     }
 
     if (handle) fetchCreator()
-  }, [handle])
+  }, [handle, demoMode])
 
   // Avatar color based on handle
   const getAvatarColor = (h: string) => {
@@ -671,7 +709,9 @@ export default function CreatorCardPage() {
                   shieldedAddress={creator?.shielded_address || ""}
                   isMobile={isMobile}
                   avatarColor={getAvatarColor(creator?.handle || handle)}
+                  avatarUrl={creator?.avatar_url}
                   publicKey={creator?.publicKey}
+                  demoMode={demoMode}
                 />
 
                 {/* Powered by TIPZ footer */}
@@ -729,7 +769,9 @@ export default function CreatorCardPage() {
               shieldedAddress={creator?.shielded_address || ""}
               isMobile={isMobile}
               avatarColor={getAvatarColor(creator?.handle || handle)}
+              avatarUrl={creator?.avatar_url}
               publicKey={creator?.publicKey}
+              demoMode={demoMode}
             />
           </div>
         </div>
