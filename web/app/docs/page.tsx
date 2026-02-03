@@ -3,6 +3,21 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
+// Hook for responsive breakpoint detection
+function useIsMobile(breakpoint: number = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < breakpoint);
+    checkMobile();
+
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
 // ZEC Ticker component
 function ZecTicker() {
   const [price, setPrice] = useState<number | null>(null);
@@ -883,6 +898,7 @@ Key Management:
 export default function DocsPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("tippers");
+  const isMobile = useIsMobile(640);
 
   // Handle URL hash for deep-linking
   useEffect(() => {
@@ -915,6 +931,7 @@ export default function DocsPage() {
         color: colors.text,
         fontFamily: "'JetBrains Mono', monospace",
         position: "relative",
+        overflowX: "hidden",
       }}
     >
       {/* Atmospheric overlays */}
@@ -964,7 +981,7 @@ export default function DocsPage() {
       )}
 
       {/* Main content */}
-      <main style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 24px 64px" }}>
+      <main style={{ maxWidth: "800px", margin: "0 auto", padding: isMobile ? "100px 16px 48px" : "120px 24px 64px" }}>
         <div style={{ marginBottom: "64px" }}>
           <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "2px", marginBottom: "16px" }}>
             // DOCUMENTATION
@@ -988,18 +1005,18 @@ export default function DocsPage() {
         {/* CTA - Dual Path */}
         <section
           style={{
-            padding: "48px 32px",
+            padding: isMobile ? "32px 20px" : "48px 32px",
             backgroundColor: colors.surface,
             border: `1px solid ${colors.border}`,
             borderRadius: "4px",
-            marginTop: "64px",
+            marginTop: isMobile ? "40px" : "64px",
           }}
         >
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? "32px" : "32px" }}>
             {/* For Creators */}
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px", marginBottom: "12px" }}>FOR CREATORS</div>
-              <h2 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "12px", color: colors.textBright }}>Start receiving private tips</h2>
+              <h2 style={{ fontSize: isMobile ? "16px" : "18px", fontWeight: 700, marginBottom: "12px", color: colors.textBright }}>Start receiving private tips</h2>
               <p style={{ color: colors.muted, marginBottom: "24px", fontSize: "13px" }}>Register in under 2 minutes. Just your X handle and Zcash address.</p>
               <Link
                 href="/register"
@@ -1007,7 +1024,7 @@ export default function DocsPage() {
                   display: "inline-block",
                   backgroundColor: colors.primary,
                   color: colors.bg,
-                  padding: "14px 32px",
+                  padding: isMobile ? "12px 24px" : "14px 32px",
                   fontWeight: 700,
                   fontSize: "13px",
                   textDecoration: "none",
@@ -1020,7 +1037,7 @@ export default function DocsPage() {
             </div>
 
             {/* For Tippers */}
-            <div style={{ textAlign: "center", borderLeft: `1px solid ${colors.border}`, paddingLeft: "32px" }}>
+            <div style={{ textAlign: "center", borderLeft: isMobile ? "none" : `1px solid ${colors.border}`, borderTop: isMobile ? `1px solid ${colors.border}` : "none", paddingLeft: isMobile ? 0 : "32px", paddingTop: isMobile ? "32px" : 0 }}>
               <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px", marginBottom: "12px" }}>FOR SUPPORTERS</div>
               <h2 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "12px", color: colors.textBright }}>Support a creator now</h2>
               <p style={{ color: colors.muted, marginBottom: "24px", fontSize: "13px" }}>No signup. Connect wallet, pick amount, done.</p>
@@ -1049,10 +1066,12 @@ export default function DocsPage() {
       {/* Footer */}
       <footer
         style={{
-          padding: "40px 48px",
+          padding: isMobile ? "32px 16px" : "40px 48px",
           display: "flex",
-          justifyContent: "space-between",
+          flexDirection: isMobile ? "column" : "row",
+          justifyContent: isMobile ? "center" : "space-between",
           alignItems: "center",
+          gap: isMobile ? "20px" : undefined,
           borderTop: `1px solid ${colors.border}`,
           fontSize: "12px",
           backgroundColor: colors.surface,
@@ -1062,7 +1081,7 @@ export default function DocsPage() {
           <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px" }}>[TIPZ]</span>
           <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>v0.1.0-beta</span>
         </div>
-        <div style={{ display: "flex", gap: "32px" }}>
+        <div style={{ display: "flex", gap: isMobile ? "20px" : "32px", flexWrap: "wrap", justifyContent: "center" }}>
           <Link href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MANIFESTO</Link>
           <span style={{ color: colors.primary, fontSize: "11px", letterSpacing: "1px", fontWeight: 600 }}>DOCS</span>
           <a href="https://github.com/tipz-app" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>GITHUB</a>
@@ -1133,6 +1152,27 @@ export default function DocsPage() {
         @media (max-width: 480px) {
           .docs-tabs {
             gap: 12px !important;
+          }
+        }
+
+        /* Make all docs grids responsive */
+        @media (max-width: 640px) {
+          main section > div[style*="gridTemplateColumns"] {
+            grid-template-columns: 1fr !important;
+          }
+          /* Fix main container padding */
+          main {
+            padding: 48px 16px !important;
+          }
+          /* Fix footer */
+          footer {
+            flex-direction: column !important;
+            gap: 24px !important;
+            padding: 32px 16px !important;
+            text-align: center;
+          }
+          footer > div {
+            justify-content: center;
           }
         }
       `}</style>
