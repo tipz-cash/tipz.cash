@@ -27,22 +27,15 @@ function ZecTicker() {
   );
 }
 
-// Color palette - refined for depth and atmosphere (matching home page)
+// Color palette - Terminal Purity: single accent color
 const colors = {
   bg: "#08090a",
   bgGradientStart: "#08090a",
   bgGradientEnd: "#0d1117",
   surface: "#12141a",
   surfaceHover: "#1a1d24",
-  surfaceLight: "#1e2128",
   primary: "#F5A623",
-  primaryHover: "#FFB84D",
   primaryGlow: "rgba(245, 166, 35, 0.15)",
-  primaryGlowStrong: "rgba(245, 166, 35, 0.3)",
-  success: "#22C55E",
-  successGlow: "rgba(34, 197, 94, 0.2)",
-  error: "#EF4444",
-  errorGlow: "rgba(239, 68, 68, 0.15)",
   muted: "#6B7280",
   border: "#2a2f38",
   borderHover: "#3d4450",
@@ -50,28 +43,82 @@ const colors = {
   textBright: "#F9FAFB",
 };
 
+// Tab types
+type TabId = "tippers" | "creators" | "technical";
+
+// Tab navigation component - underline style
+function TabNavigation({
+  activeTab,
+  onTabChange,
+}: {
+  activeTab: TabId;
+  onTabChange: (tab: TabId) => void;
+}) {
+  const tabs: { id: TabId; label: string }[] = [
+    { id: "tippers", label: "FOR TIPPERS" },
+    { id: "creators", label: "FOR CREATORS" },
+    { id: "technical", label: "TECHNICAL" },
+  ];
+
+  return (
+    <div
+      className="docs-tabs"
+      style={{
+        display: "flex",
+        gap: "32px",
+        borderBottom: `1px solid ${colors.border}`,
+        marginBottom: "64px",
+      }}
+    >
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => onTabChange(tab.id)}
+          style={{
+            padding: "16px 0",
+            fontSize: "11px",
+            fontWeight: 500,
+            letterSpacing: "1px",
+            fontFamily: "'JetBrains Mono', monospace",
+            color: activeTab === tab.id ? colors.primary : colors.muted,
+            backgroundColor: "transparent",
+            border: "none",
+            borderBottom: activeTab === tab.id ? `2px solid ${colors.primary}` : "2px solid transparent",
+            cursor: "pointer",
+            transition: "all 0.2s",
+            marginBottom: "-1px",
+          }}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // Collapsible section component
 function CollapsibleSection({
   title,
   children,
   defaultOpen = false,
+  id,
 }: {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  id?: string;
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <div
-      className="card-hover"
+      id={id}
       style={{
         backgroundColor: colors.surface,
         border: `1px solid ${colors.border}`,
         marginBottom: "16px",
         borderRadius: "4px",
         overflow: "hidden",
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
       <button
@@ -89,15 +136,10 @@ function CollapsibleSection({
           fontWeight: 600,
           cursor: "pointer",
           fontFamily: "'JetBrains Mono', monospace",
-          transition: "background-color 0.2s",
         }}
       >
         <span style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{
-            color: colors.primary,
-            fontSize: "16px",
-            textShadow: isOpen ? `0 0 10px ${colors.primaryGlow}` : "none",
-          }}>
+          <span style={{ color: colors.primary, fontSize: "14px" }}>
             {isOpen ? "[-]" : "[+]"}
           </span>
           {title}
@@ -117,8 +159,753 @@ function CollapsibleSection({
   );
 }
 
+// Callout box component - simplified, no colored backgrounds
+function Callout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        backgroundColor: "transparent",
+        border: `1px solid ${colors.border}`,
+        borderRadius: "4px",
+        padding: "16px 20px",
+        marginBottom: "24px",
+      }}
+    >
+      <div style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.7 }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Code block component
+function CodeBlock({ children }: { children: string }) {
+  return (
+    <pre
+      style={{
+        backgroundColor: colors.bg,
+        border: `1px solid ${colors.border}`,
+        borderRadius: "4px",
+        padding: "16px 20px",
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: "12px",
+        color: colors.muted,
+        overflowX: "auto",
+        marginBottom: "16px",
+        whiteSpace: "pre-wrap",
+        wordBreak: "break-word",
+      }}
+    >
+      {children}
+    </pre>
+  );
+}
+
+// Step list component - simplified inline numbering
+function StepList({
+  steps,
+}: {
+  steps: { num: string; title: string; desc: string }[];
+}) {
+  return (
+    <div style={{ display: "grid", gap: "20px" }}>
+      {steps.map((step) => (
+        <div key={step.num}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "4px" }}>
+            <span style={{ color: colors.muted, fontSize: "12px", fontFamily: "monospace" }}>
+              {step.num}.
+            </span>
+            <span style={{ fontWeight: 600, color: colors.textBright, fontSize: "14px" }}>
+              {step.title}
+            </span>
+          </div>
+          <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginLeft: "36px", margin: "0 0 0 36px" }}>
+            {step.desc}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ============================================
+// TAB CONTENT: FOR TIPPERS
+// ============================================
+function TippersTab() {
+  return (
+    <>
+      {/* The 60-Second Tip */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          THE 60-SECOND TIP
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Tipping takes less than a minute. No account needed. Just a wallet.
+        </p>
+
+        <div
+          style={{
+            backgroundColor: colors.surface,
+            border: `1px solid ${colors.border}`,
+            padding: "32px",
+            marginBottom: "32px",
+            borderRadius: "4px",
+          }}
+        >
+          <StepList
+            steps={[
+              { num: "01", title: "Connect wallet", desc: "MetaMask, Rabby, Coinbase Wallet, or Phantom. One click. No signup." },
+              { num: "02", title: "Pick your amount", desc: "$1, $5, $10, $25—or custom. See exactly how much ZEC the creator will receive." },
+              { num: "03", title: "Confirm in wallet", desc: "One signature. Success screen appears immediately after confirmation." },
+              { num: "04", title: "Done", desc: "That's it. We handle the cross-chain swap in the background. Delivery in 5-10 minutes." },
+            ]}
+          />
+        </div>
+
+        {/* Simplified flow */}
+        <CodeBlock>{`Your Token → NEAR Intents → Shielded ZEC → Creator`}</CodeBlock>
+      </section>
+
+      {/* No Wallet? No Problem */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          NO WALLET? NO PROBLEM
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          No MetaMask? Tip directly from your exchange account via Mesh Connect.
+        </p>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "32px", marginBottom: "32px", borderRadius: "4px" }}>
+          <StepList
+            steps={[
+              { num: "01", title: 'Click "Pay with Exchange"', desc: "On any creator's tip page, choose this option instead of connecting a wallet." },
+              { num: "02", title: "Log into your exchange", desc: "Coinbase, Kraken, Binance, or 300+ others. Mesh handles the secure OAuth connection—we never see your credentials." },
+              { num: "03", title: "Confirm and send", desc: "Approve the withdrawal. Your tip arrives as shielded ZEC—same privacy, no wallet needed." },
+            ]}
+          />
+        </div>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
+          <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", letterSpacing: "1px" }}>SUPPORTED EXCHANGES</div>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            {["Coinbase", "Kraken", "Binance", "Gemini", "Crypto.com", "+ 300 more"].map((exchange) => (
+              <span key={exchange} style={{ padding: "6px 12px", backgroundColor: colors.bg, border: `1px solid ${colors.border}`, borderRadius: "4px", fontSize: "12px", color: colors.muted }}>
+                {exchange}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* What Happens to Your Tip */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          WHAT HAPPENS TO YOUR TIP
+        </h2>
+
+        <CodeBlock>{`Your Token → NEAR Intents Deposit Address → ZEC Shielded Address
+
+NO TIPZ smart contracts — direct transfers only.
+Market makers compete for the best swap rate.
+Auto-refund if swap fails (rare, but handled).`}</CodeBlock>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>Zero Platform Fees</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0 }}>100% of tip value reaches the creator. Network gas (~$0.01-0.50) is included in your quote.</p>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>Atomic Execution</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0 }}>Swap completes fully or refunds automatically. No stuck funds.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Privacy Breakdown */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          PRIVACY BREAKDOWN
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Honest privacy expectations—what&apos;s visible and what&apos;s not.
+        </p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
+            <div style={{ color: colors.muted, fontWeight: 600, marginBottom: "12px", fontSize: "11px", letterSpacing: "1px" }}>VISIBLE ON SOURCE CHAIN</div>
+            <ul style={{ color: colors.muted, fontSize: "13px", margin: 0, paddingLeft: "16px", lineHeight: 1.8 }}>
+              <li>Your deposit transaction</li>
+              <li>That you sent to a NEAR Intents address</li>
+              <li>The token type and amount you deposited</li>
+            </ul>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
+            <div style={{ color: colors.primary, fontWeight: 600, marginBottom: "12px", fontSize: "11px", letterSpacing: "1px" }}>PRIVATE (ZCASH SHIELDED)</div>
+            <ul style={{ color: colors.muted, fontSize: "13px", margin: 0, paddingLeft: "16px", lineHeight: 1.8 }}>
+              <li>Who receives the ZEC</li>
+              <li>The final tip amount</li>
+              <li>Any link between you and the creator</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Send a Private Message */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          SEND A PRIVATE MESSAGE
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Attach a message to your tip. Only the creator can read it.
+        </p>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "24px" }}>
+          <div style={{ display: "grid", gap: "16px", fontSize: "13px" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>280 characters max</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Short messages only—like a tweet.</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>End-to-end encrypted</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>RSA-4096 + AES-256-GCM. Our server cannot read your message.</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>One-way only</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Creators cannot reply. This preserves your anonymity.</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>Requires extension</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Creators need the TIPZ browser extension to decrypt messages.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          QUESTIONS
+        </h2>
+
+        <div style={{ display: "grid", gap: "16px" }}>
+          {[
+            { q: "How long does delivery take?", a: "5-10 minutes after your wallet confirms. You can close the page—we track it for you." },
+            { q: "What if the swap fails?", a: "Rare, but handled. Your original funds auto-return to your wallet within minutes." },
+            { q: "Are there fees?", a: "Zero platform fees. Network gas (~$0.01-0.50) is included in your quote. Creators receive 100%." },
+            { q: "Do I need a Zcash wallet to tip?", a: "No. Use your existing ETH/SOL/USDC wallet. Only creators need Zcash." },
+          ].map((faq, i) => (
+            <div key={i} style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px 24px", borderRadius: "4px" }}>
+              <div style={{ color: colors.textBright, fontWeight: 600, fontSize: "14px", marginBottom: "8px" }}>{faq.q}</div>
+              <p style={{ color: colors.muted, fontSize: "13px", margin: 0, lineHeight: 1.6 }}>{faq.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+// ============================================
+// TAB CONTENT: FOR CREATORS
+// ============================================
+function CreatorsTab() {
+  return (
+    <>
+      {/* Get Started */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          GET STARTED IN 2 MINUTES
+        </h2>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "32px", marginBottom: "32px", borderRadius: "4px" }}>
+          <StepList
+            steps={[
+              { num: "01", title: "Get a Zcash wallet", desc: "Download Zashi (iOS/Android). Free. Takes 30 seconds. Create wallet, backup seed phrase." },
+              { num: "02", title: "Register at tipz.cash/register", desc: "Enter your X handle and paste your shielded address (starts with u1... or zs1...)." },
+              { num: "03", title: "Verify via tweet", desc: "Post a verification tweet. We'll confirm automatically." },
+              { num: "04", title: "Share your link", desc: "Your tip page is live at tipz.cash/yourhandle. Add it to your bio." },
+            ]}
+          />
+        </div>
+
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+          <a href="https://electriccoin.co/zashi/" target="_blank" rel="noopener noreferrer" style={{ padding: "12px 20px", backgroundColor: colors.surface, border: `1px solid ${colors.border}`, borderRadius: "4px", color: colors.text, textDecoration: "none", fontSize: "13px" }}>
+            Download Zashi
+          </a>
+          <Link href="/register" style={{ padding: "12px 20px", backgroundColor: colors.primary, borderRadius: "4px", color: colors.bg, textDecoration: "none", fontSize: "13px", fontWeight: 600 }}>
+            Register Now →
+          </Link>
+        </div>
+      </section>
+
+      {/* What You Receive */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          WHAT YOU RECEIVE
+        </h2>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+          {[
+            { title: "Shielded ZEC", desc: "Encrypted on-chain. Only you hold the viewing key." },
+            { title: "Zero Platform Fees", desc: "100% of tip value. Compare: Patreon 5-12%, Ko-fi 5%." },
+            { title: "Self-Custody", desc: "You hold the keys. No middleman. No withdrawal requests." },
+          ].map((item) => (
+            <div key={item.title} style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+              <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>{item.title}</div>
+              <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Browser Extension */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          BROWSER EXTENSION
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          The TIPZ extension unlocks real-time notifications, encrypted messages, and image stamping.
+        </p>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "32px" }}>
+          <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", letterSpacing: "1px" }}>FEATURES</div>
+          <div style={{ display: "grid", gap: "12px", fontSize: "13px" }}>
+            {[
+              { title: "Real-time notifications", desc: "Instant alerts when tips arrive. Never miss a supporter." },
+              { title: "Encrypted messages", desc: "Read private messages from tippers. Decrypted locally." },
+              { title: "Revenue dashboard", desc: "Track earnings and activity at a glance." },
+              { title: "Image stamping", desc: "Overlay your tip URL on images before sharing." },
+            ].map((item) => (
+              <div key={item.title} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                <span style={{ color: colors.primary }}>→</span>
+                <div>
+                  <span style={{ fontWeight: 600, color: colors.textBright }}>{item.title}</span>
+                  <p style={{ color: colors.muted, margin: "2px 0 0", fontSize: "12px" }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
+          <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "12px", letterSpacing: "1px" }}>HOW TO LINK</div>
+          <ol style={{ color: colors.muted, fontSize: "13px", margin: 0, paddingLeft: "20px", lineHeight: 1.8 }}>
+            <li>Install the TIPZ extension from Chrome Web Store</li>
+            <li>Visit <span style={{ color: colors.primary }}>tipz.cash</span> while logged in</li>
+            <li>Extension auto-detects your identity from localStorage</li>
+            <li>Done—dashboard shows your handle and connection status</li>
+          </ol>
+        </div>
+      </section>
+
+      {/* Image Stamping */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          IMAGE STAMPING
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Add your tip URL to images before sharing. Works with screenshots, memes, artwork—anything.
+        </p>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
+          <StepList
+            steps={[
+              { num: "01", title: "Open extension popup", desc: "Click the TIPZ icon in your browser toolbar." },
+              { num: "02", title: 'Click "Stamp"', desc: "Opens the image stamping tool." },
+              { num: "03", title: "Paste or upload image", desc: "Ctrl+V to paste from clipboard, or click to upload." },
+              { num: "04", title: "Copy stamped image", desc: "Your tip URL is overlaid in the corner. Copy and paste directly into X." },
+            ]}
+          />
+        </div>
+      </section>
+
+      {/* Notifications */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          NOTIFICATIONS
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Know instantly when tips arrive. Two delivery methods for reliability.
+        </p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "32px" }}>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "11px", letterSpacing: "1px" }}>PRIMARY: WEBSOCKET</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>Real-time via Supabase. Instant push when a tip hits the database.</p>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "11px", letterSpacing: "1px" }}>FALLBACK: POLLING</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>If WebSocket disconnects, polls every 30 seconds automatically.</p>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", marginBottom: "32px" }}>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "16px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "4px", fontSize: "13px" }}>Chrome Notifications</div>
+            <p style={{ color: colors.muted, fontSize: "11px", margin: 0 }}>Native OS alerts, even when browser is minimized.</p>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "16px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "4px", fontSize: "13px" }}>In-Page Popups</div>
+            <p style={{ color: colors.muted, fontSize: "11px", margin: 0 }}>Toast notifications on any webpage you&apos;re viewing.</p>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "16px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "4px", fontSize: "13px" }}>Badge Count</div>
+            <p style={{ color: colors.muted, fontSize: "11px", margin: 0 }}>Badge on extension icon shows unread tips.</p>
+          </div>
+        </div>
+
+        <Callout>
+          Direct ZEC tips have no notification. If someone sends ZEC directly to your shielded address (without using tipz.cash), we cannot notify you. The tip still arrives—we just don&apos;t know about it. Check your Zcash wallet periodically.
+        </Callout>
+      </section>
+
+      {/* Private Messages */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          PRIVATE MESSAGES
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Supporters can attach encrypted messages to tips. Here&apos;s how it works.
+        </p>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "32px" }}>
+          <div style={{ display: "grid", gap: "16px", fontSize: "13px" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>End-to-end encrypted</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>RSA-OAEP 4096-bit + AES-256-GCM. Industry-standard hybrid encryption.</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>Your private key never leaves your device</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Generated and stored locally in the browser extension.</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>Blind relay</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Our server passes encrypted blobs—we cannot read message content.</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>One-way only</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>You cannot reply—by design. Protects tipper anonymity.</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>280 characters max</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Short messages only. Prevents spam, keeps it personal.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Callout>
+          You need the TIPZ browser extension to decrypt messages. Without it, encrypted blobs are stored but unreadable.
+        </Callout>
+      </section>
+    </>
+  );
+}
+
+// ============================================
+// TAB CONTENT: TECHNICAL
+// ============================================
+function TechnicalTab() {
+  return (
+    <>
+      {/* No Smart Contracts */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          NO SMART CONTRACTS
+        </h2>
+
+        <Callout>
+          TIPZ deploys ZERO smart contracts. We&apos;re a routing layer, not a custody solution. Your funds flow directly from your wallet to the creator&apos;s shielded address via NEAR Intents market makers.
+        </Callout>
+
+        <CodeBlock>{`Flow:
+Your Wallet → NEAR Intents Deposit Address → Market Maker → Creator's ZEC
+
+No TIPZ-owned contracts in the path.
+No locked funds. No governance tokens. No DeFi complexity.`}</CodeBlock>
+      </section>
+
+      {/* NEAR Intents */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          NEAR INTENTS
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Intent-based cross-chain swaps. Express what you want, let solvers compete for the best execution.
+        </p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "24px" }}>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>1Click API</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>Single integration handles all chains. Deposit, swap, deliver.</p>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>Solver Competition</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>Market makers compete for each swap. Best rate wins.</p>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>Atomic Execution</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>Swap completes fully or reverts. No partial fills.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Supported Tokens */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          SUPPORTED TOKENS
+        </h2>
+
+        <CodeBlock>{`EVM CHAINS
+├── Ethereum: ETH, USDC, USDT
+├── Polygon: MATIC, USDC, USDT
+├── Arbitrum: ETH, USDC, USDT
+└── Optimism: ETH, USDC, USDT
+
+SOLANA
+└── SOL (via Phantom)
+
+OUTPUT
+└── ZEC (shielded)`}</CodeBlock>
+
+        <p style={{ color: colors.muted, fontSize: "12px", marginTop: "16px" }}>
+          * Token availability depends on solver liquidity at time of swap
+        </p>
+      </section>
+
+      {/* Transaction Lifecycle */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          TRANSACTION LIFECYCLE
+        </h2>
+
+        <div style={{ fontSize: "12px" }}>
+          {[
+            { state: "PENDING_DEPOSIT", userText: "Waiting for your deposit", desc: "Your wallet signature sent. Funds transferring to solver." },
+            { state: "PROCESSING", userText: "Routing funds", desc: "Market makers competing to fulfill. Cross-chain swap in progress." },
+            { state: "SUCCESS", userText: "Delivered", desc: "Shielded ZEC in creator's wallet. Transaction complete." },
+            { state: "REFUNDED", userText: "Returned to you", desc: "Swap couldn't complete. Original funds sent back to your wallet." },
+          ].map((item, i) => (
+            <div
+              key={item.state}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "16px",
+                padding: "16px",
+                backgroundColor: colors.surface,
+                border: `1px solid ${colors.border}`,
+                borderBottom: i < 3 ? "none" : undefined,
+                borderRadius: i === 0 ? "4px 4px 0 0" : i === 3 ? "0 0 4px 4px" : undefined,
+              }}
+            >
+              <span style={{ color: colors.muted, fontWeight: 600, minWidth: "140px", fontSize: "11px", fontFamily: "monospace" }}>
+                {item.state}
+              </span>
+              <div>
+                <div style={{ color: colors.textBright, marginBottom: "4px" }}>{item.userText}</div>
+                <div style={{ color: colors.muted, fontSize: "11px" }}>{item.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: "20px", padding: "16px", backgroundColor: colors.surface, border: `1px solid ${colors.border}`, borderRadius: "4px" }}>
+          <div style={{ color: colors.textBright, fontSize: "12px", fontWeight: 600, marginBottom: "8px" }}>What if I close the page?</div>
+          <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>
+            No problem. The swap continues in the background. If it fails, your funds auto-refund. We store a notification and you&apos;ll see it next time you visit TIPZ.
+          </p>
+        </div>
+      </section>
+
+      {/* Shielded Addresses */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          SHIELDED ADDRESSES
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          TIPZ supports Zcash shielded addresses for private delivery.
+        </p>
+
+        <div style={{ backgroundColor: colors.bg, padding: "20px", fontFamily: "monospace", fontSize: "12px", marginBottom: "16px", border: `1px solid ${colors.border}`, borderRadius: "4px" }}>
+          <div style={{ marginBottom: "16px" }}>
+            <span style={{ color: colors.primary, fontWeight: 600 }}>Unified (u1...):</span>
+            <span style={{ color: colors.muted, marginLeft: "8px", fontSize: "11px" }}>Recommended</span>
+          </div>
+          <code style={{ color: colors.muted, wordBreak: "break-all", display: "block", marginBottom: "16px" }}>
+            u1rl42v9...
+          </code>
+
+          <div style={{ marginBottom: "8px" }}>
+            <span style={{ color: colors.muted }}>Sapling (zs...):</span>
+            <span style={{ color: colors.muted, marginLeft: "8px", fontSize: "11px" }}>Legacy, still supported</span>
+          </div>
+          <code style={{ color: colors.muted, wordBreak: "break-all" }}>
+            zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly
+          </code>
+          <div style={{ marginTop: "8px", color: colors.muted }}>78 characters, Base58 encoded</div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px" }}>
+          {[
+            { name: "Zashi", note: "Recommended", url: "https://electriccoin.co/zashi/" },
+            { name: "YWallet", note: "Multi-coin", url: "https://ywallet.app/" },
+            { name: "Nighthawk", note: "Privacy-focused", url: "https://nighthawkwallet.com/" },
+          ].map((wallet) => (
+            <a key={wallet.name} href={wallet.url} target="_blank" rel="noopener noreferrer" style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "16px", borderRadius: "4px", textDecoration: "none" }}>
+              <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "4px" }}>{wallet.name}</div>
+              <div style={{ color: colors.muted, fontSize: "11px" }}>{wallet.note}</div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* Encryption Spec */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          ENCRYPTION SPEC
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Private messages use hybrid encryption. Technical details for auditors and security researchers.
+        </p>
+
+        <CodeBlock>{`HYBRID ENCRYPTION SCHEME
+
+Asymmetric Layer:
+├── Algorithm: RSA-OAEP
+├── Key Size: 4096-bit
+├── Hash: SHA-256
+└── Security Level: ~128-bit
+
+Symmetric Layer:
+├── Algorithm: AES-256-GCM
+├── Key: Random 256-bit per message
+├── Nonce: Random 96-bit per message
+└── Authentication: Built into GCM mode
+
+Key Management:
+├── Public key: Uploaded to TIPZ server on extension install
+├── Private key: Stored locally in chrome.storage.local
+├── Optional: Password protection via PBKDF2 (100k iterations)
+└── Key never leaves device in plaintext`}</CodeBlock>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+          <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "12px", fontSize: "12px" }}>Message Flow</div>
+          <ol style={{ color: colors.muted, fontSize: "12px", margin: 0, paddingLeft: "20px", lineHeight: 1.8 }}>
+            <li>Tipper generates random AES-256 key</li>
+            <li>Message encrypted with AES-GCM</li>
+            <li>AES key encrypted with creator&apos;s RSA public key</li>
+            <li>Encrypted bundle (key + nonce + ciphertext) sent to server</li>
+            <li>Server relays blob to creator via WebSocket</li>
+            <li>Extension decrypts AES key with local RSA private key</li>
+            <li>Message decrypted with AES key</li>
+          </ol>
+        </div>
+      </section>
+
+      {/* Privacy Guarantees */}
+      <CollapsibleSection title="Privacy Guarantees">
+        <div style={{ paddingTop: "16px" }}>
+          <div style={{ display: "grid", gap: "16px", fontSize: "13px" }}>
+            {[
+              { title: "Sender privacy", desc: "Tipper's identity is not linked to the final shielded transaction" },
+              { title: "Receiver privacy", desc: "Creator's shielded address is not visible on transparent chains" },
+              { title: "Amount privacy", desc: "Final tip amount is encrypted. Only the creator can see it." },
+            ].map((item) => (
+              <div key={item.title} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                <span style={{ color: colors.primary }}>→</span>
+                <div>
+                  <span style={{ fontWeight: 600, color: colors.textBright }}>{item.title}</span>
+                  <p style={{ color: colors.muted, margin: "4px 0 0" }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", borderTop: `1px solid ${colors.border}`, paddingTop: "16px", marginTop: "4px" }}>
+              <span style={{ color: colors.muted }}>!</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.text }}>Initial deposit is visible</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>
+                  Your wallet&apos;s deposit transaction is visible on the source chain (Ethereum, Solana, etc). Privacy starts after the funds enter the Zcash shielded pool.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CollapsibleSection>
+    </>
+  );
+}
+
+// ============================================
+// MAIN PAGE
+// ============================================
 export default function DocsPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabId>("tippers");
+
+  // Handle URL hash for deep-linking
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "") as TabId;
+      if (["tippers", "creators", "technical"].includes(hash)) {
+        setActiveTab(hash);
+      }
+    };
+
+    // Check on mount
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  // Update URL hash when tab changes
+  const handleTabChange = (tab: TabId) => {
+    setActiveTab(tab);
+    window.history.replaceState(null, "", `#${tab}`);
+  };
 
   return (
     <div
@@ -138,18 +925,14 @@ export default function DocsPage() {
       <header style={{ position: "fixed", top: 0, left: 0, right: 0, borderBottom: `1px solid ${colors.border}`, backgroundColor: `${colors.bg}f0`, backdropFilter: "blur(12px)", zIndex: 100 }}>
         <div className="header-inner" style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
-            <span style={{ color: colors.primary, fontWeight: 700, fontSize: "18px", textShadow: `0 0 20px ${colors.primaryGlow}` }}>[TIPZ]</span>
+            <span style={{ color: colors.primary, fontWeight: 700, fontSize: "18px" }}>[TIPZ]</span>
             <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px", padding: "2px 6px", border: `1px solid ${colors.border}`, borderRadius: "2px" }}>BETA</span>
           </Link>
           <nav className="desktop-nav" style={{ gap: "32px", alignItems: "center" }}>
             <Link href="/creators" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>CREATORS</Link>
             <Link href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MANIFESTO</Link>
-            <span style={{ color: colors.primary, fontSize: "11px", fontWeight: 600, letterSpacing: "1px", textShadow: `0 0 10px ${colors.primaryGlow}` }}>DOCS</span>
-            <Link href="/register" className="cta-primary" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`, color: colors.bg, textDecoration: "none", fontSize: "11px", letterSpacing: "0.5px", fontWeight: 600, padding: "8px 14px", borderRadius: "8px", fontFamily: "'JetBrains Mono', monospace", boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)` }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                <path d="M9 12l2 2 4-4" />
-              </svg>
+            <span style={{ color: colors.primary, fontSize: "11px", fontWeight: 600, letterSpacing: "1px" }}>DOCS</span>
+            <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", backgroundColor: colors.primary, color: colors.bg, textDecoration: "none", fontSize: "11px", letterSpacing: "0.5px", fontWeight: 600, padding: "8px 14px", borderRadius: "4px", fontFamily: "'JetBrains Mono', monospace" }}>
               Claim Your Tipz ID
             </Link>
           </nav>
@@ -173,11 +956,7 @@ export default function DocsPage() {
             <Link href="/creators" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>CREATORS</Link>
             <Link href="/manifesto" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MANIFESTO</Link>
             <span style={{ display: "block", padding: "16px 0", color: colors.primary, fontSize: "14px", letterSpacing: "1px", fontWeight: 600, borderBottom: `1px solid ${colors.border}` }}>DOCS</span>
-            <Link href="/register" onClick={() => setMobileMenuOpen(false)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "16px", padding: "16px", background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`, color: colors.bg, textDecoration: "none", fontSize: "14px", letterSpacing: "0.5px", fontWeight: 600, borderRadius: "8px", fontFamily: "'JetBrains Mono', monospace", boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)` }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                <path d="M9 12l2 2 4-4" />
-              </svg>
+            <Link href="/register" onClick={() => setMobileMenuOpen(false)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "16px", padding: "16px", backgroundColor: colors.primary, color: colors.bg, textDecoration: "none", fontSize: "14px", letterSpacing: "0.5px", fontWeight: 600, borderRadius: "4px", fontFamily: "'JetBrains Mono', monospace" }}>
               Claim Your Tipz ID
             </Link>
           </div>
@@ -187,833 +966,24 @@ export default function DocsPage() {
       {/* Main content */}
       <main style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 24px 64px" }}>
         <div style={{ marginBottom: "64px" }}>
-          <div
-            style={{
-              fontSize: "11px",
-              color: colors.muted,
-              letterSpacing: "2px",
-              marginBottom: "16px",
-            }}
-          >
-            // TECHNICAL_DOCUMENTATION
+          <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "2px", marginBottom: "16px" }}>
+            // DOCUMENTATION
           </div>
-          <h1
-            style={{
-              fontSize: "44px",
-              fontWeight: 700,
-              marginBottom: "16px",
-              lineHeight: 1.2,
-              textShadow: `0 0 40px ${colors.primaryGlow}`,
-            }}
-          >
+          <h1 style={{ fontSize: "36px", fontWeight: 700, marginBottom: "16px", lineHeight: 1.2, color: colors.textBright }}>
             How TIPZ Works
           </h1>
-          <p
-            style={{
-              color: colors.muted,
-              fontSize: "16px",
-              lineHeight: 1.6,
-            }}
-          >
+          <p style={{ color: colors.muted, fontSize: "14px", lineHeight: 1.6 }}>
             Send a tip in 30 seconds. Any token. Private delivery.
           </p>
         </div>
 
-        {/* 01 // THE TIP - Tipper's 60-Second Journey */}
-        <section style={{ marginBottom: "64px" }}>
-          <h2
-            style={{
-              fontSize: "14px",
-              color: colors.primary,
-              letterSpacing: "2px",
-              marginBottom: "24px",
-              textShadow: `0 0 10px ${colors.primaryGlow}`,
-            }}
-          >
-            01 // THE_TIP
-          </h2>
+        {/* Tab Navigation */}
+        <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
-          <p style={{ color: colors.text, fontSize: "14px", marginBottom: "24px", lineHeight: 1.7 }}>
-            Tipping takes less than a minute. No account needed. Just a wallet.
-          </p>
-
-          <div
-            style={{
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.border}`,
-              padding: "32px",
-              marginBottom: "24px",
-              borderRadius: "4px",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            {/* Accent line */}
-            <div style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "2px",
-              background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-            }} />
-
-            <div style={{ display: "grid", gap: "32px" }}>
-              {[
-                {
-                  num: "01",
-                  title: "Connect wallet",
-                  timing: "~5 seconds",
-                  desc: "MetaMask, Rabby, Coinbase Wallet, or Phantom. One click. No signup.",
-                  color: colors.primary
-                },
-                {
-                  num: "02",
-                  title: "Pick your amount",
-                  timing: "~10 seconds",
-                  desc: "$1, $5, $10, $25—or custom. See exactly how much ZEC the creator will receive.",
-                  color: colors.primary
-                },
-                {
-                  num: "03",
-                  title: "Confirm in wallet",
-                  timing: "~15 seconds",
-                  desc: "One signature. Success screen appears immediately after confirmation.",
-                  color: colors.primary
-                },
-                {
-                  num: "04",
-                  title: "Done. Close the page.",
-                  timing: "5-10 min delivery",
-                  desc: "That's it. We handle the cross-chain swap in the background. You'll only hear from us if something fails.",
-                  color: colors.success
-                },
-              ].map((step) => (
-                <div key={step.num}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "8px" }}>
-                    <span style={{
-                      color: step.color,
-                      fontSize: "24px",
-                      fontWeight: 700,
-                      textShadow: `0 0 15px ${step.color === colors.success ? colors.successGlow : colors.primaryGlow}`,
-                    }}>
-                      {step.num}
-                    </span>
-                    <span style={{ fontWeight: 600, color: step.color === colors.success ? colors.success : colors.textBright }}>
-                      {step.title}
-                    </span>
-                    <span style={{
-                      color: colors.muted,
-                      fontSize: "11px",
-                      padding: "2px 8px",
-                      border: `1px solid ${colors.border}`,
-                      borderRadius: "2px",
-                      marginLeft: "auto",
-                    }}>
-                      {step.timing}
-                    </span>
-                  </div>
-                  <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginLeft: "56px" }}>
-                    {step.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Visual flow - enhanced */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "12px",
-              padding: "32px",
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.border}`,
-              fontSize: "12px",
-              flexWrap: "wrap",
-              borderRadius: "4px",
-              position: "relative",
-            }}
-          >
-            <span style={{ color: colors.text }}>ETH/USDC/SOL</span>
-            <span style={{ color: colors.primary, fontSize: "18px" }}>→</span>
-            <span
-              style={{
-                padding: "8px 16px",
-                border: `2px solid ${colors.primary}`,
-                color: colors.primary,
-                fontWeight: 600,
-                boxShadow: `0 0 15px ${colors.primaryGlow}`,
-              }}
-            >
-              NEAR INTENTS
-            </span>
-            <span style={{ color: colors.primary, fontSize: "18px" }}>→</span>
-            <span
-              style={{
-                padding: "8px 16px",
-                border: `2px solid ${colors.success}`,
-                color: colors.success,
-                fontWeight: 600,
-                boxShadow: `0 0 15px ${colors.successGlow}`,
-              }}
-            >
-              SHIELDED ZEC
-            </span>
-            <span style={{ color: colors.success, fontSize: "18px" }}>→</span>
-            <span style={{ color: colors.success, fontWeight: 600 }}>Creator Wallet ✓</span>
-          </div>
-        </section>
-
-        {/* 02 // NO WALLET - Exchange Flow */}
-        <section style={{ marginBottom: "64px" }}>
-          <h2
-            style={{
-              fontSize: "14px",
-              color: colors.primary,
-              letterSpacing: "2px",
-              marginBottom: "24px",
-              textShadow: `0 0 10px ${colors.primaryGlow}`,
-            }}
-          >
-            02 // NO_WALLET
-          </h2>
-
-          <p style={{ color: colors.text, fontSize: "14px", marginBottom: "24px", lineHeight: 1.7 }}>
-            No MetaMask? No problem. Tip directly from your exchange account.
-          </p>
-
-          <div
-            style={{
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.border}`,
-              padding: "32px",
-              marginBottom: "24px",
-              borderRadius: "4px",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <div style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "2px",
-              background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-            }} />
-
-            <div style={{ display: "grid", gap: "24px" }}>
-              {[
-                {
-                  num: "01",
-                  title: "Click \"Pay with Exchange\"",
-                  desc: "On any creator's tip page, choose this option instead of connecting a wallet.",
-                },
-                {
-                  num: "02",
-                  title: "Log into your exchange",
-                  desc: "Coinbase, Kraken, Binance, or 300+ others. Mesh handles the secure connection.",
-                },
-                {
-                  num: "03",
-                  title: "Confirm and send",
-                  desc: "Approve the withdrawal. Your tip arrives as shielded ZEC—same privacy, no wallet needed.",
-                },
-              ].map((step) => (
-                <div key={step.num}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "8px" }}>
-                    <span style={{
-                      color: colors.primary,
-                      fontSize: "24px",
-                      fontWeight: 700,
-                      textShadow: `0 0 15px ${colors.primaryGlow}`,
-                    }}>
-                      {step.num}
-                    </span>
-                    <span style={{ fontWeight: 600, color: colors.textBright }}>
-                      {step.title}
-                    </span>
-                  </div>
-                  <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginLeft: "56px" }}>
-                    {step.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* How it works diagram */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "12px",
-              padding: "32px",
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.border}`,
-              fontSize: "12px",
-              flexWrap: "wrap",
-              borderRadius: "4px",
-              marginBottom: "24px",
-            }}
-          >
-            <span style={{ color: colors.text }}>Exchange</span>
-            <span style={{ color: colors.primary, fontSize: "18px" }}>→</span>
-            <span
-              style={{
-                padding: "8px 16px",
-                border: `2px solid ${colors.primary}`,
-                color: colors.primary,
-                fontWeight: 600,
-              }}
-            >
-              MESH
-            </span>
-            <span style={{ color: colors.primary, fontSize: "18px" }}>→</span>
-            <span
-              style={{
-                padding: "8px 16px",
-                border: `2px solid ${colors.primary}`,
-                color: colors.primary,
-                fontWeight: 600,
-                boxShadow: `0 0 15px ${colors.primaryGlow}`,
-              }}
-            >
-              NEAR INTENTS
-            </span>
-            <span style={{ color: colors.primary, fontSize: "18px" }}>→</span>
-            <span
-              style={{
-                padding: "8px 16px",
-                border: `2px solid ${colors.success}`,
-                color: colors.success,
-                fontWeight: 600,
-                boxShadow: `0 0 15px ${colors.successGlow}`,
-              }}
-            >
-              SHIELDED ZEC
-            </span>
-          </div>
-
-          {/* Supported exchanges */}
-          <div
-            style={{
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.border}`,
-              padding: "24px",
-              borderRadius: "4px",
-            }}
-          >
-            <div style={{ fontSize: "12px", color: colors.textBright, marginBottom: "12px", fontWeight: 600 }}>
-              Supported Exchanges
-            </div>
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
-              {["Coinbase", "Kraken", "Binance", "Gemini", "Crypto.com"].map((exchange) => (
-                <span
-                  key={exchange}
-                  style={{
-                    padding: "6px 12px",
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`,
-                    borderRadius: "4px",
-                    fontSize: "12px",
-                    color: colors.text,
-                  }}
-                >
-                  {exchange}
-                </span>
-              ))}
-              <span
-                style={{
-                  padding: "6px 12px",
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.primary}`,
-                  borderRadius: "4px",
-                  fontSize: "12px",
-                  color: colors.primary,
-                }}
-              >
-                + 300 more via Mesh
-              </span>
-            </div>
-            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>
-              <a href="https://www.meshconnect.com/" target="_blank" rel="noopener noreferrer" style={{ color: colors.primary }}>Mesh Connect</a> securely links to your exchange via OAuth. TIPZ never sees your login credentials.
-            </p>
-          </div>
-        </section>
-
-        {/* 03 // THE DELIVERY - Creator Experience */}
-        <section style={{ marginBottom: "64px" }}>
-          <h2
-            style={{
-              fontSize: "14px",
-              color: colors.primary,
-              letterSpacing: "2px",
-              marginBottom: "24px",
-              textShadow: `0 0 10px ${colors.primaryGlow}`,
-            }}
-          >
-            03 // THE_DELIVERY
-          </h2>
-
-          <p style={{ color: colors.text, fontSize: "14px", marginBottom: "24px", lineHeight: 1.7 }}>
-            What creators receive. No intermediaries. No platform fees.
-          </p>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
-            <div
-              className="card-hover"
-              style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.success}`,
-                padding: "28px",
-                borderRadius: "4px",
-                position: "relative",
-                overflow: "hidden",
-                boxShadow: `0 0 30px ${colors.successGlow}`,
-              }}
-            >
-              <div style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "3px",
-                height: "100%",
-                backgroundColor: colors.success,
-              }} />
-              <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "12px", color: colors.success }}>
-                Shielded ZEC
-              </h3>
-              <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginBottom: "16px" }}>
-                Tips arrive as encrypted Zcash. Only you hold the viewing key.
-              </p>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: "12px", color: colors.muted }}>
-                <li style={{ marginBottom: "8px" }}><span style={{ color: colors.success }}>→</span> 5-10 minute delivery</li>
-                <li style={{ marginBottom: "8px" }}><span style={{ color: colors.success }}>→</span> No sender info on-chain</li>
-                <li><span style={{ color: colors.success }}>→</span> Self-custody—you hold the keys</li>
-              </ul>
-            </div>
-
-            <div
-              className="card-hover"
-              style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.primary}`,
-                padding: "28px",
-                borderRadius: "4px",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              <div style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "3px",
-                height: "100%",
-                backgroundColor: colors.primary,
-                opacity: 0.5,
-              }} />
-              <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "12px", color: colors.textBright }}>
-                Zero Platform Fees
-              </h3>
-              <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginBottom: "16px" }}>
-                100% of the tip value reaches you. We don&apos;t take a cut.
-              </p>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: "12px", color: colors.muted }}>
-                <li style={{ marginBottom: "8px" }}><span style={{ color: colors.primary }}>→</span> Network gas: ~$0.01-0.50 (tipper pays)</li>
-                <li style={{ marginBottom: "8px" }}><span style={{ color: colors.primary }}>→</span> Compare: Patreon 5-12%</li>
-                <li><span style={{ color: colors.primary }}>→</span> Compare: Ko-fi 5%</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* POWERED BY */}
-        <section style={{ marginBottom: "64px" }}>
-          <h2
-            style={{
-              fontSize: "14px",
-              color: colors.primary,
-              letterSpacing: "2px",
-              marginBottom: "24px",
-              textShadow: `0 0 10px ${colors.primaryGlow}`,
-            }}
-          >
-            04 // POWERED_BY
-          </h2>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-            <div
-              className="card-hover"
-              style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`,
-                padding: "28px",
-                borderRadius: "4px",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              <div style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "3px",
-                height: "100%",
-                backgroundColor: colors.primary,
-                opacity: 0.5,
-              }} />
-              <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "12px", color: colors.textBright }}>
-                NEAR Intents
-              </h3>
-              <p style={{ color: colors.textBright, fontSize: "14px", lineHeight: 1.6, marginBottom: "12px" }}>
-                Any Token → ZEC, Automatically
-              </p>
-              <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginBottom: "16px" }}>
-                You send ETH or SOL. Market makers compete for the best rate. No bridges. No DEX routing. Just results.
-              </p>
-              <div className="intents-checklist" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {[
-                  { label: "ROUTING", delay: "0s" },
-                  { label: "BRIDGING", delay: "0.4s" },
-                  { label: "SHIELDING", delay: "0.8s" },
-                ].map((item) => (
-                  <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <svg
-                      className="check-icon"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      style={{ animationDelay: item.delay }}
-                    >
-                      <circle cx="12" cy="12" r="10" stroke={colors.border} strokeWidth="2" />
-                      <path
-                        className="check-path"
-                        d="M8 12l3 3 5-6"
-                        stroke={colors.primary}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{ animationDelay: item.delay }}
-                      />
-                    </svg>
-                    <span style={{ fontSize: "12px", fontWeight: 600, color: colors.text, letterSpacing: "1px" }}>
-                      {item.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div
-              className="card-hover"
-              style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.success}`,
-                padding: "28px",
-                borderRadius: "4px",
-                position: "relative",
-                overflow: "hidden",
-                boxShadow: `0 0 30px ${colors.successGlow}`,
-              }}
-            >
-              <div style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "3px",
-                height: "100%",
-                backgroundColor: colors.success,
-              }} />
-              <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "12px", color: colors.success }}>
-                Zcash Shielded
-              </h3>
-              <p style={{ color: colors.textBright, fontSize: "14px", lineHeight: 1.6, marginBottom: "12px" }}>
-                The Tip Becomes Invisible
-              </p>
-              <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginBottom: "16px" }}>
-                Once converted to ZEC, the transaction is encrypted on-chain. Not hidden—encrypted. Only the creator holds the viewing key.
-              </p>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: "12px", color: colors.muted }}>
-                <li style={{ marginBottom: "8px" }}><span style={{ color: colors.success }}>→</span> Zero-knowledge proofs</li>
-                <li style={{ marginBottom: "8px" }}><span style={{ color: colors.success }}>→</span> Sender, receiver, amount: all encrypted</li>
-                <li><span style={{ color: colors.success }}>→</span> Self-sovereign privacy</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* TECHNICAL SPECS */}
-        <section style={{ marginBottom: "64px" }}>
-          <h2
-            style={{
-              fontSize: "14px",
-              color: colors.primary,
-              letterSpacing: "2px",
-              marginBottom: "24px",
-              textShadow: `0 0 10px ${colors.primaryGlow}`,
-            }}
-          >
-            05 // TECHNICAL_SPECS
-          </h2>
-
-          <CollapsibleSection title="Supported Tokens" defaultOpen>
-            <div style={{ paddingTop: "16px" }}>
-              <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginBottom: "16px" }}>
-                Send tips with these tokens. NEAR Intents handles the conversion.
-              </p>
-
-              <div style={{ marginBottom: "20px" }}>
-                <div style={{ fontSize: "12px", color: colors.textBright, marginBottom: "8px", fontWeight: 600 }}>EVM Chains</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", fontSize: "12px" }}>
-                  {[
-                    { token: "ETH", chains: "Ethereum, Arbitrum, Optimism" },
-                    { token: "USDC", chains: "Ethereum, Polygon, Arbitrum, Optimism" },
-                    { token: "USDT", chains: "Ethereum, Arbitrum, Optimism, Polygon" },
-                  ].map((item) => (
-                    <div
-                      key={item.token}
-                      style={{
-                        padding: "12px",
-                        backgroundColor: colors.bg,
-                        border: `1px solid ${colors.border}`,
-                        borderRadius: "4px",
-                      }}
-                    >
-                      <div style={{ fontWeight: 600, marginBottom: "4px" }}>{item.token}</div>
-                      <div style={{ fontSize: "10px", color: colors.muted }}>{item.chains}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "16px" }}>
-                <div style={{ fontSize: "12px", color: colors.textBright, marginBottom: "8px", fontWeight: 600 }}>Solana</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", fontSize: "12px" }}>
-                  <div
-                    style={{
-                      padding: "12px",
-                      backgroundColor: colors.bg,
-                      border: `1px solid ${colors.border}`,
-                      borderRadius: "4px",
-                    }}
-                  >
-                    <div style={{ fontWeight: 600, marginBottom: "4px" }}>SOL</div>
-                    <div style={{ fontSize: "10px", color: colors.muted }}>Solana Mainnet</div>
-                  </div>
-                </div>
-              </div>
-
-              <p style={{ color: colors.muted, fontSize: "11px" }}>
-                * Token availability depends on solver liquidity at time of swap
-              </p>
-            </div>
-          </CollapsibleSection>
-
-          <CollapsibleSection title="Shielded Address Formats">
-            <div style={{ paddingTop: "16px" }}>
-              <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginBottom: "16px" }}>
-                TIPZ supports Zcash shielded addresses for private delivery:
-              </p>
-
-              <div
-                style={{
-                  backgroundColor: colors.bg,
-                  padding: "20px",
-                  fontFamily: "monospace",
-                  fontSize: "12px",
-                  marginBottom: "12px",
-                  border: `1px solid ${colors.success}`,
-                  borderRadius: "4px",
-                }}
-              >
-                <div style={{ marginBottom: "16px" }}>
-                  <span style={{ color: colors.success, fontWeight: 600 }}>Unified (u1...):</span>
-                  <span style={{ color: colors.muted, marginLeft: "8px", fontSize: "11px" }}>Recommended</span>
-                </div>
-                <code style={{ color: colors.text, wordBreak: "break-all", display: "block", marginBottom: "16px" }}>
-                  u1rl42v9...
-                </code>
-
-                <div style={{ marginBottom: "8px" }}>
-                  <span style={{ color: colors.primary }}>Sapling (zs...):</span>
-                </div>
-                <code style={{ color: colors.text, wordBreak: "break-all" }}>
-                  zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly
-                </code>
-                <div style={{ marginTop: "8px", color: colors.muted }}>78 characters, Base58 encoded</div>
-              </div>
-
-              <p style={{ color: colors.muted, fontSize: "12px", marginBottom: "8px", fontWeight: 600 }}>
-                How to get a shielded address:
-              </p>
-              <ol style={{ color: colors.muted, fontSize: "12px", margin: 0, paddingLeft: "20px", lineHeight: 1.8 }}>
-                <li>Download <a href="https://electriccoin.co/zashi/" target="_blank" rel="noopener noreferrer" style={{ color: colors.primary }}>Zashi Wallet</a> (iOS/Android)</li>
-                <li>Create a new wallet and backup your seed phrase</li>
-                <li>Tap &quot;Receive&quot; to copy your Unified Address</li>
-              </ol>
-            </div>
-          </CollapsibleSection>
-
-          <CollapsibleSection title="Transaction Lifecycle">
-            <div style={{ paddingTop: "16px" }}>
-              <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.6, marginBottom: "16px" }}>
-                Every tip moves through these states. You can close the page after signing—we track it for you.
-              </p>
-              <div style={{ fontSize: "12px" }}>
-                {[
-                  { state: "PENDING_DEPOSIT", userText: "Waiting for your deposit", desc: "Your wallet signature sent. Funds transferring to solver.", color: colors.muted },
-                  { state: "PROCESSING", userText: "Routing funds", desc: "Market makers competing to fulfill. Cross-chain swap in progress.", color: colors.primary },
-                  { state: "SUCCESS", userText: "Delivered", desc: "Shielded ZEC in creator's wallet. Transaction complete.", color: colors.success },
-                  { state: "REFUNDED", userText: "Returned to you", desc: "Swap couldn't complete. Original funds sent back to your wallet.", color: colors.error },
-                ].map((item, i) => (
-                  <div
-                    key={item.state}
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: "16px",
-                      padding: "16px 0",
-                      borderBottom: i < 3 ? `1px solid ${colors.border}` : "none",
-                    }}
-                  >
-                    <span style={{
-                      color: item.color,
-                      fontWeight: 600,
-                      minWidth: "140px",
-                      fontSize: "11px",
-                      textShadow: item.color === colors.success ? `0 0 10px ${colors.successGlow}` : "none",
-                    }}>
-                      {item.state}
-                    </span>
-                    <div>
-                      <div style={{ color: colors.textBright, marginBottom: "4px" }}>{item.userText}</div>
-                      <div style={{ color: colors.muted, fontSize: "11px" }}>{item.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ marginTop: "20px", padding: "16px", backgroundColor: colors.bg, border: `1px solid ${colors.border}`, borderRadius: "4px" }}>
-                <div style={{ color: colors.textBright, fontSize: "12px", fontWeight: 600, marginBottom: "8px" }}>
-                  What if I close the page?
-                </div>
-                <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>
-                  No problem. The swap continues in the background. If it fails, we store a notification and you&apos;ll see it next time you visit TIPZ. Your funds are never lost.
-                </p>
-              </div>
-            </div>
-          </CollapsibleSection>
-
-          <CollapsibleSection title="Privacy Guarantees">
-            <div style={{ paddingTop: "16px" }}>
-              <div style={{ display: "grid", gap: "16px", fontSize: "13px" }}>
-                {[
-                  { title: "Sender privacy", desc: "Tipper's identity is not linked to the final shielded transaction" },
-                  { title: "Receiver privacy", desc: "Creator's shielded address is not visible on transparent chains" },
-                  { title: "Amount privacy", desc: "Final tip amount is encrypted. Only the creator can see it." },
-                ].map((item) => (
-                  <div key={item.title} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                    <span style={{ color: colors.success, fontSize: "16px" }}>✓</span>
-                    <div>
-                      <span style={{ fontWeight: 600, color: colors.textBright }}>{item.title}</span>
-                      <p style={{ color: colors.muted, margin: "4px 0 0" }}>{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "12px",
-                    borderTop: `1px solid ${colors.border}`,
-                    paddingTop: "16px",
-                    marginTop: "4px",
-                  }}
-                >
-                  <span style={{ color: colors.error }}>!</span>
-                  <div>
-                    <span style={{ fontWeight: 600, color: colors.text }}>Initial deposit is visible</span>
-                    <p style={{ color: colors.muted, margin: "4px 0 0" }}>
-                      Your wallet&apos;s deposit transaction is visible on the source chain (Ethereum, Solana, etc). Privacy starts after the funds enter the Zcash shielded pool.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CollapsibleSection>
-        </section>
-
-        {/* 05 // QUESTIONS - FAQ (NEW) */}
-        <section style={{ marginBottom: "64px" }}>
-          <h2
-            style={{
-              fontSize: "14px",
-              color: colors.primary,
-              letterSpacing: "2px",
-              marginBottom: "24px",
-              textShadow: `0 0 10px ${colors.primaryGlow}`,
-            }}
-          >
-            06 // QUESTIONS
-          </h2>
-
-          <div style={{ display: "grid", gap: "16px" }}>
-            {[
-              {
-                q: "How long does it take?",
-                a: "Wallet confirmation is instant. Shielded delivery to the creator: 5-10 minutes. You can close the page after signing.",
-              },
-              {
-                q: "What if the swap fails?",
-                a: "Rare, but handled. Your original funds auto-return to your wallet. You'll see a notification next time you visit TIPZ.",
-              },
-              {
-                q: "Are there fees?",
-                a: "Zero platform fees. Network gas (~$0.01-0.50) is included in the quote and paid by the tipper. Creators receive 100%.",
-              },
-              {
-                q: "Is it really private?",
-                a: "From the creator's perspective: fully encrypted. Your initial deposit IS visible on the source chain (Ethereum, Solana, etc). Once converted to shielded ZEC, it's encrypted.",
-              },
-              {
-                q: "Which wallets work?",
-                a: "MetaMask, Rabby, Coinbase Wallet (EVM chains), and Phantom (Solana). Any wallet that supports WalletConnect should work.",
-              },
-              {
-                q: "Can I tip without a wallet?",
-                a: "Yes. Use \"Pay with Exchange\" to tip directly from Coinbase, Kraken, Binance, or 300+ other exchanges via Mesh Connect. Same privacy, no browser extension needed.",
-              },
-              {
-                q: "Do I need a Zcash wallet to tip?",
-                a: "No. Tippers use their existing ETH/SOL wallet. Only creators need a Zcash wallet to receive tips.",
-              },
-            ].map((faq, i) => (
-              <div
-                key={i}
-                style={{
-                  backgroundColor: colors.surface,
-                  border: `1px solid ${colors.border}`,
-                  padding: "20px 24px",
-                  borderRadius: "4px",
-                }}
-              >
-                <div style={{ color: colors.textBright, fontWeight: 600, fontSize: "14px", marginBottom: "8px" }}>
-                  {faq.q}
-                </div>
-                <p style={{ color: colors.muted, fontSize: "13px", margin: 0, lineHeight: 1.6 }}>
-                  {faq.a}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Tab Content */}
+        {activeTab === "tippers" && <TippersTab />}
+        {activeTab === "creators" && <CreatorsTab />}
+        {activeTab === "technical" && <TechnicalTab />}
 
         {/* CTA - Dual Path */}
         <section
@@ -1022,34 +992,17 @@ export default function DocsPage() {
             backgroundColor: colors.surface,
             border: `1px solid ${colors.border}`,
             borderRadius: "4px",
-            position: "relative",
-            overflow: "hidden",
+            marginTop: "64px",
           }}
         >
-          <div style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: "2px",
-            background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-          }} />
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px" }}>
             {/* For Creators */}
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px", marginBottom: "12px" }}>
-                FOR CREATORS
-              </div>
-              <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "12px", color: colors.textBright }}>
-                Start receiving private tips
-              </h2>
-              <p style={{ color: colors.muted, marginBottom: "24px", fontSize: "13px" }}>
-                Register in under 2 minutes. Just your X handle and Zcash address.
-              </p>
+              <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px", marginBottom: "12px" }}>FOR CREATORS</div>
+              <h2 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "12px", color: colors.textBright }}>Start receiving private tips</h2>
+              <p style={{ color: colors.muted, marginBottom: "24px", fontSize: "13px" }}>Register in under 2 minutes. Just your X handle and Zcash address.</p>
               <Link
                 href="/register"
-                className="cta-primary"
                 style={{
                   display: "inline-block",
                   backgroundColor: colors.primary,
@@ -1059,7 +1012,7 @@ export default function DocsPage() {
                   fontSize: "13px",
                   textDecoration: "none",
                   fontFamily: "'JetBrains Mono', monospace",
-                  boxShadow: `0 0 30px ${colors.primaryGlow}`,
+                  borderRadius: "4px",
                 }}
               >
                 Register Now →
@@ -1068,15 +1021,9 @@ export default function DocsPage() {
 
             {/* For Tippers */}
             <div style={{ textAlign: "center", borderLeft: `1px solid ${colors.border}`, paddingLeft: "32px" }}>
-              <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px", marginBottom: "12px" }}>
-                FOR SUPPORTERS
-              </div>
-              <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "12px", color: colors.textBright }}>
-                Support a creator now
-              </h2>
-              <p style={{ color: colors.muted, marginBottom: "24px", fontSize: "13px" }}>
-                No signup. Connect wallet, pick amount, done.
-              </p>
+              <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px", marginBottom: "12px" }}>FOR SUPPORTERS</div>
+              <h2 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "12px", color: colors.textBright }}>Support a creator now</h2>
+              <p style={{ color: colors.muted, marginBottom: "24px", fontSize: "13px" }}>No signup. Connect wallet, pick amount, done.</p>
               <Link
                 href="/creators"
                 style={{
@@ -1089,7 +1036,7 @@ export default function DocsPage() {
                   fontSize: "13px",
                   textDecoration: "none",
                   fontFamily: "'JetBrains Mono', monospace",
-                  transition: "all 0.2s",
+                  borderRadius: "4px",
                 }}
               >
                 Browse Creators
@@ -1112,7 +1059,7 @@ export default function DocsPage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px", textShadow: `0 0 15px ${colors.primaryGlow}` }}>[TIPZ]</span>
+          <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px" }}>[TIPZ]</span>
           <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>v0.1.0-beta</span>
         </div>
         <div style={{ display: "flex", gap: "32px" }}>
@@ -1122,13 +1069,7 @@ export default function DocsPage() {
           <a href="https://x.com/tipz_cash" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>X</a>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", color: colors.muted }}>
-          <span style={{
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            backgroundColor: colors.success,
-            boxShadow: `0 0 10px ${colors.success}`,
-          }} />
+          <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: colors.primary }} />
           <span style={{ fontSize: "11px", letterSpacing: "1px" }}>PRIVATE BY DEFAULT</span>
         </div>
       </footer>
@@ -1143,7 +1084,7 @@ export default function DocsPage() {
           bottom: 0;
           pointer-events: none;
           z-index: 1000;
-          opacity: 0.03;
+          opacity: 0.02;
           background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
         }
 
@@ -1162,63 +1103,7 @@ export default function DocsPage() {
             rgba(0, 0, 0, 0.1) 2px,
             rgba(0, 0, 0, 0.1) 4px
           );
-          opacity: 0.15;
-        }
-
-        .cta-primary {
-          position: relative;
-          overflow: hidden;
-          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
-          will-change: transform;
-        }
-
-        .cta-primary:hover {
-          transform: translateY(-3px) scale(1.02);
-          filter: drop-shadow(0 0 25px rgba(245, 166, 35, 0.5));
-        }
-
-        .cta-primary::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-          transition: left 0.5s;
-        }
-
-        .cta-primary:hover::before {
-          left: 100%;
-        }
-
-        .card-hover {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card-hover:hover {
-          transform: translateY(-2px);
-          border-color: #3d4450 !important;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .intents-checklist .check-icon {
-          opacity: 0;
-          animation: fadeInCheck 0.3s ease forwards;
-        }
-
-        .intents-checklist .check-path {
-          stroke-dasharray: 20;
-          stroke-dashoffset: 20;
-          animation: drawCheck 0.4s ease forwards;
-        }
-
-        @keyframes fadeInCheck {
-          to { opacity: 1; }
-        }
-
-        @keyframes drawCheck {
-          to { stroke-dashoffset: 0; }
+          opacity: 0.1;
         }
 
         .header-inner { padding: 20px 48px; }
@@ -1229,6 +1114,26 @@ export default function DocsPage() {
           .header-inner { padding: 16px; }
           .desktop-nav { display: none !important; }
           .mobile-menu-btn { display: flex !important; }
+        }
+
+        /* Docs tabs responsive */
+        @media (max-width: 640px) {
+          .docs-tabs {
+            gap: 16px !important;
+            margin-bottom: 32px !important;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          .docs-tabs button {
+            white-space: nowrap;
+            font-size: 10px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .docs-tabs {
+            gap: 12px !important;
+          }
         }
       `}</style>
     </div>

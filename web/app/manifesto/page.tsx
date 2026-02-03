@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { colors } from "@/lib/colors";
 
 // ZEC Ticker component (simplified version)
 function ZecTicker() {
@@ -26,31 +27,6 @@ function ZecTicker() {
     </span>
   );
 }
-// Plain [TIPZ] text logo used throughout
-
-// Color palette - refined for depth and atmosphere (matching home page)
-const colors = {
-  bg: "#08090a",
-  bgGradientStart: "#08090a",
-  bgGradientEnd: "#0d1117",
-  surface: "#12141a",
-  surfaceHover: "#1a1d24",
-  surfaceLight: "#1e2128",
-  primary: "#F5A623",
-  primaryHover: "#FFB84D",
-  primaryGlow: "rgba(245, 166, 35, 0.15)",
-  primaryGlowStrong: "rgba(245, 166, 35, 0.3)",
-  success: "#22C55E",
-  successGlow: "rgba(34, 197, 94, 0.2)",
-  error: "#EF4444",
-  errorGlow: "rgba(239, 68, 68, 0.15)",
-  muted: "#6B7280",
-  border: "#2a2f38",
-  borderHover: "#3d4450",
-  text: "#D1D5DB",
-  textBright: "#F9FAFB",
-};
-
 // Typing effect hook
 function useTypingEffect(text: string, speed: number = 30) {
   const [displayText, setDisplayText] = useState("");
@@ -101,7 +77,7 @@ But machines do not create. They produce.
 
 Creation requires struggle. Requires taste. Requires a soul risking itself in public.
 
-The creator who bleeds into their work—who fails and returns—who says something only they could say—cannot be replaced.
+The creator who bleeds into their work, who fails and returns, who says something only they could say: that creator cannot be replaced.
 
 In an age of infinite production, authentic creation becomes the scarcest resource.
 
@@ -115,13 +91,17 @@ The platforms own the land. You work it. They collect the rent. You hope for scr
 
 This is not capitalism. Capitalists compete. This is feudalism. Lords extract.
 
-Cloud capital replaced factories. Algorithms replaced overseers. Terms of service replaced chains.
+You built an audience with your ideas, your art, your voice. That audience wants to support you. But the platforms stand between.
 
-You do not own your audience—the platform does.
-You do not own your revenue—the processor does.
-You do not own your money—the bank does.
+They take their cut. They freeze your funds. They demand your identity. They report your income. They make your success their product.
 
-You own nothing. You rent access to your own life.`
+You do not own your audience. The platform does.
+You do not own your revenue. The processor does.
+You do not own your money. The bank does.
+
+Creators deserve self-custody of their earnings, privacy of their financial life, zero intermediaries extracting value, and freedom from platform capture.
+
+Your audience found you. You earned their support. No middleman should stand between.`
   },
   {
     title: "III. PRIVACY IS NOT A CRIME",
@@ -131,15 +111,9 @@ When you whisper to a friend, you are not conspiring.
 
 Privacy is the default state of human interaction.
 
-The burden of proof lies on those who would surveil—not on those who would be free.
+The burden of proof lies on those who would surveil, not on those who would be free.
 
-We reject the premise that transparency is virtue.
-We reject the demand to justify our shadows.
-We reject surveillance as the price of participation.`
-  },
-  {
-    title: "IV. SURVEILLANCE MEETS AI",
-    content: `Every transaction indexed is a behavior tracked.
+Every transaction indexed is a behavior tracked.
 Every wallet exposed is a life mapped.
 Every tip amount published is leverage granted.
 
@@ -147,14 +121,12 @@ This was dangerous before. With AI, it becomes totalizing.
 
 Models trained on your financial life. Profiles built from your every exchange. Predictions about your loyalty, your politics, your worth.
 
-They call it transparency. We call it control.
-
-When your employer can see who you support—when your government can profile your generosity—when your competitors can count your income—you are not free. You are observed.
-
-And the observed self-censor.`
+We reject the premise that transparency is virtue.
+We reject the demand to justify our shadows.
+We reject surveillance as the price of participation.`
   },
   {
-    title: "V. CYPHERPUNKS WRITE CODE",
+    title: "IV. CYPHERPUNKS WRITE CODE",
     content: `We do not petition for privacy. We build it.
 We do not ask permission. We deploy.
 We do not trust promises. We verify.
@@ -168,42 +140,23 @@ We give you TIPZ.
 The tools exist. The math is sound. Now we ship.`
   },
   {
-    title: "VI. CREATOR SOVEREIGNTY",
-    content: `You built an audience with your ideas, your art, your voice. That audience wants to support you.
-
-But the platforms stand between.
-
-They take their cut. They freeze your funds. They demand your identity. They report your income. They make your success their product.
-
-The creator economy has grown to hundreds of billions of dollars. Creators remain tenants in someone else's castle.
-
-Creators deserve:
-
-→ Self-custody of their earnings
-→ Privacy of their financial life
-→ Zero intermediaries extracting value
-→ Freedom from platform capture
-
-Your audience found you. You earned their support. No middleman should stand between.`
-  },
-  {
-    title: "VII. EXIT",
+    title: "V. EXIT",
     content: `You cannot reform the feudal lord. You cannot petition for freedom. You can only leave.
 
 Exit is the only leverage the serf has ever had.
 
 TIPZ is an exit.
 
-Not a better platform—a way out of platforms.
-Not a fairer landlord—no landlord at all.
-Not improved surveillance—no surveillance.
+Not a better platform. A way out of platforms.
+Not a fairer landlord. No landlord at all.
+Not improved surveillance. No surveillance.
 
 Private money. Self-custody. Zero extraction.
 
 The door is open.`
   },
   {
-    title: "VIII. SUPPORT WITHOUT TRACE",
+    title: "VI. SUPPORT WITHOUT TRACE",
     content: `To tip someone today is to create a permanent record.
 
 Your wallet. Their wallet. The amount. The timestamp. Indexed forever. Analyzed by algorithms. Sold to data brokers.
@@ -217,7 +170,7 @@ Where support needs no justification.
 Where the act of giving belongs to giver and receiver alone.`
   },
   {
-    title: "IX. PROTOCOL, NOT PLATFORM",
+    title: "VII. PROTOCOL, NOT PLATFORM",
     content: `We do not custody your funds.
 We cannot freeze your account.
 We do not know your balance.
@@ -227,30 +180,14 @@ This is not a limitation. This is the design.
 
 TIPZ is a protocol, not a platform. We route. We swap. We disappear.
 
-If we are compromised, you are not.
-If we are shut down, the code remains.
-If we are subpoenaed, we have nothing to give.
+Your privacy does not depend on us.
+The protocol works without us.
+We built it that way on purpose.
 
 Trust math. Not us.`
   },
   {
-    title: "X. THE FUTURE WE BUILD",
-    content: `An internet where:
-
-Private transactions are the default—not the exception.
-Creators keep 100% of what they earn.
-Supporters give without surveillance.
-No platform owns the relationship between creator and audience.
-Financial privacy is a right—not a premium feature.
-
-This is not utopia. This is engineering.
-
-The cryptography exists. The networks are live. We are connecting the pieces.
-
-One tip at a time.`
-  },
-  {
-    title: "XI. JOIN US",
+    title: "VIII. JOIN US",
     content: `If you believe privacy is a right, not a privilege—
 If you believe creators deserve sovereignty—
 If you believe support should be private—
@@ -267,7 +204,7 @@ Exit the ledger.`
 ];
 
 export default function ManifestoPage() {
-  const heroText = "THE TIPZ MANIFESTO";
+  const heroText = "THE CREATORS MANIFESTO";
   const { displayText, isComplete } = useTypingEffect(heroText, 50);
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -375,6 +312,7 @@ export default function ManifestoPage() {
           <div style={{ marginBottom: "24px" }}>
             <span style={{ color: colors.success, fontSize: "20px" }}>$</span>{" "}
             <span
+              className="manifesto-hero-title"
               style={{
                 fontSize: "42px",
                 fontWeight: 700,
@@ -442,8 +380,8 @@ export default function ManifestoPage() {
       {manifestoSections.map((section, index) => (
         <section
           key={section.title}
+          className="manifesto-section"
           style={{
-            padding: "80px 0",
             borderBottom: `1px solid ${colors.border}`,
             backgroundColor: index % 2 === 0 ? "transparent" : colors.surface,
             position: "relative",
@@ -461,7 +399,7 @@ export default function ManifestoPage() {
             }} />
           )}
 
-          <div style={{ maxWidth: "800px", margin: "0 auto", padding: "0 24px" }}>
+          <div className="manifesto-content">
             <h2
               style={{
                 color: colors.primary,
@@ -615,6 +553,7 @@ export default function ManifestoPage() {
 
       {/* Footer */}
       <footer
+        className="manifesto-footer"
         style={{
           padding: "40px 48px",
           display: "flex",
@@ -733,6 +672,59 @@ export default function ManifestoPage() {
           .header-inner { padding: 16px; }
           .desktop-nav { display: none !important; }
           .mobile-menu-btn { display: flex !important; }
+        }
+
+        /* Manifesto sections responsive */
+        .manifesto-section {
+          padding: 80px 0;
+        }
+        .manifesto-content {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 0 24px;
+        }
+        .manifesto-footer {
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+
+        @media (max-width: 640px) {
+          .manifesto-section {
+            padding: 48px 0;
+          }
+          .manifesto-content {
+            padding: 0 16px;
+          }
+          .manifesto-footer {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 24px 16px;
+          }
+          .manifesto-footer > div {
+            justify-content: center;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .manifesto-section {
+            padding: 40px 0;
+          }
+          .manifesto-hero-title {
+            font-size: 28px !important;
+          }
+        }
+
+        @media (max-width: 375px) {
+          .manifesto-section {
+            padding: 32px 0;
+          }
+          .manifesto-content {
+            padding: 0 12px;
+          }
+          .manifesto-hero-title {
+            font-size: 24px !important;
+          }
         }
       `}</style>
     </div>

@@ -88,7 +88,7 @@ const responsiveStyles = `
   .tipz-card {
     position: relative;
     width: 100%;
-    max-width: 400px;
+    max-width: min(400px, calc(100vw - 32px));
     z-index: 1;
   }
 
@@ -183,6 +183,17 @@ const responsiveStyles = `
     font-size: 12px;
     color: ${colors.muted};
     font-family: 'Inter', sans-serif;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 375px) {
+    .tipz-trust-footer {
+      gap: 10px;
+      font-size: 11px;
+    }
+    .tipz-card-content {
+      padding: 16px;
+    }
   }
 
   .tipz-trust-icon {

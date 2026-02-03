@@ -29,9 +29,10 @@ interface TippingFlowProps {
   avatarColor?: string
   avatarUrl?: string
   publicKey?: JsonWebKey  // Creator's public key for message encryption
+  demoMode?: boolean // Force demo mode - simulates full flow without wallet/transactions
 }
 
-export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, avatarColor = "#4B5563", avatarUrl, publicKey }: TippingFlowProps) {
+export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, avatarColor = "#4B5563", avatarUrl, publicKey, demoMode = false }: TippingFlowProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [showZecDirect, setShowZecDirect] = useState(false)
   const [showPaymentPicker, setShowPaymentPicker] = useState(false)
@@ -85,6 +86,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
     walletAddress: walletState.address,
     chainId: walletState.chainId,
     isWalletConnected: walletState.isConnected,
+    demoMode,
   })
 
   // Auto-expand on mount
@@ -186,6 +188,10 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
   // Handler for exchange selection (Mesh)
   const handleExchangeSelect = (exchange: ExchangeOption) => {
     setShowPaymentPicker(false)
+    if (demoMode) {
+      sendTip()  // Skip Mesh, run demo flow
+      return
+    }
     openMeshTransfer(
       {
         destinationAddress: shieldedAddress,
@@ -207,6 +213,10 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
   // Handler for wallet connection - shows wallet selector
   const handleWalletConnect = async () => {
     setShowPaymentPicker(false)
+    if (demoMode) {
+      sendTip()  // Skip wallet connection, run demo flow
+      return
+    }
 
     if (walletState.isConnected) {
       // Already connected - show token selector
@@ -232,6 +242,10 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
   // Handler for ZEC direct selection
   const handleZecSelect = () => {
     setShowPaymentPicker(false)
+    if (demoMode) {
+      sendTip()  // Skip ZEC UI, run demo flow
+      return
+    }
     setShowZecDirect(true)
   }
 
@@ -995,6 +1009,39 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
           </div>
         )}
 
+        {/* Demo Mode Indicator */}
+        {demoMode && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: tokens.space.sm,
+              marginBottom: tokens.space.md,
+              padding: `${tokens.space.sm}px ${tokens.space.md}px`,
+              background: "rgba(245, 166, 35, 0.1)",
+              border: `1px solid rgba(245, 166, 35, 0.3)`,
+              borderRadius: tokens.radius.sm,
+            }}
+          >
+            <div
+              style={{
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                background: tokens.colors.gold,
+                animation: "pulse 2s infinite",
+              }}
+            />
+            <span style={{ color: tokens.colors.gold, fontSize: "11px", fontWeight: 600, fontFamily: tokens.font.mono, letterSpacing: "1px" }}>
+              DEMO MODE
+            </span>
+            <span style={{ color: tokens.colors.textMuted, fontSize: "11px", fontFamily: tokens.font.sans }}>
+              No real transactions
+            </span>
+          </div>
+        )}
+
         {/* Send Tip CTA Button */}
         <button
           onClick={() => {
@@ -1005,7 +1052,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
               // Wallet connected but no token - show token selector
               setShowTokenSelector(true)
             } else {
-              // No wallet - show payment picker
+              // No wallet (or demo mode) - show payment picker to display all options
               setShowPaymentPicker(true)
             }
           }}
@@ -1080,9 +1127,11 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
               <span>
                 {!hasAmount
                   ? "Select Amount"
-                  : walletState.isConnected && selectedToken
-                    ? `Send $${displayAmount.toFixed(2)} with ${selectedToken.symbol}`
-                    : `Send $${displayAmount.toFixed(2)}`
+                  : demoMode
+                    ? `Send $${displayAmount.toFixed(2)} (Demo)`
+                    : walletState.isConnected && selectedToken
+                      ? `Send $${displayAmount.toFixed(2)} with ${selectedToken.symbol}`
+                      : `Send $${displayAmount.toFixed(2)}`
                 }
               </span>
             )}

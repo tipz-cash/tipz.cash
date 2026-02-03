@@ -506,6 +506,27 @@ export function TransactionStatus({
           </div>
         </div>
 
+        {/* ETA Estimate */}
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: tokens.space.sm,
+            padding: `${tokens.space.sm}px ${tokens.space.md}px`,
+            background: "rgba(255, 255, 255, 0.03)",
+            borderRadius: tokens.radius.sm,
+            marginBottom: tokens.space.md,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.textMuted} strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          <span style={{ color: tokens.colors.textMuted, fontSize: "11px", fontFamily: tokens.font.mono }}>
+            Estimated arrival: ~5 min
+          </span>
+        </div>
+
         {/* Key Message: You can close this page */}
         <div
           style={{

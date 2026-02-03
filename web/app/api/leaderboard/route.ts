@@ -27,8 +27,8 @@ interface LeaderboardResponse {
 // Demo data shown when no real data exists - uses actual demo creators
 const demoLeaderboard: LeaderboardEntry[] = [
   { rank: 1, handle: "zooko", tip_count: 247, tier: "diamond", avatar_url: "https://unavatar.io/twitter/zooko" },
-  { rank: 2, handle: "naval", tip_count: 89, tier: "gold", avatar_url: "https://unavatar.io/twitter/naval" },
-  { rank: 3, handle: "balajis", tip_count: 34, tier: "silver", avatar_url: "https://unavatar.io/twitter/balajis" },
+  { rank: 2, handle: "jswihart", tip_count: 89, tier: "gold", avatar_url: "https://unavatar.io/twitter/jswihart" },
+  { rank: 3, handle: "naval", tip_count: 34, tier: "silver", avatar_url: "https://unavatar.io/twitter/naval" },
 ]
 
 function getTier(tipCount: number): LeaderboardEntry["tier"] {
@@ -44,85 +44,116 @@ export async function GET(request: NextRequest) {
 
   if (!supabase) {
     // Return demo data when Supabase is not configured
-    return NextResponse.json({
-      leaderboard: demoLeaderboard.slice(0, limit),
-      demo: true,
-    } satisfies LeaderboardResponse)
+    return NextResponse.json(
+      {
+        leaderboard: demoLeaderboard.slice(0, limit),
+        demo: true,
+      } satisfies LeaderboardResponse,
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    )
+  }
+
+  const cacheHeaders = {
+    "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
   }
 
   try {
-    // Query creators with tip counts, excluding stealth mode and unverified
+    // Optimized query: fetch only confirmed transactions with creator info
+    // This is much faster than fetching all transactions per creator
     const { data, error } = await supabase
-      .from("creators")
+      .from("transactions")
       .select(
         `
-        handle,
-        verification_status,
-        stealth_mode,
-        transactions!inner(id, status)
+        creator_id,
+        creators!inner(
+          handle,
+          verification_status,
+          stealth_mode
+        )
       `
       )
-      .eq("verification_status", "verified")
-      .or("stealth_mode.is.null,stealth_mode.eq.false")
+      .eq("status", "confirmed")
+      .eq("creators.verification_status", "verified")
 
     if (error) {
       console.error("[leaderboard] Query error:", error)
-      // Return demo data on error
-      return NextResponse.json({
-        leaderboard: demoLeaderboard.slice(0, limit),
-        demo: true,
-      } satisfies LeaderboardResponse)
+      return NextResponse.json(
+        {
+          leaderboard: demoLeaderboard.slice(0, limit),
+          demo: true,
+        } satisfies LeaderboardResponse,
+        { headers: cacheHeaders }
+      )
     }
 
     if (!data || data.length === 0) {
-      // Return demo data when no creators exist
-      return NextResponse.json({
-        leaderboard: demoLeaderboard.slice(0, limit),
-        demo: true,
-      } satisfies LeaderboardResponse)
+      return NextResponse.json(
+        {
+          leaderboard: demoLeaderboard.slice(0, limit),
+          demo: true,
+        } satisfies LeaderboardResponse,
+        { headers: cacheHeaders }
+      )
     }
 
-    // Count confirmed tips per creator and sort
-    const creatorsWithCounts = data
-      .map((creator: any) => {
-        const confirmedTips = (creator.transactions || []).filter(
-          (t: any) => t.status === "confirmed"
-        )
-        return {
-          handle: creator.handle,
-          tip_count: confirmedTips.length,
-        }
-      })
-      .filter((c) => c.tip_count > 0)
-      .sort((a, b) => b.tip_count - a.tip_count)
+    // Filter stealth_mode in JS (Supabase doesn't support OR on foreign table in same query)
+    // and aggregate tip counts by handle
+    const counts = new Map<string, number>()
+    for (const t of data) {
+      const creator = t.creators as any
+      // Skip stealth mode creators
+      if (creator.stealth_mode === true) continue
+      const handle = creator.handle
+      counts.set(handle, (counts.get(handle) || 0) + 1)
+    }
+
+    if (counts.size === 0) {
+      return NextResponse.json(
+        {
+          leaderboard: demoLeaderboard.slice(0, limit),
+          demo: true,
+        } satisfies LeaderboardResponse,
+        { headers: cacheHeaders }
+      )
+    }
+
+    // Sort by tip count descending and take top N
+    const sorted = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
       .slice(0, limit)
 
-    if (creatorsWithCounts.length === 0) {
-      // Return demo data when no tips exist
-      return NextResponse.json({
-        leaderboard: demoLeaderboard.slice(0, limit),
-        demo: true,
-      } satisfies LeaderboardResponse)
-    }
-
-    const leaderboard: LeaderboardEntry[] = creatorsWithCounts.map(
-      (creator, index) => ({
+    const leaderboard: LeaderboardEntry[] = sorted.map(
+      ([handle, tip_count], index) => ({
         rank: index + 1,
-        handle: creator.handle,
-        tip_count: creator.tip_count,
-        tier: getTier(creator.tip_count),
+        handle,
+        tip_count,
+        tier: getTier(tip_count),
       })
     )
 
-    return NextResponse.json({
-      leaderboard,
-      demo: false,
-    } satisfies LeaderboardResponse)
+    return NextResponse.json(
+      {
+        leaderboard,
+        demo: false,
+      } satisfies LeaderboardResponse,
+      { headers: cacheHeaders }
+    )
   } catch (error) {
     console.error("[leaderboard] Error:", error)
-    return NextResponse.json({
-      leaderboard: demoLeaderboard.slice(0, limit),
-      demo: true,
-    } satisfies LeaderboardResponse)
+    return NextResponse.json(
+      {
+        leaderboard: demoLeaderboard.slice(0, limit),
+        demo: true,
+      } satisfies LeaderboardResponse,
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    )
   }
 }

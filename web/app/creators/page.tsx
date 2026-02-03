@@ -276,6 +276,19 @@ export default function CreatorsPage() {
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
           }
         }
+
+        @media (max-width: 375px) {
+          .creators-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+          .creators-grid-section {
+            padding: 0 12px 32px;
+          }
+          .hero-section {
+            padding: 32px 12px 24px;
+          }
+        }
       `}</style>
 
       <div
