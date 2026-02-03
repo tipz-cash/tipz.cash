@@ -53,9 +53,10 @@ function getSignalBucket(count: number): string {
 
 interface LeaderboardProps {
   prefersReducedMotion?: boolean
+  demoMode?: boolean // When true, links include ?demo=true
 }
 
-export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) {
+export function Leaderboard({ prefersReducedMotion = false, demoMode = false }: LeaderboardProps) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [isDemo, setIsDemo] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -200,6 +201,7 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
                 entry={entry}
                 index={index}
                 prefersReducedMotion={prefersReducedMotion}
+                demoMode={demoMode}
               />
             ))}
         </div>
@@ -233,9 +235,10 @@ interface LeaderboardCardProps {
   entry: LeaderboardEntry
   index: number
   prefersReducedMotion: boolean
+  demoMode?: boolean
 }
 
-function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCardProps) {
+function LeaderboardCard({ entry, index, prefersReducedMotion, demoMode = false }: LeaderboardCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   // Use rank-based tier (1st = gold, 2nd = silver, 3rd = bronze)
   const tier = getTierFromRank(entry.rank)
@@ -274,7 +277,7 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
       `}</style>
 
       <a
-        href={`/${entry.handle}`}
+        href={`/${entry.handle}${demoMode ? "?demo=true" : ""}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{

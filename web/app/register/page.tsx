@@ -758,7 +758,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
               </div>
 
               {/* Share CTA */}
-              <div style={{ display: "flex", gap: "12px" }}>
+              <div className="success-buttons" style={{ display: "flex", gap: "12px" }}>
                 <a
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just set up @TIPZ_xyz to receive private tips with ZERO fees.\n\nCreators: keep 100% of what you earn.\n\nSet up in 2 mins: tipz.cash`)}`}
                   target="_blank"
@@ -967,6 +967,11 @@ My shielded address: ${shieldedAddress || "[your address]"}`
           * {
             animation-duration: 0.01ms !important;
             animation-iteration-count: 1 !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .success-buttons {
+            flex-direction: column !important;
           }
         }
       `}</style>

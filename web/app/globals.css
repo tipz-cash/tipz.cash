@@ -620,6 +620,24 @@ a {
   .trust-badges-grid {
     gap: 12px !important;
   }
+
+  /* Global mobile utilities */
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+
+  .mobile-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .mobile-gap-sm {
+    gap: 8px !important;
+  }
+
+  .mobile-padding-sm {
+    padding: 12px !important;
+  }
 }
 
 /* Touch-friendly improvements */
