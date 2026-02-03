@@ -2438,6 +2438,7 @@ function SnapSection({
   return (
     <section
       id={id}
+      className="snap-section"
       style={{
         minHeight: "100vh",
         scrollSnapAlign: "start",
@@ -2592,7 +2593,7 @@ export default function HomePage() {
   }, [heroAnimationReady]);
 
   const contentPadding: React.CSSProperties = {
-    padding: "0 48px",
+    padding: isMobile ? "0" : "0 48px",
     maxWidth: "900px",
     margin: "0 auto",
     width: "100%",
@@ -2806,7 +2807,7 @@ export default function HomePage() {
       <ChapterIndicator currentChapter={currentChapter} />
 
       {/* Chapter 01: Hero - The Promise */}
-      <SnapSection id="hero" style={{ padding: "0 48px", overflow: "hidden", position: "relative" }}>
+      <SnapSection id="hero" style={{ padding: isMobile ? "0 16px" : "0 48px", overflow: "hidden", position: "relative" }}>
         {/* Atmospheric background effects - reduced for cleaner look */}
         <div style={{
           position: "absolute",
@@ -3008,7 +3009,7 @@ export default function HomePage() {
       </SnapSection>
 
       {/* Chapter 02: The False Choice - Simplified Visual Storytelling */}
-      <SnapSection id="broken" style={{ padding: "0 48px" }}>
+      <SnapSection id="broken" style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
         <div style={contentPadding}>
           {/* Chapter Header */}
           <TerminalReveal delay={0}>
@@ -3055,7 +3056,7 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "20px",
-                padding: "28px",
+                padding: isMobile ? "16px" : "28px",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
@@ -3166,7 +3167,7 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "20px",
-                padding: "28px",
+                padding: isMobile ? "16px" : "28px",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
@@ -3329,7 +3330,7 @@ export default function HomePage() {
 
               <div style={{
                 display: "inline-block",
-                padding: "32px 48px",
+                padding: isMobile ? "20px 24px" : "32px 48px",
                 borderRadius: "16px",
                 border: `2px solid ${colors.primary}40`,
                 backgroundColor: `${colors.surface}`,
@@ -3357,7 +3358,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 03: The Solution */}
-      <SnapSection id="solution" style={{ padding: "0 48px" }}>
+      <SnapSection id="solution" style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
         {/* Gold particles/glow overlay */}
         <div style={{
           position: "absolute",
@@ -3859,7 +3860,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 04: Any Token - Privacy Conversion Terminal */}
-      <SnapSection id="any-token" style={{ padding: isMobile ? "0 24px" : "0 48px" }}>
+      <SnapSection id="any-token" style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -4373,7 +4374,7 @@ export default function HomePage() {
         `}</style>
       </SnapSection>
       {/* Chapter 05: Sovereign Dashboard */}
-      <SnapSection id="creator-tools" style={{ padding: "0 48px" }}>
+      <SnapSection id="creator-tools" style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -4554,7 +4555,7 @@ export default function HomePage() {
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -45%)",
-                  width: "340px",
+                  width: isMobile ? "min(340px, calc(100vw - 48px))" : "340px",
                   background: "#000000",
                   border: "1px solid #2f3336",
                   borderRadius: "16px",
@@ -4688,7 +4689,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 06: Genesis Cohort */}
-      <SnapSection id="proof" style={{ padding: "0 48px" }}>
+      <SnapSection id="proof" style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -4729,7 +4730,7 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "12px",
-                padding: "28px",
+                padding: isMobile ? "16px" : "28px",
                 position: "relative",
                 overflow: "hidden",
               }}>
@@ -4787,7 +4788,7 @@ export default function HomePage() {
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
                 borderRadius: "12px",
-                padding: "28px",
+                padding: isMobile ? "16px" : "28px",
                 position: "relative",
                 overflow: "hidden",
               }}>
@@ -5021,7 +5022,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 07: FAQ - Common Questions */}
-      <SnapSection id="faq" style={{ padding: "0 48px" }}>
+      <SnapSection id="faq" style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -5042,8 +5043,8 @@ export default function HomePage() {
           <TerminalReveal delay={200}>
             <div style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "24px",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+              gap: isMobile ? "16px" : "24px",
             }}>
               <div style={{
                 backgroundColor: colors.surface,
@@ -5109,7 +5110,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 08: How It Works */}
-      <SnapSection id="how-it-works" style={{ padding: "0 48px" }}>
+      <SnapSection id="how-it-works" style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -5141,7 +5142,7 @@ export default function HomePage() {
           <div style={{
             display: "grid",
             gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-            gap: "48px",
+            gap: isMobile ? "32px" : "48px",
           }}>
             {/* For Creators */}
             <div>
@@ -5354,7 +5355,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 09: CTA - marketing-psychology: urgency + commitment */}
-      <SnapSection id="join" style={{ textAlign: "center", padding: "0 48px" }}>
+      <SnapSection id="join" style={{ textAlign: "center", padding: isMobile ? "0 16px" : "0 48px" }}>
         <div style={{ maxWidth: "600px", margin: "0 auto" }}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -5426,11 +5427,13 @@ export default function HomePage() {
       </SnapSection>
 
       {/* Footer - Enhanced */}
-      <footer style={{
-        padding: "40px 48px",
+      <footer className="home-footer" style={{
+        padding: isMobile ? "24px 16px" : "40px 48px",
         display: "flex",
+        flexDirection: isMobile ? "column" : "row",
         justifyContent: "space-between",
-        alignItems: "center",
+        alignItems: isMobile ? "flex-start" : "center",
+        gap: isMobile ? "16px" : "0",
         borderTop: `1px solid ${colors.border}`,
         fontSize: "12px",
         backgroundColor: colors.surface,
@@ -5439,7 +5442,7 @@ export default function HomePage() {
           <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px", fontFamily: "'JetBrains Mono', monospace", textShadow: `0 0 15px ${colors.primaryGlow}` }}>[TIPZ]</span>
           <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>v0.1.0-beta</span>
         </div>
-        <div style={{ display: "flex", gap: "32px" }}>
+        <div style={{ display: "flex", gap: isMobile ? "16px" : "32px", flexWrap: "wrap" }}>
           <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>MANIFESTO</a>
           <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>DOCS</a>
           <a href="https://github.com/tipz-app" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>GITHUB</a>
@@ -6365,6 +6368,32 @@ export default function HomePage() {
           .snap-section {
             padding-left: 16px !important;
             padding-right: 16px !important;
+            min-height: auto !important;
+          }
+
+          /* Card padding reduction */
+          .card-hover {
+            padding: 16px !important;
+          }
+        }
+
+        /* Small phone adjustments */
+        @media (max-width: 428px) {
+          .snap-section {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+          }
+        }
+
+        /* Very small phones (iPhone SE) */
+        @media (max-width: 375px) {
+          .snap-section {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+          }
+
+          .card-hover {
+            padding: 12px !important;
           }
         }
       `}</style>
