@@ -3082,7 +3082,6 @@ export default function HomePage() {
 
                 {/* THE OWNERSHIP AUDIT - Who owns what */}
                 <div ref={feeRef} style={{
-                  flex: 1,
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "center",
@@ -3194,7 +3193,6 @@ export default function HomePage() {
 
                 {/* THE LOCK ANIMATION - Data being exposed */}
                 <div ref={privacyRef} style={{
-                  flex: 1,
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "center",
@@ -3301,7 +3299,7 @@ export default function HomePage() {
                   paddingTop: "24px",
                   lineHeight: 1.5,
                 }}>
-                  Every transaction. <span style={{ color: colors.error, fontWeight: 600 }}>Forever public</span>.
+                  Every transaction is indexed. <span style={{ color: colors.error, fontWeight: 600 }}>Forever public</span>.
                 </div>
               </div>
             </TerminalReveal>
@@ -4610,22 +4608,22 @@ export default function HomePage() {
                       backgroundPosition: "center",
                       position: "relative",
                     }}>
-                      {/* TIPZ Smart Stamp - Matches command centre */}
+                      {/* TIPZ Smart Stamp - Matches extension ImageStampTool */}
                       <div style={{
                         position: "absolute",
-                        bottom: "8px",
-                        right: "8px",
+                        bottom: "6px",
+                        right: "6px",
                         background: "rgba(0, 0, 0, 0.8)",
-                        padding: "4px 8px",
+                        padding: "3px 6px",
                         borderRadius: "4px",
-                        border: "2px solid #F4B728",
+                        border: "1.5px solid #F4B728",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                       }}>
                         <span style={{
                           color: "#F4B728",
-                          fontSize: "10px",
+                          fontSize: "8px",
                           fontFamily: "'JetBrains Mono', monospace",
                           fontWeight: 600,
                         }}>
