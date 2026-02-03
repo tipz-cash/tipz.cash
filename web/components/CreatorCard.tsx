@@ -88,16 +88,32 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
           }}
         />
         {/* Avatar with gold ring on hover */}
-        <div style={{ position: "relative", marginBottom: compact ? "12px" : "16px" }}>
+        <div
+          style={{
+            position: "relative",
+            width: compact ? "56px" : "72px",
+            height: compact ? "56px" : "72px",
+            marginBottom: compact ? "12px" : "16px",
+          }}
+        >
           {/* Gold ring - visible on hover */}
           <div
             style={{
               position: "absolute",
-              inset: "-4px",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: compact ? "62px" : "78px",
+              height: compact ? "62px" : "78px",
               borderRadius: "50%",
-              background: colors.gradientGold,
+              background: "transparent",
+              border: "2px solid #F5A623",
+              boxShadow: isHovered
+                ? "0 0 12px rgba(245, 166, 35, 0.5), 0 0 4px rgba(245, 166, 35, 0.3) inset"
+                : "none",
               opacity: isHovered ? 1 : 0,
-              transition: "opacity 0.25s ease",
+              transition: "all 0.25s ease",
+              pointerEvents: "none",
             }}
           />
           {/* Avatar */}
