@@ -92,6 +92,7 @@ export default function RegisterPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [linkCopied, setLinkCopied] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   // Detect reduced motion preference
   useEffect(() => {
@@ -101,6 +102,20 @@ export default function RegisterPage() {
       const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
       mediaQuery.addEventListener('change', handler);
       return () => mediaQuery.removeEventListener('change', handler);
+    }
+  }, []);
+
+  // Detect mobile viewport for sticky CTA
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => {
+        const isMobileUA = /iPhone|iPad|Android/i.test(navigator.userAgent);
+        const isMobileWidth = window.innerWidth < 480;
+        setIsMobile(isMobileUA || isMobileWidth);
+      };
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
     }
   }, []);
 
@@ -840,62 +855,76 @@ My shielded address: ${shieldedAddress || "[your address]"}`
           )}
 
           {/* Submit Button - Only show after step 3 and not on success */}
+          {/* Sticky on mobile for thumb zone accessibility */}
           {currentStep >= 3 && !message?.type && (
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              style={{
-                width: "100%",
-                padding: "18px",
-                minHeight: "56px",
-                fontSize: "15px",
-                fontWeight: 700,
-                color: colors.bg,
-                backgroundColor: isSubmitting ? colors.muted : colors.primary,
-                border: "none",
-                borderRadius: "8px",
-                cursor: isSubmitting ? "not-allowed" : "pointer",
-                transition: transitions.normal,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                boxShadow: isSubmitting ? "none" : `0 0 30px ${colors.primaryGlow}`,
-                fontFamily: "Inter, -apple-system, sans-serif",
-                letterSpacing: "0.3px",
-                transform: "translateY(0)",
-              }}
-              onMouseEnter={(e) => {
-                if (!isSubmitting) {
+            <div style={{
+              position: isMobile ? "sticky" : "relative",
+              bottom: 0,
+              left: isMobile ? "-16px" : 0,
+              right: isMobile ? "-16px" : 0,
+              width: isMobile ? "calc(100% + 32px)" : "100%",
+              padding: isMobile ? "16px" : 0,
+              paddingBottom: isMobile ? "max(16px, env(safe-area-inset-bottom))" : 0,
+              background: isMobile ? `linear-gradient(180deg, transparent 0%, ${colors.bgGradientEnd} 20%)` : "transparent",
+              marginTop: isMobile ? "16px" : 0,
+              zIndex: 10,
+            }}>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                style={{
+                  width: "100%",
+                  padding: "18px",
+                  minHeight: "56px",
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  color: colors.bg,
+                  backgroundColor: isSubmitting ? colors.muted : colors.primary,
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: isSubmitting ? "not-allowed" : "pointer",
+                  transition: transitions.normal,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  boxShadow: isSubmitting ? "none" : `0 0 30px ${colors.primaryGlow}`,
+                  fontFamily: "Inter, -apple-system, sans-serif",
+                  letterSpacing: "0.3px",
+                  transform: "translateY(0)",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSubmitting) {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.backgroundColor = colors.primaryHover;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.backgroundColor = isSubmitting ? colors.muted : colors.primary;
+                }}
+                onMouseDown={(e) => {
+                  if (!isSubmitting) {
+                    e.currentTarget.style.transform = "scale(0.98)";
+                  }
+                }}
+                onMouseUp={(e) => {
                   e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.backgroundColor = colors.primaryHover;
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.backgroundColor = isSubmitting ? colors.muted : colors.primary;
-              }}
-              onMouseDown={(e) => {
-                if (!isSubmitting) {
-                  e.currentTarget.style.transform = "scale(0.98)";
-                }
-              }}
-              onMouseUp={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-              }}
-            >
-              {isSubmitting && (
-                <span style={{
-                  width: "18px",
-                  height: "18px",
-                  border: "2px solid transparent",
-                  borderTopColor: colors.bg,
-                  borderRadius: "50%",
-                  animation: "spin 0.8s linear infinite",
-                }} />
-              )}
-              {isSubmitting ? "Verifying..." : "Claim Your Handle →"}
-            </button>
+                }}
+              >
+                {isSubmitting && (
+                  <span style={{
+                    width: "18px",
+                    height: "18px",
+                    border: "2px solid transparent",
+                    borderTopColor: colors.bg,
+                    borderRadius: "50%",
+                    animation: "spin 0.8s linear infinite",
+                  }} />
+                )}
+                {isSubmitting ? "Verifying..." : "Claim Your Handle →"}
+              </button>
+            </div>
           )}
 
           {/* Security note - moved to footer area */}
