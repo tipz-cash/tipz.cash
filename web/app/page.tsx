@@ -2458,7 +2458,7 @@ function SnapSection({
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        paddingTop: isMobile ? "24px" : undefined,
+        paddingTop: isMobile ? "72px" : undefined,  // 60px header + 12px breathing room
         paddingBottom: isMobile ? "32px" : undefined,
         ...style,
       }}
@@ -2827,7 +2827,7 @@ export default function HomePage() {
       <ChapterIndicator currentChapter={currentChapter} />
 
       {/* Chapter 01: Hero - The Promise */}
-      <SnapSection id="hero" isMobile={isMobile} style={{ padding: isMobile ? "0 16px" : "0 48px", overflow: "hidden", position: "relative" }}>
+      <SnapSection id="hero" isMobile={isMobile} style={{ paddingInline: isMobile ? "16px" : "48px", overflow: "hidden", position: "relative" }}>
         {/* Atmospheric background effects - reduced for cleaner look */}
         <div style={{
           position: "absolute",
@@ -3030,7 +3030,7 @@ export default function HomePage() {
       </SnapSection>
 
       {/* Chapter 02: The False Choice - Simplified Visual Storytelling */}
-      <SnapSection id="broken" isMobile={isMobile} style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
+      <SnapSection id="broken" isMobile={isMobile} style={{ paddingInline: isMobile ? "16px" : "48px" }}>
         <div style={contentPadding}>
           {/* Chapter Header */}
           <TerminalReveal delay={0}>
@@ -3380,7 +3380,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 03: The Solution */}
-      <SnapSection id="solution" isMobile={isMobile} style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
+      <SnapSection id="solution" isMobile={isMobile} style={{ paddingInline: isMobile ? "16px" : "48px" }}>
         {/* Gold particles/glow overlay */}
         <div style={{
           position: "absolute",
@@ -3882,7 +3882,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 04: Any Token - Privacy Conversion Terminal */}
-      <SnapSection id="any-token" isMobile={isMobile} style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
+      <SnapSection id="any-token" isMobile={isMobile} style={{ paddingInline: isMobile ? "16px" : "48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -4396,7 +4396,7 @@ export default function HomePage() {
         `}</style>
       </SnapSection>
       {/* Chapter 05: Sovereign Dashboard */}
-      <SnapSection id="creator-tools" isMobile={isMobile} style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
+      <SnapSection id="creator-tools" isMobile={isMobile} style={{ paddingInline: isMobile ? "16px" : "48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -4714,7 +4714,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 06: Genesis Cohort */}
-      <SnapSection id="proof" isMobile={isMobile} style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
+      <SnapSection id="proof" isMobile={isMobile} style={{ paddingInline: isMobile ? "16px" : "48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -5047,7 +5047,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 07: FAQ - Common Questions */}
-      <SnapSection id="faq" isMobile={isMobile} style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
+      <SnapSection id="faq" isMobile={isMobile} style={{ paddingInline: isMobile ? "16px" : "48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -5135,7 +5135,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 08: How It Works */}
-      <SnapSection id="how-it-works" isMobile={isMobile} style={{ padding: isMobile ? "0 16px" : "0 48px" }}>
+      <SnapSection id="how-it-works" isMobile={isMobile} style={{ paddingInline: isMobile ? "16px" : "48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
             <div style={{
@@ -5380,7 +5380,7 @@ export default function HomePage() {
         </div>
       </SnapSection>
       {/* Chapter 09: CTA - marketing-psychology: urgency + commitment */}
-      <SnapSection id="join" isMobile={isMobile} style={{ textAlign: "center", padding: isMobile ? "0 16px" : "0 48px" }}>
+      <SnapSection id="join" isMobile={isMobile} style={{ textAlign: "center", paddingInline: isMobile ? "16px" : "48px" }}>
         <div style={{ maxWidth: "600px", margin: "0 auto" }}>
           <TerminalReveal delay={0}>
             <div style={{
