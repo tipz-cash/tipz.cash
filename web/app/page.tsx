@@ -2445,11 +2445,12 @@ function SnapSection({
         minHeight: isMobile ? "auto" : "100vh",
         scrollSnapAlign: "start",
         scrollSnapStop: "always",
+        scrollMarginTop: `${HEADER_HEIGHT}px`,
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        paddingTop: isMobile ? "60px" : undefined,
-        paddingBottom: isMobile ? "60px" : undefined,
+        paddingTop: isMobile ? "40px" : undefined,
+        paddingBottom: isMobile ? "40px" : undefined,
         ...style,
       }}
     >
@@ -2533,6 +2534,9 @@ function renderWithTipzHighlight(text: string, primaryColor: string) {
   );
 }
 
+// Header height constant for scroll-padding calculations
+const HEADER_HEIGHT = 60; // px
+
 export default function HomePage() {
   const heroText = "Uncensorable\nIncome on X";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
@@ -2607,7 +2611,8 @@ export default function HomePage() {
     <div
       className="main-container"
       style={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
+        height: "auto",
         background: `linear-gradient(180deg, ${colors.bgGradientStart} 0%, ${colors.bgGradientEnd} 50%, ${colors.bgGradientStart} 100%)`,
         color: colors.text,
         fontFamily: "'JetBrains Mono', monospace",
@@ -2615,7 +2620,7 @@ export default function HomePage() {
         overflowX: "hidden",
         scrollSnapType: isMobile ? "none" : "y proximity",
         scrollBehavior: "smooth",
-        height: "100vh",
+        scrollPaddingTop: `${HEADER_HEIGHT}px`,
         position: "relative",
       }}
     >
@@ -2856,7 +2861,7 @@ export default function HomePage() {
           gap: isMobile ? "32px" : "64px",
           position: "relative",
           zIndex: 1,
-          paddingTop: isMobile ? "80px" : "20px",
+          paddingTop: "20px",
         }}>
           {/* Left side: Copy + CTA */}
           <div style={{
