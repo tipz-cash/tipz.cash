@@ -35,6 +35,10 @@ export function AmountSelector({
 
   const handlePresetClick = (amount: number) => {
     if (disabled) return
+    // Haptic feedback for tactile response on mobile
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(10)
+    }
     setIsCustom(false)
     setInputValue("")
     onSelect(amount)
@@ -42,6 +46,10 @@ export function AmountSelector({
 
   const handleCustomClick = () => {
     if (disabled) return
+    // Haptic feedback for tactile response on mobile
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(10)
+    }
     setIsCustom(true)
     onSelect(null, inputValue)
   }

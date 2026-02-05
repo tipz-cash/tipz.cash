@@ -498,24 +498,26 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 </p>
               </div>
 
-              {/* Back button */}
+              {/* Back button - 44px touch target for accessibility */}
               <button
                 onClick={() => setShowPaymentPicker(false)}
                 style={{
-                  width: "32px",
-                  height: "32px",
+                  width: "44px",
+                  height: "44px",
+                  minWidth: "44px",
+                  minHeight: "44px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(255, 255, 255, 0.05)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
-                  borderRadius: tokens.radius.sm,
+                  borderRadius: tokens.radius.md,
                   cursor: "pointer",
                   color: tokens.colors.textMuted,
                   transition: `all ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M15 18l-6-6 6-6" />
                 </svg>
               </button>
@@ -645,23 +647,25 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 </p>
               </div>
 
-              {/* Back button */}
+              {/* Close button - 44px touch target for accessibility */}
               <button
                 onClick={() => setShowWalletSelector(false)}
                 style={{
-                  width: "32px",
-                  height: "32px",
+                  width: "44px",
+                  height: "44px",
+                  minWidth: "44px",
+                  minHeight: "44px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(255, 255, 255, 0.05)",
                   border: "1px solid rgba(255, 255, 255, 0.1)",
-                  borderRadius: tokens.radius.sm,
+                  borderRadius: tokens.radius.md,
                   cursor: "pointer",
                   color: tokens.colors.textMuted,
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
@@ -749,8 +753,19 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
             animate="animate"
             exit="exit"
             transition={{ duration: 0.1 }}
-            style={{ padding: tokens.space.lg }}
+            style={{
+              display: isMobile ? "flex" : "block",
+              flexDirection: "column",
+              minHeight: isMobile ? "calc(100dvh - 120px)" : "auto",
+            }}
           >
+            {/* Scrollable content area */}
+            <div style={{
+              flex: isMobile ? 1 : undefined,
+              overflowY: isMobile ? "auto" : undefined,
+              padding: tokens.space.lg,
+              paddingBottom: isMobile ? tokens.space.sm : tokens.space.lg,
+            }}>
         {/* Compact Header: Avatar + Handle + Shield Badge */}
         <div
           style={{
@@ -831,16 +846,61 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
           </div>
         </div>
 
-        {/* Amount Selection - always visible, always enabled */}
-        <div style={{ marginBottom: tokens.space.md }}>
+        {/* Amount Selection - always visible, disabled during quoting */}
+        <div style={{
+          marginBottom: tokens.space.md,
+          opacity: flowState === "quoting" ? 0.7 : 1,
+          pointerEvents: flowState === "quoting" ? "none" : "auto",
+          transition: `opacity ${tokens.duration.base}ms ${tokens.ease.smooth}`,
+        }}>
           <AmountSelector
             selectedAmount={selectedAmount}
             customAmount={customAmount}
             onSelect={setAmount}
             zecPrice={zecPrice}
-            disabled={false}
+            disabled={flowState === "quoting"}
           />
         </div>
+
+        {/* Quote Loading Skeleton - shown during quote fetch */}
+        {flowState === "quoting" && (
+          <div
+            style={{
+              marginBottom: tokens.space.md,
+              padding: tokens.space.md,
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: tokens.radius.md,
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: tokens.space.sm, marginBottom: tokens.space.sm }}>
+              <div
+                style={{
+                  width: "14px",
+                  height: "14px",
+                  border: "2px solid rgba(255, 215, 0, 0.3)",
+                  borderTopColor: tokens.colors.gold,
+                  borderRadius: "50%",
+                  animation: "spin 1s linear infinite",
+                }}
+              />
+              <span style={{ color: tokens.colors.textMuted, fontSize: "13px", fontFamily: tokens.font.sans }}>
+                Getting best rate...
+              </span>
+            </div>
+            {/* Shimmer skeleton bar */}
+            <div
+              style={{
+                height: "8px",
+                background: "linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%)",
+                backgroundSize: "200% 100%",
+                animation: "shimmer 1.5s ease-in-out infinite",
+                borderRadius: "4px",
+              }}
+            />
+          </div>
+        )}
 
         {/* Message Trench - only show if creator can receive messages */}
         <div style={{ marginBottom: tokens.space.md }}>
@@ -1041,7 +1101,20 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
             </span>
           </div>
         )}
+            </div>
+            {/* End scrollable content area */}
 
+            {/* Sticky CTA Footer - thumb zone optimized */}
+            <div style={{
+              position: isMobile ? "sticky" : "relative",
+              bottom: 0,
+              padding: tokens.space.lg,
+              paddingBottom: isMobile ? `max(${tokens.space.lg}px, env(safe-area-inset-bottom))` : tokens.space.lg,
+              background: isMobile ? tokens.glass.background : "transparent",
+              backdropFilter: isMobile ? tokens.glass.backdropFilter : "none",
+              WebkitBackdropFilter: isMobile ? tokens.glass.backdropFilter : "none",
+              borderTop: isMobile ? "1px solid rgba(255, 255, 255, 0.1)" : "none",
+            }}>
         {/* Send Tip CTA Button */}
         <button
           onClick={() => {
@@ -1229,6 +1302,8 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
             </span>
           </div>
         </div>
+            </div>
+            {/* End sticky CTA footer */}
           </motion.div>
         )}
       </AnimatePresence>
