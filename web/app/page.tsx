@@ -262,6 +262,7 @@ function usePremiumTypingEffect(
     pauseOnPunctuation?: number;
     accelerationCurve?: boolean;
     initialDelay?: number;
+    reducedMotion?: boolean;
   } = {}
 ) {
   const {
@@ -271,12 +272,15 @@ function usePremiumTypingEffect(
     pauseOnPunctuation = 150,
     accelerationCurve = true,
     initialDelay = 400,
+    reducedMotion: reducedMotionOverride,
   } = options;
 
   const [displayText, setDisplayText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
   const [newCharIndex, setNewCharIndex] = useState(-1);
-  const prefersReducedMotion = usePrefersReducedMotion();
+  const systemPrefersReducedMotion = usePrefersReducedMotion();
+  // Use override if provided, otherwise fall back to system preference
+  const prefersReducedMotion = reducedMotionOverride ?? systemPrefersReducedMotion;
 
   useEffect(() => {
     if (prefersReducedMotion) {
@@ -2184,14 +2188,18 @@ function HeroTitle({
   text,
   isMobile,
   onComplete,
+  reducedMotion: reducedMotionOverride,
 }: {
   text: string;
   isMobile: boolean;
   onComplete: () => void;
+  reducedMotion?: boolean;
 }) {
   const [containerVisible, setContainerVisible] = useState(false);
   const [completionFlash, setCompletionFlash] = useState(false);
-  const prefersReducedMotion = usePrefersReducedMotion();
+  const systemPrefersReducedMotion = usePrefersReducedMotion();
+  // Use override if provided, otherwise fall back to system preference
+  const prefersReducedMotion = reducedMotionOverride ?? systemPrefersReducedMotion;
 
   const { displayText, isComplete, newCharIndex } = usePremiumTypingEffect(text, {
     baseSpeed: 55,
@@ -2200,6 +2208,7 @@ function HeroTitle({
     pauseOnPunctuation: 150,
     accelerationCurve: true,
     initialDelay: prefersReducedMotion ? 0 : 400,
+    reducedMotion: prefersReducedMotion,
   });
 
   // Compute glow intensity directly (no state needed)
@@ -2274,7 +2283,7 @@ function HeroTitle({
     >
       <h1
         style={{
-          fontSize: isMobile ? "clamp(32px, 8vw, 48px)" : "clamp(48px, 5vw, 72px)",
+          fontSize: isMobile ? "clamp(24px, 7vw, 36px)" : "clamp(48px, 5vw, 72px)",
           fontWeight: 800,
           letterSpacing: "-0.035em",
           lineHeight: 1.1,
@@ -2449,8 +2458,8 @@ function SnapSection({
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        paddingTop: isMobile ? "40px" : undefined,
-        paddingBottom: isMobile ? "40px" : undefined,
+        paddingTop: isMobile ? "24px" : undefined,
+        paddingBottom: isMobile ? "32px" : undefined,
         ...style,
       }}
     >
@@ -2548,6 +2557,8 @@ export default function HomePage() {
   const parallaxOffset = useParallax(0.3);
   const parallaxOffsetSlow = useParallax(0.15);
   const prefersReducedMotion = usePrefersReducedMotion();
+  // Treat mobile as reduced motion for simpler, faster experience
+  const effectiveReducedMotion = prefersReducedMotion || isMobile;
 
   // Scroll-triggered checklist animation
   const [checklistVisible, setChecklistVisible] = useState(false);
@@ -2892,6 +2903,7 @@ export default function HomePage() {
                   text={heroText}
                   isMobile={isMobile}
                   onComplete={() => setHeroAnimationReady(true)}
+                  reducedMotion={effectiveReducedMotion}
                 />
               </div>
             </div>
@@ -2899,7 +2911,7 @@ export default function HomePage() {
             {/* Sub-copy */}
             <TerminalReveal delay={heroAnimationReady ? 0 : 99999}>
               <p style={{
-                fontSize: isMobile ? "12px" : "14px",
+                fontSize: isMobile ? "11px" : "14px",
                 lineHeight: 1.7,
                 marginBottom: "32px",
                 letterSpacing: "0.04em",
@@ -3011,7 +3023,7 @@ export default function HomePage() {
               }} />
 
               {/* Iron Man Morph Animation - scaled for mobile */}
-              <IronManMorph isVisible={tweetVisible} scale={isMobile ? 0.6 : 1} />
+              <IronManMorph isVisible={tweetVisible} scale={isMobile ? 0.5 : 1} />
             </div>
           </TerminalReveal>
         </div>
@@ -3319,6 +3331,7 @@ export default function HomePage() {
           <TerminalReveal delay={500}>
             <div style={{
               marginTop: "64px",
+              marginBottom: isMobile ? "40px" : "0",
               textAlign: "center",
               position: "relative",
             }}>
@@ -3383,7 +3396,7 @@ export default function HomePage() {
               fontSize: "11px",
               color: colors.success,
               letterSpacing: "2px",
-              marginBottom: "16px",
+              marginBottom: "24px",
               display: "flex",
               alignItems: "center",
               gap: "12px",
@@ -4543,8 +4556,9 @@ export default function HomePage() {
               <div style={{
                 position: "relative",
                 height: isMobile ? "auto" : "480px",
-                minHeight: isMobile ? "400px" : undefined,
+                minHeight: isMobile ? "320px" : undefined,
                 order: isMobile ? 1 : 0,
+                overflow: "hidden",
               }}>
                 {/* Subtle background glow */}
                 <div style={{
@@ -4565,8 +4579,8 @@ export default function HomePage() {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -45%)",
-                  width: isMobile ? "min(340px, calc(100vw - 48px))" : "340px",
+                  transform: isMobile ? "translate(-50%, -50%)" : "translate(-50%, -45%)",
+                  width: isMobile ? "min(280px, calc(100vw - 48px))" : "340px",
                   background: "#000000",
                   border: "1px solid #2f3336",
                   borderRadius: "16px",
@@ -4582,8 +4596,8 @@ export default function HomePage() {
                   }}>
                     {/* Avatar - Mert's actual profile picture */}
                     <div style={{
-                      width: "40px",
-                      height: "40px",
+                      width: isMobile ? "32px" : "40px",
+                      height: isMobile ? "32px" : "40px",
                       borderRadius: "50%",
                       backgroundImage: "url('https://pbs.twimg.com/profile_images/1975912876243095552/YlVLO4Oz_400x400.jpg')",
                       backgroundSize: "cover",
@@ -4592,12 +4606,12 @@ export default function HomePage() {
                     }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <span style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 700 }}>mert</span>
+                        <span style={{ color: "#e7e9ea", fontSize: isMobile ? "13px" : "15px", fontWeight: 700 }}>mert</span>
                         <svg width="18" height="18" viewBox="0 0 22 22" fill="#1d9bf0">
                           <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/>
                         </svg>
                       </div>
-                      <span style={{ color: "#71767b", fontSize: "15px" }}>@mert · 4h</span>
+                      <span style={{ color: "#71767b", fontSize: isMobile ? "13px" : "15px" }}>@mert · 4h</span>
                     </div>
                     {/* X Logo */}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="#71767b" style={{ flexShrink: 0 }}>
@@ -4614,7 +4628,7 @@ export default function HomePage() {
                   }}>
                     {/* Article Image - Privacy Thesis cover */}
                     <div style={{
-                      height: "140px",
+                      height: isMobile ? "100px" : "140px",
                       backgroundImage: "url('https://pbs.twimg.com/media/G48VC29aUAAO__P?format=jpg&name=medium')",
                       backgroundSize: "cover",
                       backgroundPosition: "center",
