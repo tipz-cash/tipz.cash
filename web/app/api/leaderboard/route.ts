@@ -27,7 +27,7 @@ interface LeaderboardResponse {
 // Demo data shown when no real data exists - uses actual demo creators
 const demoLeaderboard: LeaderboardEntry[] = [
   { rank: 1, handle: "zooko", tip_count: 1843, tier: "diamond", avatar_url: "https://unavatar.io/twitter/zooko" },
-  { rank: 2, handle: "mert", tip_count: 1247, tier: "diamond", avatar_url: "https://unavatar.io/twitter/maboroshi_mert" },
+  { rank: 2, handle: "mert", tip_count: 1247, tier: "diamond", avatar_url: "https://unavatar.io/twitter/mert" },
   { rank: 3, handle: "naval", tip_count: 891, tier: "diamond", avatar_url: "https://unavatar.io/twitter/naval" },
 ]
 
