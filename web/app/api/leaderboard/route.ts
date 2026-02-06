@@ -26,9 +26,9 @@ interface LeaderboardResponse {
 
 // Demo data shown when no real data exists - uses actual demo creators
 const demoLeaderboard: LeaderboardEntry[] = [
-  { rank: 1, handle: "zooko", tip_count: 247, tier: "diamond", avatar_url: "https://unavatar.io/twitter/zooko" },
-  { rank: 2, handle: "jswihart", tip_count: 89, tier: "gold", avatar_url: "https://unavatar.io/twitter/jswihart" },
-  { rank: 3, handle: "naval", tip_count: 34, tier: "silver", avatar_url: "https://unavatar.io/twitter/naval" },
+  { rank: 1, handle: "zooko", tip_count: 1843, tier: "diamond", avatar_url: "https://unavatar.io/twitter/zooko" },
+  { rank: 2, handle: "mert", tip_count: 1247, tier: "diamond", avatar_url: "https://unavatar.io/twitter/maboroshi_mert" },
+  { rank: 3, handle: "naval", tip_count: 891, tier: "diamond", avatar_url: "https://unavatar.io/twitter/naval" },
 ]
 
 function getTier(tipCount: number): LeaderboardEntry["tier"] {

@@ -15,34 +15,20 @@ interface ActivityResponse {
 
 // Demo data shown when no real activity exists - uses actual demo creators
 const demoActivity: ActivityItem[] = [
-  {
-    creator_handle: "zooko",
-    displayed_at: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-  },
-  {
-    creator_handle: "naval",
-    displayed_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-  },
-  {
-    creator_handle: "balajis",
-    displayed_at: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
-  },
-  {
-    creator_handle: "zcash",
-    displayed_at: new Date(Date.now() - 18 * 60 * 1000).toISOString(),
-  },
-  {
-    creator_handle: "ZcashFoundation",
-    displayed_at: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
-  },
-  {
-    creator_handle: "mert",
-    displayed_at: new Date(Date.now() - 32 * 60 * 1000).toISOString(),
-  },
-  {
-    creator_handle: "shieldedlabs",
-    displayed_at: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
-  },
+  { creator_handle: "mert", displayed_at: new Date(Date.now() - 1 * 60 * 1000).toISOString() },
+  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 2 * 60 * 1000).toISOString() },
+  { creator_handle: "naval", displayed_at: new Date(Date.now() - 3 * 60 * 1000).toISOString() },
+  { creator_handle: "balajis", displayed_at: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
+  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 7 * 60 * 1000).toISOString() },
+  { creator_handle: "mert", displayed_at: new Date(Date.now() - 9 * 60 * 1000).toISOString() },
+  { creator_handle: "zcash", displayed_at: new Date(Date.now() - 11 * 60 * 1000).toISOString() },
+  { creator_handle: "jswihart", displayed_at: new Date(Date.now() - 13 * 60 * 1000).toISOString() },
+  { creator_handle: "shieldedlabs", displayed_at: new Date(Date.now() - 15 * 60 * 1000).toISOString() },
+  { creator_handle: "naval", displayed_at: new Date(Date.now() - 17 * 60 * 1000).toISOString() },
+  { creator_handle: "ZcashFoundation", displayed_at: new Date(Date.now() - 19 * 60 * 1000).toISOString() },
+  { creator_handle: "mert", displayed_at: new Date(Date.now() - 21 * 60 * 1000).toISOString() },
+  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 23 * 60 * 1000).toISOString() },
+  { creator_handle: "balajis", displayed_at: new Date(Date.now() - 26 * 60 * 1000).toISOString() },
 ]
 
 // Privacy: Vague time labels to prevent on-chain correlation

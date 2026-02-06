@@ -44,11 +44,13 @@ function getTierFromRank(rank: number): "gold" | "silver" | "bronze" {
 
 // Privacy: Fuzzy buckets to prevent oracle attacks
 function getSignalBucket(count: number): string {
+  if (count >= 1000) return "1K+ Tipz"
+  if (count >= 500) return "500+ Tipz"
   if (count >= 200) return "200+ Tipz"
   if (count >= 100) return "100+ Tipz"
   if (count >= 50) return "50+ Tipz"
   if (count >= 10) return "10+ Tipz"
-  return "Tipz"  // 1-9 tips, no number shown
+  return "Tipz"
 }
 
 interface LeaderboardProps {

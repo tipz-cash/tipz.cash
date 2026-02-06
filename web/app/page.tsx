@@ -4558,7 +4558,6 @@ export default function HomePage() {
                 height: isMobile ? "auto" : "480px",
                 minHeight: isMobile ? "320px" : undefined,
                 order: isMobile ? 1 : 0,
-                overflow: "hidden",
               }}>
                 {/* Subtle background glow */}
                 <div style={{
