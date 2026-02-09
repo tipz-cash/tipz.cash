@@ -244,7 +244,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
     }
   }
 
-  const animationStyle = prefersReducedMotion ? {} : {
+  const animationStyle = prefersReducedMotion ? { opacity: 1 } : {
     animation: "fadeInUp 0.4s ease-out forwards",
   };
 
