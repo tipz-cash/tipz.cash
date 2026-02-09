@@ -32,11 +32,13 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "TIPZ",
     url: "https://tipz.cash",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "TIPZ - Uncensorable Income on X" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "TIPZ - Private Tips. Any Asset. Zero Trace.",
     description: "Private micro-tipping for creators using Zcash shielded addresses.",
+    images: ["/og-image.png"],
   },
 }
 

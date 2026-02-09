@@ -3,7 +3,7 @@ import path from "path";
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
-const OUTPUT_PATH = path.join(__dirname, "..", "app", "opengraph-image.png");
+const OUTPUT_PATH = path.join(__dirname, "..", "public", "og-image.png");
 
 async function captureOG() {
   const browser = await chromium.launch();
