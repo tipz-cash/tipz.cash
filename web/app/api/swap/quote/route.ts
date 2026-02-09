@@ -69,6 +69,7 @@ const COINGECKO_IDS: Record<string, string> = {
   USDT: "tether",
   DAI: "dai",
   ZEC: "zcash",
+  SOL: "solana",
 }
 
 // Known token addresses mapped to symbols
@@ -89,6 +90,7 @@ const CHAIN_NATIVE: Record<number, string> = {
   137: "MATIC",
   42161: "ETH",
   10: "ETH",
+  501: "SOL",
 }
 
 // Token decimals
@@ -98,6 +100,7 @@ const TOKEN_DECIMALS: Record<string, number> = {
   USDC: 6,
   USDT: 6,
   DAI: 18,
+  SOL: 9,
 }
 
 // Fallback prices if CoinGecko fails
@@ -107,7 +110,8 @@ const FALLBACK_PRICES: Record<string, number> = {
   USDC: 1.0,
   USDT: 1.0,
   DAI: 1.0,
-  ZEC: 40,
+  ZEC: 247,
+  SOL: 200,
 }
 
 /**
@@ -155,6 +159,14 @@ async function getTokenPrices(symbols: string[]): Promise<Record<string, number>
  * Resolve token symbol from address
  */
 function resolveTokenSymbol(address: string, chainId: number): string {
+  // Solana native token
+  if (chainId === 501) {
+    if (address === "native" || address === "" || address === "So11111111111111111111111111111111111111112") {
+      return "SOL"
+    }
+    return "UNKNOWN"
+  }
+
   // Check if it's a known token address
   const known = TOKEN_SYMBOLS[address]
   if (known) {
