@@ -70,7 +70,7 @@ import { POST as executeHandler } from "@/app/api/swap/execute/route"
 import { GET as statusHandler } from "@/app/api/swap/status/route"
 import { clearAllRateLimits } from "@/lib/rate-limit"
 
-const VALID_ZEC_ADDRESS = "zs1" + "a".repeat(75)
+const VALID_ZEC_ADDRESS = "u1" + "q".repeat(139)
 const VALID_ETH_ADDRESS = "0x1234567890abcdef1234567890abcdef12345678"
 
 function createPostRequest(body: Record<string, unknown>): any {

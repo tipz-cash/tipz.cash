@@ -642,7 +642,7 @@ Status:   PRIVATE ✓`}
               {
                 step: "01",
                 title: "Get a wallet",
-                desc: "Download Zashi and copy your shielded address (starts with zs1...)",
+                desc: "Download Zashi and copy your unified address (starts with u1...)",
               },
               {
                 step: "02",

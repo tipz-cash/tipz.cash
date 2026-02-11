@@ -1279,7 +1279,7 @@ export function shortenAddress(address: string, chars: number = 4): string {
  * Validate ZEC shielded address
  */
 export function isValidShieldedAddress(address: string): boolean {
-  return address.startsWith("u1") || address.startsWith("zs1")
+  return address.startsWith("u1")
 }
 
 // ============================================================================

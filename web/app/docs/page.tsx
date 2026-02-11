@@ -456,7 +456,7 @@ function CreatorsTab() {
           <StepList
             steps={[
               { num: "01", title: "Get a Zcash wallet", desc: "Download Zashi (iOS/Android). Free. Takes 30 seconds. Create wallet, backup seed phrase." },
-              { num: "02", title: "Register at tipz.cash/register", desc: "Enter your X handle and paste your shielded address (starts with u1... or zs1...)." },
+              { num: "02", title: "Register at tipz.cash/register", desc: "Enter your X handle and paste your unified address (starts with u1...)." },
               { num: "03", title: "Verify via tweet", desc: "Post a verification tweet. We'll confirm automatically." },
               { num: "04", title: "Share your link", desc: "Your tip page is live at tipz.cash/yourhandle. Add it to your bio." },
             ]}
@@ -791,14 +791,6 @@ OUTPUT
             u1rl42v9...
           </code>
 
-          <div style={{ marginBottom: "8px" }}>
-            <span style={{ color: colors.muted }}>Sapling (zs...):</span>
-            <span style={{ color: colors.muted, marginLeft: "8px", fontSize: "11px" }}>Legacy, still supported</span>
-          </div>
-          <code style={{ color: colors.muted, wordBreak: "break-all" }}>
-            zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly
-          </code>
-          <div style={{ marginTop: "8px", color: colors.muted }}>78 characters, Base58 encoded</div>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px" }}>

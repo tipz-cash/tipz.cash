@@ -326,7 +326,7 @@ export interface TransactionStats {
  * ```typescript
  * const tx = await logTransaction({
  *   creatorId: "550e8400-e29b-41d4-a716-446655440000",
- *   recipientAddress: "zs1...",
+ *   recipientAddress: "u1...",
  *   amountZec: 0.01,
  *   sourcePlatform: "extension",
  *   sourceUrl: "https://x.com/creator/status/123"

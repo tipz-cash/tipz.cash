@@ -55,7 +55,7 @@ describe("POST /api/swap/quote", () => {
       fromChain: 1,
       fromToken: "0x0000000000000000000000000000000000000000",
       fromAmount: "0.01",
-      destinationAddress: "zs1" + "a".repeat(75),
+      destinationAddress: "u1" + "q".repeat(139),
       refundAddress: "0x1234567890abcdef1234567890abcdef12345678",
     })
 
@@ -101,7 +101,7 @@ describe("POST /api/swap/quote", () => {
       fromChain: 1,
       fromToken: "0x1234567890abcdef1234567890abcdef12345678",
       fromAmount: "1",
-      destinationAddress: "zs1" + "a".repeat(75),
+      destinationAddress: "u1" + "q".repeat(139),
       refundAddress: "0x1234567890abcdef1234567890abcdef12345678",
     })
 
@@ -116,7 +116,7 @@ describe("POST /api/swap/quote", () => {
       fromChain: 1,
       fromToken: "0x0000000000000000000000000000000000000000",
       fromAmount: "0.01",
-      destinationAddress: "zs1" + "a".repeat(75),
+      destinationAddress: "u1" + "q".repeat(139),
       // missing refundAddress
     })
 
@@ -132,7 +132,7 @@ describe("POST /api/swap/quote", () => {
         fromChain: 1,
         fromToken: "0x0000000000000000000000000000000000000000",
         fromAmount: "0.01",
-        destinationAddress: "zs1" + "a".repeat(75),
+        destinationAddress: "u1" + "q".repeat(139),
         refundAddress: "0x1234567890abcdef1234567890abcdef12345678",
       })
 

@@ -42,19 +42,14 @@ function validateHandle(handle: string): string | null {
 
 function validateShieldedAddress(address: string): string | null {
   if (!address) return "Shielded address is required";
-  // Accept Sapling (zs1...) or Unified (u1...) addresses
-  if (!address.startsWith("zs1") && !address.startsWith("u1")) {
-    return "Must be a shielded address (starts with 'zs1' or 'u1')";
+  if (!address.startsWith("u1")) {
+    return "Must be a unified address (starts with 'u1')";
   }
   return null;
 }
 
 function isAddressComplete(address: string): boolean {
-  // Sapling addresses (zs1): exactly 78 characters
   // Unified addresses (u1): 141+ characters (variable, typically 141-216)
-  if (address.startsWith("zs1")) {
-    return address.length === 78;
-  }
   if (address.startsWith("u1")) {
     return address.length >= 141;
   }
@@ -71,7 +66,7 @@ function validateTweetUrl(url: string): string | null {
 // Error message mapping for API errors
 const errorMessageMap: Record<string, string> = {
   "Handle already registered": "This handle is already registered. If this is your account, please contact support.",
-  "Invalid shielded address": "The Zcash address format is invalid. Please use a shielded (zs) address.",
+  "Invalid shielded address": "The Zcash address format is invalid. Please use a unified (u1) address.",
   "Tweet verification failed": "We couldn't verify your tweet. Make sure it's public and contains your shielded address.",
   "Rate limit exceeded": "Too many attempts. Please wait a few minutes and try again.",
   "Network error": "Connection failed. Please check your internet and try again.",
@@ -155,9 +150,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
     if (!isAddressComplete(shieldedAddress)) {
       errors.shielded_address = shieldedAddress.length === 0
         ? "Shielded address is required"
-        : shieldedAddress.startsWith("u1")
-          ? `Unified address too short (${shieldedAddress.length} chars, need 141+)`
-          : `Sapling address must be 78 characters (${shieldedAddress.length}/78)`;
+        : `Unified address too short (${shieldedAddress.length} chars, need 141+)`;
     }
 
     const tweetError = validateTweetUrl(tweetUrl);
@@ -504,7 +497,7 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                     setFieldErrors({ ...fieldErrors, shielded_address: "" })
                   }
                 }}
-                placeholder="zs1..."
+                placeholder="u1..."
                 style={{
                   ...inputStyle,
                   borderColor: fieldErrors.shielded_address ? colors.error :
@@ -534,10 +527,8 @@ My shielded address: ${shieldedAddress || "[your address]"}`
                   color: isAddressComplete(shieldedAddress) ? colors.success : colors.muted
                 }}>
                   {shieldedAddress.length > 0
-                    ? shieldedAddress.startsWith("u1")
-                      ? `${shieldedAddress.length} characters (unified address)`
-                      : `${shieldedAddress.length}/78 characters`
-                    : "Shielded address (zs1... or u1...)"}
+                    ? `${shieldedAddress.length} characters (unified address)`
+                    : "Unified address (u1...)"}
                 </p>
               )}
 

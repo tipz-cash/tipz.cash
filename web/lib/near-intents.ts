@@ -233,7 +233,7 @@ export async function getSupportedTokens(): Promise<TokenInfo[]> {
  *   originAsset: "eth:1:native",
  *   destinationAsset: "zec:mainnet:native",
  *   depositAmount: "10000000000000000", // 0.01 ETH in wei
- *   recipient: "zs1...", // Creator's shielded address
+ *   recipient: "u1...", // Creator's shielded address
  *   refundTo: "0x...", // Tipper's wallet address
  * })
  * ```
