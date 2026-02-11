@@ -62,7 +62,6 @@ interface UseTippingOptions {
   walletAddress: string | null
   chainId: number | null
   isWalletConnected: boolean
-  demoMode?: boolean // Force demo mode - simulates entire flow without real transactions
 }
 
 interface UseTippingReturn {
@@ -105,7 +104,7 @@ const PRESET_AMOUNTS = [1, 5, 10, 25]
 const STATUS_POLL_INTERVAL = 5000 // 5 seconds
 
 export function useTipping(options: UseTippingOptions): UseTippingReturn {
-  const { creatorHandle, shieldedAddress, walletAddress, chainId, isWalletConnected, demoMode = false } = options
+  const { creatorHandle, shieldedAddress, walletAddress, chainId, isWalletConnected } = options
 
   // State
   const [flowState, setFlowState] = useState<TippingFlowState>("idle")
@@ -563,7 +562,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         // Continue background polling - will transition to "success" when confirmed
         startStatusPolling(pollAddress)
       } else {
-        // Demo mode or immediate swaps - show success directly
+        // No deposit address - show success directly
         setFlowState("success")
       }
     } catch (err: any) {
@@ -625,76 +624,8 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     setFlowState("expanded")
   }, [])
 
-  /**
-   * Demo mode: Simulate the full tipping flow without real wallet/API calls
-   * This allows testers to see the complete UX without making real transactions
-   */
-  const sendDemoTip = useCallback(async () => {
-    const amount = selectedAmount || parseFloat(customAmount)
-    if (!amount || amount <= 0) {
-      setError("Please enter a valid amount")
-      return
-    }
-
-    setError(null)
-    console.log("[useTipping] Demo mode: Simulating tip flow for $" + amount)
-
-    // Calculate simulated ZEC amount
-    const zecPrice = 40 // Fallback ZEC price for demo
-    const zecAmount = (amount / zecPrice).toFixed(6)
-
-    // Create mock transaction
-    const mockTx: TipTransaction = {
-      id: `demo-${Date.now()}`,
-      status: "connecting",
-      fromToken: "USDC",
-      fromAmount: amount.toString(),
-      toAmount: zecAmount,
-      recipientHandle: creatorHandle,
-      recipientAddress: shieldedAddress,
-      txHash: `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`,
-      intentId: `demo-intent-${Date.now()}`,
-      createdAt: Date.now(),
-      usdAmount: amount,
-      networkFee: "0.50",
-    }
-
-    // Phase 1: Signing (1.5s)
-    setFlowState("signing")
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    // Phase 2: Processing with rotating messages (4s)
-    setFlowState("processing")
-    setIsRealSwap(true) // Show the real swap UI elements
-    setSwapStatus("PROCESSING")
-    await new Promise(resolve => setTimeout(resolve, 4000))
-
-    // Phase 3: Delivering (show the "you can close" state)
-    mockTx.status = "confirming"
-    setTransaction(mockTx)
-    setDepositAddress(`demo-deposit-${Date.now()}`)
-    setFlowState("delivering")
-
-    // Simulate delivery time (3s), then show success
-    await new Promise(resolve => setTimeout(resolve, 3000))
-
-    // Phase 4: Success!
-    mockTx.status = "completed"
-    mockTx.completedAt = Date.now()
-    setTransaction(mockTx)
-    setSwapStatus("SUCCESS")
-    setFlowState("success")
-
-    console.log("[useTipping] Demo mode: Flow complete")
-  }, [selectedAmount, customAmount, creatorHandle, shieldedAddress])
-
   // Combined action: get quote and immediately confirm (skip confirmation step)
   const sendTip = useCallback(async () => {
-    // If demo mode is enabled, use the simulated flow
-    if (demoMode) {
-      return sendDemoTip()
-    }
-
     if (!selectedToken) {
       setError("Please select a token")
       return
@@ -792,7 +723,6 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         // Continue background polling - will transition to "success" when confirmed
         startStatusPolling(pollAddress)
       } else {
-        // Demo mode or immediate swaps - show success directly
         setFlowState("success")
       }
     } catch (err: any) {
@@ -805,7 +735,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
       }
       setFlowState("error")
     }
-  }, [demoMode, sendDemoTip, selectedToken, selectedAmount, customAmount, shieldedAddress, walletAddress, creatorHandle, startStatusPolling])
+  }, [selectedToken, selectedAmount, customAmount, shieldedAddress, walletAddress, creatorHandle, startStatusPolling])
 
   // Auto-transition to connected state when wallet connects
   useEffect(() => {

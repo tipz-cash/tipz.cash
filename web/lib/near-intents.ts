@@ -20,13 +20,6 @@
 const NEAR_INTENTS_BASE_URL = "https://1click.chaindefuser.com"
 
 /**
- * Check if real swaps are enabled
- */
-export function isRealSwapsEnabled(): boolean {
-  return process.env.ENABLE_REAL_SWAPS === "true"
-}
-
-/**
  * Get the JWT token for authenticated requests (avoids 0.1% fee)
  */
 function getAuthToken(): string | undefined {

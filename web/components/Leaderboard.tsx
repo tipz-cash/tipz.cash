@@ -13,7 +13,6 @@ interface LeaderboardEntry {
 
 interface LeaderboardResponse {
   leaderboard: LeaderboardEntry[]
-  demo: boolean
 }
 
 // Tier colors: gold, silver, bronze (based on rank position)
@@ -55,12 +54,10 @@ function getSignalBucket(count: number): string {
 
 interface LeaderboardProps {
   prefersReducedMotion?: boolean
-  demoMode?: boolean // When true, links include ?demo=true
 }
 
-export function Leaderboard({ prefersReducedMotion = false, demoMode = false }: LeaderboardProps) {
+export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
-  const [isDemo, setIsDemo] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -69,7 +66,6 @@ export function Leaderboard({ prefersReducedMotion = false, demoMode = false }: 
         const res = await fetch("/api/leaderboard?limit=3")
         const data: LeaderboardResponse = await res.json()
         setLeaderboard(data.leaderboard)
-        setIsDemo(data.demo)
       } catch (error) {
         console.error("[Leaderboard] Fetch error:", error)
       } finally {
@@ -203,31 +199,10 @@ export function Leaderboard({ prefersReducedMotion = false, demoMode = false }: 
                 entry={entry}
                 index={index}
                 prefersReducedMotion={prefersReducedMotion}
-                demoMode={demoMode}
               />
             ))}
         </div>
 
-        {/* Demo indicator */}
-        {isDemo && (
-          <div
-            style={{
-              textAlign: "center",
-              marginTop: "16px",
-              fontSize: "9px",
-              fontFamily: "'JetBrains Mono', monospace",
-              letterSpacing: "1px",
-              color: colors.muted,
-              opacity: 0,
-              animation: prefersReducedMotion
-                ? "none"
-                : "fadeInUp 0.5s ease forwards",
-              animationDelay: "0.4s",
-            }}
-          >
-            DEMO
-          </div>
-        )}
       </div>
     </>
   )
@@ -237,10 +212,9 @@ interface LeaderboardCardProps {
   entry: LeaderboardEntry
   index: number
   prefersReducedMotion: boolean
-  demoMode?: boolean
 }
 
-function LeaderboardCard({ entry, index, prefersReducedMotion, demoMode = false }: LeaderboardCardProps) {
+function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   // Use rank-based tier (1st = gold, 2nd = silver, 3rd = bronze)
   const tier = getTierFromRank(entry.rank)
@@ -279,7 +253,7 @@ function LeaderboardCard({ entry, index, prefersReducedMotion, demoMode = false 
       `}</style>
 
       <a
-        href={`/${entry.handle}${demoMode ? "?demo=true" : ""}`}
+        href={`/${entry.handle}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{

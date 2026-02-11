@@ -16,31 +16,12 @@ interface ActivityItem {
   displayed_at: string
 }
 
-// Demo activity using actual demo creators
-const demoActivity: ActivityItem[] = [
-  { creator_handle: "mert", displayed_at: new Date(Date.now() - 1 * 60 * 1000).toISOString() },
-  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 2 * 60 * 1000).toISOString() },
-  { creator_handle: "naval", displayed_at: new Date(Date.now() - 3 * 60 * 1000).toISOString() },
-  { creator_handle: "balajis", displayed_at: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
-  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 7 * 60 * 1000).toISOString() },
-  { creator_handle: "mert", displayed_at: new Date(Date.now() - 9 * 60 * 1000).toISOString() },
-  { creator_handle: "zcash", displayed_at: new Date(Date.now() - 11 * 60 * 1000).toISOString() },
-  { creator_handle: "jswihart", displayed_at: new Date(Date.now() - 13 * 60 * 1000).toISOString() },
-  { creator_handle: "shieldedlabs", displayed_at: new Date(Date.now() - 15 * 60 * 1000).toISOString() },
-  { creator_handle: "naval", displayed_at: new Date(Date.now() - 17 * 60 * 1000).toISOString() },
-  { creator_handle: "ZcashFoundation", displayed_at: new Date(Date.now() - 19 * 60 * 1000).toISOString() },
-  { creator_handle: "mert", displayed_at: new Date(Date.now() - 21 * 60 * 1000).toISOString() },
-  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 23 * 60 * 1000).toISOString() },
-  { creator_handle: "balajis", displayed_at: new Date(Date.now() - 26 * 60 * 1000).toISOString() },
-]
-
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50)
 
   if (!supabase) {
-    // Return demo data when Supabase is not configured
-    return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
+    return NextResponse.json({ activity: [] })
   }
 
   try {
@@ -58,11 +39,11 @@ export async function GET(request: NextRequest) {
         return await getFallbackActivity(limit)
       }
       console.error("[activity] Error:", error)
-      return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
+      return NextResponse.json({ activity: [] })
     }
 
     if (!transactions || transactions.length === 0) {
-      return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
+      return NextResponse.json({ activity: [] })
     }
 
     const activity: ActivityItem[] = (transactions || []).map(
@@ -72,13 +53,10 @@ export async function GET(request: NextRequest) {
       })
     )
 
-    return NextResponse.json({
-      activity,
-      demo: false,
-    })
+    return NextResponse.json({ activity })
   } catch (error) {
     console.error("[activity] Error:", error)
-    return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
+    return NextResponse.json({ activity: [] })
   }
 }
 
@@ -137,10 +115,7 @@ async function getFallbackActivity(limit: number) {
           new Date(a.displayed_at).getTime()
       )
 
-    return NextResponse.json({
-      activity,
-      demo: false,
-    })
+    return NextResponse.json({ activity })
   } catch (error) {
     console.error("[activity] Fallback error:", error)
     return NextResponse.json({ activity: [] })

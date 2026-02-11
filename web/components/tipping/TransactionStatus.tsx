@@ -57,7 +57,7 @@ export function TransactionStatus({
   const [messagePhase, setMessagePhase] = useState(0)
   const [addressCopied, setAddressCopied] = useState(false)
 
-  // Cycle through message phases during processing (demo mode)
+  // Cycle through message phases during processing
   useEffect(() => {
     if ((flowState === "signing" || flowState === "processing") && !isRealSwap) {
       const interval = setInterval(() => {
