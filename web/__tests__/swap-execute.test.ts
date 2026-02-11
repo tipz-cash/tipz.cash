@@ -18,7 +18,7 @@ vi.mock("@/lib/near-intents", () => ({
 import { POST } from "@/app/api/swap/execute/route"
 import { clearAllRateLimits } from "@/lib/rate-limit"
 
-const VALID_ZEC_ADDRESS = "zs1" + "a".repeat(75)
+const VALID_ZEC_ADDRESS = "u1" + "q".repeat(139)
 const VALID_ETH_ADDRESS = "0x1234567890abcdef1234567890abcdef12345678"
 
 function createRequest(body: Record<string, unknown>): any {

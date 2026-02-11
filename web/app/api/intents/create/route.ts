@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     if (!isValidShieldedAddress(destinationAddress)) {
       return NextResponse.json(
         {
-          error: "Invalid ZEC shielded address. Must start with 'zs1' (78 chars) or 'u1' (unified address).",
+          error: "Invalid ZEC shielded address. Must be a unified address starting with 'u1'.",
         },
         { status: 400 }
       )

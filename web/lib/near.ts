@@ -122,11 +122,9 @@ export function generateIntentId(): string {
 }
 
 /**
- * Validate ZEC shielded address format
+ * Validate ZEC unified address format
  *
- * Supports:
- * - Unified addresses (u1...) - preferred for new wallets
- * - Sapling addresses (zs1...) - legacy but still valid
+ * Only accepts unified addresses (u1...) — the current Zcash standard.
  */
 export function isValidShieldedAddress(address: string): boolean {
   if (!address || typeof address !== "string") {
@@ -136,11 +134,6 @@ export function isValidShieldedAddress(address: string): boolean {
   // Unified addresses start with 'u1' (variable length, typically 141+ chars)
   if (address.startsWith("u1")) {
     return address.length >= 78;
-  }
-
-  // Sapling shielded addresses start with 'zs1' (exactly 78 characters)
-  if (address.startsWith("zs1")) {
-    return address.length === 78;
   }
 
   return false;

@@ -19,20 +19,13 @@ describe("isValidShieldedAddress", () => {
     expect(isValidShieldedAddress(addr)).toBe(true)
   })
 
-  it("accepts valid Sapling address (zs1...)", () => {
-    // zs1 addresses are exactly 78 chars
+  it("rejects zs1 (Sapling) addresses", () => {
     const addr = "zs1" + "a".repeat(75)
-    expect(isValidShieldedAddress(addr)).toBe(true)
+    expect(isValidShieldedAddress(addr)).toBe(false)
   })
 
   it("rejects too-short unified address", () => {
     const addr = "u1" + "a".repeat(10)
-    expect(isValidShieldedAddress(addr)).toBe(false)
-  })
-
-  it("rejects wrong-length Sapling address", () => {
-    // zs1 must be exactly 78 chars total
-    const addr = "zs1" + "a".repeat(80)
     expect(isValidShieldedAddress(addr)).toBe(false)
   })
 

@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
     // Validate destination address (should be ZEC shielded)
     if (!isValidShieldedAddress(destinationAddress)) {
       return NextResponse.json(
-        { error: "Invalid destination address. Expected ZEC shielded address (zs1... or u1...)" },
+        { error: "Invalid destination address. Expected ZEC unified address (u1...)" },
         { status: 400 }
       )
     }

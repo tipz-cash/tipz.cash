@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate shielded address
-    if (!destinationAddress.startsWith("zs1") && !destinationAddress.startsWith("u1")) {
+    if (!destinationAddress.startsWith("u1")) {
       return NextResponse.json(
         { error: "Invalid ZEC shielded address" },
         { status: 400 }
