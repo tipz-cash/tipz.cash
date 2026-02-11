@@ -139,7 +139,7 @@ export default function RegisterPage() {
 
   const verificationText = `I'm registering for @TIPZ_xyz to receive private tips via Zcash.
 
-My shielded address: ${shieldedAddress || "[your address]"}`
+${shieldedAddress || "[your address]"}`
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
