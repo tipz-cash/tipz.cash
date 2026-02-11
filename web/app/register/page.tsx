@@ -137,7 +137,7 @@ export default function RegisterPage() {
     return 10 + (completed / 3) * 90;
   }
 
-  const verificationText = `I'm registering for @TIPZ_xyz to receive private tips via Zcash.
+  const verificationText = `I'm registering for @tipz_cash to receive private tips via Zcash.
 
 ${shieldedAddress || "[your address]"}`
 
@@ -766,7 +766,7 @@ ${shieldedAddress || "[your address]"}`
               {/* Share CTA */}
               <div className="success-buttons" style={{ display: "flex", gap: "12px" }}>
                 <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just set up @TIPZ_xyz to receive private tips with ZERO fees.\n\nCreators: keep 100% of what you earn.\n\nSet up in 2 mins: tipz.cash`)}`}
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just set up @tipz_cash to receive private tips with ZERO fees.\n\nCreators: keep 100% of what you earn.\n\nSet up in 2 mins: tipz.cash`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
