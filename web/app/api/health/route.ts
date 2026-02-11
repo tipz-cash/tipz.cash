@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
-import { isDemoMode, isNearConfigured, getNearNetwork } from "@/lib/near"
+import { isNearConfigured, getNearNetwork } from "@/lib/near"
 import { isTwitterApiConfigured } from "@/lib/twitter-api"
 
 /**
@@ -37,7 +37,6 @@ interface HealthStatus {
   version: string
   timestamp: string
   uptime_seconds: number
-  mode: "demo" | "production"
   checks: {
     database: DatabaseCheck
     transactions_table: DatabaseCheck
@@ -46,7 +45,7 @@ interface HealthStatus {
       missing_vars?: string[]
     }
     near: {
-      status: "configured" | "demo_mode" | "not_configured"
+      status: "configured" | "not_configured"
       network?: string
       message?: string
     }
@@ -74,7 +73,6 @@ function checkEnvironment(): { configured: boolean; missing: string[] } {
 }
 
 export async function GET() {
-  const demoMode = isDemoMode()
   const nearConfigured = isNearConfigured()
   const twitterConfigured = isTwitterApiConfigured()
 
@@ -84,7 +82,6 @@ export async function GET() {
     version: SERVICE_VERSION,
     timestamp: new Date().toISOString(),
     uptime_seconds: Math.floor((Date.now() - serviceStartTime) / 1000),
-    mode: demoMode ? "demo" : "production",
     checks: {
       database: {
         status: "disconnected"
@@ -96,11 +93,9 @@ export async function GET() {
         status: "configured"
       },
       near: {
-        status: demoMode ? "demo_mode" : (nearConfigured ? "configured" : "not_configured"),
+        status: nearConfigured ? "configured" : "not_configured",
         network: getNearNetwork(),
-        message: demoMode
-          ? "Demo mode enabled - payments are simulated"
-          : (nearConfigured ? "Production mode - real payments enabled" : "NEAR credentials missing")
+        message: nearConfigured ? "Production mode - real payments enabled" : "NEAR credentials missing"
       },
       twitter: {
         status: twitterConfigured ? "configured" : "not_configured",
@@ -213,7 +208,6 @@ export async function GET() {
     headers: {
       "Cache-Control": "no-cache, no-store, must-revalidate",
       "X-Health-Status": health.status,
-      "X-Service-Mode": health.mode
     }
   })
 }

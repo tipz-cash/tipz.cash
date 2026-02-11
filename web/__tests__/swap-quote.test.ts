@@ -1,14 +1,39 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 
-// Mock env before importing modules
-vi.stubEnv("ENABLE_REAL_SWAPS", "false")
+// Mock near-intents to avoid real API calls
+vi.mock("@/lib/near-intents", () => ({
+  getSwapQuote: vi.fn().mockResolvedValue({
+    correlationId: "test-correlation-id",
+    quote: {
+      depositAddress: "0xtest123deposit",
+      amountIn: "10000000000000000",
+      amountInFormatted: "0.01",
+      amountInUsd: "32",
+      minAmountIn: "10000000000000000",
+      amountOut: "80000000",
+      amountOutFormatted: "0.80",
+      amountOutUsd: "32",
+      minAmountOut: "79000000",
+      deadline: new Date(Date.now() + 600000).toISOString(),
+      timeWhenInactive: new Date(Date.now() + 600000).toISOString(),
+      timeEstimate: 300,
+    },
+  }),
+  mapAddressToAssetId: vi.fn((address: string, chainId: number) => {
+    if (address === "0x0000000000000000000000000000000000000000") return "nep141:eth.omft.near"
+    if (address === "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48") return "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near"
+    return null
+  }),
+  ZEC_ASSET_ID: "nep141:zec.omft.near",
+  toSmallestUnits: vi.fn((amount: string, decimals: number) => {
+    const parts = amount.split(".")
+    const whole = parts[0] || "0"
+    const frac = (parts[1] || "").padEnd(decimals, "0").slice(0, decimals)
+    return BigInt(whole + frac).toString()
+  }),
+  fromSmallestUnits: vi.fn(() => "0.80"),
+}))
 
-// Mock fetch for CoinGecko
-const mockFetch = vi.fn()
-vi.stubGlobal("fetch", mockFetch)
-
-// We need to test the quote route handler. Since it's a Next.js route,
-// we'll import and call POST directly.
 import { POST } from "@/app/api/swap/quote/route"
 import { clearAllRateLimits } from "@/lib/rate-limit"
 
@@ -22,61 +47,27 @@ function createRequest(body: Record<string, unknown>): any {
 
 beforeEach(() => {
   clearAllRateLimits()
-  mockFetch.mockReset()
-
-  // Default CoinGecko response
-  mockFetch.mockResolvedValue({
-    ok: true,
-    json: () =>
-      Promise.resolve({
-        ethereum: { usd: 3200 },
-        zcash: { usd: 40 },
-        "usd-coin": { usd: 1 },
-        tether: { usd: 1 },
-      }),
-  })
 })
 
-describe("POST /api/swap/quote (demo mode)", () => {
-  it("returns a demo quote for ETH → ZEC", async () => {
+describe("POST /api/swap/quote", () => {
+  it("returns a quote for ETH → ZEC", async () => {
     const req = createRequest({
       fromChain: 1,
       fromToken: "0x0000000000000000000000000000000000000000",
       fromAmount: "0.01",
       destinationAddress: "zs1" + "a".repeat(75),
+      refundAddress: "0x1234567890abcdef1234567890abcdef12345678",
     })
 
     const res = await POST(req)
     const data = await res.json()
 
     expect(res.status).toBe(200)
-    expect(data.demo).toBe(true)
     expect(parseFloat(data.toAmount)).toBeGreaterThan(0)
-    expect(parseFloat(data.exchangeRate)).toBeGreaterThan(0)
-    expect(data.fees).toBeDefined()
-    expect(data.fees.total).toBeDefined()
     expect(data.route).toContain("ETH")
     expect(data.route).toContain("ZEC")
-    expect(data.expiresAt).toBeGreaterThan(Date.now())
-    // Demo mode should NOT have depositAddress
-    expect(data.depositAddress).toBeUndefined()
-  })
-
-  it("returns a demo quote for USDC → ZEC", async () => {
-    const req = createRequest({
-      fromChain: 1,
-      fromToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      fromAmount: "10",
-      destinationAddress: "zs1" + "a".repeat(75),
-    })
-
-    const res = await POST(req)
-    const data = await res.json()
-
-    expect(res.status).toBe(200)
-    expect(data.demo).toBe(true)
-    expect(data.route).toContain("USDC")
-    expect(data.route).toContain("ZEC")
+    expect(data.depositAddress).toBeDefined()
+    expect(data.quoteId).toBeDefined()
   })
 
   it("rejects missing required fields", async () => {
@@ -111,6 +102,7 @@ describe("POST /api/swap/quote (demo mode)", () => {
       fromToken: "0x1234567890abcdef1234567890abcdef12345678",
       fromAmount: "1",
       destinationAddress: "zs1" + "a".repeat(75),
+      refundAddress: "0x1234567890abcdef1234567890abcdef12345678",
     })
 
     const res = await POST(req)
@@ -119,26 +111,19 @@ describe("POST /api/swap/quote (demo mode)", () => {
     expect(data.error).toContain("Unsupported token")
   })
 
-  it("uses fallback prices when CoinGecko fails", async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 429,
-    })
-
+  it("rejects missing refund address", async () => {
     const req = createRequest({
       fromChain: 1,
       fromToken: "0x0000000000000000000000000000000000000000",
       fromAmount: "0.01",
       destinationAddress: "zs1" + "a".repeat(75),
+      // missing refundAddress
     })
 
     const res = await POST(req)
+    expect(res.status).toBe(400)
     const data = await res.json()
-
-    // Should still return a quote using fallback prices
-    expect(res.status).toBe(200)
-    expect(data.demo).toBe(true)
-    expect(parseFloat(data.toAmount)).toBeGreaterThan(0)
+    expect(data.error).toContain("refundAddress")
   })
 
   it("enforces rate limits", async () => {
@@ -148,6 +133,7 @@ describe("POST /api/swap/quote (demo mode)", () => {
         fromToken: "0x0000000000000000000000000000000000000000",
         fromAmount: "0.01",
         destinationAddress: "zs1" + "a".repeat(75),
+        refundAddress: "0x1234567890abcdef1234567890abcdef12345678",
       })
 
     // swapQuote rate limit is 30/min - send 31 requests

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import {
-  isRealSwapsEnabled,
   getSwapQuote,
   ZEC_ASSET_ID,
   USDC_POLYGON_ASSET_ID,
@@ -68,18 +67,6 @@ export async function POST(request: NextRequest) {
         { error: "Missing or invalid destinationAddress or amountUsd" },
         { status: 400 }
       )
-    }
-
-    // Check if real swaps are enabled
-    if (!isRealSwapsEnabled()) {
-      // Demo mode - return a mock link token
-      return NextResponse.json({
-        linkToken: `demo_link_token_${Date.now()}`,
-        depositAddress: `0xdemo${Date.now().toString(16)}`,
-        quoteId: `demo_quote_${Date.now()}`,
-        expiresAt: Date.now() + 60000,
-        demo: true,
-      })
     }
 
     // Get NEAR Intents quote for USDC → ZEC

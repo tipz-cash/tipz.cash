@@ -5,7 +5,6 @@ import {
   estimateCompletionTime,
 } from "@/lib/near"
 import {
-  isRealSwapsEnabled,
   submitDeposit,
 } from "@/lib/near-intents"
 import {
@@ -24,20 +23,14 @@ import {
  * Swap Execute API
  *
  * Handles cross-chain swap execution from EVM chains to Zcash.
- *
- * For REAL SWAPS (ENABLE_REAL_SWAPS=true):
- *   - User already has deposit address from /api/swap/quote
- *   - User sends funds to deposit address from their wallet
- *   - This endpoint logs the transaction and optionally submits the deposit tx hash
- *   - Returns status endpoint URL for polling
- *
- * For DEMO MODE:
- *   - Simulates execution with mock responses
- *   - No real funds transferred
+ * - User already has deposit address from /api/swap/quote
+ * - User sends funds to deposit address from their wallet
+ * - This endpoint logs the transaction and optionally submits the deposit tx hash
+ * - Returns status endpoint URL for polling
  *
  * POST /api/swap/execute
  * Request: { fromChain, fromToken, fromAmount, walletAddress, destinationAddress, quote, sourceTxHash?, depositAddress?, creatorId? }
- * Response: { success, txHash, status, intentId, demo, transactionId?, depositAddress?, statusUrl? }
+ * Response: { success, txHash, status, intentId, transactionId?, depositAddress?, statusUrl? }
  */
 
 interface ExecuteRequest {
@@ -76,25 +69,11 @@ interface ExecuteResponse {
   txHash: string
   status: "pending" | "pending_deposit" | "confirmed" | "failed"
   intentId: string
-  demo: boolean
   transactionId?: string // Database transaction ID for tracking
   estimatedCompletion?: number
   message?: string
-  // Real swap fields
   depositAddress?: string
   statusUrl?: string
-}
-
-/**
- * Generate a realistic-looking Ethereum transaction hash (for demo mode)
- */
-function generateMockTxHash(): string {
-  const chars = "0123456789abcdef"
-  let hash = "0x"
-  for (let i = 0; i < 64; i++) {
-    hash += chars[Math.floor(Math.random() * chars.length)]
-  }
-  return hash
 }
 
 /**
@@ -177,75 +156,49 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Determine mode
-    // For NEAR Intents 1Click API, we only need ENABLE_REAL_SWAPS=true
-    // (no NEAR account credentials required - uses deposit addresses)
-    const useRealSwaps = isRealSwapsEnabled()
+    // PRODUCTION MODE: Real NEAR Intents swap via deposit address
+    console.log("[swap/execute] Handling deposit-based swap")
 
-    let txHash: string
-    let intentId: string
-    let estimatedCompletion: number
-    let transactionId: string | undefined
-    let status: ExecuteResponse["status"]
-    let depositAddress: string | undefined
-    let statusUrl: string | undefined
-
-    if (useRealSwaps) {
-      // PRODUCTION MODE: Real NEAR Intents swap via deposit address
-      console.log("[swap/execute] Production mode - handling deposit-based swap")
-
-      // Get deposit address from quote or request
-      depositAddress = quote.depositAddress || requestDepositAddress
-      if (!depositAddress) {
-        return NextResponse.json(
-          { error: "Missing deposit address. Please get a new quote." },
-          { status: 400 }
-        )
-      }
-
-      // If user provided a tx hash, submit it to speed up processing
-      if (sourceTxHash) {
-        try {
-          await submitDeposit(depositAddress, sourceTxHash)
-          console.log("[swap/execute] Deposit tx submitted:", {
-            depositAddress,
-            txHash: sourceTxHash.slice(0, 16) + "...",
-          })
-        } catch (error) {
-          // Non-fatal - swap will still work, just might take longer
-          console.warn("[swap/execute] Failed to submit deposit tx:", error)
-        }
-      }
-
-      txHash = sourceTxHash || ""
-      intentId = quote.quoteId || nearGenerateIntentId()
-      estimatedCompletion = Date.now() + estimateCompletionTime("ZEC")
-      status = sourceTxHash ? "pending" : "pending_deposit"
-      statusUrl = `/api/swap/status?address=${encodeURIComponent(depositAddress)}`
-
-      console.log("[swap/execute] Real swap initiated:", {
-        depositAddress,
-        amount: `${quote.toAmount} ZEC`,
-        destination: destinationAddress.slice(0, 12) + "...",
-        status,
-      })
-    } else {
-      // DEMO MODE: Simulate execution
-      console.log("[swap/execute] Demo mode - simulating execution")
-
-      // Simulate processing delay (1-2 seconds)
-      const processingDelay = 1000 + Math.floor(Math.random() * 1000)
-      await new Promise(resolve => setTimeout(resolve, processingDelay))
-
-      txHash = sourceTxHash || generateMockTxHash()
-      intentId = nearGenerateIntentId()
-      estimatedCompletion = Date.now() + estimateCompletionTime("ZEC")
-      status = "pending"
+    // Get deposit address from quote or request
+    const depositAddress = quote.depositAddress || requestDepositAddress
+    if (!depositAddress) {
+      return NextResponse.json(
+        { error: "Missing deposit address. Please get a new quote." },
+        { status: 400 }
+      )
     }
+
+    // If user provided a tx hash, submit it to speed up processing
+    if (sourceTxHash) {
+      try {
+        await submitDeposit(depositAddress, sourceTxHash)
+        console.log("[swap/execute] Deposit tx submitted:", {
+          depositAddress,
+          txHash: sourceTxHash.slice(0, 16) + "...",
+        })
+      } catch (error) {
+        // Non-fatal - swap will still work, just might take longer
+        console.warn("[swap/execute] Failed to submit deposit tx:", error)
+      }
+    }
+
+    const txHash = sourceTxHash || ""
+    const intentId = quote.quoteId || nearGenerateIntentId()
+    const estimatedCompletion = Date.now() + estimateCompletionTime("ZEC")
+    const status: ExecuteResponse["status"] = sourceTxHash ? "pending" : "pending_deposit"
+    const statusUrl = `/api/swap/status?address=${encodeURIComponent(depositAddress)}`
+
+    console.log("[swap/execute] Real swap initiated:", {
+      depositAddress,
+      amount: `${quote.toAmount} ZEC`,
+      destination: destinationAddress.slice(0, 12) + "...",
+      status,
+    })
 
     // Log transaction to database if configured
     // SECURITY: Look up creator by shielded address instead of accepting creatorId from request
     // This prevents transaction misattribution attacks
+    let transactionId: string | undefined
     if (supabase) {
       try {
         // Look up creator by their shielded address
@@ -275,7 +228,6 @@ export async function POST(request: NextRequest) {
               fromAmount,
               exchangeRate: parseFloat(quote.exchangeRate),
               route: quote.route,
-              demo: !useRealSwaps,
               depositAddress: depositAddress,
               swapStatus: status,
             },
@@ -300,16 +252,13 @@ export async function POST(request: NextRequest) {
       txHash,
       status,
       intentId,
-      demo: !useRealSwaps,
       transactionId,
       estimatedCompletion,
       depositAddress,
       statusUrl,
-      message: useRealSwaps
-        ? status === "pending_deposit"
-          ? `Send funds to deposit address to complete swap`
-          : "Swap initiated via NEAR Intents"
-        : "Demo transaction - no real funds transferred",
+      message: status === "pending_deposit"
+        ? `Send funds to deposit address to complete swap`
+        : "Swap initiated via NEAR Intents",
     }
 
     console.log("[swap/execute] Execution complete:", {
@@ -318,7 +267,6 @@ export async function POST(request: NextRequest) {
       wallet: walletAddress.slice(0, 10) + "...",
       destination: destinationAddress.slice(0, 10) + "...",
       intentId,
-      demo: !useRealSwaps,
       depositAddress,
     })
 

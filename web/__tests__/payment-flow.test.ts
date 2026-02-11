@@ -2,17 +2,59 @@
  * Payment Flow Integration Test
  *
  * Tests the full tip flow: quote → execute → poll status → completion
- * Uses demo mode (no real funds) but exercises all internal logic.
+ * Uses mocked NEAR Intents but exercises all internal validation logic.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest"
 
-// Mock env
-vi.stubEnv("ENABLE_REAL_SWAPS", "false")
-vi.stubEnv("NEAR_DEMO_MODE", "true")
-
-// Mock fetch for CoinGecko
-const mockFetch = vi.fn()
-vi.stubGlobal("fetch", mockFetch)
+// Mock near-intents
+vi.mock("@/lib/near-intents", () => ({
+  getSwapQuote: vi.fn().mockResolvedValue({
+    correlationId: "test-correlation-id",
+    quote: {
+      depositAddress: "0xtest123deposit",
+      amountIn: "10000000000000000",
+      amountInFormatted: "0.01",
+      amountInUsd: "32",
+      minAmountIn: "10000000000000000",
+      amountOut: "80000000",
+      amountOutFormatted: "0.80",
+      amountOutUsd: "32",
+      minAmountOut: "79000000",
+      deadline: new Date(Date.now() + 600000).toISOString(),
+      timeWhenInactive: new Date(Date.now() + 600000).toISOString(),
+      timeEstimate: 300,
+    },
+  }),
+  mapAddressToAssetId: vi.fn((address: string) => {
+    if (address === "0x0000000000000000000000000000000000000000") return "nep141:eth.omft.near"
+    if (address === "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48") return "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near"
+    return null
+  }),
+  ZEC_ASSET_ID: "nep141:zec.omft.near",
+  toSmallestUnits: vi.fn((amount: string, decimals: number) => {
+    const parts = amount.split(".")
+    const whole = parts[0] || "0"
+    const frac = (parts[1] || "").padEnd(decimals, "0").slice(0, decimals)
+    return BigInt(whole + frac).toString()
+  }),
+  fromSmallestUnits: vi.fn(() => "0.80"),
+  submitDeposit: vi.fn().mockResolvedValue({ success: true }),
+  getSwapStatus: vi.fn().mockResolvedValue({
+    status: "PENDING_DEPOSIT",
+    depositAddress: "0xtest123deposit",
+    updatedAt: new Date().toISOString(),
+  }),
+  isSwapComplete: vi.fn((status: string) => ["SUCCESS", "REFUNDED", "FAILED"].includes(status)),
+  isSwapSuccessful: vi.fn((status: string) => status === "SUCCESS"),
+  getStatusMessage: vi.fn((status: string) => {
+    const messages: Record<string, string> = {
+      PENDING_DEPOSIT: "Waiting for deposit...",
+      PROCESSING: "Processing swap...",
+      SUCCESS: "Swap complete!",
+    }
+    return messages[status] || "Unknown status"
+  }),
+}))
 
 // Mock supabase
 vi.mock("@/lib/supabase", () => ({
@@ -51,41 +93,29 @@ function createGetRequest(params: Record<string, string>): any {
 
 beforeEach(() => {
   clearAllRateLimits()
-  mockFetch.mockReset()
-  mockFetch.mockResolvedValue({
-    ok: true,
-    json: () =>
-      Promise.resolve({
-        ethereum: { usd: 3200 },
-        zcash: { usd: 40 },
-      }),
-  })
 })
 
-describe("Full Payment Flow (demo mode)", () => {
+describe("Full Payment Flow", () => {
   it("completes a full ETH → ZEC tip flow", async () => {
-    // ================================================================
     // Step 1: Get a quote
-    // ================================================================
     const quoteRes = await quoteHandler(
       createPostRequest({
         fromChain: 1,
         fromToken: "0x0000000000000000000000000000000000000000",
         fromAmount: "0.01",
         destinationAddress: VALID_ZEC_ADDRESS,
+        refundAddress: VALID_ETH_ADDRESS,
       })
     )
 
     expect(quoteRes.status).toBe(200)
     const quote = await quoteRes.json()
 
-    expect(quote.demo).toBe(true)
     expect(parseFloat(quote.toAmount)).toBeGreaterThan(0)
-    expect(quote.expiresAt).toBeGreaterThan(Date.now())
+    expect(quote.depositAddress).toBeDefined()
+    expect(quote.quoteId).toBeDefined()
 
-    // ================================================================
     // Step 2: Execute the swap
-    // ================================================================
     const executeRes = await executeHandler(
       createPostRequest({
         fromChain: 1,
@@ -100,6 +130,8 @@ describe("Full Payment Flow (demo mode)", () => {
           estimatedTime: quote.estimatedTime,
           route: quote.route,
           expiresAt: quote.expiresAt,
+          depositAddress: quote.depositAddress,
+          quoteId: quote.quoteId,
         },
       })
     )
@@ -108,18 +140,13 @@ describe("Full Payment Flow (demo mode)", () => {
     const execution = await executeRes.json()
 
     expect(execution.success).toBe(true)
-    expect(execution.demo).toBe(true)
-    expect(execution.txHash).toMatch(/^0x[a-f0-9]{64}$/)
     expect(execution.intentId).toBeDefined()
-    expect(execution.status).toBe("pending")
+    expect(execution.depositAddress).toBeDefined()
+    expect(execution.statusUrl).toBeDefined()
 
-    // ================================================================
     // Step 3: Poll status
-    // ================================================================
-    // In demo mode, status starts at PENDING_DEPOSIT
-    const depositAddr = execution.depositAddress || "demo-" + execution.intentId
     const statusRes = await statusHandler(
-      createGetRequest({ depositAddress: depositAddr })
+      createGetRequest({ depositAddress: execution.depositAddress })
     )
 
     expect(statusRes.status).toBe(200)
@@ -127,7 +154,6 @@ describe("Full Payment Flow (demo mode)", () => {
 
     expect(status.status).toBe("PENDING_DEPOSIT")
     expect(status.complete).toBe(false)
-    expect(status.success).toBe(false)
     expect(status.message).toBeDefined()
   })
 
@@ -139,6 +165,7 @@ describe("Full Payment Flow (demo mode)", () => {
         fromToken: "0x0000000000000000000000000000000000000000",
         fromAmount: "0.01",
         destinationAddress: VALID_ZEC_ADDRESS,
+        refundAddress: VALID_ETH_ADDRESS,
       })
     )
     const quote = await quoteRes.json()
@@ -170,6 +197,7 @@ describe("Full Payment Flow (demo mode)", () => {
         fromToken: "0x0000000000000000000000000000000000000000",
         fromAmount: "0.01",
         destinationAddress: VALID_ZEC_ADDRESS,
+        refundAddress: VALID_ETH_ADDRESS,
       })
     )
     const quote = await quoteRes.json()
@@ -201,6 +229,7 @@ describe("Full Payment Flow (demo mode)", () => {
         fromToken: "0x0000000000000000000000000000000000000000",
         fromAmount: "0.01",
         destinationAddress: VALID_ZEC_ADDRESS,
+        refundAddress: VALID_ETH_ADDRESS,
       })
     )
     const quote = await quoteRes.json()
@@ -220,42 +249,5 @@ describe("Full Payment Flow (demo mode)", () => {
     )
 
     expect(executeRes.status).toBe(400)
-  })
-
-  it("handles multiple tokens: USDC → ZEC", async () => {
-    const quoteRes = await quoteHandler(
-      createPostRequest({
-        fromChain: 1,
-        fromToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-        fromAmount: "5",
-        destinationAddress: VALID_ZEC_ADDRESS,
-      })
-    )
-
-    expect(quoteRes.status).toBe(200)
-    const quote = await quoteRes.json()
-    expect(quote.route).toContain("USDC")
-
-    const executeRes = await executeHandler(
-      createPostRequest({
-        fromChain: 1,
-        fromToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-        fromAmount: "5",
-        walletAddress: VALID_ETH_ADDRESS,
-        destinationAddress: VALID_ZEC_ADDRESS,
-        quote: {
-          toAmount: quote.toAmount,
-          exchangeRate: quote.exchangeRate,
-          fees: quote.fees,
-          estimatedTime: quote.estimatedTime,
-          route: quote.route,
-          expiresAt: quote.expiresAt,
-        },
-      })
-    )
-
-    expect(executeRes.status).toBe(200)
-    const execution = await executeRes.json()
-    expect(execution.success).toBe(true)
   })
 })

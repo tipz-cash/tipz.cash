@@ -72,13 +72,6 @@ export function isNearConfigured(): boolean {
 }
 
 /**
- * Check if running in demo/mock mode
- */
-export function isDemoMode(): boolean {
-  return process.env.NEAR_DEMO_MODE === "true" || !isNearConfigured();
-}
-
-/**
  * Intent status types
  */
 export type IntentStatus =
@@ -116,7 +109,6 @@ export interface IntentResponse {
   estimatedCompletion: number;
   nearContract: string;
   nearTxHash?: string;
-  demo: boolean;
   message?: string;
 }
 
@@ -377,7 +369,6 @@ export async function createNearIntent(
     estimatedCompletion: Date.now() + estimateCompletionTime("ZEC"),
     nearContract: contractId,
     nearTxHash: txHash,
-    demo: false,
   };
 }
 
@@ -390,7 +381,6 @@ export async function queryNearIntent(intentId: string): Promise<{
   sourceTx?: string;
   destinationTx?: string;
   solver?: string;
-  demo: boolean;
 }> {
   const connection = await getNearConnection();
   const network = getNearNetwork();
@@ -420,7 +410,6 @@ export async function queryNearIntent(intentId: string): Promise<{
     sourceTx: intent.source_tx,
     destinationTx: intent.destination_tx,
     solver: intent.solver,
-    demo: false,
   };
 }
 

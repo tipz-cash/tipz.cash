@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 
-// Mock env
-vi.stubEnv("ENABLE_REAL_SWAPS", "false")
-vi.stubEnv("NEAR_DEMO_MODE", "true")
-
 // Mock supabase
 vi.mock("@/lib/supabase", () => ({
   supabase: null, // No DB in tests
@@ -12,6 +8,11 @@ vi.mock("@/lib/supabase", () => ({
 // Mock transactions module
 vi.mock("@/lib/transactions", () => ({
   logTransaction: vi.fn().mockResolvedValue({ id: "mock-tx-id" }),
+}))
+
+// Mock near-intents to avoid real API calls
+vi.mock("@/lib/near-intents", () => ({
+  submitDeposit: vi.fn().mockResolvedValue({ success: true }),
 }))
 
 import { POST } from "@/app/api/swap/execute/route"
@@ -37,10 +38,12 @@ function validBody(overrides: Record<string, unknown> = {}) {
     quote: {
       toAmount: "0.75",
       exchangeRate: "80",
-      fees: { network: "0.50", protocol: "0.16", total: "0.66" },
+      fees: { network: "0", protocol: "0", total: "0" },
       estimatedTime: 300,
-      route: ["ETH", "USDC", "ZEC"],
+      route: ["ETH", "NEAR", "ZEC"],
       expiresAt: Date.now() + 60000,
+      depositAddress: "0xtest-deposit-address",
+      quoteId: "test-quote-id",
     },
     ...overrides,
   }
@@ -50,18 +53,17 @@ beforeEach(() => {
   clearAllRateLimits()
 })
 
-describe("POST /api/swap/execute (demo mode)", () => {
-  it("executes a demo swap", async () => {
+describe("POST /api/swap/execute", () => {
+  it("executes a swap with deposit address", async () => {
     const res = await POST(createRequest(validBody()))
     const data = await res.json()
 
     expect(res.status).toBe(200)
     expect(data.success).toBe(true)
-    expect(data.demo).toBe(true)
-    expect(data.txHash).toMatch(/^0x[a-f0-9]{64}$/)
-    expect(data.intentId).toMatch(/^intent_/)
-    expect(data.status).toBe("pending")
-    expect(data.estimatedCompletion).toBeGreaterThan(Date.now())
+    expect(data.intentId).toBeDefined()
+    expect(data.status).toBe("pending_deposit")
+    expect(data.depositAddress).toBe("0xtest-deposit-address")
+    expect(data.statusUrl).toBeDefined()
   })
 
   it("rejects missing required fields", async () => {
@@ -103,6 +105,7 @@ describe("POST /api/swap/execute (demo mode)", () => {
             estimatedTime: 300,
             route: ["ETH", "ZEC"],
             expiresAt: Date.now() - 60000, // expired 1 minute ago
+            depositAddress: "0xtest-deposit-address",
           },
         })
       )
@@ -112,17 +115,38 @@ describe("POST /api/swap/execute (demo mode)", () => {
     expect(data.error).toContain("expired")
   })
 
+  it("rejects missing deposit address", async () => {
+    const res = await POST(
+      createRequest(
+        validBody({
+          quote: {
+            toAmount: "0.75",
+            exchangeRate: "80",
+            fees: { network: "0", protocol: "0", total: "0" },
+            estimatedTime: 300,
+            route: ["ETH", "ZEC"],
+            expiresAt: Date.now() + 60000,
+            // no depositAddress
+          },
+        })
+      )
+    )
+    expect(res.status).toBe(400)
+    const data = await res.json()
+    expect(data.error).toContain("deposit address")
+  })
+
   it("uses provided sourceTxHash when available", async () => {
     const txHash = "0x" + "ab".repeat(32)
     const res = await POST(createRequest(validBody({ sourceTxHash: txHash })))
     const data = await res.json()
 
     expect(data.txHash).toBe(txHash)
+    expect(data.status).toBe("pending") // Has source tx = pending, not pending_deposit
   })
 
   it("enforces rate limits", async () => {
     // swapExecute rate limit is 10/min
-    // Each demo execution has a 1-2s delay, so run in parallel
     await Promise.all(
       Array.from({ length: 10 }, () => POST(createRequest(validBody())))
     )
