@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     // Get recent transactions
     const { data: transactions, error: txError } = await supabase
       .from("transactions")
-      .select("id, amount_zec, amount_usd, sender_address, created_at, memo")
+      .select("id, amount_zec, amount_usd, sender_address, created_at, memo, metadata")
       .eq("creator_id", creator.id)
       .order("created_at", { ascending: false })
       .limit(limit)

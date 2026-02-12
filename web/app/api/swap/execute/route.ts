@@ -221,6 +221,16 @@ export async function POST(request: NextRequest) {
             txHash: txHash || undefined,
             sourcePlatform: sourcePlatform || "web",
             sourceUrl,
+            metadata: {
+              intentId,
+              fromChain,
+              fromToken,
+              fromAmount,
+              exchangeRate: parseFloat(quote.exchangeRate),
+              route: quote.route,
+              depositAddress: depositAddress,
+              swapStatus: status,
+            },
           })
 
           transactionId = transaction.id
