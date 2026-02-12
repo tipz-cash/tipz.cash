@@ -6,7 +6,7 @@ import { verifyChallenge } from "./challenge/route"
 /**
  * POST /api/link
  *
- * Links a creator's extension and generates a key pair for private messaging.
+ * Links a creator's extension and stores their public key for private messaging.
  *
  * SECURITY: This endpoint requires a valid challenge token from /api/link/challenge.
  * The challenge proves the request originated from the tipz.cash web app where the
@@ -15,8 +15,9 @@ import { verifyChallenge } from "./challenge/route"
  * Flow:
  * 1. Creator visits tipz.cash (already registered via tweet verification)
  * 2. Web app calls /api/link/challenge to get a short-lived token
- * 3. Extension calls this endpoint with the challenge token
- * 4. Server verifies challenge, generates RSA key pair, stores public key, returns private key
+ * 3. Extension generates RSA key pair client-side, stores private key locally
+ * 4. Extension calls this endpoint with the challenge token + public key
+ * 5. Server verifies challenge and stores the public key
  */
 export async function POST(request: NextRequest) {
   let body: Record<string, unknown>
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
   }
 
-  const { handle, challenge } = body
+  const { handle, publicKey, challenge } = body
 
   if (!handle || typeof handle !== "string") {
     return NextResponse.json({ error: "Handle is required" }, { status: 400 })
@@ -45,6 +46,15 @@ export async function POST(request: NextRequest) {
       error: "Invalid or expired challenge token. Request a new challenge.",
       code: "CHALLENGE_INVALID"
     }, { status: 401 })
+  }
+
+  // Validate publicKey
+  if (!publicKey || typeof publicKey !== "object") {
+    return NextResponse.json({ error: "Public key is required" }, { status: 400 })
+  }
+  const key = publicKey as Record<string, unknown>
+  if (key.kty !== "RSA" || typeof key.n !== "string" || typeof key.e !== "string") {
+    return NextResponse.json({ error: "Invalid RSA public key" }, { status: 400 })
   }
 
   const normalizedHandle = normalizeHandle(handle)
@@ -82,21 +92,11 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Generate RSA-OAEP 4096-bit key pair server-side
-  const keyPair = await crypto.subtle.generateKey(
-    { name: "RSA-OAEP", modulusLength: 4096, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" },
-    true,
-    ["encrypt", "decrypt"]
-  )
-
-  const publicKeyJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey)
-  const privateKeyJwk = await crypto.subtle.exportKey("jwk", keyPair.privateKey)
-
   // Store public key in the database
   const { error: updateError } = await supabase
     .from("creators")
     .update({
-      public_key: publicKeyJwk,
+      public_key: publicKey,
       key_created_at: new Date().toISOString(),
     })
     .eq("id", typedCreator.id)
@@ -106,13 +106,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to store key" }, { status: 500 })
   }
 
-  console.log("[link] Key pair generated for creator:", typedCreator.handle)
+  console.log("[link] Public key stored for creator:", typedCreator.handle)
 
-  // Return private key to the extension
   return NextResponse.json({
     success: true,
     handle: typedCreator.handle,
     verified: typedCreator.verification_status === "verified",
-    privateKey: privateKeyJwk,
   })
 }
