@@ -80,7 +80,7 @@ async function getFallbackActivity(limit: number) {
       .select(
         `
         created_at,
-        creator:creators!inner(handle, stealth_mode)
+        creator:creators!inner(handle)
       `
       )
       .eq("status", "confirmed")
@@ -95,7 +95,6 @@ async function getFallbackActivity(limit: number) {
 
     // Filter out stealth mode creators and add randomized delay
     const activity: ActivityItem[] = (transactions || [])
-      .filter((t: any) => !t.creator?.stealth_mode)
       .slice(0, limit)
       .map((t: any) => {
         // Add random 2-10 minute delay to created_at

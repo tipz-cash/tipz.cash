@@ -13,7 +13,7 @@ import { PaymentRow, LogoDisplay, type ExchangeOption } from "./PaymentMethodPic
 import { openMeshTransfer } from "@/lib/mesh"
 import { tokens, keyframes } from "./designTokens"
 import type { WalletType, SupportedToken } from "@/lib/wallet"
-import { encryptMessage, serializeEncryptedMessage, isValidPublicKey } from "@/lib/message-encryption"
+import { isValidPublicKey } from "@/lib/message-encryption"
 
 // Animation variants for content transitions - fast and subtle
 const contentVariants = {
@@ -38,7 +38,6 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
   const [showTokenSelector, setShowTokenSelector] = useState(false)
   const [showWalletSelector, setShowWalletSelector] = useState(false)
   const [pendingWalletType, setPendingWalletType] = useState<WalletType | null>(null)
-  const [messageSent, setMessageSent] = useState(false)
   const [chainSwitchError, setChainSwitchError] = useState<string | null>(null)
 
   // Wallet hook
@@ -134,40 +133,6 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
   // Can the creator receive encrypted messages?
   const canReceiveMessages = isValidPublicKey(publicKey)
 
-  // Send encrypted message when tip succeeds
-  useEffect(() => {
-    if (flowState === "success" && depositAddress && privateMessage.trim() && publicKey && canReceiveMessages && !messageSent) {
-      const sendEncryptedMessage = async () => {
-        try {
-          const encrypted = await encryptMessage(privateMessage, publicKey)
-          const blob = serializeEncryptedMessage(encrypted)
-
-          await fetch("/api/messages/relay", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              depositAddress,
-              encryptedBlob: blob,
-            }),
-          })
-
-          setMessageSent(true)
-          console.log("[TippingFlow] Encrypted message relayed")
-        } catch (error) {
-          console.error("[TippingFlow] Failed to relay encrypted message:", error)
-        }
-      }
-
-      sendEncryptedMessage()
-    }
-  }, [flowState, depositAddress, privateMessage, publicKey, canReceiveMessages, messageSent])
-
-  // Reset messageSent when flow resets
-  useEffect(() => {
-    if (flowState === "idle") {
-      setMessageSent(false)
-    }
-  }, [flowState])
 
   // Glass card container styles
   const cardStyles = {

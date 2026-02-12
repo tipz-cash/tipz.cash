@@ -39,7 +39,7 @@ interface HealthStatus {
   uptime_seconds: number
   checks: {
     database: DatabaseCheck
-    transactions_table: DatabaseCheck
+    tipz_table: DatabaseCheck
     environment: {
       status: "configured" | "misconfigured"
       missing_vars?: string[]
@@ -86,7 +86,7 @@ export async function GET() {
       database: {
         status: "disconnected"
       },
-      transactions_table: {
+      tipz_table: {
         status: "disconnected"
       },
       environment: {
@@ -122,7 +122,7 @@ export async function GET() {
       status: "disconnected",
       error: "Supabase client not configured"
     }
-    health.checks.transactions_table = {
+    health.checks.tipz_table = {
       status: "disconnected",
       error: "Supabase client not configured"
     }
@@ -157,29 +157,29 @@ export async function GET() {
       }
     }
 
-    // Check transactions table accessibility
+    // Check tipz table accessibility
     try {
       const txStart = Date.now()
 
       const { error } = await supabase
-        .from("transactions")
+        .from("tipz")
         .select("id", { count: "exact", head: true })
         .limit(1)
 
       const txLatency = Date.now() - txStart
 
       if (error) {
-        // Transactions table not existing is degraded, not unhealthy
+        // Tipz table not existing is degraded, not unhealthy
         // (it might not have been created yet via migration)
         if (health.status === "healthy") {
           health.status = "degraded"
         }
-        health.checks.transactions_table = {
+        health.checks.tipz_table = {
           status: "disconnected",
           error: error.message
         }
       } else {
-        health.checks.transactions_table = {
+        health.checks.tipz_table = {
           status: "connected",
           latency_ms: txLatency
         }
@@ -188,7 +188,7 @@ export async function GET() {
       if (health.status === "healthy") {
         health.status = "degraded"
       }
-      health.checks.transactions_table = {
+      health.checks.tipz_table = {
         status: "disconnected",
         error: error instanceof Error ? error.message : "Unknown database error"
       }

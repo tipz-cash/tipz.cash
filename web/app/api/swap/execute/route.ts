@@ -7,10 +7,9 @@ import {
 import {
   submitDeposit,
 } from "@/lib/near-intents"
-import {
-  logTransaction,
-  type TransactionSource,
-} from "@/lib/transactions"
+import { type TransactionSource } from "@/lib/transactions"
+import { type TipzData } from "@/lib/tipz"
+import { encryptMessage, serializeEncryptedMessage, isValidPublicKey } from "@/lib/message-encryption"
 import { supabase } from "@/lib/supabase"
 import {
   rateLimit,
@@ -48,6 +47,7 @@ interface ExecuteRequest {
   // This prevents transaction misattribution attacks.
   sourcePlatform?: TransactionSource // Where the tip originated
   sourceUrl?: string // URL of content being tipped
+  memo?: string // Private message to creator (encrypted into tipz.data)
   quote: {
     toAmount: string
     exchangeRate: string
@@ -121,6 +121,7 @@ export async function POST(request: NextRequest) {
       depositAddress: requestDepositAddress,
       sourcePlatform,
       sourceUrl,
+      memo,
       quote,
     } = body
 
@@ -195,16 +196,16 @@ export async function POST(request: NextRequest) {
       status,
     })
 
-    // Log transaction to database if configured
+    // Log tip to database if configured
     // SECURITY: Look up creator by shielded address instead of accepting creatorId from request
     // This prevents transaction misattribution attacks
     let transactionId: string | undefined
     if (supabase) {
       try {
-        // Look up creator by their shielded address
+        // Look up creator by their shielded address (include public_key for encryption)
         const { data: creator, error: creatorError } = await supabase
           .from("creators")
-          .select("id")
+          .select("id, public_key")
           .eq("shielded_address", destinationAddress)
           .single()
 
@@ -212,38 +213,46 @@ export async function POST(request: NextRequest) {
           console.log("[swap/execute] Creator not found for address:", destinationAddress.slice(0, 12) + "...")
           // Continue without logging - swap still works, just not tracked
         } else {
-          const transaction = await logTransaction({
-            creatorId: creator.id,
-            senderAddress: walletAddress,
-            recipientAddress: destinationAddress,
-            amountZec: parseFloat(quote.toAmount),
-            amountUsd: parseFloat(fromAmount) * parseFloat(quote.exchangeRate),
-            txHash: txHash || undefined,
-            sourcePlatform: sourcePlatform || "web",
-            sourceUrl,
-            metadata: {
-              intentId,
-              fromChain,
-              fromToken,
-              fromAmount,
-              exchangeRate: parseFloat(quote.exchangeRate),
-              route: quote.route,
-              depositAddress: depositAddress,
-              swapStatus: status,
-            },
-          })
+          // Encrypt tip data with creator's public key
+          let encryptedData: string | null = null
+          if (creator.public_key && isValidPublicKey(creator.public_key)) {
+            const tipzData: TipzData = {
+              amount_zec: parseFloat(quote.toAmount),
+              amount_usd: parseFloat(fromAmount) * parseFloat(quote.exchangeRate),
+              memo: memo || undefined,
+            }
+            const encrypted = await encryptMessage(
+              JSON.stringify(tipzData),
+              creator.public_key as JsonWebKey
+            )
+            encryptedData = serializeEncryptedMessage(encrypted)
+          }
 
-          transactionId = transaction.id
-          console.log("[swap/execute] Transaction logged:", {
-            transactionId,
-            creatorId: creator.id,
-            amountZec: quote.toAmount,
-            depositAddress,
-          })
+          const { data: tip, error: tipError } = await supabase
+            .from("tipz")
+            .insert({
+              creator_id: creator.id,
+              source_platform: sourcePlatform || "web",
+              status: "pending",
+              data: encryptedData,
+            })
+            .select("id")
+            .single()
+
+          if (tipError) {
+            console.error("[swap/execute] Insert error:", tipError)
+          } else {
+            transactionId = tip.id
+            console.log("[swap/execute] Tip logged:", {
+              transactionId,
+              creatorId: creator.id,
+              encrypted: !!encryptedData,
+            })
+          }
         }
       } catch (dbError) {
         // Log error but don't fail the request - the swap was successful
-        console.error("[swap/execute] Failed to log transaction:", dbError)
+        console.error("[swap/execute] Failed to log tip:", dbError)
       }
     }
 
