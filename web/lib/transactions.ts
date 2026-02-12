@@ -25,6 +25,7 @@
  * │ source_url           │ text        │ URL where tip initiated    │
  * │ created_at           │ timestamptz │ When transaction logged    │
  * │ confirmed_at         │ timestamptz │ When confirmed on chain    │
+ * │ metadata             │ jsonb       │ Additional metadata        │
  * └──────────────────────┴─────────────┴────────────────────────────┘
  *
  * Indexes:
@@ -52,7 +53,8 @@
  *   source_platform TEXT,
  *   source_url TEXT,
  *   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
- *   confirmed_at TIMESTAMPTZ
+ *   confirmed_at TIMESTAMPTZ,
+ *   metadata JSONB DEFAULT '{}'::jsonb
  * );
  *
  * CREATE INDEX idx_transactions_creator_id ON transactions(creator_id);
@@ -107,6 +109,7 @@ interface TransactionRow {
   source_url: string | null
   created_at: string
   confirmed_at: string | null
+  metadata: TransactionMetadata | null
 }
 
 /**
@@ -129,6 +132,7 @@ function mapDbToTransaction(row: TransactionRow): Transaction {
     sourceUrl: row.source_url || undefined,
     createdAt: new Date(row.created_at),
     confirmedAt: row.confirmed_at ? new Date(row.confirmed_at) : undefined,
+    metadata: row.metadata || undefined
   }
 }
 
@@ -202,6 +206,36 @@ export interface Transaction {
 
   /** When the transaction was confirmed on-chain */
   confirmedAt?: Date
+
+  /** Additional metadata (JSON) */
+  metadata?: TransactionMetadata
+}
+
+/**
+ * Additional transaction metadata.
+ * Stored as JSONB for flexibility.
+ */
+export interface TransactionMetadata {
+  /** Client IP (hashed for privacy) */
+  clientIpHash?: string
+
+  /** Browser extension version */
+  extensionVersion?: string
+
+  /** Exchange rate used for USD conversion */
+  exchangeRate?: number
+
+  /** Raw transaction data (for debugging) */
+  rawTx?: string
+
+  /** Any error messages if transaction failed */
+  errorMessage?: string
+
+  /** Number of retry attempts */
+  retryCount?: number
+
+  /** Custom fields */
+  [key: string]: unknown
 }
 
 /**
@@ -218,6 +252,7 @@ export interface CreateTransactionInput {
   memo?: string
   sourcePlatform: TransactionSource
   sourceUrl?: string
+  metadata?: TransactionMetadata
 }
 
 /**
@@ -229,6 +264,7 @@ export interface UpdateTransactionInput {
   status: TransactionStatus
   confirmations?: number
   confirmedAt?: Date
+  metadata?: Partial<TransactionMetadata>
 }
 
 /**
@@ -332,6 +368,7 @@ export async function logTransaction(
       memo: input.memo || null,
       source_platform: input.sourcePlatform,
       source_url: input.sourceUrl || null,
+      metadata: input.metadata || {},
       status: "pending"
     })
     .select()
@@ -377,6 +414,19 @@ export async function updateTransactionStatus(
   // Auto-set confirmed_at when status changes to confirmed
   if (update.status === "confirmed") {
     updateData.confirmed_at = update.confirmedAt?.toISOString() || new Date().toISOString()
+  }
+
+  // Merge metadata if provided
+  if (update.metadata) {
+    // Fetch existing metadata first to merge
+    const { data: existing } = await db
+      .from("transactions")
+      .select("metadata")
+      .eq("id", transactionId)
+      .single()
+
+    const existingMetadata = (existing?.metadata as TransactionMetadata) || {}
+    updateData.metadata = { ...existingMetadata, ...update.metadata }
   }
 
   const { data, error } = await db
