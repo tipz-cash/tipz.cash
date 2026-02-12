@@ -7,8 +7,7 @@ import {
 import {
   submitDeposit,
 } from "@/lib/near-intents"
-import { type TransactionSource } from "@/lib/transactions"
-import { type TipzData } from "@/lib/tipz"
+import { type TipzData, type SourcePlatform } from "@/lib/tipz"
 import { encryptMessage, serializeEncryptedMessage, isValidPublicKey } from "@/lib/message-encryption"
 import { supabase } from "@/lib/supabase"
 import {
@@ -45,7 +44,7 @@ interface ExecuteRequest {
   // SECURITY NOTE: creatorId is no longer accepted from request body.
   // We look up the creator by destinationAddress (shielded address) instead.
   // This prevents transaction misattribution attacks.
-  sourcePlatform?: TransactionSource // Where the tip originated
+  sourcePlatform?: SourcePlatform // Where the tip originated
   sourceUrl?: string // URL of content being tipped
   memo?: string // Private message to creator (encrypted into tipz.data)
   quote: {
