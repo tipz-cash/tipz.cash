@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const address = request.nextUrl.searchParams.get("depositAddress")
+    const transactionId = request.nextUrl.searchParams.get("transactionId")
 
     if (!address) {
       return NextResponse.json(
@@ -88,44 +89,23 @@ export async function GET(request: NextRequest) {
         refundTxHash: status.refundTxHash,
       }
 
-      // Update database if swap is complete
-      if (isSwapComplete(status.status) && supabase) {
+      // Update tipz table if swap is complete and we have a transactionId
+      if (isSwapComplete(status.status) && supabase && transactionId) {
         try {
-          // Find transaction by deposit address in metadata
-          const { data: transactions } = await supabase
-            .from("transactions")
-            .select("id, metadata")
-            .filter("metadata->depositAddress", "eq", address)
-            .limit(1)
+          const newStatus = isSwapSuccessful(status.status) ? "confirmed" : "failed"
 
-          if (transactions && transactions.length > 0) {
-            const tx = transactions[0]
-            const newStatus = isSwapSuccessful(status.status) ? "confirmed" : "failed"
+          await supabase
+            .from("tipz")
+            .update({ status: newStatus })
+            .eq("id", transactionId)
 
-            await supabase
-              .from("transactions")
-              .update({
-                status: newStatus,
-                tx_hash: status.destinationTxHash || tx.metadata?.sourceTxHash,
-                confirmed_at: newStatus === "confirmed" ? new Date().toISOString() : null,
-                metadata: {
-                  ...tx.metadata,
-                  swapStatus: status.status,
-                  destinationTxHash: status.destinationTxHash,
-                  refundTxHash: status.refundTxHash,
-                  errorMessage: status.errorMessage,
-                },
-              })
-              .eq("id", tx.id)
-
-            console.log("[swap/status] Updated transaction:", {
-              id: tx.id,
-              status: newStatus,
-              swapStatus: status.status,
-            })
-          }
+          console.log("[swap/status] Updated tip:", {
+            id: transactionId,
+            status: newStatus,
+            swapStatus: status.status,
+          })
         } catch (dbError) {
-          console.error("[swap/status] Failed to update transaction:", dbError)
+          console.error("[swap/status] Failed to update tip:", dbError)
         }
       }
 

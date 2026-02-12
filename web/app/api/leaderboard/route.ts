@@ -6,7 +6,6 @@ import { supabase } from "@/lib/supabase"
  *
  * Returns privacy-preserving leaderboard based on tip count (not amounts).
  * - Ranks by activity (tip count), not wealth
- * - Excludes stealth_mode creators
  * - Only shows verified creators
  * - No amount information exposed
  */
@@ -46,17 +45,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Optimized query: fetch only confirmed transactions with creator info
-    // This is much faster than fetching all transactions per creator
+    // Optimized query: fetch only confirmed tipz with creator info
+    // This is much faster than fetching all tipz per creator
     const { data, error } = await supabase
-      .from("transactions")
+      .from("tipz")
       .select(
         `
         creator_id,
         creators!inner(
           handle,
-          verification_status,
-          stealth_mode
+          verification_status
         )
       `
       )
@@ -78,13 +76,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Filter stealth_mode in JS (Supabase doesn't support OR on foreign table in same query)
-    // and aggregate tip counts by handle
     const counts = new Map<string, number>()
     for (const t of data) {
       const creator = t.creators as any
-      // Skip stealth mode creators
-      if (creator.stealth_mode === true) continue
       const handle = creator.handle
       counts.set(handle, (counts.get(handle) || 0) + 1)
     }
