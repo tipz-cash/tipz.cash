@@ -261,10 +261,10 @@ export const RATE_LIMITS = {
     name: "swap-status"
   } as RateLimitConfig,
 
-  /** Link challenge: 10 requests per minute per IP */
-  linkChallenge: {
+  /** Link: 10 requests per minute per IP */
+  link: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 10,
-    name: "link-challenge"
+    name: "link"
   } as RateLimitConfig
 } as const
