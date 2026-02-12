@@ -76,7 +76,7 @@ async function getFallbackActivity(limit: number) {
     ).toISOString()
 
     const { data: transactions, error } = await supabase
-      .from("transactions")
+      .from("tipz")
       .select(
         `
         created_at,
