@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase, normalizeHandle, type Creator } from "@/lib/supabase"
 import { verifyTwitterToken } from "@/lib/twitter-api"
+import { getSessionFromRequest } from "@/lib/session"
 import {
   rateLimit,
   rateLimitHeaders,
@@ -13,15 +14,20 @@ import {
  *
  * Links a creator's extension and stores their public key for private messaging.
  *
- * SECURITY: This endpoint requires a valid Twitter OAuth access token.
- * The server verifies the token by calling Twitter's /2/users/me endpoint,
- * which proves the caller actually owns the Twitter account.
+ * SECURITY: This endpoint requires either:
+ * 1. A valid Twitter OAuth access token (extension flow), OR
+ * 2. A valid session cookie (web dashboard flow)
  *
- * Flow:
+ * Flow (extension):
  * 1. Extension authenticates user via Twitter OAuth
  * 2. Extension generates RSA key pair client-side, stores private key locally
  * 3. Extension calls this endpoint with the OAuth access token + public key
  * 4. Server verifies token with Twitter, derives handle, stores the public key
+ *
+ * Flow (web):
+ * 1. User logs in via Twitter OAuth on tipz.cash/my
+ * 2. Browser generates RSA key pair, stores private key in localStorage
+ * 3. Browser calls this endpoint with the public key (session cookie authenticates)
  */
 export async function POST(request: NextRequest) {
   // Apply rate limiting
@@ -51,21 +57,29 @@ export async function POST(request: NextRequest) {
 
   const { twitterAccessToken, publicKey } = body
 
-  if (!twitterAccessToken || typeof twitterAccessToken !== "string") {
-    return NextResponse.json({
-      error: "Twitter access token is required.",
-      code: "TOKEN_REQUIRED"
-    }, { status: 401, headers })
-  }
+  // Determine handle: session cookie OR Twitter access token
+  let normalizedHandle: string
 
-  // Verify Twitter OAuth token
-  const tokenResult = await verifyTwitterToken(twitterAccessToken)
-
-  if (!tokenResult.valid) {
-    return NextResponse.json({
-      error: "Invalid Twitter access token.",
-      code: "TOKEN_INVALID"
-    }, { status: 401, headers })
+  if (twitterAccessToken && typeof twitterAccessToken === "string") {
+    // Extension flow: verify Twitter OAuth token
+    const tokenResult = await verifyTwitterToken(twitterAccessToken)
+    if (!tokenResult.valid) {
+      return NextResponse.json({
+        error: "Invalid Twitter access token.",
+        code: "TOKEN_INVALID"
+      }, { status: 401, headers })
+    }
+    normalizedHandle = normalizeHandle(tokenResult.username)
+  } else {
+    // Web dashboard flow: check session cookie
+    const session = await getSessionFromRequest(request)
+    if (!session) {
+      return NextResponse.json({
+        error: "Authentication required.",
+        code: "AUTH_REQUIRED"
+      }, { status: 401, headers })
+    }
+    normalizedHandle = normalizeHandle(session.handle)
   }
 
   // Validate publicKey
@@ -76,8 +90,6 @@ export async function POST(request: NextRequest) {
   if (key.kty !== "RSA" || typeof key.n !== "string" || typeof key.e !== "string") {
     return NextResponse.json({ error: "Invalid RSA public key" }, { status: 400, headers })
   }
-
-  const normalizedHandle = normalizeHandle(tokenResult.username)
 
   if (!supabase) {
     return NextResponse.json({ error: "Database not configured" }, { status: 503 })
