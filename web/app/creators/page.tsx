@@ -357,6 +357,17 @@ export default function CreatorsPage() {
                 DOCS
               </a>
               <a
+                href="/my"
+                style={{
+                  color: colors.muted,
+                  textDecoration: "none",
+                  fontSize: "11px",
+                  letterSpacing: "1px",
+                }}
+              >
+                MY TIPZ
+              </a>
+              <a
                 href="/register"
                 className="cta-primary"
                 style={{
@@ -502,6 +513,21 @@ export default function CreatorsPage() {
                 }}
               >
                 DOCS
+              </a>
+              <a
+                href="/my"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  display: "block",
+                  padding: "16px 0",
+                  color: colors.text,
+                  textDecoration: "none",
+                  fontSize: "14px",
+                  letterSpacing: "1px",
+                  borderBottom: `1px solid ${colors.border}`,
+                }}
+              >
+                MY TIPZ
               </a>
 
               {/* CTA Button */}

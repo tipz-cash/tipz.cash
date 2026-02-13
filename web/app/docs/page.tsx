@@ -941,6 +941,7 @@ export default function DocsPage() {
             <Link href="/creators" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>CREATORS</Link>
             <Link href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MANIFESTO</Link>
             <span style={{ color: colors.primary, fontSize: "11px", fontWeight: 600, letterSpacing: "1px" }}>DOCS</span>
+            <Link href="/my" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MY TIPZ</Link>
             <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", backgroundColor: colors.primary, color: colors.bg, textDecoration: "none", fontSize: "11px", letterSpacing: "0.5px", fontWeight: 600, padding: "8px 14px", borderRadius: "4px", fontFamily: "'JetBrains Mono', monospace" }}>
               Claim Your Tipz ID
             </Link>
@@ -965,6 +966,7 @@ export default function DocsPage() {
             <Link href="/creators" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>CREATORS</Link>
             <Link href="/manifesto" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MANIFESTO</Link>
             <span style={{ display: "block", padding: "16px 0", color: colors.primary, fontSize: "14px", letterSpacing: "1px", fontWeight: 600, borderBottom: `1px solid ${colors.border}` }}>DOCS</span>
+            <Link href="/my" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MY TIPZ</Link>
             <Link href="/register" onClick={() => setMobileMenuOpen(false)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "16px", padding: "16px", backgroundColor: colors.primary, color: colors.bg, textDecoration: "none", fontSize: "14px", letterSpacing: "0.5px", fontWeight: 600, borderRadius: "4px", fontFamily: "'JetBrains Mono', monospace" }}>
               Claim Your Tipz ID
             </Link>
@@ -1076,6 +1078,7 @@ export default function DocsPage() {
         <div style={{ display: "flex", gap: isMobile ? "20px" : "32px", flexWrap: "wrap", justifyContent: "center" }}>
           <Link href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MANIFESTO</Link>
           <span style={{ color: colors.primary, fontSize: "11px", letterSpacing: "1px", fontWeight: 600 }}>DOCS</span>
+          <Link href="/my" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MY TIPZ</Link>
           <a href="https://github.com/tipz-app" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>GITHUB</a>
           <a href="https://x.com/tipz_cash" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>X</a>
         </div>
