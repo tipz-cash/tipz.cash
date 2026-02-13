@@ -40,6 +40,19 @@ function LogOutIcon({ size = 16, color = "currentColor" }: { size?: number; colo
   )
 }
 
+const navLinkStyle: React.CSSProperties = {
+  color: colors.muted,
+  textDecoration: "none",
+  fontSize: "11px",
+  letterSpacing: "1px",
+  transition: "color 0.2s",
+}
+
+const activeLinkStyle: React.CSSProperties = {
+  ...navLinkStyle,
+  color: colors.primary,
+}
+
 interface Tip {
   id: string
   created_at: string
@@ -74,6 +87,7 @@ export default function MyTipzPage() {
   const [error, setError] = useState<string | null>(null)
   const [loggingOut, setLoggingOut] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -196,35 +210,171 @@ export default function MyTipzPage() {
   }
 
   return (
-    <main style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
+    <div style={{
       minHeight: "100vh",
-      padding: "clamp(24px, 6vw, 48px) clamp(16px, 4vw, 24px)",
-      background: `linear-gradient(180deg, ${colors.bgGradientStart} 0%, ${colors.bgGradientEnd} 100%)`,
+      background: colors.pageBg,
+      color: colors.text,
       fontFamily: "'JetBrains Mono', monospace",
     }}>
-      <div style={{ width: "100%", maxWidth: "600px" }}>
-        <Link
-          href="/"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            marginBottom: "24px",
-            fontSize: "12px",
-            color: colors.muted,
-            textDecoration: "none",
-            letterSpacing: "1px",
-          }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          BACK TO HOME
-        </Link>
+      {/* Sticky Navigation */}
+      <header style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        background: `${colors.pageBg}ee`,
+        backdropFilter: "blur(12px)",
+        borderBottom: `1px solid ${colors.border}`,
+      }}>
+        <div className="header-inner" style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "20px 48px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}>
+          <a href="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
+            <span style={{
+              color: colors.primary,
+              fontWeight: 700,
+              fontSize: "18px",
+              fontFamily: "'JetBrains Mono', monospace",
+              textShadow: `0 0 20px ${colors.primaryGlow}`,
+            }}>[TIPZ]</span>
+            <span style={{
+              color: colors.muted,
+              fontSize: "10px",
+              letterSpacing: "1px",
+              padding: "2px 6px",
+              border: `1px solid ${colors.border}`,
+              borderRadius: "2px",
+            }}>BETA</span>
+          </a>
 
+          <nav className="desktop-nav" style={{ display: "flex", gap: "32px", alignItems: "center" }}>
+            <a href="/creators" style={navLinkStyle}>CREATORS</a>
+            <a href="/manifesto" style={navLinkStyle}>MANIFESTO</a>
+            <a href="/docs" style={navLinkStyle}>DOCS</a>
+            <span style={{ color: colors.border }}>|</span>
+            <a href="/my" style={activeLinkStyle}>MY TIPZ</a>
+            <a
+              href="/register"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
+                color: colors.bg,
+                textDecoration: "none",
+                fontSize: "11px",
+                letterSpacing: "0.5px",
+                fontWeight: 600,
+                padding: "8px 14px",
+                borderRadius: "8px",
+                fontFamily: "'JetBrains Mono', monospace",
+                boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)`,
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+              Claim Your Tipz ID
+            </a>
+          </nav>
+
+          {/* Mobile Hamburger Button */}
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open menu"
+          >
+            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile Menu Drawer */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.6)",
+              zIndex: 200,
+            }}
+          />
+          <div style={{
+            position: "fixed",
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: "280px",
+            background: colors.surface,
+            borderLeft: `1px solid ${colors.border}`,
+            zIndex: 201,
+            padding: "24px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+          }}>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close menu"
+              style={{
+                alignSelf: "flex-end",
+                background: "transparent",
+                border: "none",
+                color: colors.text,
+                fontSize: "24px",
+                cursor: "pointer",
+                padding: "8px",
+                lineHeight: 1,
+                marginBottom: "16px",
+              }}
+            >
+              &times;
+            </button>
+            <a href="/my" onClick={() => setMobileMenuOpen(false)} style={{ ...activeLinkStyle, fontSize: "14px", padding: "12px 0" }}>MY TIPZ</a>
+            <a href="/creators" onClick={() => setMobileMenuOpen(false)} style={{ ...navLinkStyle, fontSize: "14px", padding: "12px 0" }}>CREATORS</a>
+            <a href="/manifesto" onClick={() => setMobileMenuOpen(false)} style={{ ...navLinkStyle, fontSize: "14px", padding: "12px 0" }}>MANIFESTO</a>
+            <a href="/docs" onClick={() => setMobileMenuOpen(false)} style={{ ...navLinkStyle, fontSize: "14px", padding: "12px 0" }}>DOCS</a>
+            <div style={{ marginTop: "16px" }}>
+              <a
+                href="/register"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
+                  color: colors.bg,
+                  textDecoration: "none",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}
+              >
+                Claim Your Tipz ID
+              </a>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Page Content */}
+      <main style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "clamp(24px, 6vw, 48px) clamp(16px, 4vw, 24px)",
+      }}>
+      <div style={{ width: "100%", maxWidth: "600px" }}>
         {/* Header */}
         <div style={{
           marginBottom: "32px",
@@ -598,11 +748,49 @@ export default function MyTipzPage() {
           </>
         )}
       </div>
+      </main>
 
       <style>{`
         ${animationKeyframes}
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+        .header-inner {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px 48px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .desktop-nav {
+          display: flex;
+          gap: 32px;
+          align-items: center;
+        }
+        .mobile-menu-btn {
+          display: none;
+          flex-direction: column;
+          gap: 5px;
+          padding: 10px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          min-width: 44px;
+          min-height: 44px;
+          align-items: center;
+          justify-content: center;
+        }
+        @media (max-width: 768px) {
+          .header-inner {
+            padding: 16px;
+          }
+          .desktop-nav {
+            display: none;
+          }
+          .mobile-menu-btn {
+            display: flex;
+          }
         }
         @media (prefers-reduced-motion: reduce) {
           * {
@@ -611,7 +799,7 @@ export default function MyTipzPage() {
           }
         }
       `}</style>
-    </main>
+    </div>
   )
 }
 
