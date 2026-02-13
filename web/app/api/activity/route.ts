@@ -25,51 +25,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Query confirmed transactions from the last 24 hours
-    // Add random 2-10 minute delay to displayed_at for privacy
-    const { data: transactions, error } = await supabase.rpc(
-      "get_activity_feed",
-      { feed_limit: limit }
-    )
-
-    if (error) {
-      // If RPC doesn't exist, fall back to direct query
-      if (error.code === "42883") {
-        // Function does not exist - use fallback
-        return await getFallbackActivity(limit)
-      }
-      console.error("[activity] Error:", error)
-      return NextResponse.json({ activity: [] })
-    }
-
-    if (!transactions || transactions.length === 0) {
-      return NextResponse.json({ activity: [] })
-    }
-
-    const activity: ActivityItem[] = (transactions || []).map(
-      (t: { creator_handle: string; displayed_at: string }) => ({
-        creator_handle: t.creator_handle,
-        displayed_at: t.displayed_at,
-      })
-    )
-
-    return NextResponse.json({ activity })
-  } catch (error) {
-    console.error("[activity] Error:", error)
-    return NextResponse.json({ activity: [] })
-  }
-}
-
-/**
- * Fallback query when RPC function doesn't exist.
- * Adds randomized delay in JavaScript instead of SQL.
- */
-async function getFallbackActivity(limit: number) {
-  if (!supabase) {
-    return NextResponse.json({ activity: [] })
-  }
-
-  try {
     // Get confirmed transactions from last 24 hours
     const twentyFourHoursAgo = new Date(
       Date.now() - 24 * 60 * 60 * 1000
