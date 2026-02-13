@@ -137,7 +137,7 @@ export default function RegisterPage() {
     return 10 + (completed / 3) * 90;
   }
 
-  const verificationText = `I'm registering for @tipz_cash to receive private tips via Zcash.
+  const verificationText = `I'm registering for @tipz_cash to receive private tips via Zcash
 
 ${shieldedAddress || "[your address]"}`
 

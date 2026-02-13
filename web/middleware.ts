@@ -52,7 +52,9 @@ export const config = {
      * - api/zec-price (public price endpoint)
      * - api/leaderboard (public leaderboard endpoint)
      * - api/activity (public activity feed)
+     * - api/auth (OAuth login/logout/session)
+     * - my (creator dashboard)
      */
-    "/((?!_next/static|_next/image|favicon.ico|opengraph-image|twitter-image|apple-icon|icon|api/og|api/tips|api/creator|api/zec-price|api/leaderboard|api/activity|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|opengraph-image|twitter-image|apple-icon|icon|api/og|api/tips|api/creator|api/zec-price|api/leaderboard|api/activity|api/auth|my|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
