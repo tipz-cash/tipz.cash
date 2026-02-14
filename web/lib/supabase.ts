@@ -27,6 +27,8 @@ export interface Creator {
   tweet_id?: string
   twitter_user_id?: string
   verified_at?: string
+  public_key?: Record<string, unknown>
+  key_created_at?: string
 }
 
 export function normalizeHandle(handle: string): string {

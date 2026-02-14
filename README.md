@@ -63,14 +63,11 @@ npm run dev
 | `/api/health` | GET | Service health check |
 | `/api/creator` | GET | Lookup single creator by handle |
 | `/api/creators` | GET | Paginated creator directory |
-| `/api/creators/batch` | POST | Batch lookup creators |
 | `/api/register` | POST | Register as creator with tweet verification |
 | `/api/link` | POST | Re-link returning creator's extension |
 | `/api/zec-price` | GET | Real-time ZEC price from CoinGecko |
 | `/api/swap/quote` | POST | Get swap quote (any token → ZEC) |
 | `/api/swap/execute` | POST | Execute token swap |
-| `/api/intents/create` | POST | Create NEAR Intent for cross-chain routing |
-| `/api/intents/create` | GET | Query NEAR Intent status |
 | `/api/og/[handle]` | GET | Dynamic OG images for tip pages |
 
 ## Database Schema

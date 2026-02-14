@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import {
-  isRealSwapsEnabled,
   getSwapQuote as getNearIntentsQuote,
   mapAddressToAssetId,
   ZEC_ASSET_ID,
@@ -17,20 +16,14 @@ import {
 /**
  * Swap Quote API
  *
- * Returns swap quotes for ETH/USDC → ZEC.
- *
- * In production mode (ENABLE_REAL_SWAPS=true):
- *   - Calls NEAR Intents 1Click API for real quotes
- *   - Returns deposit address for user to send funds
- *   - Quote expires in ~60 seconds
- *
- * In demo mode:
- *   - Uses CoinGecko prices for realistic quotes
- *   - No real transactions occur
+ * Returns swap quotes for ETH/USDC → ZEC using NEAR Intents 1Click API.
+ * - Calls NEAR Intents 1Click API for real quotes
+ * - Returns deposit address for user to send funds
+ * - Quote expires in ~60 seconds
  *
  * POST /api/swap/quote
  * Request: { fromChain, fromToken, fromAmount, toChain, toToken, destinationAddress, refundAddress }
- * Response: { toAmount, exchangeRate, fees, estimatedTime, route, expiresAt, depositAddress?, quoteId?, demo }
+ * Response: { toAmount, exchangeRate, fees, estimatedTime, route, expiresAt, depositAddress?, quoteId? }
  */
 
 interface QuoteRequest {
@@ -54,22 +47,10 @@ interface QuoteResponse {
   estimatedTime: number
   route: string[]
   expiresAt: number
-  demo: boolean
   // Real swap fields
   quoteId?: string
   depositAddress?: string
   minDestinationAmount?: string
-}
-
-// CoinGecko ID mapping
-const COINGECKO_IDS: Record<string, string> = {
-  ETH: "ethereum",
-  MATIC: "matic-network",
-  USDC: "usd-coin",
-  USDT: "tether",
-  DAI: "dai",
-  ZEC: "zcash",
-  SOL: "solana",
 }
 
 // Known token addresses mapped to symbols
@@ -103,58 +84,6 @@ const TOKEN_DECIMALS: Record<string, number> = {
   SOL: 9,
 }
 
-// Fallback prices if CoinGecko fails
-const FALLBACK_PRICES: Record<string, number> = {
-  ETH: 3200,
-  MATIC: 0.85,
-  USDC: 1.0,
-  USDT: 1.0,
-  DAI: 1.0,
-  ZEC: 247,
-  SOL: 200,
-}
-
-/**
- * Fetch real token prices from CoinGecko
- */
-async function getTokenPrices(symbols: string[]): Promise<Record<string, number>> {
-  const coinIds = symbols
-    .map(s => COINGECKO_IDS[s])
-    .filter(Boolean)
-    .join(",")
-
-  if (!coinIds) {
-    return {}
-  }
-
-  try {
-    const response = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd`,
-      { cache: "no-store" } // Don't cache to get fresh prices
-    )
-
-    if (!response.ok) {
-      console.warn("[swap/quote] CoinGecko API error:", response.status)
-      return {}
-    }
-
-    const data = await response.json()
-    const prices: Record<string, number> = {}
-
-    for (const symbol of symbols) {
-      const coinId = COINGECKO_IDS[symbol]
-      if (coinId && data[coinId]?.usd) {
-        prices[symbol] = data[coinId].usd
-      }
-    }
-
-    return prices
-  } catch (error) {
-    console.warn("[swap/quote] Failed to fetch CoinGecko prices:", error)
-    return {}
-  }
-}
-
 /**
  * Resolve token symbol from address
  */
@@ -183,77 +112,6 @@ function resolveTokenSymbol(address: string, chainId: number): string {
   }
 
   return "UNKNOWN"
-}
-
-/**
- * Generate demo quote using CoinGecko prices
- */
-async function generateDemoQuote(
-  fromChain: number,
-  fromToken: string,
-  fromAmount: string,
-  destinationAddress: string
-): Promise<QuoteResponse> {
-  const fromSymbol = resolveTokenSymbol(fromToken, fromChain)
-  const toSymbol = "ZEC"
-
-  if (fromSymbol === "UNKNOWN") {
-    throw new Error("Unsupported token address")
-  }
-
-  // Fetch real prices
-  const prices = await getTokenPrices([fromSymbol, toSymbol])
-
-  // Use real prices or fallbacks
-  const fromPrice = prices[fromSymbol] || FALLBACK_PRICES[fromSymbol] || 1
-  const toPrice = prices[toSymbol] || FALLBACK_PRICES[toSymbol] || 40
-
-  // Calculate amounts
-  const fromAmountNum = parseFloat(fromAmount)
-  const fromValueUsd = fromAmountNum * fromPrice
-
-  // Apply fees (0.5% protocol fee for demo)
-  const protocolFeePercent = 0.005
-  const networkFeeUsd = fromSymbol === "ETH" || fromSymbol === "MATIC" ? 0.50 : 0.10
-  const protocolFeeUsd = fromValueUsd * protocolFeePercent
-
-  const valueAfterFees = fromValueUsd - networkFeeUsd - protocolFeeUsd
-  const toAmount = (valueAfterFees / toPrice).toFixed(8)
-
-  // Calculate exchange rate (tokens per token, not USD)
-  const exchangeRate = (fromPrice / toPrice).toString()
-
-  // Determine route based on token
-  let route: string[]
-  if (fromSymbol === "USDC" || fromSymbol === "USDT" || fromSymbol === "DAI") {
-    route = [fromSymbol, "ZEC"]
-  } else {
-    route = [fromSymbol, "USDC", "ZEC"]
-  }
-
-  // Estimated time (5-10 minutes for cross-chain)
-  const estimatedTime = 300 + Math.floor(Math.random() * 300)
-
-  console.log("[swap/quote] Demo quote generated:", {
-    from: `${fromAmount} ${fromSymbol}`,
-    to: `${toAmount} ZEC`,
-    rate: exchangeRate,
-    pricesUsed: { [fromSymbol]: fromPrice, ZEC: toPrice },
-  })
-
-  return {
-    toAmount,
-    exchangeRate,
-    fees: {
-      network: networkFeeUsd.toFixed(4),
-      protocol: protocolFeeUsd.toFixed(4),
-      total: (networkFeeUsd + protocolFeeUsd).toFixed(4),
-    },
-    estimatedTime,
-    route,
-    expiresAt: Date.now() + 60000, // 60 second expiry
-    demo: true,
-  }
 }
 
 /**
@@ -336,7 +194,6 @@ async function generateRealQuote(
       estimatedTime: quote.timeEstimate || 300,
       route,
       expiresAt,
-      demo: false,
       quoteId: nearResponse.correlationId,
       depositAddress: quote.depositAddress,
       minDestinationAmount: minToAmount,
@@ -395,37 +252,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Determine if we should use real swaps
-    // For NEAR Intents 1Click API, we only need ENABLE_REAL_SWAPS=true
-    // (no NEAR account credentials required - uses deposit addresses)
-    const useRealSwaps = isRealSwapsEnabled()
-
-    let response: QuoteResponse
-
-    if (useRealSwaps) {
-      // Production: Use NEAR Intents for real quotes
-      if (!refundAddress) {
-        return NextResponse.json(
-          { error: "Missing refundAddress for real swap" },
-          { status: 400 }
-        )
-      }
-      response = await generateRealQuote(
-        fromChain,
-        fromToken,
-        fromAmount,
-        destinationAddress,
-        refundAddress
-      )
-    } else {
-      // Demo: Generate mock quote with real prices
-      response = await generateDemoQuote(
-        fromChain,
-        fromToken,
-        fromAmount,
-        destinationAddress
+    if (!refundAddress) {
+      return NextResponse.json(
+        { error: "Missing refundAddress for swap" },
+        { status: 400 }
       )
     }
+
+    const response = await generateRealQuote(
+      fromChain,
+      fromToken,
+      fromAmount,
+      destinationAddress,
+      refundAddress
+    )
 
     return NextResponse.json(response)
   } catch (error) {

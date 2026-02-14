@@ -4,7 +4,8 @@ import { supabase } from "@/lib/supabase"
 /**
  * GET /api/tips/latest?handle=<handle>
  *
- * Returns the most recent tip for a creator (used by extension polling fallback).
+ * Returns the most recent tip for a creator.
+ * The `data` field is encrypted and must be decrypted client-side.
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -22,7 +23,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // First, look up the creator by handle
     const { data: creator, error: creatorError } = await supabase
       .from("creators")
       .select("id")
@@ -33,27 +33,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ tip: null })
     }
 
-    // Get most recent transaction
-    const { data: transaction, error: txError } = await supabase
-      .from("transactions")
-      .select("id, amount_zec, amount_usd, sender_address, created_at, memo")
+    const { data: tip, error: txError } = await supabase
+      .from("tipz")
+      .select("id, created_at, status, source_platform, data")
       .eq("creator_id", creator.id)
       .order("created_at", { ascending: false })
       .limit(1)
       .single()
 
-    if (txError || !transaction) {
+    if (txError || !tip) {
       return NextResponse.json({ tip: null })
     }
 
     return NextResponse.json({
       tip: {
-        id: transaction.id,
-        amount: String(transaction.amount_zec),
-        from_address: transaction.sender_address || undefined,
-        created_at: transaction.created_at,
-        message: transaction.memo || undefined,
-        recipient_handle: handle,
+        id: tip.id,
+        created_at: tip.created_at,
+        status: tip.status,
+        source_platform: tip.source_platform,
+        data: tip.data,
       },
     })
   } catch (error) {

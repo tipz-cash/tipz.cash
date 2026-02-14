@@ -10,26 +10,7 @@ interface ActivityItem {
 
 interface ActivityResponse {
   activity: ActivityItem[]
-  demo?: boolean
 }
-
-// Demo data shown when no real activity exists - uses actual demo creators
-const demoActivity: ActivityItem[] = [
-  { creator_handle: "mert", displayed_at: new Date(Date.now() - 1 * 60 * 1000).toISOString() },
-  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 2 * 60 * 1000).toISOString() },
-  { creator_handle: "naval", displayed_at: new Date(Date.now() - 3 * 60 * 1000).toISOString() },
-  { creator_handle: "balajis", displayed_at: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
-  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 7 * 60 * 1000).toISOString() },
-  { creator_handle: "mert", displayed_at: new Date(Date.now() - 9 * 60 * 1000).toISOString() },
-  { creator_handle: "zcash", displayed_at: new Date(Date.now() - 11 * 60 * 1000).toISOString() },
-  { creator_handle: "jswihart", displayed_at: new Date(Date.now() - 13 * 60 * 1000).toISOString() },
-  { creator_handle: "shieldedlabs", displayed_at: new Date(Date.now() - 15 * 60 * 1000).toISOString() },
-  { creator_handle: "naval", displayed_at: new Date(Date.now() - 17 * 60 * 1000).toISOString() },
-  { creator_handle: "ZcashFoundation", displayed_at: new Date(Date.now() - 19 * 60 * 1000).toISOString() },
-  { creator_handle: "mert", displayed_at: new Date(Date.now() - 21 * 60 * 1000).toISOString() },
-  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 23 * 60 * 1000).toISOString() },
-  { creator_handle: "balajis", displayed_at: new Date(Date.now() - 26 * 60 * 1000).toISOString() },
-]
 
 // Privacy: Vague time labels to prevent on-chain correlation
 function formatRelativeTime(dateString: string): string {
@@ -54,7 +35,6 @@ export function ActivityTicker({
   prefersReducedMotion = false,
 }: ActivityTickerProps) {
   const [activity, setActivity] = useState<ActivityItem[]>([])
-  const [isDemo, setIsDemo] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchActivity = async () => {
@@ -64,15 +44,9 @@ export function ActivityTicker({
 
       if (data.activity && data.activity.length > 0) {
         setActivity(data.activity)
-        setIsDemo(data.demo || false)
-      } else {
-        setActivity(demoActivity)
-        setIsDemo(true)
       }
     } catch (error) {
       console.error("[ActivityTicker] Fetch error:", error)
-      setActivity(demoActivity)
-      setIsDemo(true)
     } finally {
       setIsLoading(false)
     }
@@ -236,23 +210,6 @@ export function ActivityTicker({
           ))}
         </div>
 
-        {/* Demo indicator */}
-        {isDemo && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: "-4px",
-              right: "24px",
-              fontSize: "9px",
-              fontFamily: "'JetBrains Mono', monospace",
-              letterSpacing: "1px",
-              color: colors.muted,
-              opacity: 0.4,
-            }}
-          >
-            DEMO
-          </div>
-        )}
       </div>
     </>
   )

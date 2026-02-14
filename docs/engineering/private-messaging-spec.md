@@ -916,7 +916,7 @@ Updated response to include public key:
 {
   "handle": "zooko",
   "displayName": "Zooko Wilcox",
-  "shieldedAddress": "zs1...",
+  "shieldedAddress": "u1...",
   "publicKey": {
     "kty": "RSA",
     "n": "...",

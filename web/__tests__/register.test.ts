@@ -26,7 +26,6 @@ vi.mock("@/lib/twitter-api", () => ({
 import { POST } from "@/app/api/register/route"
 import { clearAllRateLimits } from "@/lib/rate-limit"
 
-const VALID_ZS1 = "zs1" + "q".repeat(75) // 78 chars, bech32 charset
 const VALID_U1 = "u1" + "q".repeat(139)  // 141 chars, bech32m charset
 
 function createRequest(body: Record<string, unknown>): any {
@@ -102,10 +101,11 @@ describe("POST /api/register", () => {
   // Address Validation
   // ================================================================
 
-  it("accepts valid Sapling address (zs1...)", async () => {
-    const res = await POST(createRequest(validBody({ shielded_address: VALID_ZS1 })))
+  it("rejects Sapling address (zs1...)", async () => {
+    const res = await POST(createRequest(validBody({ shielded_address: "zs1" + "q".repeat(75) })))
+    expect(res.status).toBe(400)
     const data = await res.json()
-    expect(data.code).not.toBe("INVALID_ADDRESS")
+    expect(data.code).toBe("INVALID_ADDRESS")
   })
 
   it("accepts valid Unified address (u1...)", async () => {
@@ -130,13 +130,6 @@ describe("POST /api/register", () => {
     expect(res.status).toBe(400)
     const data = await res.json()
     expect(data.code).toBe("INVALID_ADDRESS")
-  })
-
-  it("rejects too-short zs1 address", async () => {
-    const res = await POST(createRequest(validBody({
-      shielded_address: "zs1tooshort",
-    })))
-    expect(res.status).toBe(400)
   })
 
   it("rejects too-short u1 address", async () => {

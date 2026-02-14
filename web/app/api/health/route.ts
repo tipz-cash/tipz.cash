@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
-import { isDemoMode, isNearConfigured, getNearNetwork } from "@/lib/near"
+import { isNearConfigured, getNearNetwork } from "@/lib/near"
 import { isTwitterApiConfigured } from "@/lib/twitter-api"
 
 /**
@@ -37,16 +37,15 @@ interface HealthStatus {
   version: string
   timestamp: string
   uptime_seconds: number
-  mode: "demo" | "production"
   checks: {
     database: DatabaseCheck
-    transactions_table: DatabaseCheck
+    tipz_table: DatabaseCheck
     environment: {
       status: "configured" | "misconfigured"
       missing_vars?: string[]
     }
     near: {
-      status: "configured" | "demo_mode" | "not_configured"
+      status: "configured" | "not_configured"
       network?: string
       message?: string
     }
@@ -74,7 +73,6 @@ function checkEnvironment(): { configured: boolean; missing: string[] } {
 }
 
 export async function GET() {
-  const demoMode = isDemoMode()
   const nearConfigured = isNearConfigured()
   const twitterConfigured = isTwitterApiConfigured()
 
@@ -84,23 +82,20 @@ export async function GET() {
     version: SERVICE_VERSION,
     timestamp: new Date().toISOString(),
     uptime_seconds: Math.floor((Date.now() - serviceStartTime) / 1000),
-    mode: demoMode ? "demo" : "production",
     checks: {
       database: {
         status: "disconnected"
       },
-      transactions_table: {
+      tipz_table: {
         status: "disconnected"
       },
       environment: {
         status: "configured"
       },
       near: {
-        status: demoMode ? "demo_mode" : (nearConfigured ? "configured" : "not_configured"),
+        status: nearConfigured ? "configured" : "not_configured",
         network: getNearNetwork(),
-        message: demoMode
-          ? "Demo mode enabled - payments are simulated"
-          : (nearConfigured ? "Production mode - real payments enabled" : "NEAR credentials missing")
+        message: nearConfigured ? "Production mode - real payments enabled" : "NEAR credentials missing"
       },
       twitter: {
         status: twitterConfigured ? "configured" : "not_configured",
@@ -127,7 +122,7 @@ export async function GET() {
       status: "disconnected",
       error: "Supabase client not configured"
     }
-    health.checks.transactions_table = {
+    health.checks.tipz_table = {
       status: "disconnected",
       error: "Supabase client not configured"
     }
@@ -162,29 +157,29 @@ export async function GET() {
       }
     }
 
-    // Check transactions table accessibility
+    // Check tipz table accessibility
     try {
       const txStart = Date.now()
 
       const { error } = await supabase
-        .from("transactions")
+        .from("tipz")
         .select("id", { count: "exact", head: true })
         .limit(1)
 
       const txLatency = Date.now() - txStart
 
       if (error) {
-        // Transactions table not existing is degraded, not unhealthy
+        // Tipz table not existing is degraded, not unhealthy
         // (it might not have been created yet via migration)
         if (health.status === "healthy") {
           health.status = "degraded"
         }
-        health.checks.transactions_table = {
+        health.checks.tipz_table = {
           status: "disconnected",
           error: error.message
         }
       } else {
-        health.checks.transactions_table = {
+        health.checks.tipz_table = {
           status: "connected",
           latency_ms: txLatency
         }
@@ -193,7 +188,7 @@ export async function GET() {
       if (health.status === "healthy") {
         health.status = "degraded"
       }
-      health.checks.transactions_table = {
+      health.checks.tipz_table = {
         status: "disconnected",
         error: error instanceof Error ? error.message : "Unknown database error"
       }
@@ -213,7 +208,6 @@ export async function GET() {
     headers: {
       "Cache-Control": "no-cache, no-store, must-revalidate",
       "X-Health-Status": health.status,
-      "X-Service-Mode": health.mode
     }
   })
 }

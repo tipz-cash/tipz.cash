@@ -1,11 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 
-// Mock env
-vi.stubEnv("ENABLE_REAL_SWAPS", "false")
-
 // Mock supabase
 vi.mock("@/lib/supabase", () => ({
   supabase: null,
+}))
+
+// Mock near-intents to avoid real API calls
+vi.mock("@/lib/near-intents", () => ({
+  getSwapStatus: vi.fn().mockResolvedValue({
+    status: "PENDING_DEPOSIT",
+    depositAddress: "test-deposit-addr",
+    updatedAt: new Date().toISOString(),
+  }),
+  isSwapComplete: vi.fn((status: string) => ["SUCCESS", "REFUNDED", "FAILED"].includes(status)),
+  isSwapSuccessful: vi.fn((status: string) => status === "SUCCESS"),
+  getStatusMessage: vi.fn((status: string) => {
+    const messages: Record<string, string> = {
+      PENDING_DEPOSIT: "Waiting for deposit...",
+      PROCESSING: "Processing swap...",
+      SUCCESS: "Swap complete!",
+      REFUNDED: "Swap refunded",
+      FAILED: "Swap failed",
+    }
+    return messages[status] || "Unknown status"
+  }),
 }))
 
 import { GET } from "@/app/api/swap/status/route"
@@ -26,9 +44,9 @@ beforeEach(() => {
   clearAllRateLimits()
 })
 
-describe("GET /api/swap/status (demo mode)", () => {
-  it("returns PENDING_DEPOSIT on first poll", async () => {
-    const res = await GET(createRequest({ depositAddress: "demo-addr-1" }))
+describe("GET /api/swap/status", () => {
+  it("returns status for a deposit address", async () => {
+    const res = await GET(createRequest({ depositAddress: "test-addr-1" }))
     const data = await res.json()
 
     expect(res.status).toBe(200)
@@ -43,23 +61,6 @@ describe("GET /api/swap/status (demo mode)", () => {
     expect(res.status).toBe(400)
     const data = await res.json()
     expect(data.error).toContain("Missing address")
-  })
-
-  it("progresses through demo states over time", async () => {
-    const addr = "demo-progression-" + Date.now()
-
-    // First poll → PENDING_DEPOSIT
-    const r1 = await GET(createRequest({ depositAddress: addr }))
-    const d1 = await r1.json()
-    expect(d1.status).toBe("PENDING_DEPOSIT")
-
-    // The demo progression uses elapsed time, so we can't easily test
-    // the full progression without waiting. But we can verify the
-    // response structure is consistent.
-    expect(d1.depositAddress).toBe(addr)
-    expect(typeof d1.complete).toBe("boolean")
-    expect(typeof d1.success).toBe("boolean")
-    expect(typeof d1.message).toBe("string")
   })
 
   it("enforces rate limits", async () => {

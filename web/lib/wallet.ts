@@ -1001,26 +1001,10 @@ async function executeSolanaTip(
       ;(transaction as any).depositAddress = depositAddress
 
     } else {
-      // DEMO MODE: No real transaction
-      console.log("[wallet] Demo mode - no real Solana transaction")
-
-      updateStatus("swapping")
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      updateStatus("routing")
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      updateStatus("confirming")
-      await new Promise(resolve => setTimeout(resolve, 500))
+      throw new Error("No deposit address available — cannot send transaction")
     }
 
-    // Mark status appropriately
-    if (depositAddress) {
-      transaction.status = "routing"
-    } else {
-      updateStatus("completed")
-      transaction.completedAt = Date.now()
-    }
+    transaction.status = "routing"
 
     saveTransactionToHistory(transaction)
     return transaction
@@ -1200,27 +1184,11 @@ export async function executeTip(
       ;(transaction as any).depositAddress = depositAddress
 
     } else {
-      // DEMO MODE: No real transaction
-      console.log("[wallet] Demo mode - no real transaction")
-
-      updateStatus("swapping")
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      updateStatus("routing")
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      updateStatus("confirming")
-      await new Promise(resolve => setTimeout(resolve, 500))
+      throw new Error("No deposit address available — cannot send transaction")
     }
 
-    // Mark as completed (for demo) or processing (for real)
-    if (depositAddress) {
-      // Real swap: status will be updated by polling
-      transaction.status = "routing"
-    } else {
-      updateStatus("completed")
-      transaction.completedAt = Date.now()
-    }
+    // Status will be updated by polling
+    transaction.status = "routing"
 
     // Save to history
     saveTransactionToHistory(transaction)
@@ -1311,7 +1279,7 @@ export function shortenAddress(address: string, chars: number = 4): string {
  * Validate ZEC shielded address
  */
 export function isValidShieldedAddress(address: string): boolean {
-  return address.startsWith("u1") || address.startsWith("zs1")
+  return address.startsWith("u1")
 }
 
 // ============================================================================

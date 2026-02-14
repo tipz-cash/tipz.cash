@@ -15,7 +15,6 @@ interface ApiResponse {
   limit: number;
   offset: number;
   hasMore: boolean;
-  isDemo?: boolean;
 }
 
 // ZEC Ticker component (simplified version)
@@ -50,36 +49,10 @@ export default function CreatorsPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
-  const [isDemo, setIsDemo] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
-  // Demo mode toggle - allows testers to see full tipping flow without real transactions
-  // Defaults to ON, persists to localStorage
-  const [demoModeEnabled, setDemoModeEnabled] = useState(true);
   const limit = 50;
-
-  // Initialize demo mode from localStorage on client side (defaults to true if not set)
-  useEffect(() => {
-    const stored = localStorage.getItem("tipz_demo_mode");
-    // Only turn off if explicitly set to "false"
-    if (stored === "false") {
-      setDemoModeEnabled(false);
-    }
-    // Also check URL param as override
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("demo") === "true") {
-      setDemoModeEnabled(true);
-      localStorage.setItem("tipz_demo_mode", "true");
-    }
-  }, []);
-
-  // Persist demo mode changes to localStorage
-  const toggleDemoMode = () => {
-    const newValue = !demoModeEnabled;
-    setDemoModeEnabled(newValue);
-    localStorage.setItem("tipz_demo_mode", String(newValue));
-  };
 
   // Filter creators based on search query
   const filteredCreators = creators.filter((creator) =>
@@ -108,7 +81,6 @@ export default function CreatorsPage() {
       setTotal(data.total);
       setHasMore(data.hasMore);
       setOffset(newOffset);
-      setIsDemo(data.isDemo ?? false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -385,6 +357,17 @@ export default function CreatorsPage() {
                 DOCS
               </a>
               <a
+                href="/my"
+                style={{
+                  color: colors.muted,
+                  textDecoration: "none",
+                  fontSize: "11px",
+                  letterSpacing: "1px",
+                }}
+              >
+                MY TIPZ
+              </a>
+              <a
                 href="/register"
                 className="cta-primary"
                 style={{
@@ -531,6 +514,21 @@ export default function CreatorsPage() {
               >
                 DOCS
               </a>
+              <a
+                href="/my"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  display: "block",
+                  padding: "16px 0",
+                  color: colors.text,
+                  textDecoration: "none",
+                  fontSize: "14px",
+                  letterSpacing: "1px",
+                  borderBottom: `1px solid ${colors.border}`,
+                }}
+              >
+                MY TIPZ
+              </a>
 
               {/* CTA Button */}
               <a
@@ -606,7 +604,7 @@ export default function CreatorsPage() {
             </p>
 
             {/* Leaderboard - Top supported creators by tip count */}
-            <Leaderboard demoMode={demoModeEnabled} />
+            <Leaderboard />
 
             {/* Search Bar */}
             <div style={{
@@ -656,67 +654,6 @@ export default function CreatorsPage() {
               </div>
             </div>
 
-            {/* Demo mode toggle for testers */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "12px",
-                marginTop: "24px",
-              }}
-            >
-              <button
-                onClick={toggleDemoMode}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "8px 16px",
-                  background: demoModeEnabled ? "rgba(245, 166, 35, 0.15)" : "rgba(255, 255, 255, 0.05)",
-                  border: `1px solid ${demoModeEnabled ? colors.primary : colors.border}`,
-                  borderRadius: "100px",
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  color: demoModeEnabled ? colors.primary : colors.muted,
-                  letterSpacing: "1px",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <span
-                  style={{
-                    width: "6px",
-                    height: "6px",
-                    borderRadius: "50%",
-                    background: demoModeEnabled ? colors.primary : colors.muted,
-                    animation: demoModeEnabled ? "pulse 2s infinite" : "none",
-                  }}
-                />
-                DEMO MODE {demoModeEnabled ? "ON" : "OFF"}
-              </button>
-            </div>
-
-            {/* Sample data indicator */}
-            {isDemo && !loading && (
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  marginTop: "12px",
-                  padding: "6px 12px",
-                  background: "rgba(255, 255, 255, 0.05)",
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: "100px",
-                  fontSize: "10px",
-                  color: colors.muted,
-                  letterSpacing: "0.5px",
-                }}
-              >
-                Sample creators shown
-              </div>
-            )}
           </section>
 
           {/* Activity Ticker - Social proof before browsing */}
@@ -856,11 +793,6 @@ export default function CreatorsPage() {
                       creator={creator}
                       index={index}
                       onClick={() => {
-                        // In demo mode, always navigate to creator page (demo flow works for any handle)
-                        if (demoModeEnabled) {
-                          window.location.href = `/${creator.handle}?demo=true`;
-                          return;
-                        }
                         // If creator has a shielded address, navigate to their tip page
                         if (creator.shielded_address) {
                           window.location.href = `/${creator.handle}`;
