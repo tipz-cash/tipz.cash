@@ -39,6 +39,42 @@ interface TwitterTweetResponse {
   }>
 }
 
+export type TwitterTokenResult = {
+  valid: true
+  username: string
+} | {
+  valid: false
+}
+
+/**
+ * Verify a user's Twitter OAuth access token by calling /2/users/me.
+ * This uses the user's own OAuth token (not the server's bearer token).
+ */
+export async function verifyTwitterToken(accessToken: string): Promise<TwitterTokenResult> {
+  try {
+    const response = await fetch(`${TWITTER_API_BASE}/users/me`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+
+    if (!response.ok) {
+      return { valid: false }
+    }
+
+    const body = await response.json() as { data?: { username?: string } }
+    const username = body.data?.username
+
+    if (!username) {
+      return { valid: false }
+    }
+
+    return { valid: true, username }
+  } catch {
+    return { valid: false }
+  }
+}
+
 export interface TweetVerificationData {
   tweetId: string
   text: string

@@ -43,6 +43,7 @@ const FAILED_TIP_KEY = "tipz_failed_tip"
 
 interface PendingTip {
   depositAddress: string
+  transactionId?: string
   creatorHandle: string
   amount: string
   tokenSymbol: string
@@ -62,7 +63,6 @@ interface UseTippingOptions {
   walletAddress: string | null
   chainId: number | null
   isWalletConnected: boolean
-  demoMode?: boolean // Force demo mode - simulates entire flow without real transactions
 }
 
 interface UseTippingReturn {
@@ -105,7 +105,7 @@ const PRESET_AMOUNTS = [1, 5, 10, 25]
 const STATUS_POLL_INTERVAL = 5000 // 5 seconds
 
 export function useTipping(options: UseTippingOptions): UseTippingReturn {
-  const { creatorHandle, shieldedAddress, walletAddress, chainId, isWalletConnected, demoMode = false } = options
+  const { creatorHandle, shieldedAddress, walletAddress, chainId, isWalletConnected } = options
 
   // State
   const [flowState, setFlowState] = useState<TippingFlowState>("idle")
@@ -123,6 +123,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
 
   // New: Deposit address and status for real swaps
   const [depositAddress, setDepositAddress] = useState<string | null>(null)
+  const [transactionId, setTransactionId] = useState<string | null>(null)
   const [swapStatus, setSwapStatus] = useState<SwapStatusType | null>(null)
   const [isRealSwap, setIsRealSwap] = useState(false)
 
@@ -172,12 +173,15 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         if (Date.now() - pendingTip.timestamp < 30 * 60 * 1000) {
           console.log("[useTipping] Resuming polling for pending tip:", pendingTip.depositAddress)
           setDepositAddress(pendingTip.depositAddress)
+          if (pendingTip.transactionId) {
+            setTransactionId(pendingTip.transactionId)
+          }
           setIsRealSwap(true)
           setShownOptimisticSuccess(true)
           // Show pending tip notification to user
           setPendingTipNotification(pendingTip)
           // Start silent background polling
-          startBackgroundPolling(pendingTip.depositAddress, pendingTip.creatorHandle, pendingTip.amount)
+          startBackgroundPolling(pendingTip.depositAddress, pendingTip.creatorHandle, pendingTip.amount, pendingTip.transactionId)
         } else {
           // Tip too old, clean up
           localStorage.removeItem(PENDING_TIP_KEY)
@@ -246,7 +250,11 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
    */
   const pollSwapStatus = useCallback(async (address: string) => {
     try {
-      const response = await fetch(`/api/swap/status?depositAddress=${encodeURIComponent(address)}`)
+      let url = `/api/swap/status?depositAddress=${encodeURIComponent(address)}`
+      if (transactionId) {
+        url += `&transactionId=${encodeURIComponent(transactionId)}`
+      }
+      const response = await fetch(url)
       if (!response.ok) {
         console.error("[useTipping] Status poll failed:", response.status)
         return
@@ -318,7 +326,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     } catch (err) {
       console.error("[useTipping] Status poll error:", err)
     }
-  }, [transaction, shownOptimisticSuccess, creatorHandle])
+  }, [transaction, shownOptimisticSuccess, creatorHandle, transactionId])
 
   /**
    * Start polling for swap status (updates UI)
@@ -349,7 +357,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
    * Start silent background polling (fire-and-forget mode)
    * Does NOT update UI state - just tracks completion for notifications
    */
-  const startBackgroundPolling = useCallback((address: string, handle: string, amount: string) => {
+  const startBackgroundPolling = useCallback((address: string, handle: string, amount: string, txId?: string) => {
     // Don't start if already polling
     if (pollingRef.current && pollingAddressRef.current === address) {
       return
@@ -364,7 +372,11 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
 
     const pollSilently = async () => {
       try {
-        const response = await fetch(`/api/swap/status?depositAddress=${encodeURIComponent(address)}`)
+        let url = `/api/swap/status?depositAddress=${encodeURIComponent(address)}`
+        if (txId) {
+          url += `&transactionId=${encodeURIComponent(txId)}`
+        }
+        const response = await fetch(url)
         if (!response.ok) {
           console.error("[useTipping] Background poll failed:", response.status)
           return
@@ -545,6 +557,46 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         const pollAddress = depositAddress || txData.depositAddress
         setDepositAddress(pollAddress)
 
+        // Log the tip to the database via /api/swap/execute (includes encrypted memo)
+        let txId: string | undefined
+        if (quote) {
+          try {
+            const execRes = await fetch("/api/swap/execute", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                fromChain: selectedToken?.chainId,
+                fromToken: selectedToken?.address,
+                fromAmount: quote.fromAmount,
+                walletAddress: walletAddress || "",
+                destinationAddress: shieldedAddress,
+                sourceTxHash: tx.txHash,
+                depositAddress: pollAddress,
+                sourcePlatform: "web",
+                memo: privateMessage.trim() || undefined,
+                quote: {
+                  toAmount: quote.toAmount,
+                  exchangeRate: quote.exchangeRate,
+                  fees: quote.fees,
+                  estimatedTime: quote.estimatedTime,
+                  route: quote.route,
+                  expiresAt: quote.expiresAt,
+                  quoteId: (quote as any).quoteId,
+                  depositAddress: pollAddress,
+                },
+              }),
+            })
+            if (execRes.ok) {
+              const execData = await execRes.json()
+              txId = execData.transactionId
+            }
+          } catch (e) {
+            console.error("[useTipping] Failed to log tip:", e)
+          }
+        }
+
+        if (txId) setTransactionId(txId)
+
         // Honest messaging: Show "delivering" state, not "success"
         // ZEC delivery is still in progress - user can close page
         setFlowState("delivering")
@@ -553,6 +605,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         // Store pending tip in localStorage for persistence
         const pendingTip: PendingTip = {
           depositAddress: pollAddress,
+          transactionId: txId || undefined,
           creatorHandle,
           amount: tx.fromAmount || selectedAmount?.toString() || customAmount,
           tokenSymbol: selectedToken?.symbol || "UNKNOWN",
@@ -563,7 +616,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         // Continue background polling - will transition to "success" when confirmed
         startStatusPolling(pollAddress)
       } else {
-        // Demo mode or immediate swaps - show success directly
+        // No deposit address - show success directly
         setFlowState("success")
       }
     } catch (err: any) {
@@ -577,7 +630,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
       }
       setFlowState("error")
     }
-  }, [quote, isQuoteExpired, getQuote, creatorHandle, shieldedAddress, isRealSwap, depositAddress, startStatusPolling, selectedAmount, customAmount, selectedToken])
+  }, [quote, isQuoteExpired, getQuote, creatorHandle, shieldedAddress, walletAddress, privateMessage, isRealSwap, depositAddress, startStatusPolling, selectedAmount, customAmount, selectedToken])
 
   const reset = useCallback(() => {
     // Stop polling
@@ -596,6 +649,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     setError(null)
     setPrivateMessageState("")
     setDepositAddress(null)
+    setTransactionId(null)
     setSwapStatus(null)
     setIsRealSwap(false)
     setShownOptimisticSuccess(false)
@@ -621,80 +675,13 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
 
     setError(null)
     setDepositAddress(null)
+    setTransactionId(null)
     setSwapStatus(null)
     setFlowState("expanded")
   }, [])
 
-  /**
-   * Demo mode: Simulate the full tipping flow without real wallet/API calls
-   * This allows testers to see the complete UX without making real transactions
-   */
-  const sendDemoTip = useCallback(async () => {
-    const amount = selectedAmount || parseFloat(customAmount)
-    if (!amount || amount <= 0) {
-      setError("Please enter a valid amount")
-      return
-    }
-
-    setError(null)
-    console.log("[useTipping] Demo mode: Simulating tip flow for $" + amount)
-
-    // Calculate simulated ZEC amount
-    const zecPrice = 40 // Fallback ZEC price for demo
-    const zecAmount = (amount / zecPrice).toFixed(6)
-
-    // Create mock transaction
-    const mockTx: TipTransaction = {
-      id: `demo-${Date.now()}`,
-      status: "connecting",
-      fromToken: "USDC",
-      fromAmount: amount.toString(),
-      toAmount: zecAmount,
-      recipientHandle: creatorHandle,
-      recipientAddress: shieldedAddress,
-      txHash: `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`,
-      intentId: `demo-intent-${Date.now()}`,
-      createdAt: Date.now(),
-      usdAmount: amount,
-      networkFee: "0.50",
-    }
-
-    // Phase 1: Signing (1.5s)
-    setFlowState("signing")
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    // Phase 2: Processing with rotating messages (4s)
-    setFlowState("processing")
-    setIsRealSwap(true) // Show the real swap UI elements
-    setSwapStatus("PROCESSING")
-    await new Promise(resolve => setTimeout(resolve, 4000))
-
-    // Phase 3: Delivering (show the "you can close" state)
-    mockTx.status = "confirming"
-    setTransaction(mockTx)
-    setDepositAddress(`demo-deposit-${Date.now()}`)
-    setFlowState("delivering")
-
-    // Simulate delivery time (3s), then show success
-    await new Promise(resolve => setTimeout(resolve, 3000))
-
-    // Phase 4: Success!
-    mockTx.status = "completed"
-    mockTx.completedAt = Date.now()
-    setTransaction(mockTx)
-    setSwapStatus("SUCCESS")
-    setFlowState("success")
-
-    console.log("[useTipping] Demo mode: Flow complete")
-  }, [selectedAmount, customAmount, creatorHandle, shieldedAddress])
-
   // Combined action: get quote and immediately confirm (skip confirmation step)
   const sendTip = useCallback(async () => {
-    // If demo mode is enabled, use the simulated flow
-    if (demoMode) {
-      return sendDemoTip()
-    }
-
     if (!selectedToken) {
       setError("Please select a token")
       return
@@ -774,6 +761,44 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         const pollAddress = quoteData.depositAddress || txData.depositAddress
         setDepositAddress(pollAddress)
 
+        // Log the tip to the database via /api/swap/execute (includes encrypted memo)
+        let txId: string | undefined
+        try {
+          const execRes = await fetch("/api/swap/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fromChain: selectedToken.chainId,
+              fromToken: selectedToken.address,
+              fromAmount: newQuote.fromAmount,
+              walletAddress: walletAddress || "",
+              destinationAddress: shieldedAddress,
+              sourceTxHash: tx.txHash,
+              depositAddress: pollAddress,
+              sourcePlatform: "web",
+              memo: privateMessage.trim() || undefined,
+              quote: {
+                toAmount: newQuote.toAmount,
+                exchangeRate: newQuote.exchangeRate,
+                fees: newQuote.fees,
+                estimatedTime: newQuote.estimatedTime,
+                route: newQuote.route,
+                expiresAt: newQuote.expiresAt,
+                quoteId: (newQuote as any).quoteId,
+                depositAddress: pollAddress,
+              },
+            }),
+          })
+          if (execRes.ok) {
+            const execData = await execRes.json()
+            txId = execData.transactionId
+          }
+        } catch (e) {
+          console.error("[useTipping] Failed to log tip:", e)
+        }
+
+        if (txId) setTransactionId(txId)
+
         // Honest messaging: Show "delivering" state, not "success"
         // ZEC delivery is still in progress - user can close page
         setFlowState("delivering")
@@ -782,6 +807,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         // Store pending tip in localStorage for persistence
         const pendingTip: PendingTip = {
           depositAddress: pollAddress,
+          transactionId: txId || undefined,
           creatorHandle,
           amount: tx.fromAmount || selectedAmount?.toString() || customAmount,
           tokenSymbol: selectedToken?.symbol || "UNKNOWN",
@@ -792,7 +818,6 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         // Continue background polling - will transition to "success" when confirmed
         startStatusPolling(pollAddress)
       } else {
-        // Demo mode or immediate swaps - show success directly
         setFlowState("success")
       }
     } catch (err: any) {
@@ -805,7 +830,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
       }
       setFlowState("error")
     }
-  }, [demoMode, sendDemoTip, selectedToken, selectedAmount, customAmount, shieldedAddress, walletAddress, creatorHandle, startStatusPolling])
+  }, [selectedToken, selectedAmount, customAmount, shieldedAddress, walletAddress, creatorHandle, privateMessage, startStatusPolling])
 
   // Auto-transition to connected state when wallet connects
   useEffect(() => {

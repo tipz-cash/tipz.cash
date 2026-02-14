@@ -16,77 +16,10 @@ interface ActivityItem {
   displayed_at: string
 }
 
-// Demo activity using actual demo creators
-const demoActivity: ActivityItem[] = [
-  { creator_handle: "mert", displayed_at: new Date(Date.now() - 1 * 60 * 1000).toISOString() },
-  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 2 * 60 * 1000).toISOString() },
-  { creator_handle: "naval", displayed_at: new Date(Date.now() - 3 * 60 * 1000).toISOString() },
-  { creator_handle: "balajis", displayed_at: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
-  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 7 * 60 * 1000).toISOString() },
-  { creator_handle: "mert", displayed_at: new Date(Date.now() - 9 * 60 * 1000).toISOString() },
-  { creator_handle: "zcash", displayed_at: new Date(Date.now() - 11 * 60 * 1000).toISOString() },
-  { creator_handle: "jswihart", displayed_at: new Date(Date.now() - 13 * 60 * 1000).toISOString() },
-  { creator_handle: "shieldedlabs", displayed_at: new Date(Date.now() - 15 * 60 * 1000).toISOString() },
-  { creator_handle: "naval", displayed_at: new Date(Date.now() - 17 * 60 * 1000).toISOString() },
-  { creator_handle: "ZcashFoundation", displayed_at: new Date(Date.now() - 19 * 60 * 1000).toISOString() },
-  { creator_handle: "mert", displayed_at: new Date(Date.now() - 21 * 60 * 1000).toISOString() },
-  { creator_handle: "zooko", displayed_at: new Date(Date.now() - 23 * 60 * 1000).toISOString() },
-  { creator_handle: "balajis", displayed_at: new Date(Date.now() - 26 * 60 * 1000).toISOString() },
-]
-
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50)
 
-  if (!supabase) {
-    // Return demo data when Supabase is not configured
-    return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
-  }
-
-  try {
-    // Query confirmed transactions from the last 24 hours
-    // Add random 2-10 minute delay to displayed_at for privacy
-    const { data: transactions, error } = await supabase.rpc(
-      "get_activity_feed",
-      { feed_limit: limit }
-    )
-
-    if (error) {
-      // If RPC doesn't exist, fall back to direct query
-      if (error.code === "42883") {
-        // Function does not exist - use fallback
-        return await getFallbackActivity(limit)
-      }
-      console.error("[activity] Error:", error)
-      return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
-    }
-
-    if (!transactions || transactions.length === 0) {
-      return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
-    }
-
-    const activity: ActivityItem[] = (transactions || []).map(
-      (t: { creator_handle: string; displayed_at: string }) => ({
-        creator_handle: t.creator_handle,
-        displayed_at: t.displayed_at,
-      })
-    )
-
-    return NextResponse.json({
-      activity,
-      demo: false,
-    })
-  } catch (error) {
-    console.error("[activity] Error:", error)
-    return NextResponse.json({ activity: demoActivity.slice(0, limit), demo: true })
-  }
-}
-
-/**
- * Fallback query when RPC function doesn't exist.
- * Adds randomized delay in JavaScript instead of SQL.
- */
-async function getFallbackActivity(limit: number) {
   if (!supabase) {
     return NextResponse.json({ activity: [] })
   }
@@ -98,11 +31,11 @@ async function getFallbackActivity(limit: number) {
     ).toISOString()
 
     const { data: transactions, error } = await supabase
-      .from("transactions")
+      .from("tipz")
       .select(
         `
         created_at,
-        creator:creators!inner(handle, stealth_mode)
+        creator:creators!inner(handle)
       `
       )
       .eq("status", "confirmed")
@@ -117,7 +50,6 @@ async function getFallbackActivity(limit: number) {
 
     // Filter out stealth mode creators and add randomized delay
     const activity: ActivityItem[] = (transactions || [])
-      .filter((t: any) => !t.creator?.stealth_mode)
       .slice(0, limit)
       .map((t: any) => {
         // Add random 2-10 minute delay to created_at
@@ -137,10 +69,7 @@ async function getFallbackActivity(limit: number) {
           new Date(a.displayed_at).getTime()
       )
 
-    return NextResponse.json({
-      activity,
-      demo: false,
-    })
+    return NextResponse.json({ activity })
   } catch (error) {
     console.error("[activity] Fallback error:", error)
     return NextResponse.json({ activity: [] })

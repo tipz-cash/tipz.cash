@@ -103,7 +103,7 @@ curl "https://tipz.app/api/creator?platform=x&handle=elonmusk"
     "id": "550e8400-e29b-41d4-a716-446655440000",
     "platform": "x",
     "handle": "elonmusk",
-    "shielded_address": "zs1..."
+    "shielded_address": "u1..."
   }
 }
 ```
@@ -145,7 +145,7 @@ Content-Type: application/json
 |-------|------|----------|-------------|
 | platform | string | Yes | `x` or `substack` |
 | handle | string | Yes | Creator's handle |
-| shielded_address | string | Yes | Zcash shielded address (zs...) |
+| shielded_address | string | Yes | Zcash unified address (u1...) |
 | tweet_url | string | Yes | Verification tweet URL |
 
 #### Example Request
@@ -156,7 +156,7 @@ curl -X POST "https://tipz.app/api/register" \
   -d '{
     "platform": "x",
     "handle": "myhandle",
-    "shielded_address": "zs1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp",
+    "shielded_address": "u1rl42v9qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
     "tweet_url": "https://x.com/myhandle/status/1234567890"
   }'
 ```
@@ -204,7 +204,7 @@ curl -X POST "https://tipz.app/api/register" \
 
 ```json
 {
-  "error": "Invalid Zcash shielded address. Must start with 'zs' and be 78 characters"
+  "error": "Invalid Zcash shielded address. Must be a Unified address (u1..., 141+ chars)"
 }
 ```
 
@@ -238,9 +238,9 @@ curl -X POST "https://tipz.app/api/register" \
 - Original casing preserved for display
 
 **Shielded Address**:
-- Must match regex: `^zs[a-zA-Z0-9]{76}$`
-- Starts with `zs`
-- Exactly 78 characters total
+- Must be a unified address starting with `u1`
+- 141+ characters
+- Uses Bech32m encoding
 
 **Tweet URL**:
 - Must match pattern: `https://(x|twitter).com/{handle}/status/{id}`
@@ -292,7 +292,7 @@ curl -X POST "https://tipz.app/api/creators/batch" \
         "id": "550e8400-e29b-41d4-a716-446655440000",
         "platform": "x",
         "handle": "user1",
-        "shielded_address": "zs1..."
+        "shielded_address": "u1..."
       }
     },
     "user2": {
@@ -304,7 +304,7 @@ curl -X POST "https://tipz.app/api/creators/batch" \
         "id": "550e8400-e29b-41d4-a716-446655440001",
         "platform": "x",
         "handle": "user3",
-        "shielded_address": "zs1..."
+        "shielded_address": "u1..."
       }
     }
   }
@@ -365,7 +365,7 @@ curl "https://tipz.cash/api/creators?page=1&limit=20"
     {
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "handle": "username",
-      "shielded_address": "zs1...",
+      "shielded_address": "u1...",
       "created_at": "2024-01-15T10:30:00.000Z"
     }
   ],
@@ -489,7 +489,7 @@ curl -X POST "https://tipz.cash/api/swap/quote" \
     "fromChain": 1,
     "fromToken": "0x0000000000000000000000000000000000000000",
     "fromAmount": "0.01",
-    "destinationAddress": "zs1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp"
+    "destinationAddress": "u1rl42v9qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
   }'
 ```
 
@@ -583,7 +583,7 @@ Content-Type: application/json
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | amount | string | Yes | ZEC amount to send |
-| destinationAddress | string | Yes | ZEC shielded address (zs1... or u1...) |
+| destinationAddress | string | Yes | ZEC unified address (u1...) |
 | destinationChain | string | Yes | Must be "ZEC" |
 | metadata | object | No | Optional metadata |
 | metadata.sourceTxHash | string | No | Source transaction hash |
@@ -597,7 +597,7 @@ curl -X POST "https://tipz.cash/api/intents/create" \
   -H "Content-Type: application/json" \
   -d '{
     "amount": "0.75",
-    "destinationAddress": "zs1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp",
+    "destinationAddress": "u1rl42v9qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
     "destinationChain": "ZEC",
     "metadata": {
       "sourceTxHash": "0x...",
@@ -625,7 +625,7 @@ curl -X POST "https://tipz.cash/api/intents/create" \
 **Validation Errors**:
 ```json
 {
-  "error": "Invalid ZEC shielded address. Must start with 'zs1' (78 chars) or 'u1' (unified address)."
+  "error": "Invalid ZEC shielded address. Must be a unified address starting with 'u1'."
 }
 ```
 
@@ -884,7 +884,7 @@ interface RegisterResponse {
 - Added paginated creator directory (`GET /api/creators`)
 - Added ZEC price endpoint (`GET /api/zec-price`)
 - Added dynamic OG images (`GET /api/og/[handle]`)
-- Support for unified addresses (u1...) in addition to sapling (zs1...)
+- Only unified addresses (u1...) accepted
 - Demo mode for testing without real transactions
 - Real-time price quotes from CoinGecko
 

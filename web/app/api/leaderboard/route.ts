@@ -6,7 +6,6 @@ import { supabase } from "@/lib/supabase"
  *
  * Returns privacy-preserving leaderboard based on tip count (not amounts).
  * - Ranks by activity (tip count), not wealth
- * - Excludes stealth_mode creators
  * - Only shows verified creators
  * - No amount information exposed
  */
@@ -21,15 +20,7 @@ export interface LeaderboardEntry {
 
 interface LeaderboardResponse {
   leaderboard: LeaderboardEntry[]
-  demo: boolean
 }
-
-// Demo data shown when no real data exists - uses actual demo creators
-const demoLeaderboard: LeaderboardEntry[] = [
-  { rank: 1, handle: "zooko", tip_count: 1843, tier: "diamond", avatar_url: "https://unavatar.io/twitter/zooko" },
-  { rank: 2, handle: "mert", tip_count: 1247, tier: "diamond", avatar_url: "https://unavatar.io/twitter/mert" },
-  { rank: 3, handle: "naval", tip_count: 891, tier: "diamond", avatar_url: "https://unavatar.io/twitter/naval" },
-]
 
 function getTier(tipCount: number): LeaderboardEntry["tier"] {
   if (tipCount >= 200) return "diamond"
@@ -42,37 +33,28 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const limit = Math.min(parseInt(searchParams.get("limit") || "3", 10), 10)
 
-  if (!supabase) {
-    // Return demo data when Supabase is not configured
-    return NextResponse.json(
-      {
-        leaderboard: demoLeaderboard.slice(0, limit),
-        demo: true,
-      } satisfies LeaderboardResponse,
-      {
-        headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
-        },
-      }
-    )
-  }
-
   const cacheHeaders = {
     "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
   }
 
+  if (!supabase) {
+    return NextResponse.json(
+      { leaderboard: [] } satisfies LeaderboardResponse,
+      { headers: cacheHeaders }
+    )
+  }
+
   try {
-    // Optimized query: fetch only confirmed transactions with creator info
-    // This is much faster than fetching all transactions per creator
+    // Optimized query: fetch only confirmed tipz with creator info
+    // This is much faster than fetching all tipz per creator
     const { data, error } = await supabase
-      .from("transactions")
+      .from("tipz")
       .select(
         `
         creator_id,
         creators!inner(
           handle,
-          verification_status,
-          stealth_mode
+          verification_status
         )
       `
       )
@@ -82,41 +64,28 @@ export async function GET(request: NextRequest) {
     if (error) {
       console.error("[leaderboard] Query error:", error)
       return NextResponse.json(
-        {
-          leaderboard: demoLeaderboard.slice(0, limit),
-          demo: true,
-        } satisfies LeaderboardResponse,
-        { headers: cacheHeaders }
+        { leaderboard: [] } satisfies LeaderboardResponse,
+        { status: 503, headers: cacheHeaders }
       )
     }
 
     if (!data || data.length === 0) {
       return NextResponse.json(
-        {
-          leaderboard: demoLeaderboard.slice(0, limit),
-          demo: true,
-        } satisfies LeaderboardResponse,
+        { leaderboard: [] } satisfies LeaderboardResponse,
         { headers: cacheHeaders }
       )
     }
 
-    // Filter stealth_mode in JS (Supabase doesn't support OR on foreign table in same query)
-    // and aggregate tip counts by handle
     const counts = new Map<string, number>()
     for (const t of data) {
       const creator = t.creators as any
-      // Skip stealth mode creators
-      if (creator.stealth_mode === true) continue
       const handle = creator.handle
       counts.set(handle, (counts.get(handle) || 0) + 1)
     }
 
     if (counts.size === 0) {
       return NextResponse.json(
-        {
-          leaderboard: demoLeaderboard.slice(0, limit),
-          demo: true,
-        } satisfies LeaderboardResponse,
+        { leaderboard: [] } satisfies LeaderboardResponse,
         { headers: cacheHeaders }
       )
     }
@@ -136,24 +105,14 @@ export async function GET(request: NextRequest) {
     )
 
     return NextResponse.json(
-      {
-        leaderboard,
-        demo: false,
-      } satisfies LeaderboardResponse,
+      { leaderboard } satisfies LeaderboardResponse,
       { headers: cacheHeaders }
     )
   } catch (error) {
     console.error("[leaderboard] Error:", error)
     return NextResponse.json(
-      {
-        leaderboard: demoLeaderboard.slice(0, limit),
-        demo: true,
-      } satisfies LeaderboardResponse,
-      {
-        headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
-        },
-      }
+      { leaderboard: [] } satisfies LeaderboardResponse,
+      { status: 503, headers: cacheHeaders }
     )
   }
 }

@@ -4,7 +4,9 @@ import { supabase } from "@/lib/supabase"
 /**
  * GET /api/tips/stats?handle=<handle>
  *
- * Returns aggregated revenue statistics for a creator by their handle.
+ * Returns aggregated statistics for a creator by their handle.
+ * Amounts are encrypted in the data column, so only tip_count and last_tip_at
+ * are available server-side.
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -18,13 +20,10 @@ export async function GET(request: NextRequest) {
   }
 
   if (!supabase) {
-    return NextResponse.json(
-      { total_zec: "0", total_usd: "$0.00", tip_count: 0, last_tip_at: null }
-    )
+    return NextResponse.json({ tip_count: 0, last_tip_at: null })
   }
 
   try {
-    // First, look up the creator by handle
     const { data: creator, error: creatorError } = await supabase
       .from("creators")
       .select("id")
@@ -32,56 +31,29 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (creatorError || !creator) {
-      // No creator found - return empty stats
-      return NextResponse.json({
-        total_zec: "0",
-        total_usd: "$0.00",
-        tip_count: 0,
-        last_tip_at: null,
-      })
+      return NextResponse.json({ tip_count: 0, last_tip_at: null })
     }
 
-    // Get aggregated stats from transactions
-    const { data: transactions, error: txError } = await supabase
-      .from("transactions")
-      .select("amount_zec, amount_usd, created_at")
+    const { data: tips, error: txError } = await supabase
+      .from("tipz")
+      .select("created_at")
       .eq("creator_id", creator.id)
       .eq("status", "confirmed")
       .order("created_at", { ascending: false })
 
     if (txError) {
       console.error("[tips/stats] Query error:", txError)
-      return NextResponse.json({
-        total_zec: "0",
-        total_usd: "$0.00",
-        tip_count: 0,
-        last_tip_at: null,
-      })
+      return NextResponse.json({ tip_count: 0, last_tip_at: null })
     }
 
-    const txList = transactions || []
-
-    // Calculate totals
-    let totalZec = 0
-    let totalUsd = 0
-
-    for (const tx of txList) {
-      totalZec += Number(tx.amount_zec) || 0
-      totalUsd += Number(tx.amount_usd) || 0
-    }
-
-    const lastTipAt = txList.length > 0 ? txList[0].created_at : null
+    const tipList = tips || []
 
     return NextResponse.json({
-      total_zec: totalZec.toFixed(8),
-      total_usd: `$${totalUsd.toFixed(2)}`,
-      tip_count: txList.length,
-      last_tip_at: lastTipAt,
+      tip_count: tipList.length,
+      last_tip_at: tipList.length > 0 ? tipList[0].created_at : null,
     })
   } catch (error) {
     console.error("[tips/stats] Error:", error)
-    return NextResponse.json(
-      { total_zec: "0", total_usd: "$0.00", tip_count: 0, last_tip_at: null }
-    )
+    return NextResponse.json({ tip_count: 0, last_tip_at: null })
   }
 }

@@ -456,7 +456,7 @@ function CreatorsTab() {
           <StepList
             steps={[
               { num: "01", title: "Get a Zcash wallet", desc: "Download Zashi (iOS/Android). Free. Takes 30 seconds. Create wallet, backup seed phrase." },
-              { num: "02", title: "Register at tipz.cash/register", desc: "Enter your X handle and paste your shielded address (starts with u1... or zs1...)." },
+              { num: "02", title: "Register at tipz.cash/register", desc: "Enter your X handle and paste your unified address (starts with u1...)." },
               { num: "03", title: "Verify via tweet", desc: "Post a verification tweet. We'll confirm automatically." },
               { num: "04", title: "Share your link", desc: "Your tip page is live at tipz.cash/yourhandle. Add it to your bio." },
             ]}
@@ -791,14 +791,6 @@ OUTPUT
             u1rl42v9...
           </code>
 
-          <div style={{ marginBottom: "8px" }}>
-            <span style={{ color: colors.muted }}>Sapling (zs...):</span>
-            <span style={{ color: colors.muted, marginLeft: "8px", fontSize: "11px" }}>Legacy, still supported</span>
-          </div>
-          <code style={{ color: colors.muted, wordBreak: "break-all" }}>
-            zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly
-          </code>
-          <div style={{ marginTop: "8px", color: colors.muted }}>78 characters, Base58 encoded</div>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px" }}>
@@ -949,6 +941,7 @@ export default function DocsPage() {
             <Link href="/creators" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>CREATORS</Link>
             <Link href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MANIFESTO</Link>
             <span style={{ color: colors.primary, fontSize: "11px", fontWeight: 600, letterSpacing: "1px" }}>DOCS</span>
+            <Link href="/my" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MY TIPZ</Link>
             <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", backgroundColor: colors.primary, color: colors.bg, textDecoration: "none", fontSize: "11px", letterSpacing: "0.5px", fontWeight: 600, padding: "8px 14px", borderRadius: "4px", fontFamily: "'JetBrains Mono', monospace" }}>
               Claim Your Tipz ID
             </Link>
@@ -973,6 +966,7 @@ export default function DocsPage() {
             <Link href="/creators" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>CREATORS</Link>
             <Link href="/manifesto" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MANIFESTO</Link>
             <span style={{ display: "block", padding: "16px 0", color: colors.primary, fontSize: "14px", letterSpacing: "1px", fontWeight: 600, borderBottom: `1px solid ${colors.border}` }}>DOCS</span>
+            <Link href="/my" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MY TIPZ</Link>
             <Link href="/register" onClick={() => setMobileMenuOpen(false)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "16px", padding: "16px", backgroundColor: colors.primary, color: colors.bg, textDecoration: "none", fontSize: "14px", letterSpacing: "0.5px", fontWeight: 600, borderRadius: "4px", fontFamily: "'JetBrains Mono', monospace" }}>
               Claim Your Tipz ID
             </Link>
@@ -1084,6 +1078,7 @@ export default function DocsPage() {
         <div style={{ display: "flex", gap: isMobile ? "20px" : "32px", flexWrap: "wrap", justifyContent: "center" }}>
           <Link href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MANIFESTO</Link>
           <span style={{ color: colors.primary, fontSize: "11px", letterSpacing: "1px", fontWeight: 600 }}>DOCS</span>
+          <Link href="/my" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MY TIPZ</Link>
           <a href="https://github.com/tipz-app" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>GITHUB</a>
           <a href="https://x.com/tipz_cash" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>X</a>
         </div>

@@ -92,7 +92,7 @@ const techSpecs = `
 ┌─────────────────────────────────────────────────┐
 │  PROTOCOL SPECIFICATIONS                        │
 ├─────────────────────────────────────────────────┤
-│  Network:        Zcash Mainnet (Sapling)        │
+│  Network:        Zcash Mainnet                  │
 │  Encryption:     zk-SNARKs (Groth16)            │
 │  Settlement:     1 block (~75s finality)        │
 │  Min Tip:        0.0001 ZEC (~$0.003)           │
@@ -342,7 +342,7 @@ function RegistrationForm() {
         <label style={labelStyle}>ZCASH SHIELDED ADDRESS</label>
         <input
           type="text"
-          placeholder="zs1..."
+          placeholder="u1..."
           value={formData.shielded_address}
           onChange={(e) => setFormData({ ...formData, shielded_address: e.target.value })}
           required

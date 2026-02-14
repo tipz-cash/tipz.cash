@@ -5,13 +5,10 @@ import {
   estimateCompletionTime,
 } from "@/lib/near"
 import {
-  isRealSwapsEnabled,
   submitDeposit,
 } from "@/lib/near-intents"
-import {
-  logTransaction,
-  type TransactionSource,
-} from "@/lib/transactions"
+import { type TipzData, type SourcePlatform } from "@/lib/tipz"
+import { encryptMessage, serializeEncryptedMessage, isValidPublicKey } from "@/lib/message-encryption"
 import { supabase } from "@/lib/supabase"
 import {
   rateLimit,
@@ -24,20 +21,14 @@ import {
  * Swap Execute API
  *
  * Handles cross-chain swap execution from EVM chains to Zcash.
- *
- * For REAL SWAPS (ENABLE_REAL_SWAPS=true):
- *   - User already has deposit address from /api/swap/quote
- *   - User sends funds to deposit address from their wallet
- *   - This endpoint logs the transaction and optionally submits the deposit tx hash
- *   - Returns status endpoint URL for polling
- *
- * For DEMO MODE:
- *   - Simulates execution with mock responses
- *   - No real funds transferred
+ * - User already has deposit address from /api/swap/quote
+ * - User sends funds to deposit address from their wallet
+ * - This endpoint logs the transaction and optionally submits the deposit tx hash
+ * - Returns status endpoint URL for polling
  *
  * POST /api/swap/execute
  * Request: { fromChain, fromToken, fromAmount, walletAddress, destinationAddress, quote, sourceTxHash?, depositAddress?, creatorId? }
- * Response: { success, txHash, status, intentId, demo, transactionId?, depositAddress?, statusUrl? }
+ * Response: { success, txHash, status, intentId, transactionId?, depositAddress?, statusUrl? }
  */
 
 interface ExecuteRequest {
@@ -53,8 +44,9 @@ interface ExecuteRequest {
   // SECURITY NOTE: creatorId is no longer accepted from request body.
   // We look up the creator by destinationAddress (shielded address) instead.
   // This prevents transaction misattribution attacks.
-  sourcePlatform?: TransactionSource // Where the tip originated
+  sourcePlatform?: SourcePlatform // Where the tip originated
   sourceUrl?: string // URL of content being tipped
+  memo?: string // Private message to creator (encrypted into tipz.data)
   quote: {
     toAmount: string
     exchangeRate: string
@@ -76,25 +68,11 @@ interface ExecuteResponse {
   txHash: string
   status: "pending" | "pending_deposit" | "confirmed" | "failed"
   intentId: string
-  demo: boolean
   transactionId?: string // Database transaction ID for tracking
   estimatedCompletion?: number
   message?: string
-  // Real swap fields
   depositAddress?: string
   statusUrl?: string
-}
-
-/**
- * Generate a realistic-looking Ethereum transaction hash (for demo mode)
- */
-function generateMockTxHash(): string {
-  const chars = "0123456789abcdef"
-  let hash = "0x"
-  for (let i = 0; i < 64; i++) {
-    hash += chars[Math.floor(Math.random() * chars.length)]
-  }
-  return hash
 }
 
 /**
@@ -142,6 +120,7 @@ export async function POST(request: NextRequest) {
       depositAddress: requestDepositAddress,
       sourcePlatform,
       sourceUrl,
+      memo,
       quote,
     } = body
 
@@ -164,7 +143,7 @@ export async function POST(request: NextRequest) {
     // Validate destination address (should be ZEC shielded)
     if (!isValidShieldedAddress(destinationAddress)) {
       return NextResponse.json(
-        { error: "Invalid destination address. Expected ZEC shielded address (zs1... or u1...)" },
+        { error: "Invalid destination address. Expected ZEC unified address (u1...)" },
         { status: 400 }
       )
     }
@@ -177,81 +156,55 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Determine mode
-    // For NEAR Intents 1Click API, we only need ENABLE_REAL_SWAPS=true
-    // (no NEAR account credentials required - uses deposit addresses)
-    const useRealSwaps = isRealSwapsEnabled()
+    // PRODUCTION MODE: Real NEAR Intents swap via deposit address
+    console.log("[swap/execute] Handling deposit-based swap")
 
-    let txHash: string
-    let intentId: string
-    let estimatedCompletion: number
-    let transactionId: string | undefined
-    let status: ExecuteResponse["status"]
-    let depositAddress: string | undefined
-    let statusUrl: string | undefined
-
-    if (useRealSwaps) {
-      // PRODUCTION MODE: Real NEAR Intents swap via deposit address
-      console.log("[swap/execute] Production mode - handling deposit-based swap")
-
-      // Get deposit address from quote or request
-      depositAddress = quote.depositAddress || requestDepositAddress
-      if (!depositAddress) {
-        return NextResponse.json(
-          { error: "Missing deposit address. Please get a new quote." },
-          { status: 400 }
-        )
-      }
-
-      // If user provided a tx hash, submit it to speed up processing
-      if (sourceTxHash) {
-        try {
-          await submitDeposit(depositAddress, sourceTxHash)
-          console.log("[swap/execute] Deposit tx submitted:", {
-            depositAddress,
-            txHash: sourceTxHash.slice(0, 16) + "...",
-          })
-        } catch (error) {
-          // Non-fatal - swap will still work, just might take longer
-          console.warn("[swap/execute] Failed to submit deposit tx:", error)
-        }
-      }
-
-      txHash = sourceTxHash || ""
-      intentId = quote.quoteId || nearGenerateIntentId()
-      estimatedCompletion = Date.now() + estimateCompletionTime("ZEC")
-      status = sourceTxHash ? "pending" : "pending_deposit"
-      statusUrl = `/api/swap/status?address=${encodeURIComponent(depositAddress)}`
-
-      console.log("[swap/execute] Real swap initiated:", {
-        depositAddress,
-        amount: `${quote.toAmount} ZEC`,
-        destination: destinationAddress.slice(0, 12) + "...",
-        status,
-      })
-    } else {
-      // DEMO MODE: Simulate execution
-      console.log("[swap/execute] Demo mode - simulating execution")
-
-      // Simulate processing delay (1-2 seconds)
-      const processingDelay = 1000 + Math.floor(Math.random() * 1000)
-      await new Promise(resolve => setTimeout(resolve, processingDelay))
-
-      txHash = sourceTxHash || generateMockTxHash()
-      intentId = nearGenerateIntentId()
-      estimatedCompletion = Date.now() + estimateCompletionTime("ZEC")
-      status = "pending"
+    // Get deposit address from quote or request
+    const depositAddress = quote.depositAddress || requestDepositAddress
+    if (!depositAddress) {
+      return NextResponse.json(
+        { error: "Missing deposit address. Please get a new quote." },
+        { status: 400 }
+      )
     }
 
-    // Log transaction to database if configured
+    // If user provided a tx hash, submit it to speed up processing
+    if (sourceTxHash) {
+      try {
+        await submitDeposit(depositAddress, sourceTxHash)
+        console.log("[swap/execute] Deposit tx submitted:", {
+          depositAddress,
+          txHash: sourceTxHash.slice(0, 16) + "...",
+        })
+      } catch (error) {
+        // Non-fatal - swap will still work, just might take longer
+        console.warn("[swap/execute] Failed to submit deposit tx:", error)
+      }
+    }
+
+    const txHash = sourceTxHash || ""
+    const intentId = quote.quoteId || nearGenerateIntentId()
+    const estimatedCompletion = Date.now() + estimateCompletionTime("ZEC")
+    const status: ExecuteResponse["status"] = sourceTxHash ? "pending" : "pending_deposit"
+    const statusUrl = `/api/swap/status?address=${encodeURIComponent(depositAddress)}`
+
+    console.log("[swap/execute] Real swap initiated:", {
+      depositAddress,
+      amount: `${quote.toAmount} ZEC`,
+      destination: destinationAddress.slice(0, 12) + "...",
+      status,
+    })
+
+    // Log tip to database if configured
     // SECURITY: Look up creator by shielded address instead of accepting creatorId from request
     // This prevents transaction misattribution attacks
+    let transactionId: string | undefined
     if (supabase) {
       try {
-        // Look up creator by their shielded address
+        // Look up creator by their shielded address (include public_key for encryption)
         const { data: creator, error: creatorError } = await supabase
           .from("creators")
-          .select("id")
+          .select("id, public_key")
           .eq("shielded_address", destinationAddress)
           .single()
 
@@ -259,39 +212,46 @@ export async function POST(request: NextRequest) {
           console.log("[swap/execute] Creator not found for address:", destinationAddress.slice(0, 12) + "...")
           // Continue without logging - swap still works, just not tracked
         } else {
-          const transaction = await logTransaction({
-            creatorId: creator.id,
-            senderAddress: walletAddress,
-            recipientAddress: destinationAddress,
-            amountZec: parseFloat(quote.toAmount),
-            amountUsd: parseFloat(fromAmount) * parseFloat(quote.exchangeRate),
-            txHash: txHash || undefined,
-            sourcePlatform: sourcePlatform || "web",
-            sourceUrl,
-            metadata: {
-              intentId,
-              fromChain,
-              fromToken,
-              fromAmount,
-              exchangeRate: parseFloat(quote.exchangeRate),
-              route: quote.route,
-              demo: !useRealSwaps,
-              depositAddress: depositAddress,
-              swapStatus: status,
-            },
-          })
+          // Encrypt tip data with creator's public key
+          let encryptedData: string | null = null
+          if (creator.public_key && isValidPublicKey(creator.public_key)) {
+            const tipzData: TipzData = {
+              amount_zec: parseFloat(quote.toAmount),
+              amount_usd: parseFloat(fromAmount) * parseFloat(quote.exchangeRate),
+              memo: memo || undefined,
+            }
+            const encrypted = await encryptMessage(
+              JSON.stringify(tipzData),
+              creator.public_key as JsonWebKey
+            )
+            encryptedData = serializeEncryptedMessage(encrypted)
+          }
 
-          transactionId = transaction.id
-          console.log("[swap/execute] Transaction logged:", {
-            transactionId,
-            creatorId: creator.id,
-            amountZec: quote.toAmount,
-            depositAddress,
-          })
+          const { data: tip, error: tipError } = await supabase
+            .from("tipz")
+            .insert({
+              creator_id: creator.id,
+              source_platform: sourcePlatform || "web",
+              status: "pending",
+              data: encryptedData,
+            })
+            .select("id")
+            .single()
+
+          if (tipError) {
+            console.error("[swap/execute] Insert error:", tipError)
+          } else {
+            transactionId = tip.id
+            console.log("[swap/execute] Tip logged:", {
+              transactionId,
+              creatorId: creator.id,
+              encrypted: !!encryptedData,
+            })
+          }
         }
       } catch (dbError) {
         // Log error but don't fail the request - the swap was successful
-        console.error("[swap/execute] Failed to log transaction:", dbError)
+        console.error("[swap/execute] Failed to log tip:", dbError)
       }
     }
 
@@ -300,16 +260,13 @@ export async function POST(request: NextRequest) {
       txHash,
       status,
       intentId,
-      demo: !useRealSwaps,
       transactionId,
       estimatedCompletion,
       depositAddress,
       statusUrl,
-      message: useRealSwaps
-        ? status === "pending_deposit"
-          ? `Send funds to deposit address to complete swap`
-          : "Swap initiated via NEAR Intents"
-        : "Demo transaction - no real funds transferred",
+      message: status === "pending_deposit"
+        ? `Send funds to deposit address to complete swap`
+        : "Swap initiated via NEAR Intents",
     }
 
     console.log("[swap/execute] Execution complete:", {
@@ -318,7 +275,6 @@ export async function POST(request: NextRequest) {
       wallet: walletAddress.slice(0, 10) + "...",
       destination: destinationAddress.slice(0, 10) + "...",
       intentId,
-      demo: !useRealSwaps,
       depositAddress,
     })
 
