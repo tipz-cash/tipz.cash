@@ -22,7 +22,7 @@ export async function GET(
   const normalizedHandle = normalizeHandle(cleanHandle)
 
   // Look up creator in database
-  let creator: { handle: string } | null = null
+  let creator: { handle: string; avatar_url?: string } | null = null
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY
 
@@ -31,7 +31,7 @@ export async function GET(
       const supabase = createClient(supabaseUrl, supabaseKey)
       const { data } = await supabase
         .from('creators')
-        .select('handle')
+        .select('handle, avatar_url')
         .eq('handle_normalized', normalizedHandle)
         .single()
       creator = data
@@ -42,6 +42,22 @@ export async function GET(
 
   const displayHandle = creator?.handle || cleanHandle
   const avatarHue = getAvatarHue(displayHandle)
+
+  // Pre-fetch avatar image and convert to data URL so Satori doesn't need to fetch externally
+  let avatarDataUrl: string | null = null
+  if (creator?.avatar_url) {
+    try {
+      const avatarRes = await fetch(creator.avatar_url)
+      if (avatarRes.ok) {
+        const avatarBuffer = await avatarRes.arrayBuffer()
+        const contentType = avatarRes.headers.get('content-type') || 'image/jpeg'
+        const base64 = Buffer.from(avatarBuffer).toString('base64')
+        avatarDataUrl = `data:${contentType};base64,${base64}`
+      }
+    } catch {
+      // Silently fail - will use letter avatar fallback
+    }
+  }
 
   // Color palette
   const colors = {
@@ -116,24 +132,39 @@ export async function GET(
               }}
             >
               {/* Avatar - Squircle */}
-              <div
-                style={{
-                  width: "56px",
-                  height: "56px",
-                  borderRadius: "14px",
-                  background: `linear-gradient(135deg, hsl(${avatarHue}, 50%, 35%) 0%, hsl(${avatarHue}, 60%, 25%) 100%)`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  fontWeight: 800,
-                  color: colors.textWhite,
-                  flexShrink: 0,
-                  boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
-                }}
-              >
-                {displayHandle[0]?.toUpperCase() || "?"}
-              </div>
+              {avatarDataUrl ? (
+                <img
+                  src={avatarDataUrl}
+                  alt={displayHandle}
+                  style={{
+                    width: "56px",
+                    height: "56px",
+                    borderRadius: "14px",
+                    objectFit: "cover",
+                    flexShrink: 0,
+                    boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "56px",
+                    height: "56px",
+                    borderRadius: "14px",
+                    background: `linear-gradient(135deg, hsl(${avatarHue}, 50%, 35%) 0%, hsl(${avatarHue}, 60%, 25%) 100%)`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "24px",
+                    fontWeight: 800,
+                    color: colors.textWhite,
+                    flexShrink: 0,
+                    boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+                  }}
+                >
+                  {displayHandle[0]?.toUpperCase() || "?"}
+                </div>
+              )}
 
               {/* @handle - Bold Headline */}
               <div
