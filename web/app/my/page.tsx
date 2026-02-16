@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { colors } from "@/lib/colors"
 import { animationKeyframes } from "@/lib/animations"
 import SiteHeader from "@/components/SiteHeader"
+import { LetterGridBackground } from "@/components/LetterGridBackground"
 import {
   hasPrivateKey,
   generateKeyPair,
@@ -179,6 +180,7 @@ export default function MyTipzPage() {
   const [toastTips, setToastTips] = useState<Array<{ id: string; decrypted?: TipzData; status: string }>>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [zecPrice, setZecPrice] = useState<number>(0)
+  const [showBackground, setShowBackground] = useState(false)
 
   // Real-time tips
   const { status: connectionStatus, newTips, clearNewTips } = useRealtimeTips(
@@ -247,6 +249,12 @@ export default function MyTipzPage() {
     }
     document.addEventListener("visibilitychange", onVisible)
     return () => document.removeEventListener("visibilitychange", onVisible)
+  }, [])
+
+  // Lazy-load background to prioritize dashboard content
+  useEffect(() => {
+    const timer = setTimeout(() => setShowBackground(true), 100)
+    return () => clearTimeout(timer)
   }, [])
 
   // Fetch live ZEC price
@@ -379,6 +387,23 @@ export default function MyTipzPage() {
       color: colors.text,
       fontFamily: "'JetBrains Mono', monospace",
     }}>
+      {/* Matrix letter grid background */}
+      {showBackground && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        >
+          <LetterGridBackground />
+        </div>
+      )}
+
       {/* Notification Toasts */}
       <NotificationToast
         tips={toastTips}
@@ -390,6 +415,8 @@ export default function MyTipzPage() {
 
       {/* Page Content */}
       <main style={{
+        position: "relative",
+        zIndex: 1,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

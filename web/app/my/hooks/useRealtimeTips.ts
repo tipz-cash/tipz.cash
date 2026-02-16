@@ -73,26 +73,30 @@ export function useRealtimeTips(creatorId: string | null): UseRealtimeTipsReturn
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [creatorId])
 
+  async function pollOnce() {
+    if (!creatorId) return
+    try {
+      const res = await fetch(
+        `/api/tips/latest?creator_id=${encodeURIComponent(creatorId)}&since=${encodeURIComponent(lastCheckRef.current)}`
+      )
+      if (res.ok) {
+        const data = await res.json()
+        if (data.tips?.length > 0) {
+          setNewTips((prev) => [...data.tips, ...prev])
+          lastCheckRef.current = new Date().toISOString()
+        }
+        setStatus("connected")
+      }
+    } catch {
+      setStatus("disconnected")
+    }
+  }
+
   function startPolling() {
     if (pollingRef.current) return
-    pollingRef.current = setInterval(async () => {
-      if (!creatorId) return
-      try {
-        const res = await fetch(
-          `/api/tips/latest?creator_id=${encodeURIComponent(creatorId)}&since=${encodeURIComponent(lastCheckRef.current)}`
-        )
-        if (res.ok) {
-          const data = await res.json()
-          if (data.tips?.length > 0) {
-            setNewTips((prev) => [...data.tips, ...prev])
-            lastCheckRef.current = new Date().toISOString()
-          }
-          setStatus("connected")
-        }
-      } catch {
-        setStatus("disconnected")
-      }
-    }, 30000)
+    // Fire immediately, don't wait 30s
+    pollOnce()
+    pollingRef.current = setInterval(pollOnce, 30000)
   }
 
   function stopPolling() {
