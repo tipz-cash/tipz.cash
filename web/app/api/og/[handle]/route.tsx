@@ -176,7 +176,7 @@ export async function GET(
                   letterSpacing: "-1px",
                 }}
               >
-                @{displayHandle.toLowerCase()}
+                {`@${displayHandle.toLowerCase()}`}
               </div>
             </div>
 
