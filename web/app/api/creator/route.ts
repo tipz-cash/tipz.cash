@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   // Lookup by handle (already normalized to lowercase)
   const { data, error } = await supabase
     .from("creators")
-    .select("id, platform, handle, shielded_address")
+    .select("id, platform, handle, shielded_address, avatar_url")
     .eq("platform", platform)
     .eq("handle", normalizedHandle)
     .single()
@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
       platform: data.platform,
       handle: data.handle,
       shielded_address: data.shielded_address,
+      avatar_url: data.avatar_url,
     }
   })
 }

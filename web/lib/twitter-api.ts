@@ -25,6 +25,7 @@ interface TwitterUser {
   id: string
   username: string
   name: string
+  profile_image_url?: string
 }
 
 interface TwitterTweetResponse {
@@ -305,5 +306,34 @@ export async function verifyTweetContent(
       status: "failed",
       error: "Unknown error during tweet verification",
     }
+  }
+}
+
+/**
+ * Fetch a user's profile image URL from the Twitter API.
+ * Uses Bearer Token auth (app-only) via /2/users/by/username endpoint.
+ * Returns the _400x400 variant for higher resolution.
+ */
+export async function fetchUserProfileImage(handle: string): Promise<string | null> {
+  const bearerToken = getTwitterBearerToken()
+  if (!bearerToken) return null
+
+  try {
+    const url = `${TWITTER_API_BASE}/users/by/username/${encodeURIComponent(handle)}?user.fields=profile_image_url`
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${bearerToken}` },
+    })
+
+    if (!response.ok) return null
+
+    const data = await response.json()
+    const profileImageUrl = data.data?.profile_image_url
+    if (!profileImageUrl) return null
+
+    // Twitter returns _normal suffix (48x48) — swap to _400x400 for higher res
+    return profileImageUrl.replace("_normal", "_400x400")
+  } catch (error) {
+    console.error("[twitter-api] Failed to fetch profile image:", error)
+    return null
   }
 }

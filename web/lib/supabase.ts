@@ -22,6 +22,7 @@ export interface Creator {
   shielded_address: string
   tweet_url: string
   created_at: string
+  avatar_url?: string
   // Verification fields (added in migration 20250123)
   verification_status?: VerificationStatus
   tweet_id?: string
