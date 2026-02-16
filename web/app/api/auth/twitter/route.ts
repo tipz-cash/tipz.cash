@@ -10,10 +10,7 @@ import { NextRequest, NextResponse } from "next/server"
 export async function GET(request: NextRequest) {
   const clientId = process.env.TWITTER_CLIENT_ID
   if (!clientId) {
-    return NextResponse.json(
-      { error: "Twitter OAuth not configured" },
-      { status: 503 }
-    )
+    return NextResponse.redirect(new URL("/my?error=not_configured", request.url))
   }
 
   // Generate PKCE code_verifier (43-128 chars, URL-safe)
