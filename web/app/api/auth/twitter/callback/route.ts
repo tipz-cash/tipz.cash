@@ -62,7 +62,6 @@ export async function GET(request: NextRequest) {
 
   const tokenData = await tokenRes.json()
   const accessToken = tokenData.access_token
-  console.log("[auth/callback] Token scopes:", tokenData.scope)
 
   // Get Twitter username
   const userRes = await fetch("https://api.twitter.com/2/users/me", {
