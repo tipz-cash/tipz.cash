@@ -8,7 +8,8 @@ import {
 } from "@/lib/rate-limit"
 import {
   verifyTweetContent,
-  isTwitterApiConfigured
+  isTwitterApiConfigured,
+  fetchUserProfileImage
 } from "@/lib/twitter-api"
 
 /**
@@ -383,6 +384,9 @@ export async function POST(request: NextRequest) {
 
     const normalizedHandle = normalizeHandle(sanitizedHandle)
 
+    // Fetch profile image from Twitter API (best-effort, non-blocking)
+    const avatarUrl = await fetchUserProfileImage(normalizedHandle)
+
     // If Supabase is not configured, return an error
     if (!supabase) {
       return createErrorResponse(
@@ -436,7 +440,8 @@ export async function POST(request: NextRequest) {
           verification_status: tweetVerification.status,
           tweet_id: tweetVerification.tweetId,
           verified_at: tweetVerification.verifiedAt || null,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          ...(avatarUrl && { avatar_url: avatarUrl }),
         })
         .eq("id", existing.id)
 
@@ -473,7 +478,8 @@ export async function POST(request: NextRequest) {
         tweet_url: sanitizedTweetUrl,
         verification_status: tweetVerification.status,
         tweet_id: tweetVerification.tweetId,
-        verified_at: tweetVerification.verifiedAt || null
+        verified_at: tweetVerification.verifiedAt || null,
+        ...(avatarUrl && { avatar_url: avatarUrl }),
       })
 
     if (insertError) {

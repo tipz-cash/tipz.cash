@@ -54,7 +54,8 @@ export async function GET(request: NextRequest) {
         creator_id,
         creators!inner(
           handle,
-          verification_status
+          verification_status,
+          avatar_url
         )
       `
       )
@@ -76,11 +77,16 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const counts = new Map<string, number>()
+    // Aggregate tip counts by handle
+    const counts = new Map<string, { count: number; avatar_url?: string }>()
     for (const t of data) {
       const creator = t.creators as any
       const handle = creator.handle
-      counts.set(handle, (counts.get(handle) || 0) + 1)
+      const existing = counts.get(handle)
+      counts.set(handle, {
+        count: (existing?.count || 0) + 1,
+        avatar_url: existing?.avatar_url || creator.avatar_url,
+      })
     }
 
     if (counts.size === 0) {
@@ -92,15 +98,16 @@ export async function GET(request: NextRequest) {
 
     // Sort by tip count descending and take top N
     const sorted = [...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1].count - a[1].count)
       .slice(0, limit)
 
     const leaderboard: LeaderboardEntry[] = sorted.map(
-      ([handle, tip_count], index) => ({
+      ([handle, { count: tip_count, avatar_url }], index) => ({
         rank: index + 1,
         handle,
         tip_count,
         tier: getTier(tip_count),
+        avatar_url,
       })
     )
 

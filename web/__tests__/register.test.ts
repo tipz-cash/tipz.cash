@@ -21,6 +21,7 @@ vi.mock("@/lib/supabase", () => ({
 vi.mock("@/lib/twitter-api", () => ({
   verifyTweetContent: vi.fn(),
   isTwitterApiConfigured: () => false,
+  fetchUserProfileImage: vi.fn(() => Promise.resolve(null)),
 }))
 
 import { POST } from "@/app/api/register/route"
