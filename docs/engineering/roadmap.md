@@ -30,6 +30,15 @@ Feature priorities and technical milestones.
 - [x] Swap execution (`POST /api/swap/execute`)
 - [x] NEAR Intents (`POST /api/intents/create`, `GET /api/intents/create`)
 
+**Web Dashboard:**
+- [x] Creator dashboard at /my (CommandHeader, StatsGrid, ActivityFeed, StampTools)
+- [x] OAuth login with X (Twitter)
+- [x] Real-time tip notifications (Supabase Realtime + polling fallback)
+- [x] Client-side RSA-4096 encryption for tip decryption
+- [x] Promotion tools (copy link, tweet, image stamp)
+- [x] Toast notifications for incoming tips
+- [x] Connection status indicator (live/connecting/offline)
+
 **Extension (Creator Tool):**
 - [x] Creator dashboard popup (revenue stats, recent tips)
 - [x] Web bridge for identity linking (tipz-interceptor.tsx)
@@ -449,21 +458,20 @@ Completed:
 
 **Goal**: Features that drive adoption after core loop + private messaging are live
 
-### Creator Dashboard
+### Creator Dashboard ✅ COMPLETE
 **Priority**: P2
-**Owner**: Full Stack
-**Effort**: Large
+**Status**: Shipped at /my
 
-Features:
-- View tip history (anonymized)
-- Total earnings
-- Share registration link
-- Update shielded address
-
-Technical:
-- New /dashboard route
-- Auth via wallet signature
-- Aggregated analytics only
+Completed:
+- [x] Creator dashboard at tipz.cash/my
+- [x] OAuth login via X (Twitter)
+- [x] View tip history with encrypted memo decryption
+- [x] Total earnings (animated ZEC counter)
+- [x] Real-time activity feed with timeline layout
+- [x] Promotion tools (copy link, tweet, image stamp)
+- [x] Toast notifications
+- [x] Connection status indicator
+- [x] Image stamping tool (drag/drop, paste, download)
 
 ### Recurring Tips
 **Priority**: P3

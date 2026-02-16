@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, memo, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import SiteHeader from "@/components/SiteHeader";
 // Plain [TIPZ] text logo used throughout
 
 // Color palette - refined for depth and atmosphere
@@ -452,37 +453,6 @@ function useTypingOnView(text: string, speed: number = 35) {
   return { ref, displayText, isComplete, hasStarted };
 }
 
-// ZEC price ticker component
-function ZecTicker() {
-  const [price, setPrice] = useState<number | null>(null);
-
-  useEffect(() => {
-    async function fetchPrice() {
-      try {
-        const res = await fetch("/api/zec-price");
-        const data = await res.json();
-        setPrice(data.price);
-      } catch {
-        setPrice(27.50);
-      }
-    }
-    fetchPrice();
-    const interval = setInterval(fetchPrice, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <span style={{
-      color: colors.muted,
-      fontSize: "11px",
-      letterSpacing: "1px",
-      fontFamily: "'JetBrains Mono', monospace",
-    }}>
-      ZEC {price ? `$${price.toFixed(2)}` : "—"}
-    </span>
-  );
-}
-
 // Typing heading component for chapter titles
 function TypingHeading({
   prefix,
@@ -656,150 +626,6 @@ function TerminalReveal({
   );
 }
 
-// Animated tip notification that triggers on scroll
-function TipNotification() {
-  const { ref, isInView } = useInView(0.3);
-  const [stage, setStage] = useState(0); // 0: hidden, 1: pop-in, 2: header, 3: amount, 4: message, 5: complete
-  const prefersReducedMotion = usePrefersReducedMotion();
-
-  useEffect(() => {
-    if (!isInView) return;
-    if (prefersReducedMotion) {
-      setStage(5);
-      return;
-    }
-
-    // Staggered animation timeline
-    const timers = [
-      setTimeout(() => setStage(1), 1200),  // Pop-in starts
-      setTimeout(() => setStage(2), 1400),  // Header fades in
-      setTimeout(() => setStage(3), 1700),  // Amount bounces in
-      setTimeout(() => setStage(4), 2100),  // Message fades in
-      setTimeout(() => setStage(5), 2400),  // All complete, glow starts
-    ];
-
-    return () => timers.forEach(t => clearTimeout(t));
-  }, [isInView, prefersReducedMotion]);
-
-  const shouldAnimate = !prefersReducedMotion;
-
-  return (
-    <div
-      ref={ref}
-      className={stage >= 5 ? "tip-notification-glow" : ""}
-      style={{
-        position: "absolute",
-        top: "-12%",
-        right: "-45%",
-        background: "linear-gradient(145deg, rgba(18, 20, 26, 0.95) 0%, rgba(8, 9, 10, 0.95) 100%)",
-        backdropFilter: "blur(20px)",
-        border: "1px solid rgba(255, 215, 0, 0.4)",
-        borderRadius: "16px",
-        padding: "16px 20px",
-        zIndex: 10,
-        minWidth: "200px",
-        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.1)",
-        opacity: shouldAnimate ? (stage >= 1 ? 1 : 0) : 1,
-        transform: shouldAnimate
-          ? stage === 0
-            ? "scale(0.8) translateY(-20px)"
-            : stage === 1
-              ? "scale(1.08) translateY(4px)"
-              : "scale(1) translateY(0)"
-          : "none",
-        transition: shouldAnimate
-          ? stage === 1
-            ? "opacity 0.3s ease-out, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)"
-            : "opacity 0.2s ease-out, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
-          : "none",
-      }}
-    >
-      {/* Header */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: "10px",
-        opacity: shouldAnimate ? (stage >= 2 ? 1 : 0) : 1,
-        transform: shouldAnimate ? (stage >= 2 ? "translateY(0)" : "translateY(8px)") : "none",
-        transition: "opacity 0.3s ease-out, transform 0.3s ease-out",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          {/* Bolt Icon */}
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFD700" stroke="none">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-          </svg>
-          <span style={{ color: "#FFD700", fontSize: "10px", fontWeight: 700, letterSpacing: "1px" }}>
-            TIP RECEIVED
-          </span>
-        </div>
-        <span style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "9px", fontWeight: 500 }}>
-          JUST NOW
-        </span>
-      </div>
-
-      {/* Amount with shimmer */}
-      <div
-        className={stage >= 3 ? "tip-amount-shimmer" : ""}
-        style={{
-          color: "#22C55E",
-          fontSize: "28px",
-          fontWeight: 800,
-          lineHeight: 1,
-          marginBottom: "12px",
-          opacity: shouldAnimate ? (stage >= 3 ? 1 : 0) : 1,
-          transform: shouldAnimate
-            ? stage < 3
-              ? "scale(0.5)"
-              : stage === 3
-                ? "scale(1.15)"
-                : "scale(1)"
-            : "none",
-          transition: stage === 3
-            ? "opacity 0.2s ease-out, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)"
-            : "opacity 0.2s ease-out, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-        }}
-      >
-        +$25.00
-      </div>
-
-      {/* Private Message */}
-      <div style={{
-        background: "rgba(255, 255, 255, 0.05)",
-        borderRadius: "8px",
-        padding: "10px 12px",
-        opacity: shouldAnimate ? (stage >= 4 ? 1 : 0) : 1,
-        transform: shouldAnimate ? (stage >= 4 ? "translateY(0)" : "translateY(6px)") : "none",
-        transition: "opacity 0.3s ease-out, transform 0.3s ease-out",
-      }}>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          marginBottom: "6px",
-        }}>
-          {/* Lock Icon */}
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255, 215, 0, 0.7)" strokeWidth="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-          <span style={{ color: "rgba(255, 215, 0, 0.7)", fontSize: "8px", fontWeight: 600, letterSpacing: "0.5px" }}>
-            PRIVATE MESSAGE
-          </span>
-        </div>
-        <p style={{
-          color: "rgba(255, 255, 255, 0.8)",
-          fontSize: "12px",
-          lineHeight: 1.4,
-          margin: 0,
-          fontStyle: "italic",
-        }}>
-          &quot;Great article! Finally someone said it.&quot;
-        </p>
-      </div>
-    </div>
-  );
-}
 
 // Iron Man Morph - Hero animation that transforms link preview into payment terminal
 // 4-phase animation: Tweet → Card → Processing → Receipt
@@ -2550,7 +2376,6 @@ export default function HomePage() {
   const heroText = "Uncensorable\nIncome on X";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [tweetVisible, setTweetVisible] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
   const currentChapter = useCurrentChapter();
   const isMobile = useIsMobile(768);
@@ -2637,193 +2462,7 @@ export default function HomePage() {
     >
       {/* Atmospheric overlays */}
       <div className="noise-overlay" />
-      {/* Fixed Header - Enhanced */}
-      <header style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: `${colors.bg}f0`,
-        backdropFilter: "blur(12px)",
-        zIndex: 100,
-        borderBottom: `1px solid ${colors.border}`,
-      }}>
-        <div className="header-inner" style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}>
-          <a href="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
-            <span style={{
-              color: colors.primary,
-              fontWeight: 700,
-              fontSize: "18px",
-              fontFamily: "'JetBrains Mono', monospace",
-              textShadow: `0 0 20px ${colors.primaryGlow}`,
-            }}>[TIPZ]</span>
-            <span style={{
-              color: colors.muted,
-              fontSize: "10px",
-              letterSpacing: "1px",
-              padding: "2px 6px",
-              border: `1px solid ${colors.border}`,
-              borderRadius: "2px",
-            }}>BETA</span>
-          </a>
-          <nav className="desktop-nav" style={{ gap: "32px", alignItems: "center" }}>
-            <ZecTicker />
-            <span style={{ color: colors.border }}>|</span>
-            <a href="/creators" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>CREATORS</a>
-            <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>MANIFESTO</a>
-            <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>DOCS</a>
-            <a href="/my" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>MY TIPZ</a>
-            <a
-              href="/register"
-              className="cta-primary"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
-                color: colors.bg,
-                textDecoration: "none",
-                fontSize: "11px",
-                letterSpacing: "0.5px",
-                fontWeight: 600,
-                padding: "8px 14px",
-                borderRadius: "8px",
-                fontFamily: "'JetBrains Mono', monospace",
-                boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)`,
-              }}
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                <path d="M9 12l2 2 4-4" />
-              </svg>
-              Claim Your Tipz ID
-            </a>
-          </nav>
-          {/* Mobile Hamburger Button */}
-          <button
-            className="mobile-menu-btn"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Open menu"
-          >
-            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile Menu Drawer */}
-      {mobileMenuOpen && (
-        <>
-          <div
-            onClick={() => setMobileMenuOpen(false)}
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(0, 0, 0, 0.7)",
-              zIndex: 200,
-            }}
-          />
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: "280px",
-              maxWidth: "80vw",
-              background: colors.bg,
-              borderLeft: `1px solid ${colors.border}`,
-              zIndex: 201,
-              padding: "20px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
-              overflowY: "auto",
-            }}
-          >
-            <button
-              onClick={() => setMobileMenuOpen(false)}
-              style={{
-                alignSelf: "flex-end",
-                width: "44px",
-                height: "44px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                marginBottom: "16px",
-              }}
-              aria-label="Close menu"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-            <div style={{ padding: "12px 0", borderBottom: `1px solid ${colors.border}` }}>
-              <ZecTicker />
-            </div>
-            <a href="/creators" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>CREATORS</a>
-            <a href="/manifesto" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MANIFESTO</a>
-            <a href="/docs" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>DOCS</a>
-            <a href="/my" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MY TIPZ</a>
-            <a
-              href="/register"
-              onClick={() => setMobileMenuOpen(false)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "10px",
-                marginTop: "16px",
-                padding: "16px",
-                color: colors.bg,
-                background: `linear-gradient(135deg, ${colors.primary} 0%, #e89b1c 40%, ${colors.primaryHover} 100%)`,
-                textDecoration: "none",
-                fontSize: "14px",
-                letterSpacing: "0.5px",
-                fontWeight: 600,
-                borderRadius: "10px",
-                fontFamily: "'JetBrains Mono', monospace",
-                boxShadow: `0 0 24px ${colors.primaryGlow}, 0 4px 16px rgba(0,0,0,0.3)`,
-              }}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                <path d="M9 12l2 2 4-4" />
-              </svg>
-              Claim Your Tipz ID
-            </a>
-          </div>
-        </>
-      )}
+      <SiteHeader activePage="home" />
 
       {/* Chapter Indicator */}
       <ChapterIndicator currentChapter={currentChapter} />
@@ -3908,7 +3547,7 @@ export default function HomePage() {
               lineHeight: 1.8,
               marginBottom: "48px",
             }}>
-              From any wallet or exchange. ETH, USDC, USDT, and SOL are automatically bridged to shielded ZEC. They pay their way. You receive yours.
+              From any wallet. ETH, USDC, USDT, and SOL are automatically bridged to shielded ZEC. They pay their way. You receive yours.
             </p>
           </TerminalReveal>
 
@@ -4425,26 +4064,26 @@ export default function HomePage() {
                 style={{ marginBottom: "20px", fontSize: "clamp(32px, 4vw, 42px)" }}
               />
 
-              <TerminalReveal delay={100}>
+              <TerminalReveal delay={250}>
                 <p style={{
                   color: colors.muted,
                   fontSize: "18px",
                   lineHeight: 1.6,
                   marginBottom: "36px",
                 }}>
-                  Monitor your income in real-time. Distribute your link instantly. Read private messages that X can never see.
+                  Real-time earnings, private encrypted messages from supporters, and tools to promote your tip page.
                 </p>
               </TerminalReveal>
 
               {/* Feature Deck - Vertical Stack with Descriptions */}
-              <TerminalReveal delay={200}>
+              <TerminalReveal delay={500}>
                 <div style={{
                   display: "flex",
                   flexDirection: "column",
                   gap: "20px",
                   marginBottom: "40px",
                 }}>
-                  {/* Smart Watermark */}
+                  {/* Real-Time Earnings */}
                   <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                     <svg
                       width="24"
@@ -4455,19 +4094,19 @@ export default function HomePage() {
                       strokeWidth="2"
                       style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite" }}
                     >
-                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M18 20V10M12 20V4M6 20v-6" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <div>
                       <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
-                        Smart Watermark
+                        Real-Time Earnings
                       </span>
                       <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
-                        Auto-stamp your media with your payment signal. If your content spreads, your income grows.
+                        ZEC + USD totals update live. Your browser tab shows a count so you never miss a tip.
                       </span>
                     </div>
                   </div>
 
-                  {/* Live Stream */}
+                  {/* Encrypted Messages */}
                   <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                     <svg
                       width="24"
@@ -4478,19 +4117,20 @@ export default function HomePage() {
                       strokeWidth="2"
                       style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.3s" }}
                     >
-                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" strokeLinecap="round" strokeLinejoin="round"/>
+                      <rect x="3" y="11" width="18" height="11" rx="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <div>
                       <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
-                        Live Stream
+                        Encrypted Messages
                       </span>
                       <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
-                        Watch tips land in your wallet the second they are sent. No monthly payouts. No delays.
+                        Private messages from tippers, end-to-end encrypted. Your keys never leave your browser.
                       </span>
                     </div>
                   </div>
 
-                  {/* Priority Inbox */}
+                  {/* Promotion Tools */}
                   <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                     <svg
                       width="24"
@@ -4501,15 +4141,14 @@ export default function HomePage() {
                       strokeWidth="2"
                       style={{ flexShrink: 0, marginTop: "2px", animation: prefersReducedMotion ? "none" : "idle-breathe 3s ease-in-out infinite 0.6s" }}
                     >
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <div>
                       <span style={{ color: colors.textBright, fontSize: "14px", fontWeight: 600, display: "block", marginBottom: "4px" }}>
-                        Priority Inbox
+                        Promotion Tools
                       </span>
                       <span style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.5 }}>
-                        Receive private, encrypted messages attached to every tip. A direct line to your biggest fans.
+                        Copy your link, compose a tweet, or stamp your URL onto any image — all in one place.
                       </span>
                     </div>
                   </div>
@@ -4517,11 +4156,9 @@ export default function HomePage() {
               </TerminalReveal>
 
               {/* CTA Button */}
-              <TerminalReveal delay={300}>
+              <TerminalReveal delay={750}>
                 <a
-                  href="https://chrome.google.com/webstore"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/my"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -4538,177 +4175,265 @@ export default function HomePage() {
                     transition: "all 0.2s ease",
                   }}
                 >
-                  GET THE EXTENSION
+                  OPEN YOUR DASHBOARD
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </a>
-                <p style={{
-                  color: colors.muted,
-                  fontSize: "12px",
-                  marginTop: "16px",
-                }}>
-                  100% Free. Open Source. No Setup Fees.
-                </p>
               </TerminalReveal>
             </div>
 
-            {/* Right: "The Augmented Tweet" - Realistic X Post (below text on mobile) */}
-            <TerminalReveal delay={150}>
+            {/* Right: Dashboard Mockup (below text on mobile) */}
+            <TerminalReveal delay={300}>
               <div style={{
                 position: "relative",
-                height: isMobile ? "auto" : "480px",
-                minHeight: isMobile ? "320px" : undefined,
+                height: isMobile ? "auto" : "540px",
+                minHeight: isMobile ? "440px" : undefined,
                 order: isMobile ? 1 : 0,
               }}>
-                {/* Subtle background glow */}
+                {/* Ambient Glow Layer 1 — primary */}
                 <div style={{
                   position: "absolute",
                   top: "40%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
-                  width: "350px",
-                  height: "350px",
-                  background: "radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%)",
+                  width: "400px",
+                  height: "400px",
+                  background: "radial-gradient(circle, rgba(245, 166, 35, 0.12) 0%, transparent 70%)",
                   borderRadius: "50%",
-                  filter: "blur(50px)",
-                  animation: prefersReducedMotion ? "none" : "idle-glow-pulse 4s ease-in-out infinite",
+                  filter: "blur(60px)",
+                  animation: prefersReducedMotion ? "none" : "dashboard-ambient 5s ease-in-out infinite",
+                  pointerEvents: "none",
+                }} />
+                {/* Ambient Glow Layer 2 — offset, phase-shifted */}
+                <div style={{
+                  position: "absolute",
+                  top: "48%",
+                  left: "55%",
+                  transform: "translate(-50%, -50%)",
+                  width: "250px",
+                  height: "250px",
+                  background: "radial-gradient(circle, rgba(245, 166, 35, 0.06) 0%, transparent 70%)",
+                  borderRadius: "50%",
+                  filter: "blur(40px)",
+                  animation: prefersReducedMotion ? "none" : "dashboard-ambient 7s ease-in-out 1s infinite",
+                  pointerEvents: "none",
                 }} />
 
-                {/* Layer 1: X Article Card - @mert style */}
+                {/* Gradient Border Wrapper */}
                 <div style={{
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: isMobile ? "translate(-50%, -50%)" : "translate(-50%, -45%)",
-                  width: isMobile ? "min(280px, calc(100vw - 48px))" : "340px",
-                  background: "#000000",
-                  border: "1px solid #2f3336",
-                  borderRadius: "16px",
-                  overflow: "hidden",
-                  boxShadow: "0 25px 60px rgba(0, 0, 0, 0.5)",
+                  transform: isMobile ? "translate(-50%, -50%)" : undefined,
+                  width: isMobile ? "min(300px, calc(100vw - 46px))" : "400px",
+                  borderRadius: "13px",
+                  padding: "1px",
+                  background: "linear-gradient(135deg, rgba(245,166,35,0.4) 0%, rgba(245,166,35,0.1) 30%, rgba(42,47,56,0.5) 50%, rgba(245,166,35,0.1) 70%, rgba(245,166,35,0.3) 100%)",
+                  animation: prefersReducedMotion || isMobile ? "none" : "dashboard-float 6s ease-in-out infinite",
                 }}>
-                  {/* Tweet Header */}
+                  {/* Dashboard Card — Inner */}
                   <div style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "12px",
-                    padding: "16px 16px 12px",
-                  }}>
-                    {/* Avatar - Mert's actual profile picture */}
-                    <div style={{
-                      width: isMobile ? "32px" : "40px",
-                      height: isMobile ? "32px" : "40px",
-                      borderRadius: "50%",
-                      backgroundImage: "url('https://pbs.twimg.com/profile_images/1975912876243095552/YlVLO4Oz_400x400.jpg')",
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      flexShrink: 0,
-                    }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <span style={{ color: "#e7e9ea", fontSize: isMobile ? "13px" : "15px", fontWeight: 700 }}>mert</span>
-                        <svg width="18" height="18" viewBox="0 0 22 22" fill="#1d9bf0">
-                          <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/>
-                        </svg>
-                      </div>
-                      <span style={{ color: "#71767b", fontSize: isMobile ? "13px" : "15px" }}>@mert · 4h</span>
-                    </div>
-                    {/* X Logo */}
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#71767b" style={{ flexShrink: 0 }}>
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                  </div>
-
-                  {/* Article Card */}
-                  <div style={{
-                    margin: "0 16px 12px",
-                    border: "1px solid #2f3336",
-                    borderRadius: "16px",
+                    width: "100%",
+                    background: "linear-gradient(165deg, rgba(22,25,32,0.97) 0%, rgba(18,20,26,0.99) 50%, rgba(14,16,22,1) 100%)",
+                    borderRadius: "12px",
                     overflow: "hidden",
+                    position: "relative",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.4), 0 25px 60px rgba(0,0,0,0.5), 0 0 80px rgba(245,166,35,0.04)",
                   }}>
-                    {/* Article Image - Privacy Thesis cover */}
+                    {/* Shimmer sweep overlay */}
                     <div style={{
-                      height: isMobile ? "100px" : "140px",
-                      backgroundImage: "url('https://pbs.twimg.com/media/G48VC29aUAAO__P?format=jpg&name=medium')",
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%)",
+                      backgroundSize: "200% 200%",
+                      animation: prefersReducedMotion ? "none" : "dashboard-shimmer 8s linear infinite",
+                      pointerEvents: "none",
+                      zIndex: 1,
+                    }} />
+
+                    {/* Header Bar */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "12px 20px",
+                      borderBottom: `1px solid ${colors.border}`,
                       position: "relative",
+                      zIndex: 2,
                     }}>
-                      {/* TIPZ Smart Stamp - Matches extension ImageStampTool */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: colors.success }} />
+                        <span style={{ fontSize: "11px", color: colors.muted, letterSpacing: "2px", fontFamily: "'JetBrains Mono', monospace" }}>LIVE</span>
+                      </div>
                       <div style={{
-                        position: "absolute",
-                        bottom: "6px",
-                        right: "6px",
-                        background: "rgba(0, 0, 0, 0.8)",
-                        padding: "3px 6px",
-                        borderRadius: "4px",
-                        border: "1.5px solid #F4B728",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
+                        gap: "4px",
+                        padding: "4px 10px",
+                        border: `1px solid ${colors.border}`,
+                        borderRadius: "6px",
+                        cursor: "pointer",
                       }}>
-                        <span style={{
-                          color: "#F4B728",
-                          fontSize: "8px",
-                          fontFamily: "'JetBrains Mono', monospace",
-                          fontWeight: 600,
-                        }}>
-                          tipz.cash/mert
-                        </span>
+                        <span style={{ fontSize: "11px", color: colors.muted }}>Logout</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={colors.muted} strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       </div>
                     </div>
-                    {/* Article Meta */}
-                    <div style={{
-                      padding: "12px",
-                      background: "#000",
-                    }}>
-                      <div style={{ color: "#e7e9ea", fontSize: "15px", fontWeight: 500, lineHeight: 1.3 }}>
-                        The Last 1000x in Crypto: A Privacy Thesis
-                      </div>
-                      <div style={{ color: "#71767b", fontSize: "13px", marginTop: "4px" }}>
-                        Bitcoin solved legitimacy, Solana/Ethereum solved scale. Privacy is next.
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Engagement Row - X style */}
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "0 16px 12px",
-                    maxWidth: "300px",
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/>
-                      </svg>
-                      <span>156</span>
+                    {/* Avatar + Identity Section */}
+                    <div style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      padding: "14px 20px 10px",
+                      position: "relative",
+                      zIndex: 2,
+                    }}>
+                      {/* Avatar with amber ring */}
+                      <div style={{
+                        width: isMobile ? "48px" : "56px",
+                        height: isMobile ? "48px" : "56px",
+                        borderRadius: "50%",
+                        background: "linear-gradient(135deg, #F5A623, #FFA500)",
+                        padding: "3px",
+                        boxShadow: "0 0 20px rgba(245,166,35,0.25)",
+                        marginBottom: "8px",
+                      }}>
+                        <div style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          background: "linear-gradient(165deg, rgba(22,25,32,0.97), rgba(14,16,22,1))",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}>
+                          <span style={{ fontSize: "16px", fontWeight: 700, color: colors.primary, fontFamily: "'JetBrains Mono', monospace" }}>TIPZ</span>
+                        </div>
+                      </div>
+                      {/* Handle */}
+                      <span style={{ fontSize: "18px", fontWeight: 700, color: colors.textBright, marginBottom: "4px" }}>@tipz_cash</span>
+                      {/* Verified badge */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "4px" }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill={colors.success} stroke="none"><path d="M12 1l3.09 6.26L22 8.27l-5 4.87 1.18 6.88L12 16.77l-6.18 3.25L7 13.14 2 8.27l6.91-1.01L12 1z"/></svg>
+                        <span style={{ fontSize: "11px", color: colors.success, letterSpacing: "1px", fontWeight: 600 }}>VERIFIED</span>
+                      </div>
+                      {/* Tip link */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span style={{ fontSize: "12px", color: colors.muted }}>tipz.cash/tipz_cash</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={colors.muted} strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </div>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/>
-                      </svg>
-                      <span>892</span>
+
+                    {/* Total Earned Hero */}
+                    <div style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      padding: "6px 20px 10px",
+                      position: "relative",
+                      zIndex: 2,
+                    }}>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "4px" }}>
+                        <span style={{ fontSize: "24px", fontWeight: 700, color: colors.primary, fontFamily: "'JetBrains Mono', monospace" }}>12.8400</span>
+                        <span style={{ fontSize: "13px", color: colors.muted, fontFamily: "'JetBrains Mono', monospace" }}>ZEC</span>
+                      </div>
+                      <span style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginBottom: "8px" }}>TOTAL EARNED</span>
+                      {/* Progress bar */}
+                      <div style={{ width: "100%", position: "relative", height: "2px", background: "rgba(255,255,255,0.06)", borderRadius: "1px" }}>
+                        <div style={{ position: "absolute", left: "65%", top: "-3px", width: "8px", height: "8px", borderRadius: "50%", background: colors.primary, boxShadow: "0 0 8px rgba(245,166,35,0.4)" }} />
+                      </div>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>
-                      </svg>
-                      <span>2.4K</span>
+
+                    {/* Two-Column Stats */}
+                    <div style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "16px",
+                      padding: "10px 20px",
+                      position: "relative",
+                      zIndex: 2,
+                    }}>
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: "16px", fontWeight: 700, color: colors.textBright, fontFamily: "'JetBrains Mono', monospace" }}>47</div>
+                        <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginTop: "2px" }}>TIPS RECEIVED</div>
+                      </div>
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: "16px", fontWeight: 700, color: colors.success, fontFamily: "'JetBrains Mono', monospace" }}>$583.20</div>
+                        <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginTop: "2px" }}>USD VALUE</div>
+                      </div>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#71767b", fontSize: "13px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/>
-                      </svg>
-                      <span>89K</span>
+
+                    {/* Promote Section */}
+                    <div style={{
+                      padding: "8px 20px",
+                      position: "relative",
+                      zIndex: 2,
+                    }}>
+                      <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px", marginBottom: "10px" }}>PROMOTE</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
+                        {[
+                          { label: "Copy Link", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.muted} strokeWidth="1.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+                          { label: "Tweet", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.muted} strokeWidth="1.5"><path d="M7 17l9.2-9.2M17 17V7H7" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+                          { label: "Stamp", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.muted} strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+                        ].map((tool) => (
+                          <div key={tool.label} style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "6px",
+                            padding: "8px 6px",
+                            border: `1px solid ${colors.border}`,
+                            borderRadius: "8px",
+                          }}>
+                            {tool.icon}
+                            <span style={{ fontSize: "11px", color: colors.muted, fontFamily: "'JetBrains Mono', monospace" }}>{tool.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Activity Section */}
+                    <div style={{
+                      padding: "8px 20px 14px",
+                      position: "relative",
+                      zIndex: 2,
+                    }}>
+                      <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px", marginBottom: "10px" }}>ACTIVITY</div>
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        {[
+                          { amount: "+0.42 ZEC", time: "2m ago", hasMemo: true },
+                          { amount: "+1.05 ZEC", time: "18m ago", hasMemo: false },
+                          { amount: "+0.15 ZEC", time: "1h ago", hasMemo: true },
+                        ].map((tip, i) => (
+                          <div key={i} style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "8px 0",
+                            borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                          }}>
+                            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: colors.success, flexShrink: 0 }} />
+                            <span style={{ fontSize: "12px", fontWeight: 600, color: colors.primary, fontFamily: "'JetBrains Mono', monospace" }}>{tip.amount}</span>
+                            <span style={{ fontSize: "10px", color: colors.muted, marginLeft: "auto" }}>{tip.time}</span>
+                            {tip.hasMemo && (
+                              <span style={{
+                                fontSize: "9px",
+                                fontWeight: 600,
+                                color: colors.primary,
+                                background: "rgba(245,166,35,0.1)",
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                                letterSpacing: "0.5px",
+                              }}>MEMO</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Layer 3: Floating Notification Toast - Animated on scroll */}
-                <TipNotification />
               </div>
             </TerminalReveal>
           </div>
@@ -5125,10 +4850,10 @@ export default function HomePage() {
                 animation: prefersReducedMotion ? "none" : "idle-float-micro 6s ease-in-out infinite 1.5s",
               }}>
                 <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright, marginBottom: "12px" }}>
-                  Is this legal?
+                  What does the dashboard show?
                 </div>
                 <div style={{ fontSize: "13px", color: colors.muted, lineHeight: 1.6 }}>
-                  Yes. Private transactions are legal. We&apos;re a payment tool, not a money transmitter.
+                  Real-time tips, encrypted messages, total earnings, and tools to promote your link — all at tipz.cash/my.
                 </div>
               </div>
             </div>
@@ -5787,19 +5512,6 @@ export default function HomePage() {
           100% { background-position: -200% 0; }
         }
 
-        /* Tip notification glow pulse */
-        .tip-notification-glow {
-          animation: tip-glow-pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes tip-glow-pulse {
-          0%, 100% {
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.2);
-          }
-          50% {
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.5);
-          }
-        }
 
         /* Sovereign Wealth Reactor animations */
         @keyframes pipeFlow {
@@ -5834,27 +5546,6 @@ export default function HomePage() {
           }
         }
 
-        /* Tip amount shimmer effect */
-        .tip-amount-shimmer {
-          background: linear-gradient(
-            90deg,
-            #fff 0%,
-            #fff 40%,
-            #FFD700 50%,
-            #fff 60%,
-            #fff 100%
-          );
-          background-size: 200% 100%;
-          -webkit-background-clip: text;
-          background-clip: text;
-          animation: tip-shimmer 2s ease-in-out infinite;
-          animation-delay: 0.5s;
-        }
-
-        @keyframes tip-shimmer {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
 
         /* Iron Man Morph Animations */
         .iron-man-link-pulse {
@@ -6000,6 +5691,23 @@ export default function HomePage() {
           0%, 100% { opacity: 0.6; }
           50% { opacity: 1; }
         }
+
+        /* Chapter 5: Sovereign Dashboard - Premium floating dashboard */
+        @keyframes dashboard-shimmer {
+          0% { background-position: -200% -200%; }
+          100% { background-position: 200% 200%; }
+        }
+
+        @keyframes dashboard-float {
+          0%, 100% { transform: translate(-50%, -45%) perspective(1200px) rotateX(2deg) rotateY(-1deg) translateY(0); }
+          50% { transform: translate(-50%, -45%) perspective(1200px) rotateX(2deg) rotateY(-1deg) translateY(-3px); }
+        }
+
+        @keyframes dashboard-ambient {
+          0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
 
         /* Chapter 2: The False Choice - Simplified Animations */
 
@@ -6340,47 +6048,12 @@ export default function HomePage() {
           will-change: transform, opacity;
         }
 
-        /* Header responsive */
-        .header-inner {
-          padding: 20px 48px;
-        }
-
-        .desktop-nav {
-          display: flex;
-        }
-
-        .mobile-menu-btn {
-          display: none;
-          flex-direction: column;
-          gap: 5px;
-          padding: 10px;
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          min-width: 44px;
-          min-height: 44px;
-          align-items: center;
-          justify-content: center;
-        }
-
         .chapter-indicator {
           display: flex;
         }
 
         /* Mobile styles */
         @media (max-width: 768px) {
-          .header-inner {
-            padding: 16px;
-          }
-
-          .desktop-nav {
-            display: none !important;
-          }
-
-          .mobile-menu-btn {
-            display: flex !important;
-          }
-
           .chapter-indicator {
             display: none !important;
           }

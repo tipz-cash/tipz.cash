@@ -15,6 +15,7 @@ TIPZ lets creators receive tips directly to their Zcash shielded address. Suppor
 - **Zero Fees**: 100% of tips go to you
 - **Private Income**: Shielded addresses keep your earnings private
 - **Easy Setup**: 4-step registration with tweet verification
+- **Sovereign Dashboard**: Real-time earnings, tip feed, encrypted messages, and promotion tools at tipz.cash/my
 
 ### For Supporters
 
@@ -36,7 +37,7 @@ tipz/
 
 ## Related Repos
 
-- [tipz-extension](https://github.com/defi-naly/tipz-extension) - Creator Command Center browser extension
+- [tipz-extension](https://github.com/defi-naly/tipz-extension) - Browser extension companion (auto-stamp + notifications)
 - [tipz-internal](https://github.com/defi-naly/tipz-internal) - Marketing, GTM, and internal docs (private)
 
 ## Tech Stack
@@ -69,6 +70,10 @@ npm run dev
 | `/api/swap/quote` | POST | Get swap quote (any token → ZEC) |
 | `/api/swap/execute` | POST | Execute token swap |
 | `/api/og/[handle]` | GET | Dynamic OG images for tip pages |
+| `/api/auth/me` | GET | Check session status |
+| `/api/auth/twitter` | GET | OAuth login redirect |
+| `/api/tips/received` | GET | Creator's received tips |
+| `/api/tips/stats` | GET | Aggregated tip stats |
 
 ## Database Schema
 

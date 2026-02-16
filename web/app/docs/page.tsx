@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import SiteHeader from "@/components/SiteHeader";
 
 // Hook for responsive breakpoint detection
 function useIsMobile(breakpoint: number = 768) {
@@ -16,30 +17,6 @@ function useIsMobile(breakpoint: number = 768) {
   }, [breakpoint]);
 
   return isMobile;
-}
-
-// ZEC Ticker component
-function ZecTicker() {
-  const [price, setPrice] = useState<number | null>(null);
-
-  useEffect(() => {
-    async function fetchPrice() {
-      try {
-        const res = await fetch("/api/zec-price");
-        const data = await res.json();
-        if (data.price) setPrice(data.price);
-      } catch {
-        // Ignore errors
-      }
-    }
-    fetchPrice();
-  }, []);
-
-  return (
-    <span style={{ color: "#6B7280", fontSize: "11px", letterSpacing: "1px" }}>
-      ZEC {price ? `$${price.toFixed(2)}` : "—"}
-    </span>
-  );
 }
 
 // Color palette - Terminal Purity: single accent color
@@ -286,35 +263,19 @@ function TippersTab() {
         <CodeBlock>{`Your Token → NEAR Intents → Shielded ZEC → Creator`}</CodeBlock>
       </section>
 
-      {/* No Wallet? No Problem */}
+      {/* Exchange Payments — Coming Soon */}
       <section style={{ marginBottom: "64px" }}>
-        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
-          NO WALLET? NO PROBLEM
+        <h2 style={{ fontSize: "12px", color: colors.muted, letterSpacing: "2px", marginBottom: "24px" }}>
+          EXCHANGE PAYMENTS — COMING SOON
         </h2>
 
-        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
-          No MetaMask? Tip directly from your exchange account via Mesh Connect.
-        </p>
-
-        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "32px", marginBottom: "32px", borderRadius: "4px" }}>
-          <StepList
-            steps={[
-              { num: "01", title: 'Click "Pay with Exchange"', desc: "On any creator's tip page, choose this option instead of connecting a wallet." },
-              { num: "02", title: "Log into your exchange", desc: "Coinbase, Kraken, Binance, or 300+ others. Mesh handles the secure OAuth connection—we never see your credentials." },
-              { num: "03", title: "Confirm and send", desc: "Approve the withdrawal. Your tip arrives as shielded ZEC—same privacy, no wallet needed." },
-            ]}
-          />
-        </div>
-
-        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
-          <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", letterSpacing: "1px" }}>SUPPORTED EXCHANGES</div>
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            {["Coinbase", "Kraken", "Binance", "Gemini", "Crypto.com", "+ 300 more"].map((exchange) => (
-              <span key={exchange} style={{ padding: "6px 12px", backgroundColor: colors.bg, border: `1px solid ${colors.border}`, borderRadius: "4px", fontSize: "12px", color: colors.muted }}>
-                {exchange}
-              </span>
-            ))}
-          </div>
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "32px", borderRadius: "4px", opacity: 0.7 }}>
+          <p style={{ color: colors.text, fontSize: "14px", marginBottom: "16px", lineHeight: 1.7 }}>
+            Connect your Coinbase, Kraken, or Binance account to tip directly — no wallet needed. Exchange payments are coming in a future update.
+          </p>
+          <p style={{ color: colors.muted, fontSize: "13px", margin: 0, lineHeight: 1.7 }}>
+            For now, connect a crypto wallet (MetaMask, Phantom, Rabby) to send tips.
+          </p>
         </div>
       </section>
 
@@ -493,24 +454,23 @@ function CreatorsTab() {
         </div>
       </section>
 
-      {/* Browser Extension */}
+      {/* Creator Dashboard */}
       <section style={{ marginBottom: "64px" }}>
         <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
-          BROWSER EXTENSION
+          CREATOR DASHBOARD
         </h2>
 
         <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
-          The TIPZ extension unlocks real-time notifications, encrypted messages, and image stamping.
+          Your command center at tipz.cash/my. Real-time earnings, private encrypted messages from supporters, and tools to promote your tip page. No extension required.
         </p>
 
         <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "32px" }}>
           <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", letterSpacing: "1px" }}>FEATURES</div>
           <div style={{ display: "grid", gap: "12px", fontSize: "13px" }}>
             {[
-              { title: "Real-time notifications", desc: "Instant alerts when tips arrive. Never miss a supporter." },
-              { title: "Encrypted messages", desc: "Read private messages from tippers. Decrypted locally." },
-              { title: "Revenue dashboard", desc: "Track earnings and activity at a glance." },
-              { title: "Image stamping", desc: "Overlay your tip URL on images before sharing." },
+              { title: "Real-time earnings", desc: "Tips appear in your activity feed instantly. ZEC + USD totals update live. Your browser tab shows a count (e.g. \"(3) TIPZ\") so you know when tips arrive from another tab." },
+              { title: "Encrypted messages", desc: "Tippers can attach a private message to any tip. Messages are end-to-end encrypted — your keys are generated and stored locally in your browser. TIPZ never sees your private key or the message content. We relay encrypted blobs, nothing more." },
+              { title: "Promotion tools", desc: "Copy your tip link, compose a tweet, or stamp your URL onto any image — screenshots, memes, artwork. Everything you need to share your tip page, all from one dashboard." },
             ].map((item) => (
               <div key={item.title} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                 <span style={{ color: colors.primary }}>→</span>
@@ -523,15 +483,16 @@ function CreatorsTab() {
           </div>
         </div>
 
-        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
-          <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "12px", letterSpacing: "1px" }}>HOW TO LINK</div>
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "32px" }}>
+          <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "12px", letterSpacing: "1px" }}>HOW TO GET STARTED</div>
           <ol style={{ color: colors.muted, fontSize: "13px", margin: 0, paddingLeft: "20px", lineHeight: 1.8 }}>
-            <li>Install the TIPZ extension from Chrome Web Store</li>
-            <li>Visit <span style={{ color: colors.primary }}>tipz.cash</span> while logged in</li>
-            <li>Extension auto-detects your identity from localStorage</li>
-            <li>Done—dashboard shows your handle and connection status</li>
+            <li>Visit <span style={{ color: colors.primary }}>tipz.cash/my</span></li>
+            <li>Log in with X (Twitter) — one-click OAuth</li>
+            <li>Dashboard loads with your handle, stats, and activity feed</li>
+            <li>Done — tips appear in real-time</li>
           </ol>
         </div>
+
       </section>
 
       {/* Image Stamping */}
@@ -547,7 +508,7 @@ function CreatorsTab() {
         <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
           <StepList
             steps={[
-              { num: "01", title: "Open extension popup", desc: "Click the TIPZ icon in your browser toolbar." },
+              { num: "01", title: "Open your dashboard", desc: "Visit tipz.cash/my and log in." },
               { num: "02", title: 'Click "Stamp"', desc: "Opens the image stamping tool." },
               { num: "03", title: "Paste or upload image", desc: "Ctrl+V to paste from clipboard, or click to upload." },
               { num: "04", title: "Copy stamped image", desc: "Your tip URL is overlaid in the corner. Copy and paste directly into X." },
@@ -563,37 +524,52 @@ function CreatorsTab() {
         </h2>
 
         <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
-          Know instantly when tips arrive. Two delivery methods for reliability.
+          Tips appear in your activity feed in real-time. Your browser tab updates with a count (e.g. &quot;(3) TIPZ&quot;) so you know when tips arrive even from another tab. The count resets when you return to the dashboard.
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "32px" }}>
-          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
-            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "11px", letterSpacing: "1px" }}>PRIMARY: WEBSOCKET</div>
-            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>Real-time via Supabase. Instant push when a tip hits the database.</p>
-          </div>
-          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
-            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "11px", letterSpacing: "1px" }}>FALLBACK: POLLING</div>
-            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>If WebSocket disconnects, polls every 30 seconds automatically.</p>
-          </div>
-        </div>
+        <Callout>
+          Direct ZEC tips have no notification. If someone sends ZEC directly to your shielded address (without using tipz.cash), we cannot notify you. The tip still arrives—we just don&apos;t know about it. Check your Zcash wallet periodically.
+        </Callout>
+      </section>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", marginBottom: "32px" }}>
-          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "16px", borderRadius: "4px" }}>
-            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "4px", fontSize: "13px" }}>Chrome Notifications</div>
-            <p style={{ color: colors.muted, fontSize: "11px", margin: 0 }}>Native OS alerts, even when browser is minimized.</p>
-          </div>
-          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "16px", borderRadius: "4px" }}>
-            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "4px", fontSize: "13px" }}>In-Page Popups</div>
-            <p style={{ color: colors.muted, fontSize: "11px", margin: 0 }}>Toast notifications on any webpage you&apos;re viewing.</p>
-          </div>
-          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "16px", borderRadius: "4px" }}>
-            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "4px", fontSize: "13px" }}>Badge Count</div>
-            <p style={{ color: colors.muted, fontSize: "11px", margin: 0 }}>Badge on extension icon shows unread tips.</p>
+      {/* Direct ZEC → ZEC */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          ZEC → ZEC: TRUE INVISIBILITY
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          If a tipper sends ZEC directly to your shielded address — without using tipz.cash — the transaction is completely invisible to us. No notification. No dashboard entry. No record on our side, period. This isn&apos;t a bug. It&apos;s the entire point.
+        </p>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "24px" }}>
+          <div style={{ display: "grid", gap: "12px", fontSize: "13px" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>We can&apos;t see it</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Zcash shielded transactions encrypt sender, receiver, and amount on-chain. Even TIPZ has zero visibility.</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>Your wallet still gets it</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>The ZEC lands in your Zashi wallet regardless. Only you hold the viewing key to see it.</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>Not in your dashboard</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>These tips won&apos;t appear in your TIPZ dashboard or activity feed — because we never knew they happened.</p>
+              </div>
+            </div>
           </div>
         </div>
 
         <Callout>
-          Direct ZEC tips have no notification. If someone sends ZEC directly to your shielded address (without using tipz.cash), we cannot notify you. The tip still arrives—we just don&apos;t know about it. Check your Zcash wallet periodically.
+          This is the power of real privacy. Not even the platform that connects you can surveil your income. Check your Zashi wallet periodically for direct ZEC tips.
         </Callout>
       </section>
 
@@ -620,7 +596,7 @@ function CreatorsTab() {
               <span style={{ color: colors.primary }}>→</span>
               <div>
                 <span style={{ fontWeight: 600, color: colors.textBright }}>Your private key never leaves your device</span>
-                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Generated and stored locally in the browser extension.</p>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Generated and stored locally in your browser.</p>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
@@ -648,7 +624,7 @@ function CreatorsTab() {
         </div>
 
         <Callout>
-          You need the TIPZ browser extension to decrypt messages. Without it, encrypted blobs are stored but unreadable.
+          Messages are decrypted in your dashboard at tipz.cash/my. Your private key is generated and stored locally in your browser.
         </Callout>
       </section>
     </>
@@ -888,7 +864,6 @@ Key Management:
 // MAIN PAGE
 // ============================================
 export default function DocsPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("tippers");
   const isMobile = useIsMobile(640);
 
@@ -930,49 +905,7 @@ export default function DocsPage() {
       <div className="noise-overlay" />
       <div className="scanlines" />
 
-      {/* Header */}
-      <header style={{ position: "fixed", top: 0, left: 0, right: 0, borderBottom: `1px solid ${colors.border}`, backgroundColor: `${colors.bg}f0`, backdropFilter: "blur(12px)", zIndex: 100 }}>
-        <div className="header-inner" style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
-            <span style={{ color: colors.primary, fontWeight: 700, fontSize: "18px" }}>[TIPZ]</span>
-            <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px", padding: "2px 6px", border: `1px solid ${colors.border}`, borderRadius: "2px" }}>BETA</span>
-          </Link>
-          <nav className="desktop-nav" style={{ gap: "32px", alignItems: "center" }}>
-            <Link href="/creators" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>CREATORS</Link>
-            <Link href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MANIFESTO</Link>
-            <span style={{ color: colors.primary, fontSize: "11px", fontWeight: 600, letterSpacing: "1px" }}>DOCS</span>
-            <Link href="/my" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MY TIPZ</Link>
-            <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", backgroundColor: colors.primary, color: colors.bg, textDecoration: "none", fontSize: "11px", letterSpacing: "0.5px", fontWeight: 600, padding: "8px 14px", borderRadius: "4px", fontFamily: "'JetBrains Mono', monospace" }}>
-              Claim Your Tipz ID
-            </Link>
-          </nav>
-          <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu">
-            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <>
-          <div onClick={() => setMobileMenuOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 200 }} />
-          <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "280px", maxWidth: "80vw", background: colors.bg, borderLeft: `1px solid ${colors.border}`, zIndex: 201, padding: "20px", display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
-            <button onClick={() => setMobileMenuOpen(false)} style={{ alignSelf: "flex-end", width: "44px", height: "44px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", cursor: "pointer", marginBottom: "16px" }} aria-label="Close menu">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-            </button>
-            <div style={{ padding: "12px 0", borderBottom: `1px solid ${colors.border}` }}><ZecTicker /></div>
-            <Link href="/creators" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>CREATORS</Link>
-            <Link href="/manifesto" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MANIFESTO</Link>
-            <span style={{ display: "block", padding: "16px 0", color: colors.primary, fontSize: "14px", letterSpacing: "1px", fontWeight: 600, borderBottom: `1px solid ${colors.border}` }}>DOCS</span>
-            <Link href="/my" onClick={() => setMobileMenuOpen(false)} style={{ display: "block", padding: "16px 0", color: colors.text, textDecoration: "none", fontSize: "14px", letterSpacing: "1px", borderBottom: `1px solid ${colors.border}` }}>MY TIPZ</Link>
-            <Link href="/register" onClick={() => setMobileMenuOpen(false)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "16px", padding: "16px", backgroundColor: colors.primary, color: colors.bg, textDecoration: "none", fontSize: "14px", letterSpacing: "0.5px", fontWeight: 600, borderRadius: "4px", fontFamily: "'JetBrains Mono', monospace" }}>
-              Claim Your Tipz ID
-            </Link>
-          </div>
-        </>
-      )}
+      <SiteHeader activePage="docs" />
 
       {/* Main content */}
       <main style={{ maxWidth: "800px", margin: "0 auto", padding: isMobile ? "100px 16px 48px" : "120px 24px 64px" }}>
@@ -1118,16 +1051,6 @@ export default function DocsPage() {
             rgba(0, 0, 0, 0.1) 4px
           );
           opacity: 0.1;
-        }
-
-        .header-inner { padding: 20px 48px; }
-        .desktop-nav { display: flex; }
-        .mobile-menu-btn { display: none; flex-direction: column; gap: 5px; padding: 10px; background: transparent; border: none; cursor: pointer; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
-
-        @media (max-width: 768px) {
-          .header-inner { padding: 16px; }
-          .desktop-nav { display: none !important; }
-          .mobile-menu-btn { display: flex !important; }
         }
 
         /* Docs tabs responsive */
