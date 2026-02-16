@@ -4,11 +4,10 @@ import Link from "next/link"
 import { colors } from "@/lib/colors"
 import { transitions } from "@/lib/animations"
 
-function LockIcon({ size = 16, color = "currentColor" }: { size?: number; color?: string }) {
+function ShieldIcon({ size = 48, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
   )
 }
@@ -21,39 +20,77 @@ function XIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-const glassCard: React.CSSProperties = {
-  padding: "48px 32px",
-  textAlign: "center",
-  background: "rgba(26, 26, 26, 0.6)",
-  backdropFilter: "blur(16px)",
-  border: "1px solid rgba(255, 255, 255, 0.06)",
-  borderRadius: "12px",
-  position: "relative",
-  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+interface LoginCardProps {
+  animStyle: React.CSSProperties
+  prefersReducedMotion?: boolean
 }
 
-export default function LoginCard({ animStyle }: { animStyle: React.CSSProperties }) {
+export default function LoginCard({ animStyle, prefersReducedMotion }: LoginCardProps) {
+  const shieldAnim = prefersReducedMotion
+    ? {}
+    : { animation: "scaleSpring 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both" }
+
   return (
-    <div style={{ ...glassCard, ...animStyle }}>
+    <div style={{
+      padding: "48px 32px",
+      textAlign: "center",
+      background: "rgba(18, 20, 26, 0.85)",
+      backdropFilter: "blur(24px)",
+      border: "1px solid rgba(245, 166, 35, 0.12)",
+      borderRadius: "12px",
+      position: "relative",
+      boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
+      ...animStyle,
+    }}>
+      {/* Gold top accent — 3px */}
       <div style={{
         position: "absolute",
         top: 0, left: 0, right: 0,
-        height: "2px",
+        height: "3px",
         background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
         borderRadius: "12px 12px 0 0",
+        backgroundSize: "200% 100%",
+        animation: prefersReducedMotion ? "none" : "goldBorderSweep 3s ease-in-out infinite",
       }} />
-      <div style={{ marginBottom: "24px" }}>
-        <LockIcon size={32} color={colors.muted} />
+
+      {/* Shield icon with glow */}
+      <div style={{
+        marginBottom: "24px",
+        ...shieldAnim,
+      }}>
+        <div style={{
+          display: "inline-block",
+          filter: `drop-shadow(0 0 30px rgba(245, 166, 35, 0.15))`,
+        }}>
+          <ShieldIcon size={48} color={colors.primary} />
+        </div>
       </div>
+
+      {/* Heading */}
+      <div style={{
+        fontSize: "11px",
+        color: colors.muted,
+        letterSpacing: "3px",
+        marginBottom: "16px",
+        fontFamily: "'JetBrains Mono', monospace",
+      }}>
+        YOUR COMMAND CENTER
+      </div>
+
       <p style={{
-        margin: "0 0 24px",
+        margin: "0 0 28px",
         color: colors.text,
         fontSize: "14px",
         lineHeight: 1.6,
         fontFamily: "Inter, sans-serif",
+        maxWidth: "320px",
+        marginLeft: "auto",
+        marginRight: "auto",
       }}>
         Log in with your X account to view your tips, decrypted memos, and analytics.
       </p>
+
+      {/* Muted CTA — surface button instead of Twitter blue */}
       <a
         href="/api/auth/twitter"
         style={{
@@ -61,22 +98,30 @@ export default function LoginCard({ animStyle }: { animStyle: React.CSSPropertie
           alignItems: "center",
           gap: "10px",
           padding: "14px 28px",
-          fontSize: "15px",
+          fontSize: "14px",
           fontWeight: 600,
           color: colors.textBright,
-          backgroundColor: "#1d9bf0",
+          backgroundColor: "rgba(255, 255, 255, 0.08)",
           borderRadius: "8px",
           textDecoration: "none",
           transition: transitions.normal,
-          border: "none",
+          border: `1px solid ${colors.border}`,
           cursor: "pointer",
+          fontFamily: "'JetBrains Mono', monospace",
         }}
-        onMouseEnter={(e) => e.currentTarget.style.opacity = "0.9"}
-        onMouseLeave={(e) => e.currentTarget.style.opacity = "1"}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.12)"
+          e.currentTarget.style.borderColor = colors.borderHover
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.08)"
+          e.currentTarget.style.borderColor = colors.border
+        }}
       >
-        <XIcon size={18} />
+        <XIcon size={16} />
         Login with X
       </a>
+
       <p style={{
         margin: "20px 0 0",
         fontSize: "12px",
