@@ -19,6 +19,11 @@ This document outlines everything needed to transition TIPZ from demo mode to pr
 - [x] Auto-stamp feature for X compose boxes
 - [x] Dynamic OG images for social sharing
 - [x] Transaction logging schema ready
+- [x] Creator dashboard at /my with OAuth login
+- [x] Real-time tip feed with encrypted memo decryption
+- [x] Animated earnings counter (ZEC + USD)
+- [x] Promotion tools (copy link, tweet, image stamp)
+- [x] In-dashboard toast notifications
 
 ## Pre-Launch Configuration
 
@@ -80,7 +85,9 @@ NEAR_DEMO_MODE=false           # THE SWITCH
 - [ ] Set `NEAR_NETWORK=mainnet`
 - [ ] Run testnet tests first!
 
-### 4. Browser Extension
+### 4. Browser Extension (Companion Tool)
+
+> The web dashboard at `/my` is the primary creator experience. The extension adds auto-stamp on X and browser notifications as a companion.
 
 ```bash
 # /tipz/extension/.env

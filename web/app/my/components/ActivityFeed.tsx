@@ -19,6 +19,7 @@ interface DecryptedTip {
 interface ActivityFeedProps {
   tips: DecryptedTip[]
   handle: string
+  zecPrice: number
   animStyle: React.CSSProperties
   prefersReducedMotion: boolean
 }
@@ -26,6 +27,7 @@ interface ActivityFeedProps {
 export default function ActivityFeed({
   tips,
   handle,
+  zecPrice,
   animStyle,
   prefersReducedMotion,
 }: ActivityFeedProps) {

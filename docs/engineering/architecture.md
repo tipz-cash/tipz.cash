@@ -13,9 +13,9 @@ System design and technical architecture documentation.
 │                                                                  │
 │   ┌──────────────────┐         ┌───────────────────────┐        │
 │   │     Creator      │         │       Tipper          │        │
-│   │   (Extension)    │         │    (Web Browser)      │        │
-│   │  Auto-Stamp +    │         │  Tip Pages at         │        │
-│   │  Revenue Stats   │         │  tipz.cash/{handle}   │        │
+│   │ (Web Dashboard   │         │    (Web Browser)      │        │
+│   │  + Extension)    │         │  Tip Pages at         │        │
+│   │  /my + Auto-Stamp│         │  tipz.cash/{handle}   │        │
 │   └────────┬─────────┘         └───────────┬───────────┘        │
 │            │                               │                     │
 └────────────┼───────────────────────────────┼─────────────────────┘
@@ -73,7 +73,8 @@ System design and technical architecture documentation.
 │   │                                                       │      │
 │   │   ┌─────────────────────────────────────────────┐    │      │
 │   │   │             Realtime (WebSocket)             │    │      │
-│   │   │      Pushes tip notifications to extension   │    │      │
+│   │   │   Pushes tip notifications to dashboard +   │    │      │
+│   │   │                  extension                   │    │      │
 │   │   └─────────────────────────────────────────────┘    │      │
 │   │                                                       │      │
 │   └──────────────────────────────────────────────────────┘      │
@@ -119,6 +120,19 @@ web/
 │   ├── [handle]/
 │   │   ├── page.tsx          # Individual tip page
 │   │   └── layout.tsx        # Tip page layout
+│   ├── my/
+│   │   ├── page.tsx             # Creator dashboard (command center)
+│   │   ├── components/
+│   │   │   ├── CommandHeader.tsx   # Handle, connection status, logout
+│   │   │   ├── StatsGrid.tsx       # Tips/ZEC/USD stat cards
+│   │   │   ├── StampTools.tsx      # Promote tile grid
+│   │   │   ├── ImageStampTool.tsx  # Image watermarking tool
+│   │   │   ├── ActivityFeed.tsx    # Timeline tip feed
+│   │   │   ├── NotificationToast.tsx # Real-time tip toast
+│   │   │   ├── LoginCard.tsx       # Pre-auth login card
+│   │   │   └── ConnectionIndicator.tsx # Realtime status
+│   │   └── hooks/
+│   │       └── useRealtimeTips.ts  # Supabase Realtime + polling
 │   └── api/
 │       ├── health/route.ts   # Health check
 │       ├── creator/route.ts  # Single creator lookup
@@ -132,6 +146,14 @@ web/
 │       │   └── execute/route.ts # Swap execution
 │       ├── intents/
 │       │   └── create/route.ts # NEAR Intents
+│       ├── auth/
+│       │   ├── me/route.ts      # Session check
+│       │   ├── twitter/route.ts # OAuth login
+│       │   └── logout/route.ts  # Clear session
+│       ├── tips/
+│       │   ├── received/route.ts # Creator's received tips
+│       │   ├── stats/route.ts    # Aggregated tip stats
+│       │   └── latest/route.ts   # Most recent tip (polling)
 │       └── og/[handle]/route.tsx # Dynamic OG images
 ├── components/
 │   ├── tipping/             # Tipping flow components
@@ -159,6 +181,7 @@ web/
 3. **Tip Pages**: Individual creator pages at `/{handle}` with TippingFlow component
 4. **Creator Directory**: Paginated list of registered creators
 5. **API Routes**: Creator CRUD, swap quotes, NEAR Intents, OG images
+6. **Creator Dashboard**: Authenticated command center at `/my` with real-time tips, encrypted message decryption, and promotion tools
 
 ### Browser Extension
 
@@ -166,7 +189,7 @@ web/
 **Framework**: Plasmo
 **Target**: Chrome MV3
 
-**IMPORTANT**: The extension is a **Creator Tool**, not a tipper tool. Tippers use the web app.
+**IMPORTANT**: The extension **complements** the web dashboard at `/my` with auto-stamp on X and browser notifications. Tippers use the web app.
 
 #### Directory Structure
 ```
@@ -329,6 +352,19 @@ Step 4: Confirmation
 4. Server looks up creator, verifies original tweet still valid
 5. Returns success - client sets localStorage for extension bridge
 6. Extension detects new identity on next visit
+```
+
+### Creator Dashboard Flow
+
+```
+1. Creator logs in at `/my` via OAuth (X/Twitter)
+2. Server validates session via `/api/auth/me`
+3. Client generates RSA-4096 key pair, stores private key in localStorage
+4. Public key uploaded to server via `/api/link`
+5. Dashboard fetches tips (`/api/tips/received`), stats (`/api/tips/stats`)
+6. Supabase Realtime pushes new tips to client in real-time
+7. Client decrypts tip data with local RSA private key
+8. Toast notifications + activity feed update live
 ```
 
 ---
@@ -515,7 +551,7 @@ Tipper (Web) → WalletConnect → /api/swap → NEAR Intents → Zcash Shielded
 
 ### Creator Notifications (Implemented)
 ```
-Supabase Realtime → Extension Background → Browser Notification
+Supabase Realtime → Dashboard Toast + Extension Background → Browser Notification
 ```
 
 ### Identity Bridge (Implemented)
@@ -525,17 +561,12 @@ tipz.cash localStorage → tipz-interceptor.tsx → chrome.storage → popup.tsx
 
 ## Future Architecture
 
-### Phase 2: Creator Analytics Dashboard
-```
-tipz.cash/dashboard → /api/analytics → Supabase (anonymized aggregates)
-```
-
-### Phase 3: Multi-Platform Support
+### Phase 2: Multi-Platform Support
 ```
 Extension → Platform Adapters → {YouTube, Twitch, GitHub, Farcaster}
 ```
 
-### Phase 4: Recurring Tips
+### Phase 3: Recurring Tips
 ```
 User → Subscription Setup → Background Job → Monthly Tips
 ```

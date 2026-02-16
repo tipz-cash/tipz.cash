@@ -9,8 +9,7 @@ import { TokenSelector } from "./TokenSelector"
 import { TransactionStatus } from "./TransactionStatus"
 import { MessageTrench } from "./MessageTrench"
 import { ZecDirectSend } from "./ZecDirectSend"
-import { PaymentRow, LogoDisplay, type ExchangeOption } from "./PaymentMethodPicker"
-import { openMeshTransfer } from "@/lib/mesh"
+import { PaymentRow, LogoDisplay } from "./PaymentMethodPicker"
 import { tokens, keyframes } from "./designTokens"
 import type { WalletType, SupportedToken } from "@/lib/wallet"
 import { isValidPublicKey } from "@/lib/message-encryption"
@@ -146,27 +145,6 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
     borderBottom: "1px solid rgba(0, 0, 0, 0.8)",
     borderRadius: tokens.radius.xl,
     boxShadow: tokens.shadow.lg,
-  }
-
-  // Handler for exchange selection (Mesh)
-  const handleExchangeSelect = (exchange: ExchangeOption) => {
-    setShowPaymentPicker(false)
-    openMeshTransfer(
-      {
-        destinationAddress: shieldedAddress,
-        amountUsd: displayAmount,
-        creatorHandle,
-      },
-      (result) => {
-        if (result.success) {
-          console.log("[TippingFlow] Mesh transfer success:", result)
-          // Reset flow after success
-          reset()
-        } else {
-          console.error("[TippingFlow] Mesh transfer error:", result.error)
-        }
-      }
-    )
   }
 
   // Handler for wallet connection - shows wallet selector
@@ -476,17 +454,6 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
 
             {/* Payment options */}
             <div style={{ display: "flex", flexDirection: "column", gap: tokens.space.sm }}>
-              {/* Exchange row */}
-              <PaymentRow
-                title="Exchange"
-                description="Link Coinbase, Kraken, or Binance"
-                onClick={() => handleExchangeSelect("coinbase")}
-              >
-                <LogoDisplay src="/icons/coinbase.svg" alt="Coinbase" />
-                <LogoDisplay src="/icons/kraken.svg" alt="Kraken" />
-                <LogoDisplay src="/icons/binance.svg" alt="Binance" />
-              </PaymentRow>
-
               {/* Wallet row - auto-detects installed wallet */}
               <PaymentRow
                 title="Wallet"
