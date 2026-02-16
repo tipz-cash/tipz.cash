@@ -55,12 +55,14 @@ export async function GET(request: NextRequest) {
   })
 
   if (!tokenRes.ok) {
-    console.error("[auth/callback] Token exchange failed:", tokenRes.status)
+    const tokenErr = await tokenRes.text()
+    console.error("[auth/callback] Token exchange failed:", tokenRes.status, tokenErr)
     return NextResponse.redirect(`${origin}/my?error=token_exchange`)
   }
 
   const tokenData = await tokenRes.json()
   const accessToken = tokenData.access_token
+  console.log("[auth/callback] Token scopes:", tokenData.scope)
 
   // Get Twitter username
   const userRes = await fetch("https://api.twitter.com/2/users/me", {
@@ -68,7 +70,8 @@ export async function GET(request: NextRequest) {
   })
 
   if (!userRes.ok) {
-    console.error("[auth/callback] User lookup failed:", userRes.status)
+    const userErr = await userRes.text()
+    console.error("[auth/callback] User lookup failed:", userRes.status, userErr)
     return NextResponse.redirect(`${origin}/my?error=user_lookup`)
   }
 
