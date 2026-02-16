@@ -294,7 +294,7 @@ Auto-refund if swap fails (rare, but handled).`}</CodeBlock>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
           <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
             <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>Zero Platform Fees</div>
-            <p style={{ color: colors.muted, fontSize: "12px", margin: 0 }}>100% of tip value reaches the creator. Network gas (~$0.01-0.50) is included in your quote.</p>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0 }}>No TIPZ platform fee. Cross-chain swap spread (~3-4% on a $5 tip) is embedded in your quote rate.</p>
           </div>
           <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
             <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>Atomic Execution</div>
@@ -366,13 +366,6 @@ Auto-refund if swap fails (rare, but handled).`}</CodeBlock>
                 <p style={{ color: colors.muted, margin: "4px 0 0" }}>Creators cannot reply. This preserves your anonymity.</p>
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-              <span style={{ color: colors.primary }}>→</span>
-              <div>
-                <span style={{ fontWeight: 600, color: colors.textBright }}>Requires extension</span>
-                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Creators need the TIPZ browser extension to decrypt messages.</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -387,7 +380,7 @@ Auto-refund if swap fails (rare, but handled).`}</CodeBlock>
           {[
             { q: "How long does delivery take?", a: "5-10 minutes after your wallet confirms. You can close the page—we track it for you." },
             { q: "What if the swap fails?", a: "Rare, but handled. Your original funds auto-return to your wallet within minutes." },
-            { q: "Are there fees?", a: "Zero platform fees. Network gas (~$0.01-0.50) is included in your quote. Creators receive 100%." },
+            { q: "Are there fees?", a: "Zero TIPZ platform fees. The cross-chain swap includes a ~3-4% spread (on a $5 tip, ~$0.15-0.17) embedded in the exchange rate. No hidden charges." },
             { q: "Do I need a Zcash wallet to tip?", a: "No. Use your existing ETH/SOL/USDC wallet. Only creators need Zcash." },
           ].map((faq, i) => (
             <div key={i} style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px 24px", borderRadius: "4px" }}>
