@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { colors } from "@/lib/colors"
 import type { TipzData } from "@/lib/tipz"
 
@@ -47,6 +47,24 @@ export default function NotificationToast({
   )
 }
 
+function Particle({ delay, tx, ty }: { delay: string; tx: string; ty: string }) {
+  return (
+    <div style={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      width: "4px",
+      height: "4px",
+      borderRadius: "50%",
+      background: colors.primary,
+      "--tx": tx,
+      "--ty": ty,
+      animation: `particleBurst 0.6s ease-out ${delay} both`,
+      pointerEvents: "none",
+    } as React.CSSProperties} />
+  )
+}
+
 function ToastCard({
   tip,
   onDismiss,
@@ -74,6 +92,21 @@ function ToastCard({
           : "slideOutRight 0.3s ease-in forwards",
       }
 
+  // Generate random particle positions
+  const particles = useMemo(() => {
+    if (prefersReducedMotion) return []
+    return Array.from({ length: 6 }, (_, i) => {
+      const angle = (i / 6) * Math.PI * 2 + (Math.random() * 0.5)
+      const dist = 20 + Math.random() * 20
+      return {
+        key: i,
+        delay: `${Math.random() * 0.1}s`,
+        tx: `${Math.cos(angle) * dist}px`,
+        ty: `${Math.sin(angle) * dist}px`,
+      }
+    })
+  }, [prefersReducedMotion])
+
   return (
     <div
       onClick={onDismiss}
@@ -86,9 +119,11 @@ function ToastCard({
         cursor: "pointer",
         position: "relative",
         boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
+        overflow: "hidden",
         ...animationStyle,
       }}
     >
+      {/* Gold top accent */}
       <div style={{
         position: "absolute",
         top: 0, left: 0, right: 0,
@@ -96,6 +131,15 @@ function ToastCard({
         background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
         borderRadius: "12px 12px 0 0",
       }} />
+
+      {/* Particle burst */}
+      {particles.length > 0 && (
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          {particles.map((p) => (
+            <Particle key={p.key} delay={p.delay} tx={p.tx} ty={p.ty} />
+          ))}
+        </div>
+      )}
 
       <div style={{
         display: "flex",
@@ -129,6 +173,7 @@ function ToastCard({
             color: colors.success,
             fontFamily: "'JetBrains Mono', monospace",
             marginBottom: "2px",
+            animation: prefersReducedMotion ? "none" : "tipSlideIn 0.3s ease-out",
           }}>
             ${tip.decrypted.amount_usd.toFixed(2)}
           </div>
@@ -160,6 +205,24 @@ function ToastCard({
           Encrypted tip received
         </div>
       )}
+
+      {/* Progress bar */}
+      <div style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: "2px",
+        borderRadius: "0 0 12px 12px",
+        overflow: "hidden",
+      }}>
+        <div style={{
+          height: "100%",
+          background: colors.primary,
+          animation: prefersReducedMotion ? "none" : "progressShrink 6s linear forwards",
+          transformOrigin: "left",
+        }} />
+      </div>
     </div>
   )
 }

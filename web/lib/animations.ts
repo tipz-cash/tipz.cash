@@ -271,6 +271,47 @@ export const animationKeyframes = `
       opacity: 0.3;
     }
   }
+
+  /* Tip slide in from above */
+  @keyframes tipSlideIn {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Progress bar shrink for toast auto-dismiss */
+  @keyframes progressShrink {
+    from { width: 100%; }
+    to { width: 0; }
+  }
+
+  /* Particle burst for tip celebration */
+  @keyframes particleBurst {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx),var(--ty)) scale(0); opacity: 0; }
+  }
+
+  /* Gold border sweep for login card */
+  @keyframes goldBorderSweep {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  /* Scale spring for avatar entrance */
+  @keyframes scaleSpring {
+    0% { transform: scale(0.85); opacity: 0; }
+    60% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Pulse ring for connected avatar */
+  @keyframes avatarPulseRing {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(245, 166, 35, 0);
+    }
+  }
 `;
 
 // Transition presets

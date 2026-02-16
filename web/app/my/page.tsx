@@ -12,8 +12,8 @@ import {
 import type { TipzData } from "@/lib/tipz"
 import { useRealtimeTips } from "./hooks/useRealtimeTips"
 import LoginCard from "./components/LoginCard"
-import CommandHeader from "./components/CommandHeader"
-import StatsGrid from "./components/StatsGrid"
+import ProfileHeader from "./components/ProfileHeader"
+import HeroStat from "./components/HeroStat"
 import StampTools from "./components/StampTools"
 import ActivityFeed from "./components/ActivityFeed"
 import NotificationToast from "./components/NotificationToast"
@@ -58,11 +58,131 @@ const ERROR_MESSAGES: Record<string, string> = {
   db_unavailable: "Database unavailable. Please try later.",
 }
 
+// Skeleton loading component
+function DashboardSkeleton() {
+  return (
+    <div style={{ opacity: 1 }}>
+      {/* Avatar skeleton */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "32px" }}>
+        <div style={{
+          width: "80px",
+          height: "80px",
+          borderRadius: "50%",
+          background: colors.border,
+          animation: "shimmer 1.5s ease-in-out infinite",
+          marginBottom: "16px",
+        }} />
+        <div style={{
+          width: "140px",
+          height: "20px",
+          borderRadius: "4px",
+          background: colors.border,
+          animation: "shimmer 1.5s ease-in-out infinite",
+          marginBottom: "8px",
+        }} />
+        <div style={{
+          width: "80px",
+          height: "12px",
+          borderRadius: "4px",
+          background: colors.border,
+          animation: "shimmer 1.5s ease-in-out infinite",
+        }} />
+      </div>
+
+      {/* Hero stat skeleton */}
+      <div style={{ textAlign: "center", marginBottom: "40px" }}>
+        <div style={{
+          width: "200px",
+          height: "40px",
+          borderRadius: "4px",
+          background: colors.border,
+          animation: "shimmer 1.5s ease-in-out infinite",
+          margin: "0 auto 8px",
+        }} />
+        <div style={{
+          width: "100px",
+          height: "12px",
+          borderRadius: "4px",
+          background: colors.border,
+          animation: "shimmer 1.5s ease-in-out infinite",
+          margin: "0 auto",
+        }} />
+      </div>
+
+      {/* Stamp tiles skeleton */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: "8px",
+        marginBottom: "24px",
+      }}>
+        {[1, 2, 3].map((i) => (
+          <div key={i} style={{
+            height: "72px",
+            borderRadius: "10px",
+            background: colors.border,
+            animation: "shimmer 1.5s ease-in-out infinite",
+            animationDelay: `${i * 0.1}s`,
+          }} />
+        ))}
+      </div>
+
+      {/* Activity skeleton */}
+      <div style={{
+        width: "60px",
+        height: "12px",
+        borderRadius: "4px",
+        background: colors.border,
+        animation: "shimmer 1.5s ease-in-out infinite",
+        marginBottom: "12px",
+      }} />
+      <div style={{ border: `1px solid ${colors.border}`, borderRadius: "12px", overflow: "hidden" }}>
+        {[1, 2, 3].map((i) => (
+          <div key={i} style={{
+            padding: "16px 20px",
+            borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.03)" : "none",
+            display: "flex",
+            gap: "12px",
+            alignItems: "center",
+          }}>
+            <div style={{
+              width: "9px",
+              height: "9px",
+              borderRadius: "50%",
+              background: colors.border,
+              animation: "shimmer 1.5s ease-in-out infinite",
+              flexShrink: 0,
+            }} />
+            <div style={{ flex: 1 }}>
+              <div style={{
+                width: "120px",
+                height: "14px",
+                borderRadius: "4px",
+                background: colors.border,
+                animation: "shimmer 1.5s ease-in-out infinite",
+                marginBottom: "6px",
+              }} />
+              <div style={{
+                width: "80px",
+                height: "10px",
+                borderRadius: "4px",
+                background: colors.border,
+                animation: "shimmer 1.5s ease-in-out infinite",
+              }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function MyTipzPage() {
   const [loading, setLoading] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
   const [handle, setHandle] = useState("")
   const [creatorId, setCreatorId] = useState<string | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [tips, setTips] = useState<DecryptedTip[]>([])
   const [tipCount, setTipCount] = useState(0)
   const [keySetup, setKeySetup] = useState(false)
@@ -158,15 +278,19 @@ export default function MyTipzPage() {
       setKeySetup(false)
     }
 
-    const [tipsRes, statsRes] = await Promise.all([
+    // Fetch tips, stats, and creator profile in parallel
+    const [tipsRes, statsRes, creatorRes] = await Promise.all([
       fetch(`/api/tips/received?handle=${encodeURIComponent(userHandle)}&limit=50`),
       fetch(`/api/tips/stats?handle=${encodeURIComponent(userHandle)}`),
+      fetch(`/api/creator?platform=x&handle=${encodeURIComponent(userHandle)}`),
     ])
 
     const tipsData = await tipsRes.json()
     const statsData = await statsRes.json()
+    const creatorData = await creatorRes.json()
 
     setTipCount(statsData.tip_count || 0)
+    setAvatarUrl(creatorData.creator?.avatar_url || null)
 
     const rawTips: Tip[] = tipsData.tips || []
     const decrypted: DecryptedTip[] = await Promise.all(
@@ -216,6 +340,7 @@ export default function MyTipzPage() {
       setAuthenticated(false)
       setHandle("")
       setCreatorId(null)
+      setAvatarUrl(null)
       setTips([])
       setTipCount(0)
     } finally {
@@ -409,27 +534,8 @@ export default function MyTipzPage() {
       }}>
         <div style={{ width: "100%", maxWidth: "600px" }}>
 
-          {/* Loading */}
-          {loading && (
-            <div style={{
-              padding: "40px",
-              textAlign: "center",
-              color: colors.muted,
-              fontSize: "14px",
-            }}>
-              <span style={{
-                display: "inline-block",
-                width: "20px",
-                height: "20px",
-                border: `2px solid ${colors.border}`,
-                borderTopColor: colors.primary,
-                borderRadius: "50%",
-                animation: "spin 0.8s linear infinite",
-                marginBottom: "12px",
-              }} />
-              <div>Loading...</div>
-            </div>
-          )}
+          {/* Loading Skeleton */}
+          {loading && <DashboardSkeleton />}
 
           {/* Error from OAuth redirect */}
           {error && !loading && (
@@ -450,7 +556,7 @@ export default function MyTipzPage() {
 
           {/* Not authenticated — Login */}
           {!loading && !authenticated && (
-            <LoginCard animStyle={animStyle} />
+            <LoginCard animStyle={animStyle} prefersReducedMotion={prefersReducedMotion} />
           )}
 
           {/* Key setup in progress */}
@@ -484,19 +590,19 @@ export default function MyTipzPage() {
           {/* Authenticated — Command Center */}
           {!loading && authenticated && !keySetup && (
             <>
-              <CommandHeader
+              <ProfileHeader
                 handle={handle}
+                avatarUrl={avatarUrl}
                 connectionStatus={connectionStatus}
                 loggingOut={loggingOut}
                 onLogout={handleLogout}
-                animStyle={animStyle}
+                prefersReducedMotion={prefersReducedMotion}
               />
 
-              <StatsGrid
-                tipCount={tipCount}
+              <HeroStat
                 totalZec={totalZec}
                 totalUsd={totalUsd}
-                animStyle={animStyle}
+                tipCount={tipCount}
                 prefersReducedMotion={prefersReducedMotion}
               />
 
