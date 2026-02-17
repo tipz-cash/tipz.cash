@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { TipzLogo } from "@/components/TipzLogo";
 
 // Import JetBrains Mono from Google Fonts
 const fontLink = typeof window !== "undefined" ? (() => {
@@ -283,8 +284,8 @@ function RegistrationForm() {
           <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#FFBD2E" }} />
           <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#27CA40" }} />
         </div>
-        <span style={{ color: colors.muted, fontSize: "12px", marginLeft: "8px" }}>
-          [TIPZ] // REGISTER
+        <span style={{ color: colors.muted, fontSize: "12px", marginLeft: "8px", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+          <TipzLogo size={12} /> // REGISTER
         </span>
       </div>
 
@@ -476,9 +477,7 @@ export default function TerminalHomePage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <span style={{ color: colors.primary, fontWeight: 700 }}>
-              [TIPZ]
-            </span>
+            <TipzLogo size={16} />
             <span style={{ color: colors.muted, fontSize: "12px" }}>
               v0.1.0-beta
             </span>
@@ -1105,9 +1104,7 @@ export default function TerminalHomePage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <span style={{ color: colors.primary, fontWeight: 700 }}>
-              [TIPZ]
-            </span>
+            <TipzLogo size={16} />
             <span style={{ color: colors.muted, fontSize: "12px" }}>
               v0.1.0-beta
             </span>

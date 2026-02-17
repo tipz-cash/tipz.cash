@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { colors } from "@/lib/colors";
+import { TipzLogo } from "@/components/TipzLogo";
 
 // ZEC Ticker component
 function ZecTicker() {
@@ -100,13 +101,7 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
           alignItems: "center",
         }}>
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
-            <span style={{
-              color: colors.primary,
-              fontWeight: 700,
-              fontSize: "18px",
-              fontFamily: "'JetBrains Mono', monospace",
-              textShadow: `0 0 20px ${colors.primaryGlow}`,
-            }}>[TIPZ]</span>
+            <TipzLogo size={18} />
             <span style={{
               color: colors.muted,
               fontSize: "10px",

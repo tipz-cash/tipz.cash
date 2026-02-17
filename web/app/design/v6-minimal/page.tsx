@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { TipzLogo } from "@/components/TipzLogo";
 
 // Color palette - Clean terminal style
 const colors = {
@@ -128,7 +129,7 @@ export default function V6MinimalHomePage() {
         zIndex: 100,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px" }}>[TIPZ]</span>
+          <TipzLogo size={16} />
           <span style={{ color: colors.muted, fontSize: "12px" }}>v0.1.0-beta</span>
         </div>
         <nav style={{ display: "flex", gap: "32px" }}>
@@ -469,7 +470,7 @@ export default function V6MinimalHomePage() {
         fontSize: "12px",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700 }}>[TIPZ]</span>
+          <TipzLogo size={14} />
           <span style={{ color: colors.muted }}>v0.1.0-beta</span>
         </div>
         <div style={{ display: "flex", gap: "24px" }}>
