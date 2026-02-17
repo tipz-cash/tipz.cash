@@ -59,13 +59,24 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, prefersReducedM
 
   return (
     <div style={{
-      margin: "32px 0 40px",
-      textAlign: "center",
+      borderTop: "1px solid rgba(255,255,255,0.06)",
+      padding: "16px 0 0",
       ...anim("150ms", "fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards"),
     }}>
+      {/* Section label */}
+      <div style={{
+        fontSize: "11px",
+        color: colors.muted,
+        letterSpacing: "1px",
+        marginBottom: "8px",
+        fontFamily: "'JetBrains Mono', monospace",
+      }}>
+        EARNINGS
+      </div>
+
       {/* Hero ZEC counter */}
       <div style={{
-        fontSize: "clamp(36px, 8vw, 48px)",
+        fontSize: "clamp(32px, 4vw, 40px)",
         fontWeight: 700,
         color: colors.primary,
         fontFamily: "'JetBrains Mono', monospace",
@@ -74,7 +85,7 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, prefersReducedM
       }}>
         <AnimatedCounter value={totalZec} decimals={4} prefersReducedMotion={prefersReducedMotion} />
         <span style={{
-          fontSize: "clamp(16px, 3vw, 20px)",
+          fontSize: "clamp(14px, 2vw, 18px)",
           fontWeight: 400,
           color: colors.muted,
           marginLeft: "8px",
@@ -98,10 +109,8 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, prefersReducedM
       <div style={{
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
         gap: "0",
-        margin: "20px auto",
-        maxWidth: "200px",
+        margin: "16px 0",
       }}>
         <div style={{
           flex: 1,
@@ -126,10 +135,7 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, prefersReducedM
       {/* Supporting stats row */}
       <div style={{
         display: "flex",
-        justifyContent: "center",
-        gap: "32px",
-        maxWidth: "280px",
-        margin: "0 auto",
+        gap: "24px",
       }}>
         <div>
           <div style={{

@@ -90,7 +90,7 @@ export default function ProfileHeader({
 
   return (
     <div style={{
-      marginBottom: "8px",
+      marginBottom: "0",
       ...anim("0ms", "fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards"),
     }}>
       {/* Top bar: status + logout */}
@@ -98,7 +98,7 @@ export default function ProfileHeader({
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: "24px",
+        marginBottom: "16px",
       }}>
         <div style={{
           fontSize: "11px",
@@ -148,16 +148,16 @@ export default function ProfileHeader({
       {/* Avatar + Identity */}
       <div style={{
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
         alignItems: "center",
-        textAlign: "center",
+        gap: "12px",
       }}>
         {/* Avatar with gold ring */}
         <div style={{
           position: "relative",
-          width: "80px",
-          height: "80px",
-          marginBottom: "16px",
+          width: "64px",
+          height: "64px",
+          flexShrink: 0,
           ...anim("100ms", "scaleSpring 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"),
         }}>
           {/* Outer gold ring */}
@@ -179,8 +179,8 @@ export default function ProfileHeader({
                 position: "absolute",
                 top: "4px",
                 left: "4px",
-                width: "72px",
-                height: "72px",
+                width: "56px",
+                height: "56px",
                 borderRadius: "50%",
                 objectFit: "cover",
               }}
@@ -190,14 +190,14 @@ export default function ProfileHeader({
               position: "absolute",
               top: "4px",
               left: "4px",
-              width: "72px",
-              height: "72px",
+              width: "56px",
+              height: "56px",
               borderRadius: "50%",
               background: getInitialColor(handle),
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "28px",
+              fontSize: "22px",
               fontWeight: 700,
               color: colors.textBright,
               fontFamily: "'JetBrains Mono', monospace",
@@ -207,71 +207,74 @@ export default function ProfileHeader({
           )}
         </div>
 
-        {/* Handle */}
-        <h1 style={{
-          margin: "0 0 8px",
-          fontSize: "clamp(22px, 4vw, 28px)",
-          fontWeight: 700,
-          letterSpacing: "-0.02em",
-          lineHeight: 1.15,
-          color: colors.textBright,
-          fontFamily: "'JetBrains Mono', monospace",
-          ...anim("250ms", "fadeInUp 0.3s ease-out forwards"),
-        }}>
-          @{handle}
-        </h1>
-
-        {/* Verified badge */}
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "5px",
-          marginBottom: "12px",
-          ...anim("350ms", "fadeIn 0.3s ease-out forwards"),
-        }}>
-          <ShieldCheckIcon size={13} color={colors.primary} />
-          <span style={{
-            fontSize: "10px",
-            fontWeight: 600,
-            color: colors.primary,
-            letterSpacing: "1.5px",
+        {/* Identity column */}
+        <div style={{ minWidth: 0 }}>
+          {/* Handle */}
+          <h1 style={{
+            margin: "0 0 4px",
+            fontSize: "18px",
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.15,
+            color: colors.textBright,
             fontFamily: "'JetBrains Mono', monospace",
+            ...anim("250ms", "fadeInUp 0.3s ease-out forwards"),
           }}>
-            VERIFIED
-          </span>
-        </div>
+            @{handle}
+          </h1>
 
-        {/* Tip URL with copy */}
-        <button
-          onClick={handleCopyUrl}
-          style={{
-            display: "inline-flex",
+          {/* Verified badge */}
+          <div style={{
+            display: "flex",
             alignItems: "center",
-            gap: "6px",
-            padding: "4px 8px",
-            fontSize: "13px",
-            color: urlCopied ? colors.success : colors.muted,
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            fontFamily: "Inter, sans-serif",
-            transition: transitions.fast,
-            borderRadius: "4px",
-          }}
-          onMouseEnter={(e) => {
-            if (!urlCopied) e.currentTarget.style.color = colors.text
-          }}
-          onMouseLeave={(e) => {
-            if (!urlCopied) e.currentTarget.style.color = colors.muted
-          }}
-        >
-          {tipUrl}
-          {urlCopied ? (
-            <CheckIcon size={12} />
-          ) : (
-            <CopyIcon size={12} />
-          )}
-        </button>
+            gap: "5px",
+            marginBottom: "6px",
+            ...anim("350ms", "fadeIn 0.3s ease-out forwards"),
+          }}>
+            <ShieldCheckIcon size={13} color={colors.primary} />
+            <span style={{
+              fontSize: "10px",
+              fontWeight: 600,
+              color: colors.primary,
+              letterSpacing: "1.5px",
+              fontFamily: "'JetBrains Mono', monospace",
+            }}>
+              VERIFIED
+            </span>
+          </div>
+
+          {/* Tip URL with copy */}
+          <button
+            onClick={handleCopyUrl}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "2px 0",
+              fontSize: "12px",
+              color: urlCopied ? colors.success : colors.muted,
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "Inter, sans-serif",
+              transition: transitions.fast,
+              borderRadius: "4px",
+            }}
+            onMouseEnter={(e) => {
+              if (!urlCopied) e.currentTarget.style.color = colors.text
+            }}
+            onMouseLeave={(e) => {
+              if (!urlCopied) e.currentTarget.style.color = colors.muted
+            }}
+          >
+            {tipUrl}
+            {urlCopied ? (
+              <CheckIcon size={12} />
+            ) : (
+              <CopyIcon size={12} />
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )

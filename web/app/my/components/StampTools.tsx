@@ -137,7 +137,10 @@ export default function StampTools({ handle, animStyle, prefersReducedMotion }: 
     : { animation: "fadeInUp 0.3s ease-out forwards", animationDelay: "200ms", animationFillMode: "both" as const }
 
   return (
-    <div style={{ marginBottom: "24px" }}>
+    <div style={{
+      borderTop: "1px solid rgba(255,255,255,0.06)",
+      paddingTop: "16px",
+    }}>
       <div style={{
         fontSize: "11px",
         color: colors.muted,
