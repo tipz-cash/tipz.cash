@@ -314,6 +314,9 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
       if (shieldedAddress) {
         url += `&creatorAddress=${encodeURIComponent(shieldedAddress)}`
       }
+      if (creatorHandle) {
+        url += `&creatorHandle=${encodeURIComponent(creatorHandle)}`
+      }
       const response = await fetch(url)
       if (!response.ok) {
         console.error("[useTipping] Status poll failed:", response.status)
@@ -462,6 +465,9 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         }
         if (creatorAddr) {
           url += `&creatorAddress=${encodeURIComponent(creatorAddr)}`
+        }
+        if (handle) {
+          url += `&creatorHandle=${encodeURIComponent(handle)}`
         }
         const response = await fetch(url)
         if (!response.ok) {
@@ -676,6 +682,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
                 fromAmount: quote.fromAmount,
                 walletAddress: walletAddress || "",
                 destinationAddress: shieldedAddress,
+                creatorHandle,
                 sourceTxHash: tx.txHash,
                 depositAddress: pollAddress,
                 sourcePlatform: "web",
@@ -695,6 +702,9 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
             if (execRes.ok) {
               const execData = await execRes.json()
               txId = execData.transactionId
+              if (!execData.tracked) {
+                setExecuteWarning("Tip sent but could not be tracked on the creator's dashboard. The ZEC will still arrive.")
+              }
             } else {
               console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
               setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
@@ -896,6 +906,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
               fromAmount: newQuote.fromAmount,
               walletAddress: walletAddress || "",
               destinationAddress: shieldedAddress,
+              creatorHandle,
               sourceTxHash: tx.txHash,
               depositAddress: pollAddress,
               sourcePlatform: "web",
@@ -915,6 +926,9 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
           if (execRes.ok) {
             const execData = await execRes.json()
             txId = execData.transactionId
+            if (!execData.tracked) {
+              setExecuteWarning("Tip sent but could not be tracked on the creator's dashboard. The ZEC will still arrive.")
+            }
           } else {
             console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
             setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")

@@ -10,6 +10,7 @@ import { TransactionStatus } from "./TransactionStatus"
 import { MessageTrench } from "./MessageTrench"
 import { ZecDirectSend } from "./ZecDirectSend"
 import { PaymentRow, LogoDisplay } from "./PaymentMethodPicker"
+import { TipHistory } from "./TipHistory"
 import { tokens, keyframes } from "./designTokens"
 import type { WalletType, SupportedToken } from "@/lib/wallet"
 import { isValidPublicKey } from "@/lib/message-encryption"
@@ -68,6 +69,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
     isRealSwap,
     failedTipNotification,
     pendingTipNotification,
+    executeWarning,
     expand,
     sendTip,
     reset,
@@ -77,6 +79,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
     setPrivateMessage,
     dismissFailedTipNotification,
     dismissPendingTipNotification,
+    dismissExecuteWarning,
   } = useTipping({
     creatorHandle,
     shieldedAddress,
@@ -107,16 +110,25 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
     }
   }, [walletState.isConnected, showTokenSelector, isSwitchingChain])
 
-  // Clear selected token if chain changes externally and token is no longer valid
+  // Auto-select equivalent token when chain changes externally
   useEffect(() => {
     if (walletState.chainId && selectedToken && selectedToken.chainId !== walletState.chainId) {
-      // Token is on a different chain after external switch - clear it so user picks again
       // (Skip for Solana since it uses a different chainId system)
       if (selectedToken.chainId !== 501 && walletState.chainId !== 501) {
-        setToken(null)
+        // Try to find the same token symbol on the new chain
+        const equivalent = availableTokens.find(
+          t => t.symbol === selectedToken.symbol && t.chainId === walletState.chainId
+        )
+        if (equivalent) {
+          setToken(equivalent)
+        } else {
+          // Fallback: native token on new chain (first match)
+          const fallback = availableTokens.find(t => t.chainId === walletState.chainId)
+          setToken(fallback || null)
+        }
       }
     }
-  }, [walletState.chainId, selectedToken, setToken])
+  }, [walletState.chainId, selectedToken, setToken, availableTokens])
 
   // Clear chain switch error when token selector opens/closes
   useEffect(() => {
@@ -355,6 +367,8 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
               isRealSwap={isRealSwap}
               usdAmount={selectedAmount || (customAmount ? parseFloat(customAmount) : null)}
               networkFee={quote?.fees?.network}
+              executeWarning={executeWarning}
+              onDismissExecuteWarning={dismissExecuteWarning}
             />
           </motion.div>
         )}
@@ -914,6 +928,9 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
             </div>
           </div>
         )}
+
+        {/* Tip history */}
+        <TipHistory />
 
         {/* Selected token indicator - clickable to change */}
         {walletState.isConnected && selectedToken && !showTokenSelector && (

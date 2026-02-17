@@ -6,7 +6,7 @@ import {
   getStatusMessage,
   type SwapStatus,
 } from "@/lib/near-intents"
-import { supabase } from "@/lib/supabase"
+import { supabase, findCreatorByHandle } from "@/lib/supabase"
 import {
   rateLimit,
   rateLimitHeaders,
@@ -111,13 +111,29 @@ export async function GET(request: NextRequest) {
 
       // Fallback: insert tip if execute missed it (no transactionId means DB insert never happened)
       const creatorAddress = request.nextUrl.searchParams.get("creatorAddress")
-      if (isSwapComplete(status.status) && isSwapSuccessful(status.status) && supabase && !transactionId && creatorAddress) {
+      const creatorHandle = request.nextUrl.searchParams.get("creatorHandle")
+      if (isSwapComplete(status.status) && isSwapSuccessful(status.status) && supabase && !transactionId && (creatorAddress || creatorHandle)) {
         try {
-          const { data: creator } = await supabase
-            .from("creators")
-            .select("id")
-            .eq("shielded_address", creatorAddress)
-            .single()
+          let creator: { id: string } | null = null
+
+          // Try shielded address lookup first
+          if (creatorAddress) {
+            const { data } = await supabase
+              .from("creators")
+              .select("id")
+              .eq("shielded_address", creatorAddress)
+              .single()
+            creator = data
+          }
+
+          // Fallback: look up by handle
+          if (!creator && creatorHandle) {
+            const { data: fallbackCreator } = await findCreatorByHandle(creatorHandle, { select: "id" })
+            creator = fallbackCreator
+            if (creator) {
+              console.log("[swap/status] Found creator via handle fallback:", creatorHandle)
+            }
+          }
 
           if (creator) {
             const { error: insertError } = await supabase
