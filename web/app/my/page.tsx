@@ -483,7 +483,7 @@ export default function MyTipzPage() {
             borderRight: "none",
             borderBottom: "1px solid rgba(0, 0, 0, 0.8)",
             borderRadius: "24px",
-            boxShadow: "0 0 40px rgba(255, 215, 0, 0.5), 0 0 80px rgba(255, 215, 0, 0.25), 0 0 120px rgba(255, 215, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+            boxShadow: "0 0 35px rgba(255, 215, 0, 0.4), 0 0 70px rgba(255, 215, 0, 0.18), 0 0 100px rgba(255, 215, 0, 0.07), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
             padding: "20px 24px",
             overflow: "hidden",
           }}
