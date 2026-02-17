@@ -49,79 +49,66 @@ const ERROR_MESSAGES: Record<string, string> = {
 // Skeleton loading component
 function DashboardSkeleton() {
   return (
-    <div className="my-dashboard-columns" style={{ opacity: 1 }}>
-      {/* Left column skeleton */}
-      <div className="my-left-panel">
-        {/* Avatar + identity row skeleton */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-          <div style={{
-            width: "64px",
-            height: "64px",
-            borderRadius: "50%",
-            background: colors.border,
-            animation: "shimmer 1.5s ease-in-out infinite",
-            flexShrink: 0,
-          }} />
-          <div>
-            <div style={{
-              width: "120px",
-              height: "18px",
-              borderRadius: "4px",
+    <div style={{ display: "flex", flexDirection: "column", opacity: 1 }}>
+      {/* Profile skeleton — centered */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+        <div style={{
+          width: "64px",
+          height: "64px",
+          borderRadius: "50%",
+          background: colors.border,
+          animation: "shimmer 1.5s ease-in-out infinite",
+        }} />
+        <div style={{
+          width: "120px",
+          height: "18px",
+          borderRadius: "4px",
+          background: colors.border,
+          animation: "shimmer 1.5s ease-in-out infinite",
+        }} />
+        <div style={{
+          width: "80px",
+          height: "12px",
+          borderRadius: "4px",
+          background: colors.border,
+          animation: "shimmer 1.5s ease-in-out infinite",
+        }} />
+      </div>
+
+      {/* Hero stat skeleton — centered */}
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "20px", marginBottom: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{
+          width: "200px",
+          height: "40px",
+          borderRadius: "4px",
+          background: colors.border,
+          animation: "shimmer 1.5s ease-in-out infinite",
+          marginBottom: "8px",
+        }} />
+        <div style={{
+          width: "100px",
+          height: "12px",
+          borderRadius: "4px",
+          background: colors.border,
+          animation: "shimmer 1.5s ease-in-out infinite",
+          marginBottom: "16px",
+        }} />
+        {/* 3 stat cards skeleton */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", width: "100%" }}>
+          {[1, 2, 3].map((i) => (
+            <div key={i} style={{
+              height: "64px",
+              borderRadius: "10px",
               background: colors.border,
               animation: "shimmer 1.5s ease-in-out infinite",
-              marginBottom: "8px",
+              animationDelay: `${i * 0.1}s`,
             }} />
-            <div style={{
-              width: "80px",
-              height: "12px",
-              borderRadius: "4px",
-              background: colors.border,
-              animation: "shimmer 1.5s ease-in-out infinite",
-            }} />
-          </div>
-        </div>
-
-        {/* Earnings skeleton */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px", marginBottom: "16px" }}>
-          <div style={{
-            width: "200px",
-            height: "40px",
-            borderRadius: "4px",
-            background: colors.border,
-            animation: "shimmer 1.5s ease-in-out infinite",
-            marginBottom: "8px",
-          }} />
-          <div style={{
-            width: "100px",
-            height: "12px",
-            borderRadius: "4px",
-            background: colors.border,
-            animation: "shimmer 1.5s ease-in-out infinite",
-          }} />
-        </div>
-
-        {/* Stamp tiles skeleton */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px" }}>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "8px",
-          }}>
-            {[1, 2, 3].map((i) => (
-              <div key={i} style={{
-                height: "72px",
-                borderRadius: "10px",
-                background: colors.border,
-                animation: "shimmer 1.5s ease-in-out infinite",
-                animationDelay: `${i * 0.1}s`,
-              }} />
-            ))}
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Right column skeleton */}
-      <div className="my-right-panel">
+      {/* Activity skeleton */}
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px", marginBottom: "20px" }}>
         <div style={{
           width: "60px",
           height: "12px",
@@ -130,7 +117,7 @@ function DashboardSkeleton() {
           animation: "shimmer 1.5s ease-in-out infinite",
           marginBottom: "12px",
         }} />
-        <div style={{ border: `1px solid ${colors.border}`, borderRadius: "12px", overflow: "hidden", flex: 1 }}>
+        <div style={{ border: `1px solid ${colors.border}`, borderRadius: "12px", overflow: "hidden" }}>
           {[1, 2, 3].map((i) => (
             <div key={i} style={{
               padding: "16px 20px",
@@ -165,6 +152,25 @@ function DashboardSkeleton() {
                 }} />
               </div>
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Stamp tiles skeleton */}
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px" }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "8px",
+        }}>
+          {[1, 2, 3].map((i) => (
+            <div key={i} style={{
+              height: "72px",
+              borderRadius: "10px",
+              background: colors.border,
+              animation: "shimmer 1.5s ease-in-out infinite",
+              animationDelay: `${i * 0.1}s`,
+            }} />
           ))}
         </div>
       </div>
@@ -434,7 +440,7 @@ export default function MyTipzPage() {
           className="my-dashboard-card"
           style={{
             width: "100%",
-            maxWidth: "900px",
+            maxWidth: "960px",
             position: "relative",
             background: colors.pageBg,
             border: `1px solid ${colors.cardBorder}`,
@@ -499,39 +505,37 @@ export default function MyTipzPage() {
 
           {/* Authenticated — Command Center */}
           {!loading && authenticated && !keySetup && (
-            <div className="my-dashboard-columns">
-              <div className="my-left-panel">
-                <ProfileHeader
-                  handle={handle}
-                  avatarUrl={avatarUrl}
-                  connectionStatus={connectionStatus}
-                  loggingOut={loggingOut}
-                  onLogout={handleLogout}
-                  prefersReducedMotion={prefersReducedMotion}
-                />
+            <div style={{ display: "flex", flexDirection: "column", gap: "0px" }}>
+              <ProfileHeader
+                handle={handle}
+                avatarUrl={avatarUrl}
+                connectionStatus={connectionStatus}
+                loggingOut={loggingOut}
+                onLogout={handleLogout}
+                prefersReducedMotion={prefersReducedMotion}
+              />
 
-                <HeroStat
-                  totalZec={totalZec}
-                  totalUsd={totalUsd}
-                  tipCount={tipCount}
-                  prefersReducedMotion={prefersReducedMotion}
-                />
+              <HeroStat
+                totalZec={totalZec}
+                totalUsd={totalUsd}
+                tipCount={tipCount}
+                zecPrice={zecPrice}
+                prefersReducedMotion={prefersReducedMotion}
+              />
 
-                <StampTools
-                  handle={handle}
-                  animStyle={animStyle}
-                  prefersReducedMotion={prefersReducedMotion}
-                />
-              </div>
-              <div className="my-right-panel">
-                <ActivityFeed
-                  tips={tips}
-                  handle={handle}
-                  zecPrice={zecPrice}
-                  animStyle={animStyle}
-                  prefersReducedMotion={prefersReducedMotion}
-                />
-              </div>
+              <ActivityFeed
+                tips={tips}
+                handle={handle}
+                zecPrice={zecPrice}
+                animStyle={animStyle}
+                prefersReducedMotion={prefersReducedMotion}
+              />
+
+              <StampTools
+                handle={handle}
+                animStyle={animStyle}
+                prefersReducedMotion={prefersReducedMotion}
+              />
             </div>
           )}
         </div>
@@ -560,38 +564,6 @@ export default function MyTipzPage() {
           to {
             opacity: 0;
             transform: translateX(100%);
-          }
-        }
-        .my-dashboard-columns {
-          display: flex;
-          flex-direction: row;
-          gap: 20px;
-          align-items: stretch;
-        }
-        .my-left-panel {
-          width: 300px;
-          flex-shrink: 0;
-          border-right: 1px solid rgba(255,255,255,0.06);
-          padding-right: 20px;
-          display: flex;
-          flex-direction: column;
-        }
-        .my-right-panel {
-          flex: 1;
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-        }
-        @media (max-width: 768px) {
-          .my-dashboard-columns {
-            flex-direction: column;
-          }
-          .my-left-panel {
-            width: 100%;
-            border-right: none;
-            padding-right: 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            padding-bottom: 20px;
           }
         }
         .my-dashboard-card::after {

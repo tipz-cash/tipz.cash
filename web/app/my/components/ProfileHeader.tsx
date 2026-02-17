@@ -145,12 +145,12 @@ export default function ProfileHeader({
         </button>
       </div>
 
-      {/* Avatar + Identity */}
+      {/* Avatar + Identity — centered */}
       <div style={{
         display: "flex",
-        flexDirection: "row",
+        flexDirection: "column",
         alignItems: "center",
-        gap: "12px",
+        gap: "8px",
       }}>
         {/* Avatar with gold ring */}
         <div style={{
@@ -207,28 +207,28 @@ export default function ProfileHeader({
           )}
         </div>
 
-        {/* Identity column */}
-        <div style={{ minWidth: 0 }}>
-          {/* Handle */}
+        {/* Handle + verified badge */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          ...anim("250ms", "fadeInUp 0.3s ease-out forwards"),
+        }}>
           <h1 style={{
-            margin: "0 0 4px",
+            margin: 0,
             fontSize: "18px",
             fontWeight: 700,
             letterSpacing: "-0.02em",
             lineHeight: 1.15,
             color: colors.textBright,
             fontFamily: "'JetBrains Mono', monospace",
-            ...anim("250ms", "fadeInUp 0.3s ease-out forwards"),
           }}>
             @{handle}
           </h1>
-
-          {/* Verified badge */}
           <div style={{
-            display: "flex",
+            display: "inline-flex",
             alignItems: "center",
-            gap: "5px",
-            marginBottom: "6px",
+            gap: "4px",
             ...anim("350ms", "fadeIn 0.3s ease-out forwards"),
           }}>
             <ShieldCheckIcon size={13} color={colors.primary} />
@@ -242,39 +242,39 @@ export default function ProfileHeader({
               VERIFIED
             </span>
           </div>
-
-          {/* Tip URL with copy */}
-          <button
-            onClick={handleCopyUrl}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "2px 0",
-              fontSize: "12px",
-              color: urlCopied ? colors.success : colors.muted,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              fontFamily: "Inter, sans-serif",
-              transition: transitions.fast,
-              borderRadius: "4px",
-            }}
-            onMouseEnter={(e) => {
-              if (!urlCopied) e.currentTarget.style.color = colors.text
-            }}
-            onMouseLeave={(e) => {
-              if (!urlCopied) e.currentTarget.style.color = colors.muted
-            }}
-          >
-            {tipUrl}
-            {urlCopied ? (
-              <CheckIcon size={12} />
-            ) : (
-              <CopyIcon size={12} />
-            )}
-          </button>
         </div>
+
+        {/* Tip URL with copy */}
+        <button
+          onClick={handleCopyUrl}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "2px 0",
+            fontSize: "12px",
+            color: urlCopied ? colors.success : colors.muted,
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            fontFamily: "Inter, sans-serif",
+            transition: transitions.fast,
+            borderRadius: "4px",
+          }}
+          onMouseEnter={(e) => {
+            if (!urlCopied) e.currentTarget.style.color = colors.text
+          }}
+          onMouseLeave={(e) => {
+            if (!urlCopied) e.currentTarget.style.color = colors.muted
+          }}
+        >
+          {tipUrl}
+          {urlCopied ? (
+            <CheckIcon size={12} />
+          ) : (
+            <CopyIcon size={12} />
+          )}
+        </button>
       </div>
     </div>
   )

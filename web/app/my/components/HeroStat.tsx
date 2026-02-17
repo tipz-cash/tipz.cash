@@ -7,6 +7,7 @@ interface HeroStatProps {
   totalZec: number
   totalUsd: number
   tipCount: number
+  zecPrice: number
   prefersReducedMotion: boolean
 }
 
@@ -53,93 +54,70 @@ function AnimatedCounter({ value, decimals, prefersReducedMotion }: { value: num
   return <>{display.toFixed(decimals)}</>
 }
 
-export default function HeroStat({ totalZec, totalUsd, tipCount, prefersReducedMotion }: HeroStatProps) {
+export default function HeroStat({ totalZec, totalUsd, tipCount, zecPrice, prefersReducedMotion }: HeroStatProps) {
   const anim = (delay: string, animation: string) =>
     prefersReducedMotion ? { opacity: 1 } : { animation, animationDelay: delay, animationFillMode: "both" as const }
+
+  const statCardStyle: React.CSSProperties = {
+    border: `1px solid ${colors.border}`,
+    borderRadius: "10px",
+    padding: "12px 16px",
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "4px",
+  }
 
   return (
     <div style={{
       borderTop: "1px solid rgba(255,255,255,0.06)",
-      padding: "16px 0 0",
+      padding: "20px 0 0",
       ...anim("150ms", "fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards"),
     }}>
-      {/* Section label */}
-      <div style={{
-        fontSize: "11px",
-        color: colors.muted,
-        letterSpacing: "1px",
-        marginBottom: "8px",
-        fontFamily: "'JetBrains Mono', monospace",
-      }}>
-        EARNINGS
-      </div>
-
-      {/* Hero ZEC counter */}
-      <div style={{
-        fontSize: "clamp(32px, 4vw, 40px)",
-        fontWeight: 700,
-        color: colors.primary,
-        fontFamily: "'JetBrains Mono', monospace",
-        textShadow: `0 0 40px rgba(245, 166, 35, 0.25)`,
-        lineHeight: 1.1,
-      }}>
-        <AnimatedCounter value={totalZec} decimals={4} prefersReducedMotion={prefersReducedMotion} />
-        <span style={{
-          fontSize: "clamp(14px, 2vw, 18px)",
-          fontWeight: 400,
-          color: colors.muted,
-          marginLeft: "8px",
+      {/* Hero ZEC counter — centered */}
+      <div style={{ textAlign: "center" }}>
+        <div style={{
+          fontSize: "clamp(32px, 4vw, 40px)",
+          fontWeight: 700,
+          color: colors.primary,
+          fontFamily: "'JetBrains Mono', monospace",
+          textShadow: `0 0 40px rgba(245, 166, 35, 0.25)`,
+          lineHeight: 1.1,
         }}>
-          ZEC
-        </span>
+          <AnimatedCounter value={totalZec} decimals={4} prefersReducedMotion={prefersReducedMotion} />
+          <span style={{
+            fontSize: "clamp(14px, 2vw, 18px)",
+            fontWeight: 400,
+            color: colors.muted,
+            marginLeft: "8px",
+          }}>
+            ZEC
+          </span>
+        </div>
+
+        {/* Label */}
+        <div style={{
+          fontSize: "10px",
+          color: colors.muted,
+          letterSpacing: "2px",
+          marginTop: "6px",
+          fontFamily: "'JetBrains Mono', monospace",
+        }}>
+          TOTAL EARNED
+        </div>
       </div>
 
-      {/* Label */}
+      {/* 3 stat cards */}
       <div style={{
-        fontSize: "10px",
-        color: colors.muted,
-        letterSpacing: "2px",
-        marginTop: "4px",
-        fontFamily: "'JetBrains Mono', monospace",
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: "12px",
+        marginTop: "20px",
       }}>
-        TOTAL EARNED
-      </div>
-
-      {/* Divider with dot */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "0",
-        margin: "16px 0",
-      }}>
-        <div style={{
-          flex: 1,
-          height: "1px",
-          background: colors.border,
-        }} />
-        <div style={{
-          width: "6px",
-          height: "6px",
-          borderRadius: "50%",
-          background: colors.primary,
-          margin: "0 12px",
-          flexShrink: 0,
-        }} />
-        <div style={{
-          flex: 1,
-          height: "1px",
-          background: colors.border,
-        }} />
-      </div>
-
-      {/* Supporting stats row */}
-      <div style={{
-        display: "flex",
-        gap: "24px",
-      }}>
-        <div>
+        <div style={statCardStyle}>
           <div style={{
-            fontSize: "16px",
+            fontSize: "18px",
             fontWeight: 600,
             color: colors.textBright,
             fontFamily: "'JetBrains Mono', monospace",
@@ -155,9 +133,10 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, prefersReducedM
             {tipCount === 1 ? "TIP" : "TIPS"} RECEIVED
           </div>
         </div>
-        <div>
+
+        <div style={statCardStyle}>
           <div style={{
-            fontSize: "16px",
+            fontSize: "18px",
             fontWeight: 600,
             color: colors.success,
             fontFamily: "'JetBrains Mono', monospace",
@@ -171,6 +150,25 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, prefersReducedM
             fontFamily: "'JetBrains Mono', monospace",
           }}>
             USD VALUE
+          </div>
+        </div>
+
+        <div style={statCardStyle}>
+          <div style={{
+            fontSize: "18px",
+            fontWeight: 600,
+            color: colors.textBright,
+            fontFamily: "'JetBrains Mono', monospace",
+          }}>
+            ${zecPrice > 0 ? zecPrice.toFixed(0) : "—"}
+          </div>
+          <div style={{
+            fontSize: "10px",
+            color: colors.muted,
+            letterSpacing: "1px",
+            fontFamily: "'JetBrains Mono', monospace",
+          }}>
+            ZEC PRICE
           </div>
         </div>
       </div>

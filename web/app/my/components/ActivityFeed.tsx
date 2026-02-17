@@ -37,7 +37,8 @@ export default function ActivityFeed({
 
   return (
     <div style={{
-      flex: 1,
+      borderTop: "1px solid rgba(255,255,255,0.06)",
+      paddingTop: "16px",
       display: "flex",
       flexDirection: "column",
       minHeight: 0,
@@ -75,7 +76,7 @@ export default function ActivityFeed({
           borderRadius: "12px",
           overflow: "hidden",
           overflowY: "auto",
-          maxHeight: "420px",
+          maxHeight: "360px",
         }}>
           {/* Vertical timeline line */}
           <div style={{
