@@ -58,11 +58,10 @@ const TOKEN_SYMBOLS: Record<string, string> = {
   "0x0000000000000000000000000000000000000000": "ETH", // Native token
   "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": "USDC", // Ethereum USDC
   "0xdAC17F958D2ee523a2206206994597C13D831ec7": "USDT", // Ethereum USDT
-  "0x6B175474E89094C44Da98b954EesP6F9eb3a26f": "DAI", // Ethereum DAI
   "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174": "USDC", // Polygon USDC
   "0xc2132D05D31c914a87C6611C10748AEb04B58e8F": "USDT", // Polygon USDT
-  "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8": "USDC", // Arbitrum USDC
-  "0x7F5c764cBc14f9669B88837ca1490cCa17c31607": "USDC", // Optimism USDC
+  "0xaf88d065e77c8cc2239327c5edb3a432268e5831": "USDC", // Arbitrum USDC
+  "0x0b2c639c533813f4aa9d7837caf62653d097ff85": "USDC", // Optimism USDC
 }
 
 // Chain ID to native token symbol
@@ -80,7 +79,6 @@ const TOKEN_DECIMALS: Record<string, number> = {
   MATIC: 18,
   USDC: 6,
   USDT: 6,
-  DAI: 18,
   SOL: 9,
 }
 
