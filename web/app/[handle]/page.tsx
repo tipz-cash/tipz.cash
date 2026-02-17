@@ -409,6 +409,8 @@ const responsiveStyles = `
     display: flex;
     align-items: center;
     gap: 4px;
+    padding: 12px 0;
+    min-height: 44px;
     font-family: 'Inter', sans-serif;
   }
 
@@ -518,7 +520,10 @@ export default function CreatorCardPage() {
         const data = await response.json()
 
         if (data.found && data.creator) {
-          setCreator(data.creator)
+          setCreator({
+            ...data.creator,
+            publicKey: data.creator.public_key,
+          })
           setState("found")
         } else {
           setState("not_found")
