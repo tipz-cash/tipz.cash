@@ -78,15 +78,13 @@ export function AmountSelector({
 
   return (
     <div style={{ width: "100%" }}>
-      {/* Single Row: Preset Chips + Custom Input */}
+      {/* Preset Amount Row */}
       <div
         style={{
           display: "flex",
           gap: tokens.space.sm,
-          flexWrap: "wrap",
         }}
       >
-        {/* Amount Pills - glass style with white selected */}
         {PRESET_AMOUNTS.map((amount) => {
           const isSelected = selectedAmount === amount && !isCustom
           const isHovered = hoveredAmount === amount
@@ -99,7 +97,8 @@ export function AmountSelector({
               onMouseLeave={() => setHoveredAmount(null)}
               disabled={disabled}
               style={{
-                padding: "14px 18px",
+                flex: 1,
+                padding: "14px 0",
                 minHeight: "48px",
                 background: isSelected
                   ? "#FFFFFF"
@@ -125,124 +124,122 @@ export function AmountSelector({
             </button>
           )
         })}
+      </div>
 
-        {/* Custom Amount Input - glass pill style */}
-        <div
-          onClick={handleCustomClick}
+      {/* Custom Amount Input - full width below presets */}
+      <div
+        onClick={handleCustomClick}
+        style={{
+          width: "100%",
+          minHeight: "48px",
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          padding: "14px 14px",
+          marginTop: tokens.space.sm,
+          background: isCustom && inputValue
+            ? "#FFFFFF"
+            : isFocused
+            ? "rgba(255, 255, 255, 0.08)"
+            : "rgba(255, 255, 255, 0.05)",
+          border: isCustom && inputValue
+            ? "1px solid transparent"
+            : `1px solid ${isFocused ? tokens.colors.gold : "rgba(255, 255, 255, 0.1)"}`,
+          borderRadius: tokens.radius.md,
+          cursor: disabled ? "not-allowed" : "text",
+          opacity: disabled ? 0.5 : 1,
+          boxShadow: isCustom && inputValue ? "0 0 24px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)" : "none",
+          transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
+          boxSizing: "border-box",
+        }}
+      >
+        <span
           style={{
-            flex: "1 1 80px",
-            minWidth: "80px",
-            minHeight: "48px",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            padding: "14px 14px",
-            background: isCustom && inputValue
-              ? "#FFFFFF"
-              : isFocused
-              ? "rgba(255, 255, 255, 0.08)"
-              : "rgba(255, 255, 255, 0.05)",
-            border: isCustom && inputValue
-              ? "1px solid transparent"
-              : `1px solid ${isFocused ? tokens.colors.gold : "rgba(255, 255, 255, 0.1)"}`,
-            borderRadius: tokens.radius.md,
-            cursor: disabled ? "not-allowed" : "text",
-            opacity: disabled ? 0.5 : 1,
-            boxShadow: isCustom && inputValue ? "0 0 24px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)" : "none",
-            transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
+            color: isCustom && inputValue ? "#050505" : tokens.colors.textMuted,
+            fontSize: "14px",
+            fontWeight: 500,
+            fontFamily: "var(--font-family-mono)",
           }}
         >
-          {/* Dollar sign */}
-          <span
-            style={{
-              color: isCustom && inputValue ? "#050505" : tokens.colors.textMuted,
-              fontSize: "14px",
-              fontWeight: 500,
-              fontFamily: "var(--font-family-mono)",
-            }}
-          >
-            $
-          </span>
+          $
+        </span>
 
-          {/* Input */}
-          <input
-            type="text"
-            inputMode="decimal"
-            value={inputValue}
-            onChange={(e) => handleInputChange(e.target.value)}
-            onFocus={() => {
-              setIsCustom(true)
-              setIsFocused(true)
+        <input
+          type="text"
+          inputMode="decimal"
+          value={inputValue}
+          onChange={(e) => handleInputChange(e.target.value)}
+          onFocus={() => {
+            setIsCustom(true)
+            setIsFocused(true)
+          }}
+          onBlur={() => setIsFocused(false)}
+          placeholder="Other"
+          disabled={disabled}
+          style={{
+            flex: 1,
+            width: "100%",
+            minWidth: 0,
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            color: isCustom && inputValue ? "#050505" : tokens.colors.textBright,
+            fontSize: "14px",
+            fontFamily: "var(--font-family-mono)",
+            fontWeight: 600,
+          }}
+        />
+
+        {inputValue && isCustom && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setInputValue("")
+              onSelect(null, "")
             }}
-            onBlur={() => setIsFocused(false)}
-            placeholder="Other"
-            disabled={disabled}
             style={{
-              flex: 1,
-              width: "100%",
-              minWidth: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "44px",
+              height: "44px",
+              minWidth: "44px",
+              minHeight: "44px",
+              marginRight: "-10px",
+              marginTop: "-10px",
+              marginBottom: "-10px",
               background: "transparent",
               border: "none",
-              outline: "none",
-              color: isCustom && inputValue ? "#050505" : tokens.colors.textBright,
-              fontSize: "14px",
-              fontFamily: "var(--font-family-mono)",
-              fontWeight: 600,
+              borderRadius: "50%",
+              cursor: "pointer",
+              flexShrink: 0,
             }}
-          />
-
-          {/* Clear button when has value - 44px touch target for accessibility */}
-          {inputValue && isCustom && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                setInputValue("")
-                onSelect(null, "")
-              }}
+          >
+            <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "44px",
-                height: "44px",
-                minWidth: "44px",
-                minHeight: "44px",
-                marginRight: "-10px",
-                marginTop: "-10px",
-                marginBottom: "-10px",
-                background: "transparent",
-                border: "none",
+                width: "20px",
+                height: "20px",
+                background: "rgba(0, 0, 0, 0.15)",
                 borderRadius: "50%",
-                cursor: "pointer",
-                flexShrink: 0,
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "20px",
-                  height: "20px",
-                  background: "rgba(0, 0, 0, 0.15)",
-                  borderRadius: "50%",
-                }}
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#050505"
+                strokeWidth="2.5"
               >
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#050505"
-                  strokeWidth="2.5"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </div>
-            </button>
-          )}
-        </div>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </div>
+          </button>
+        )}
       </div>
 
       {/* Minimum amount warning */}
