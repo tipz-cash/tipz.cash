@@ -146,8 +146,8 @@ export const tokens = {
 
   // Typography
   font: {
-    mono: "'JetBrains Mono', 'SF Mono', Consolas, monospace",
-    sans: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    mono: "var(--font-family-mono)",
+    sans: "var(--font-family)",
   },
 
   // Z-index layers
@@ -358,6 +358,15 @@ export const keyframes = `
     10% { opacity: 1; transform: translateY(0); }
     90% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-8px); }
+  }
+
+  @keyframes shieldBreathe {
+    0%, 100% {
+      box-shadow: 0 0 0 1px rgba(0, 255, 148, 0.15), 0 0 20px rgba(0, 255, 148, 0.08);
+    }
+    50% {
+      box-shadow: 0 0 0 1px rgba(0, 255, 148, 0.25), 0 0 30px rgba(0, 255, 148, 0.12);
+    }
   }
 `
 
