@@ -279,7 +279,7 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
           textDecoration: "none",
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           position: "relative",
-          minWidth: "140px",
+          minWidth: "96px",
           flex: 1,
           maxWidth: "180px",
           // Staggered entrance animation

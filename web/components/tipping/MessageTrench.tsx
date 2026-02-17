@@ -47,6 +47,7 @@ export function MessageTrench({
           gap: "8px",
           width: "100%",
           padding: "10px 0",
+          minHeight: "44px",
           background: "transparent",
           border: "none",
           cursor: "pointer",

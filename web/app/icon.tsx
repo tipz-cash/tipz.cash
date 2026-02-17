@@ -24,11 +24,13 @@ export default function Icon() {
       >
         <span style={{
           color: "#F5A623",
-          fontSize: 32,
+          fontSize: 28,
           fontWeight: 900,
           fontFamily: "monospace",
           lineHeight: 1,
+          letterSpacing: "-0.02em",
           textShadow: "0 0 6px rgba(245, 166, 35, 0.7), 0 0 12px rgba(245, 166, 35, 0.3)",
+          WebkitTextStroke: "1.5px #F5A623",
         }}>Z</span>
       </div>
     ),

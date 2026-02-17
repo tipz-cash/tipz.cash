@@ -419,90 +419,79 @@ export function TransactionStatus({
 
         {/* Progress Steps */}
         <div style={{ marginBottom: tokens.space.lg }}>
-          <div style={{ display: "flex", justifyContent: "center", gap: tokens.space.md, marginBottom: tokens.space.sm }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: tokens.space.sm, marginBottom: tokens.space.sm }}>
             {/* Step 1: Deposit - Complete */}
-            <div style={{ display: "flex", alignItems: "center", gap: tokens.space.sm }}>
-              <div
-                style={{
-                  width: "24px",
-                  height: "24px",
-                  borderRadius: "50%",
-                  background: tokens.colors.success,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </div>
-              <div
-                style={{
-                  width: "40px",
-                  height: "2px",
-                  background: tokens.colors.success,
-                }}
-              />
+            <div
+              style={{
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%",
+                background: tokens.colors.success,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
             </div>
+
+            {/* Line 1→2 */}
+            <div style={{ width: "40px", height: "2px", background: tokens.colors.success, flexShrink: 0 }} />
 
             {/* Step 2: Delivering - Active */}
-            <div style={{ display: "flex", alignItems: "center", gap: tokens.space.sm }}>
+            <div
+              style={{
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%",
+                background: tokens.colors.gold,
+                border: `2px solid ${tokens.colors.gold}`,
+                boxShadow: `0 0 12px ${tokens.colors.goldMuted}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                animation: "breathingGlow 1.5s ease-in-out infinite",
+                flexShrink: 0,
+              }}
+            >
               <div
                 style={{
-                  width: "24px",
-                  height: "24px",
+                  width: "8px",
+                  height: "8px",
                   borderRadius: "50%",
-                  background: tokens.colors.gold,
-                  border: `2px solid ${tokens.colors.gold}`,
-                  boxShadow: `0 0 12px ${tokens.colors.goldMuted}`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  animation: "breathingGlow 1.5s ease-in-out infinite",
-                }}
-              >
-                <div
-                  style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    background: tokens.colors.bg,
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  width: "40px",
-                  height: "2px",
-                  background: "rgba(255, 255, 255, 0.1)",
+                  background: tokens.colors.bg,
                 }}
               />
             </div>
 
+            {/* Line 2→3 */}
+            <div style={{ width: "40px", height: "2px", background: "rgba(255, 255, 255, 0.1)", flexShrink: 0 }} />
+
             {/* Step 3: Confirmed - Pending */}
-            <div>
-              <div
-                style={{
-                  width: "24px",
-                  height: "24px",
-                  borderRadius: "50%",
-                  background: "rgba(255, 255, 255, 0.1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontWeight: 700 }}>3</span>
-              </div>
+            <div
+              style={{
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%",
+                background: "rgba(255, 255, 255, 0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontWeight: 700 }}>3</span>
             </div>
           </div>
 
-          {/* Status Labels */}
-          <div style={{ display: "flex", justifyContent: "center", gap: "50px" }}>
-            <span style={{ color: tokens.colors.success, fontSize: "10px", fontFamily: tokens.font.mono }}>SENT</span>
-            <span style={{ color: tokens.colors.gold, fontSize: "10px", fontFamily: tokens.font.mono }}>DELIVERING</span>
-            <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>CONFIRMED</span>
+          {/* Status Labels — equal-width columns centered under circles */}
+          <div style={{ display: "flex", justifyContent: "center", width: `${24 + 8 + 40 + 8 + 24 + 8 + 40 + 8 + 24}px`, margin: "0 auto" }}>
+            <span style={{ width: `${24 + 4 + 20}px`, textAlign: "center", color: tokens.colors.success, fontSize: "10px", fontFamily: tokens.font.mono }}>SENT</span>
+            <span style={{ flex: 1, textAlign: "center", color: tokens.colors.gold, fontSize: "10px", fontFamily: tokens.font.mono }}>DELIVERING</span>
+            <span style={{ width: `${20 + 4 + 24}px`, textAlign: "center", color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>CONFIRMED</span>
           </div>
         </div>
 
@@ -843,6 +832,7 @@ export function TransactionStatus({
               borderRadius: tokens.radius.sm,
               padding: `${tokens.space.sm}px ${tokens.space.md}px`,
               width: "260px",
+              maxWidth: "calc(100vw - 48px)",
               opacity: 0,
               pointerEvents: "none",
               transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
