@@ -17,7 +17,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "TIPZ - Private Tips. Any Asset. Zero Trace.",
+  title: "TIPZ",
   description: "Private micro-tipping for creators using Zcash shielded addresses. Tip anyone on X with any token.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://tipz.cash"),

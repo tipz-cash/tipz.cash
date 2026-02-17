@@ -24,10 +24,11 @@ export default function AppleIcon() {
       >
         <span style={{
           color: "#F5A623",
-          fontSize: 120,
-          fontWeight: 700,
+          fontSize: 150,
+          fontWeight: 900,
           fontFamily: "monospace",
-          textShadow: "0 0 16px rgba(245, 166, 35, 0.4)",
+          lineHeight: 1,
+          textShadow: "0 0 20px rgba(245, 166, 35, 0.7), 0 0 40px rgba(245, 166, 35, 0.3)",
         }}>Z</span>
       </div>
     ),
