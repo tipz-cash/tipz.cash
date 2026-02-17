@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase, findCreatorByHandle } from "@/lib/supabase"
+import { getSessionFromRequest } from "@/lib/session"
 
 /**
  * GET /api/tips/received?handle=<handle>&limit=<limit>
  *
  * Returns recent tips received by a creator.
+ * Requires authentication — only returns tips for the logged-in user's handle.
  * The `data` field on each tip is encrypted and must be decrypted client-side.
  */
 export async function GET(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) {
+    return NextResponse.json({ tips: [], total_count: 0 })
+  }
+
   const { searchParams } = new URL(request.url)
   const handle = searchParams.get("handle")
   const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100)
@@ -17,6 +24,11 @@ export async function GET(request: NextRequest) {
       { error: "Missing handle parameter" },
       { status: 400 }
     )
+  }
+
+  // Only allow fetching tips for the authenticated user's own handle
+  if (handle.toLowerCase().replace(/^@/, "") !== session.handle.toLowerCase().replace(/^@/, "")) {
+    return NextResponse.json({ tips: [], total_count: 0 })
   }
 
   if (!supabase) {

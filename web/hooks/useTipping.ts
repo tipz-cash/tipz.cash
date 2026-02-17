@@ -139,6 +139,9 @@ interface UseTippingReturn {
 const PRESET_AMOUNTS = [1, 5, 10, 25]
 const STATUS_POLL_INTERVAL = 5000 // 5 seconds
 
+const FALLBACK_PRICES: Record<string, number> = { ETH: 3200, SOL: 200, MATIC: 0.85 }
+const COINGECKO_IDS: Record<string, string> = { ETH: "ethereum", SOL: "solana", MATIC: "matic-network" }
+
 /**
  * Retry wrapper for fetch calls. Retries on network errors and 5xx responses.
  * Safe for idempotent endpoints like /api/swap/execute (unique deposit address).
@@ -155,6 +158,43 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 2): P
     }
   }
   throw new Error("Max retries exceeded")
+}
+
+/**
+ * Convert a USD amount to a token amount. Stablecoins are 1:1,
+ * native tokens use CoinGecko with hardcoded fallback prices.
+ */
+async function calculateTokenAmount(token: SupportedToken, usdAmount: number): Promise<string> {
+  if (token.symbol === "USDC" || token.symbol === "USDT" || token.symbol === "DAI") {
+    return usdAmount.toString()
+  }
+  let price: number
+  try {
+    const coinId = COINGECKO_IDS[token.symbol] || "ethereum"
+    const response = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`
+    )
+    if (!response.ok) throw new Error("CoinGecko API error")
+    const data = await response.json()
+    price = data[coinId]?.usd || 3000
+  } catch {
+    price = FALLBACK_PRICES[token.symbol] || 100
+    console.warn("[useTipping] Using fallback price for", token.symbol)
+  }
+  return (usdAmount / price).toFixed(8)
+}
+
+/**
+ * Classify a wallet error into a user-friendly message.
+ */
+function classifyTxError(err: any): string {
+  if (err.message?.includes("rejected") || err.message?.includes("cancelled")) {
+    return "You cancelled the transaction"
+  }
+  if (err.message?.includes("insufficient")) {
+    return "Insufficient balance"
+  }
+  return err.message || "Transaction failed"
 }
 
 export function useTipping(options: UseTippingOptions): UseTippingReturn {
@@ -566,6 +606,27 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     setPrivateMessageState(message)
   }, [])
 
+  /**
+   * Fetch a quote and apply it to state. Returns the quote for callers that
+   * need it immediately (sendTip). Sets flowState to "confirming" on success.
+   */
+  const fetchAndApplyQuote = useCallback(async (token: SupportedToken, usdAmount: number): Promise<SwapQuote> => {
+    const tokenAmount = await calculateTokenAmount(token, usdAmount)
+    const newQuote = await getSwapQuote(token, tokenAmount, shieldedAddress, walletAddress || undefined)
+    setQuote(newQuote)
+    setQuoteExpiresAt(newQuote.expiresAt)
+
+    const quoteData = newQuote as any
+    if (quoteData.depositAddress) {
+      setDepositAddress(quoteData.depositAddress)
+      setIsRealSwap(true)
+    } else {
+      setIsRealSwap(false)
+    }
+
+    return newQuote
+  }, [shieldedAddress, walletAddress])
+
   const getQuote = useCallback(async () => {
     if (!selectedToken) {
       setError("Please select a token")
@@ -582,51 +643,133 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     setError(null)
 
     try {
-      // Calculate token amount from USD
-      // For simplicity, assume stablecoins are 1:1 USD
-      // For ETH/MATIC, we'd need to fetch price
-      let tokenAmount: string
-      if (selectedToken.symbol === "USDC" || selectedToken.symbol === "USDT" || selectedToken.symbol === "DAI") {
-        tokenAmount = amount.toString()
-      } else {
-        // Fetch price for native token with fallback
-        let price: number
-        try {
-          const coinId = selectedToken.symbol === "ETH" ? "ethereum" : selectedToken.symbol === "SOL" ? "solana" : "matic-network"
-          const response = await fetch(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`
-          )
-          if (!response.ok) throw new Error("CoinGecko API error")
-          const data = await response.json()
-          price = data.ethereum?.usd || data.solana?.usd || data["matic-network"]?.usd || 3000
-        } catch {
-          // Use fallback prices if CoinGecko is unavailable
-          const fallbackPrices: Record<string, number> = { ETH: 3200, SOL: 200, MATIC: 0.85 }
-          price = fallbackPrices[selectedToken.symbol] || 100
-          console.warn("[useTipping] Using fallback price for", selectedToken.symbol)
-        }
-        tokenAmount = (amount / price).toFixed(8)
-      }
-
-      const newQuote = await getSwapQuote(selectedToken, tokenAmount, shieldedAddress, walletAddress || undefined)
-      setQuote(newQuote)
-      setQuoteExpiresAt(newQuote.expiresAt)
-
-      // Check if this is a real swap (has deposit address)
-      const quoteData = newQuote as any
-      if (quoteData.depositAddress) {
-        setDepositAddress(quoteData.depositAddress)
-        setIsRealSwap(true)
-      } else {
-        setIsRealSwap(false)
-      }
-
+      await fetchAndApplyQuote(selectedToken, amount)
       setFlowState("confirming")
     } catch (err: any) {
       setError(err.message || "Failed to get quote")
       setFlowState("expanded")
     }
-  }, [selectedToken, selectedAmount, customAmount, shieldedAddress, walletAddress])
+  }, [selectedToken, selectedAmount, customAmount, fetchAndApplyQuote])
+
+  /**
+   * After wallet signs and tx is on-chain: log to DB, persist to localStorage,
+   * start polling. Shared by confirmTip and sendTip.
+   */
+  const handlePostExecution = useCallback(async (
+    tx: TipTransaction,
+    activeQuote: SwapQuote,
+    token: SupportedToken,
+    hasDepositAddr: boolean,
+    knownDepositAddress: string | null,
+  ) => {
+    const usdAmt = selectedAmount || (customAmount ? parseFloat(customAmount) : 0)
+    tx.usdAmount = usdAmt
+    tx.networkFee = activeQuote.fees?.network
+    setTransaction(tx)
+
+    const txData = tx as any
+    const pollAddress = knownDepositAddress || txData.depositAddress
+
+    if (hasDepositAddr && pollAddress) {
+      setDepositAddress(pollAddress)
+
+      // Log the tip to the database (idempotent — unique deposit address)
+      let txId: string | undefined
+      try {
+        const execRes = await fetchWithRetry("/api/swap/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fromChain: token.chainId,
+            fromToken: token.address,
+            fromAmount: activeQuote.fromAmount,
+            walletAddress: walletAddress || "",
+            destinationAddress: shieldedAddress,
+            creatorHandle,
+            sourceTxHash: tx.txHash,
+            depositAddress: pollAddress,
+            sourcePlatform: "web",
+            memo: privateMessage.trim() || undefined,
+            quote: {
+              toAmount: activeQuote.toAmount,
+              exchangeRate: activeQuote.exchangeRate,
+              fees: activeQuote.fees,
+              estimatedTime: activeQuote.estimatedTime,
+              route: activeQuote.route,
+              expiresAt: activeQuote.expiresAt,
+              quoteId: (activeQuote as any).quoteId,
+              depositAddress: pollAddress,
+            },
+          }),
+        })
+        if (execRes.ok) {
+          const execData = await execRes.json()
+          txId = execData.transactionId
+          if (!execData.tracked) {
+            setExecuteWarning("Tip sent but could not be tracked on the creator's dashboard. The ZEC will still arrive.")
+          }
+        } else {
+          console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
+          setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
+        }
+      } catch (e) {
+        console.error("[useTipping] Failed to log tip after retries:", e)
+        setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
+      }
+
+      if (txId) setTransactionId(txId)
+
+      setFlowState("delivering")
+      setShownOptimisticSuccess(true)
+
+      const pendingTip: PendingTip = {
+        depositAddress: pollAddress,
+        transactionId: txId || undefined,
+        creatorHandle,
+        amount: tx.fromAmount || selectedAmount?.toString() || customAmount,
+        tokenSymbol: token.symbol || "UNKNOWN",
+        timestamp: Date.now(),
+      }
+      localStorage.setItem(PENDING_TIP_KEY, JSON.stringify(pendingTip))
+
+      startStatusPolling(pollAddress, txId)
+    } else {
+      setFlowState("success")
+      addToTipHistory({
+        creatorHandle,
+        amount: tx.fromAmount || selectedAmount?.toString() || customAmount || "unknown",
+        tokenSymbol: token.symbol || "UNKNOWN",
+        status: "delivered",
+        timestamp: Date.now(),
+      })
+    }
+  }, [creatorHandle, shieldedAddress, walletAddress, privateMessage, startStatusPolling, selectedAmount, customAmount])
+
+  /**
+   * Execute the tip against the wallet and run post-execution flow.
+   * Shared signing + processing state transitions.
+   */
+  const executeAndFinalize = useCallback(async (
+    activeQuote: SwapQuote,
+    token: SupportedToken,
+    hasDepositAddr: boolean,
+    knownDepositAddress: string | null,
+  ) => {
+    setFlowState("signing")
+
+    const tx = await executeTip(
+      activeQuote,
+      creatorHandle,
+      shieldedAddress,
+      (status: TransactionStatus) => {
+        if (status === "swapping" || status === "routing" || status === "confirming") {
+          setFlowState("processing")
+        }
+      }
+    )
+
+    await handlePostExecution(tx, activeQuote, token, hasDepositAddr, knownDepositAddress)
+  }, [creatorHandle, shieldedAddress, handlePostExecution])
 
   const confirmTip = useCallback(async () => {
     if (!quote) {
@@ -640,124 +783,15 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
       return
     }
 
-    setFlowState("signing")
     setError(null)
 
     try {
-      const tx = await executeTip(
-        quote,
-        creatorHandle,
-        shieldedAddress,
-        (status: TransactionStatus) => {
-          if (status === "swapping" || status === "routing" || status === "confirming") {
-            setFlowState("processing")
-          }
-        }
-      )
-
-      // Add USD amount and network fee to transaction for receipt display
-      const usdAmt = selectedAmount || (customAmount ? parseFloat(customAmount) : 0)
-      tx.usdAmount = usdAmt
-      tx.networkFee = quote?.fees?.network
-
-      setTransaction(tx)
-
-      // Check if we need to start polling for real swaps
-      const txData = tx as any
-      if (isRealSwap && (depositAddress || txData.depositAddress)) {
-        const pollAddress = depositAddress || txData.depositAddress
-        setDepositAddress(pollAddress)
-
-        // Log the tip to the database via /api/swap/execute (includes encrypted memo)
-        // Uses retry to handle transient failures — the endpoint is idempotent (unique deposit address)
-        let txId: string | undefined
-        if (quote) {
-          try {
-            const execRes = await fetchWithRetry("/api/swap/execute", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                fromChain: selectedToken?.chainId,
-                fromToken: selectedToken?.address,
-                fromAmount: quote.fromAmount,
-                walletAddress: walletAddress || "",
-                destinationAddress: shieldedAddress,
-                creatorHandle,
-                sourceTxHash: tx.txHash,
-                depositAddress: pollAddress,
-                sourcePlatform: "web",
-                memo: privateMessage.trim() || undefined,
-                quote: {
-                  toAmount: quote.toAmount,
-                  exchangeRate: quote.exchangeRate,
-                  fees: quote.fees,
-                  estimatedTime: quote.estimatedTime,
-                  route: quote.route,
-                  expiresAt: quote.expiresAt,
-                  quoteId: (quote as any).quoteId,
-                  depositAddress: pollAddress,
-                },
-              }),
-            })
-            if (execRes.ok) {
-              const execData = await execRes.json()
-              txId = execData.transactionId
-              if (!execData.tracked) {
-                setExecuteWarning("Tip sent but could not be tracked on the creator's dashboard. The ZEC will still arrive.")
-              }
-            } else {
-              console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
-              setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
-            }
-          } catch (e) {
-            console.error("[useTipping] Failed to log tip after retries:", e)
-            setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
-          }
-        }
-
-        if (txId) setTransactionId(txId)
-
-        // Honest messaging: Show "delivering" state, not "success"
-        // ZEC delivery is still in progress - user can close page
-        setFlowState("delivering")
-        setShownOptimisticSuccess(true)
-
-        // Store pending tip in localStorage for persistence
-        const pendingTip: PendingTip = {
-          depositAddress: pollAddress,
-          transactionId: txId || undefined,
-          creatorHandle,
-          amount: tx.fromAmount || selectedAmount?.toString() || customAmount,
-          tokenSymbol: selectedToken?.symbol || "UNKNOWN",
-          timestamp: Date.now(),
-        }
-        localStorage.setItem(PENDING_TIP_KEY, JSON.stringify(pendingTip))
-
-        // Continue background polling - will transition to "success" when confirmed
-        startStatusPolling(pollAddress, txId)
-      } else {
-        // No deposit address - show success directly
-        setFlowState("success")
-        addToTipHistory({
-          creatorHandle,
-          amount: tx.fromAmount || selectedAmount?.toString() || customAmount || "unknown",
-          tokenSymbol: selectedToken?.symbol || "UNKNOWN",
-          status: "delivered",
-          timestamp: Date.now(),
-        })
-      }
+      await executeAndFinalize(quote, selectedToken!, isRealSwap, depositAddress)
     } catch (err: any) {
-      // Handle specific errors
-      if (err.message?.includes("rejected") || err.message?.includes("cancelled")) {
-        setError("You cancelled the transaction")
-      } else if (err.message?.includes("insufficient")) {
-        setError("Insufficient balance")
-      } else {
-        setError(err.message || "Transaction failed")
-      }
+      setError(classifyTxError(err))
       setFlowState("error")
     }
-  }, [quote, isQuoteExpired, getQuote, creatorHandle, shieldedAddress, walletAddress, privateMessage, isRealSwap, depositAddress, startStatusPolling, selectedAmount, customAmount, selectedToken])
+  }, [quote, isQuoteExpired, getQuote, selectedToken, isRealSwap, depositAddress, executeAndFinalize])
 
   const reset = useCallback(() => {
     // Stop polling
@@ -829,156 +863,16 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     setError(null)
 
     try {
-      // Calculate token amount from USD
-      let tokenAmount: string
-      if (selectedToken.symbol === "USDC" || selectedToken.symbol === "USDT" || selectedToken.symbol === "DAI") {
-        tokenAmount = amount.toString()
-      } else {
-        // Fetch price for native token with fallback
-        let price: number
-        try {
-          const coinId = selectedToken.symbol === "ETH" ? "ethereum" : selectedToken.symbol === "SOL" ? "solana" : "matic-network"
-          const response = await fetch(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`
-          )
-          if (!response.ok) throw new Error("CoinGecko API error")
-          const data = await response.json()
-          price = data.ethereum?.usd || data.solana?.usd || data["matic-network"]?.usd || 3000
-        } catch {
-          // Use fallback prices if CoinGecko is unavailable
-          const fallbackPrices: Record<string, number> = { ETH: 3200, SOL: 200, MATIC: 0.85 }
-          price = fallbackPrices[selectedToken.symbol] || 100
-          console.warn("[useTipping] Using fallback price for", selectedToken.symbol)
-        }
-        tokenAmount = (amount / price).toFixed(8)
-      }
-
-      const newQuote = await getSwapQuote(selectedToken, tokenAmount, shieldedAddress, walletAddress || undefined)
-      setQuote(newQuote)
-      setQuoteExpiresAt(newQuote.expiresAt)
-
-      // Check if this is a real swap (has deposit address)
+      const newQuote = await fetchAndApplyQuote(selectedToken, amount)
       const quoteData = newQuote as any
-      const hasDepositAddress = !!quoteData.depositAddress
-      setIsRealSwap(hasDepositAddress)
+      const hasDepositAddr = !!quoteData.depositAddress
 
-      if (hasDepositAddress) {
-        setDepositAddress(quoteData.depositAddress)
-      }
-
-      // Immediately proceed to signing (skip confirmation step)
-      setFlowState("signing")
-
-      const tx = await executeTip(
-        newQuote,
-        creatorHandle,
-        shieldedAddress,
-        (status: TransactionStatus) => {
-          if (status === "swapping" || status === "routing" || status === "confirming") {
-            setFlowState("processing")
-          }
-        }
-      )
-
-      // Add USD amount and network fee to transaction for receipt display
-      const usdAmt = selectedAmount || (customAmount ? parseFloat(customAmount) : 0)
-      tx.usdAmount = usdAmt
-      tx.networkFee = newQuote?.fees?.network
-
-      setTransaction(tx)
-
-      // Check if we need to start polling for real swaps
-      const txData = tx as any
-      if (hasDepositAddress || txData.depositAddress) {
-        const pollAddress = quoteData.depositAddress || txData.depositAddress
-        setDepositAddress(pollAddress)
-
-        // Log the tip to the database via /api/swap/execute (includes encrypted memo)
-        // Uses retry to handle transient failures — the endpoint is idempotent (unique deposit address)
-        let txId: string | undefined
-        try {
-          const execRes = await fetchWithRetry("/api/swap/execute", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              fromChain: selectedToken.chainId,
-              fromToken: selectedToken.address,
-              fromAmount: newQuote.fromAmount,
-              walletAddress: walletAddress || "",
-              destinationAddress: shieldedAddress,
-              creatorHandle,
-              sourceTxHash: tx.txHash,
-              depositAddress: pollAddress,
-              sourcePlatform: "web",
-              memo: privateMessage.trim() || undefined,
-              quote: {
-                toAmount: newQuote.toAmount,
-                exchangeRate: newQuote.exchangeRate,
-                fees: newQuote.fees,
-                estimatedTime: newQuote.estimatedTime,
-                route: newQuote.route,
-                expiresAt: newQuote.expiresAt,
-                quoteId: (newQuote as any).quoteId,
-                depositAddress: pollAddress,
-              },
-            }),
-          })
-          if (execRes.ok) {
-            const execData = await execRes.json()
-            txId = execData.transactionId
-            if (!execData.tracked) {
-              setExecuteWarning("Tip sent but could not be tracked on the creator's dashboard. The ZEC will still arrive.")
-            }
-          } else {
-            console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
-            setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
-          }
-        } catch (e) {
-          console.error("[useTipping] Failed to log tip after retries:", e)
-          setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
-        }
-
-        if (txId) setTransactionId(txId)
-
-        // Honest messaging: Show "delivering" state, not "success"
-        // ZEC delivery is still in progress - user can close page
-        setFlowState("delivering")
-        setShownOptimisticSuccess(true)
-
-        // Store pending tip in localStorage for persistence
-        const pendingTip: PendingTip = {
-          depositAddress: pollAddress,
-          transactionId: txId || undefined,
-          creatorHandle,
-          amount: tx.fromAmount || selectedAmount?.toString() || customAmount,
-          tokenSymbol: selectedToken?.symbol || "UNKNOWN",
-          timestamp: Date.now(),
-        }
-        localStorage.setItem(PENDING_TIP_KEY, JSON.stringify(pendingTip))
-
-        // Continue background polling - will transition to "success" when confirmed
-        startStatusPolling(pollAddress, txId)
-      } else {
-        setFlowState("success")
-        addToTipHistory({
-          creatorHandle,
-          amount: tx.fromAmount || selectedAmount?.toString() || customAmount || "unknown",
-          tokenSymbol: selectedToken?.symbol || "UNKNOWN",
-          status: "delivered",
-          timestamp: Date.now(),
-        })
-      }
+      await executeAndFinalize(newQuote, selectedToken, hasDepositAddr, quoteData.depositAddress || null)
     } catch (err: any) {
-      if (err.message?.includes("rejected") || err.message?.includes("cancelled")) {
-        setError("You cancelled the transaction")
-      } else if (err.message?.includes("insufficient")) {
-        setError("Insufficient balance")
-      } else {
-        setError(err.message || "Transaction failed")
-      }
+      setError(classifyTxError(err))
       setFlowState("error")
     }
-  }, [selectedToken, selectedAmount, customAmount, shieldedAddress, walletAddress, creatorHandle, privateMessage, startStatusPolling])
+  }, [selectedToken, selectedAmount, customAmount, fetchAndApplyQuote, executeAndFinalize])
 
   // Auto-transition to connected state when wallet connects
   useEffect(() => {
