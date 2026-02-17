@@ -207,27 +207,34 @@ export async function POST(request: NextRequest) {
     if (supabase) {
       try {
         // Look up creator by their shielded address (include public_key for encryption)
+        console.log("[swap/execute] DB lookup — destinationAddress:", destinationAddress.slice(0, 20) + "...", "creatorHandle:", creatorHandle || "(none)")
+
         const { data: addressCreator, error: creatorError } = await supabase
           .from("creators")
           .select("id, public_key")
           .eq("shielded_address", destinationAddress)
           .single()
 
+        console.log("[swap/execute] Primary lookup (shielded_address):", addressCreator ? `FOUND id=${addressCreator.id}` : `NOT FOUND error=${creatorError?.message}`)
+
         let creator = addressCreator
 
         if ((creatorError || !creator) && creatorHandle) {
           // Fallback: look up by handle when shielded_address doesn't match
-          const { data: fallbackCreator } = await findCreatorByHandle(creatorHandle, {
+          console.log("[swap/execute] Attempting handle fallback for:", creatorHandle)
+          const { data: fallbackCreator, error: fallbackError } = await findCreatorByHandle(creatorHandle, {
             select: "id, public_key",
           })
           if (fallbackCreator) {
             creator = fallbackCreator
-            console.log("[swap/execute] Found creator via handle fallback:", creatorHandle)
+            console.log("[swap/execute] Handle fallback FOUND:", creatorHandle, "id=", fallbackCreator.id)
+          } else {
+            console.log("[swap/execute] Handle fallback FAILED:", creatorHandle, "error=", fallbackError?.message)
           }
         }
 
         if (!creator) {
-          console.log("[swap/execute] Creator not found for address:", destinationAddress.slice(0, 12) + "...", creatorHandle ? `or handle: ${creatorHandle}` : "")
+          console.log("[swap/execute] Creator NOT FOUND — tip will NOT be tracked. address:", destinationAddress.slice(0, 20) + "...", creatorHandle ? `handle: ${creatorHandle}` : "")
           // Continue without logging - swap still works, just not tracked
         } else {
           // Encrypt tip data with creator's public key
@@ -257,13 +264,14 @@ export async function POST(request: NextRequest) {
             .single()
 
           if (tipError) {
-            console.error("[swap/execute] Insert error:", tipError)
+            console.error("[swap/execute] INSERT FAILED:", { error: tipError.message, code: tipError.code, details: tipError.details, hint: tipError.hint })
           } else {
             transactionId = tip.id
-            console.log("[swap/execute] Tip logged:", {
+            console.log("[swap/execute] INSERT SUCCESS:", {
               transactionId,
               creatorId: creator.id,
               encrypted: !!encryptedData,
+              sourcePlatform: sourcePlatform || "web",
             })
           }
         }
