@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 vi.mock("@/lib/supabase", () => ({
   supabase: null,
   normalizeHandle: (h: string) => h.toLowerCase().replace(/^@/, ""),
+  findCreatorByHandle: () => Promise.resolve({ data: null, error: { message: "Database not configured" } }),
 }))
 
 import { GET as getReceived } from "@/app/api/tips/received/route"

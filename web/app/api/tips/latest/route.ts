@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { supabase, findCreatorByHandle } from "@/lib/supabase"
 
 /**
  * GET /api/tips/latest?handle=<handle>
@@ -30,11 +30,7 @@ export async function GET(request: NextRequest) {
 
     // If only handle provided, look up creator_id
     if (!creatorId && handle) {
-      const { data: creator, error: creatorError } = await supabase
-        .from("creators")
-        .select("id")
-        .eq("handle_normalized", handle.toLowerCase().replace(/^@/, ""))
-        .single()
+      const { data: creator, error: creatorError } = await findCreatorByHandle(handle)
 
       if (creatorError || !creator) {
         return NextResponse.json(since ? { tips: [] } : { tip: null })

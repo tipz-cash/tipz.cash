@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { supabase, normalizeHandle, type Creator } from "@/lib/supabase"
+import { supabase, normalizeHandle, findCreatorByHandle, type Creator } from "@/lib/supabase"
 import { verifyTwitterToken } from "@/lib/twitter-api"
 import { getSessionFromRequest } from "@/lib/session"
 import {
@@ -96,11 +96,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Look up the creator
-  const { data: creator, error } = await supabase
-    .from("creators")
-    .select("*")
-    .eq("handle_normalized", normalizedHandle)
-    .single()
+  const { data: creator, error } = await findCreatorByHandle(normalizedHandle, { select: "*" })
 
   if (error || !creator) {
     return NextResponse.json({ error: "Creator not found" }, { status: 404, headers })

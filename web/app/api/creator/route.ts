@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { supabase, normalizeHandle } from "@/lib/supabase"
+import { supabase, findCreatorByHandle } from "@/lib/supabase"
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -13,22 +13,17 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const normalizedHandle = handle.toLowerCase().replace(/^@/, "")
-
   if (!supabase) {
     return NextResponse.json({ found: false })
   }
 
-  // Lookup by handle (already normalized to lowercase)
-  const { data, error } = await supabase
-    .from("creators")
-    .select("id, platform, handle, shielded_address, avatar_url, public_key")
-    .eq("platform", platform)
-    .eq("handle_normalized", normalizedHandle)
-    .single()
+  const { data, error } = await findCreatorByHandle(handle, {
+    select: "id, platform, handle, shielded_address, avatar_url, public_key",
+    platform,
+  })
 
   if (error || !data) {
-    console.log("[creator] Lookup failed:", { platform, normalizedHandle, error: error?.message })
+    console.log("[creator] Lookup failed:", { platform, handle, error: error?.message })
     return NextResponse.json({ found: false })
   }
 
