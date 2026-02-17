@@ -11,6 +11,8 @@ interface DecryptedTip {
   status: string
   source_platform: string
   data: string | null
+  amount_zec: number | null
+  amount_usd: number | null
   decrypted?: TipzData
   decryptFailed?: boolean
   isNew?: boolean
@@ -93,6 +95,7 @@ export default function ActivityFeed({
               key={tip.id}
               tip={tip}
               index={i}
+              zecPrice={zecPrice}
               prefersReducedMotion={prefersReducedMotion}
             />
           ))}

@@ -39,14 +39,26 @@ export async function GET(request: NextRequest) {
 
     if (txError) {
       console.error("[tips/stats] Query error:", txError)
-      return NextResponse.json({ tip_count: 0, last_tip_at: null })
+      return NextResponse.json({ tip_count: 0, last_tip_at: null, total_zec: null })
     }
 
     const tipList = tips || []
 
+    // Server-side sum of plaintext amounts
+    const { data: sumData } = await supabase
+      .from("tipz")
+      .select("amount_zec.sum()")
+      .eq("creator_id", creator.id)
+      .in("status", ["pending", "confirmed"])
+      .single()
+
+    // Supabase aggregate .sum() returns { sum: number } shape
+    const totalZec = (sumData as Record<string, unknown>)?.sum
+
     return NextResponse.json({
       tip_count: tipList.length,
       last_tip_at: tipList.length > 0 ? tipList[0].created_at : null,
+      total_zec: totalZec ? Number(totalZec) : null,
     })
   } catch (error) {
     console.error("[tips/stats] Error:", error)

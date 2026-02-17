@@ -18,6 +18,8 @@ interface DecryptedTip {
   status: string
   source_platform: string
   data: string | null
+  amount_zec: number | null
+  amount_usd: number | null
   decrypted?: TipzData
   decryptFailed?: boolean
   isNew?: boolean
@@ -26,6 +28,7 @@ interface DecryptedTip {
 interface TipRowProps {
   tip: DecryptedTip
   index: number
+  zecPrice: number
   prefersReducedMotion: boolean
 }
 
@@ -43,7 +46,7 @@ function formatDate(iso: string): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 }
 
-export default function TipRow({ tip, index, prefersReducedMotion }: TipRowProps) {
+export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: TipRowProps) {
   const isNew = tip.isNew
 
   const animStyle = prefersReducedMotion
@@ -80,6 +83,7 @@ export default function TipRow({ tip, index, prefersReducedMotion }: TipRowProps
       }} />
 
       {tip.decrypted ? (
+        /* State 1: Fully decrypted — show amounts + memo */
         <div>
           <div style={{
             display: "flex",
@@ -136,7 +140,68 @@ export default function TipRow({ tip, index, prefersReducedMotion }: TipRowProps
             via {tip.source_platform}
           </div>
         </div>
+      ) : tip.amount_zec != null ? (
+        /* State 2: Plaintext amounts available, memo still locked */
+        <div>
+          <div style={{
+            display: "flex",
+            alignItems: "baseline",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "8px",
+          }}>
+            <div>
+              <span style={{
+                fontSize: "15px",
+                fontWeight: 600,
+                color: colors.textBright,
+                fontFamily: "'JetBrains Mono', monospace",
+              }}>
+                {tip.amount_zec.toFixed(4)} ZEC
+              </span>
+              <span style={{
+                color: colors.success,
+                fontWeight: 400,
+                fontSize: "13px",
+                marginLeft: "8px",
+              }}>
+                ${(tip.amount_usd ?? tip.amount_zec * zecPrice).toFixed(2)}
+              </span>
+            </div>
+            <span style={{
+              fontSize: "11px",
+              color: colors.muted,
+              fontFamily: "'JetBrains Mono', monospace",
+              whiteSpace: "nowrap",
+            }}>
+              {formatDate(tip.created_at)}
+            </span>
+          </div>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            fontSize: "12px",
+            color: colors.muted,
+            marginTop: "4px",
+            fontStyle: "italic",
+            opacity: 0.7,
+          }}>
+            <LockIcon size={12} color={colors.muted} />
+            memo encrypted
+          </div>
+          <div style={{
+            fontSize: "11px",
+            color: colors.muted,
+            marginTop: "2px",
+            fontFamily: "'JetBrains Mono', monospace",
+            opacity: 0.7,
+          }}>
+            via {tip.source_platform}
+          </div>
+        </div>
       ) : (
+        /* State 3: Fully encrypted — no amounts available */
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <LockIcon size={14} color={colors.muted} />
           <div>
