@@ -460,9 +460,9 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 description="Connect your crypto wallet"
                 onClick={handleWalletConnect}
               >
-                <LogoDisplay src="/icons/phantom.svg" alt="Phantom" />
+                <LogoDisplay src="/icons/phantom.png" alt="Phantom" />
                 <LogoDisplay src="/icons/metamask.svg" alt="MetaMask" />
-                <LogoDisplay src="/icons/rabby.svg" alt="Rabby" />
+                <LogoDisplay src="/icons/rabby.png" alt="Rabby" />
               </PaymentRow>
 
               {/* ZEC row */}
@@ -471,7 +471,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 description="Send from any Zcash wallet"
                 onClick={handleZecSelect}
               >
-                <LogoDisplay src="/icons/zcash.svg" alt="Zcash" />
+                <LogoDisplay src="/icons/zcash.png" alt="Zcash" />
               </PaymentRow>
             </div>
 
@@ -598,7 +598,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 description="EVM chains"
                 onClick={() => handleWalletTypeSelect("rabby")}
               >
-                <LogoDisplay src="/icons/rabby.svg" alt="Rabby" />
+                <LogoDisplay src="/icons/rabby.png" alt="Rabby" />
               </PaymentRow>
 
               {/* MetaMask */}
@@ -616,7 +616,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 description="Solana"
                 onClick={() => handleWalletTypeSelect("phantom")}
               >
-                <LogoDisplay src="/icons/phantom.svg" alt="Phantom" />
+                <LogoDisplay src="/icons/phantom.png" alt="Phantom" />
               </PaymentRow>
             </div>
 
