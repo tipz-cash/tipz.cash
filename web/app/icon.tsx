@@ -24,10 +24,11 @@ export default function Icon() {
       >
         <span style={{
           color: "#F5A623",
-          fontSize: 24,
-          fontWeight: 700,
+          fontSize: 32,
+          fontWeight: 900,
           fontFamily: "monospace",
-          textShadow: "0 0 4px rgba(245, 166, 35, 0.5)",
+          lineHeight: 1,
+          textShadow: "0 0 6px rgba(245, 166, 35, 0.7), 0 0 12px rgba(245, 166, 35, 0.3)",
         }}>Z</span>
       </div>
     ),
