@@ -250,11 +250,12 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
    * Poll swap status from the API
    * If shownOptimisticSuccess is true, we don't update UI - just track for notifications
    */
-  const pollSwapStatus = useCallback(async (address: string) => {
+  const pollSwapStatus = useCallback(async (address: string, txId?: string) => {
     try {
+      const effectiveTxId = txId ?? transactionId
       let url = `/api/swap/status?depositAddress=${encodeURIComponent(address)}`
-      if (transactionId) {
-        url += `&transactionId=${encodeURIComponent(transactionId)}`
+      if (effectiveTxId) {
+        url += `&transactionId=${encodeURIComponent(effectiveTxId)}`
       }
       const response = await fetch(url)
       if (!response.ok) {
@@ -333,7 +334,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
   /**
    * Start polling for swap status (updates UI)
    */
-  const startStatusPolling = useCallback((address: string) => {
+  const startStatusPolling = useCallback((address: string, txId?: string) => {
     // Don't start if already polling this address
     if (pollingRef.current && pollingAddressRef.current === address) {
       return
@@ -347,11 +348,11 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     pollingAddressRef.current = address
 
     // Initial poll
-    pollSwapStatus(address)
+    pollSwapStatus(address, txId)
 
     // Set up interval
     pollingRef.current = setInterval(() => {
-      pollSwapStatus(address)
+      pollSwapStatus(address, txId)
     }, STATUS_POLL_INTERVAL)
   }, [pollSwapStatus])
 
@@ -592,6 +593,8 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
             if (execRes.ok) {
               const execData = await execRes.json()
               txId = execData.transactionId
+            } else {
+              console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
             }
           } catch (e) {
             console.error("[useTipping] Failed to log tip:", e)
@@ -617,7 +620,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         localStorage.setItem(PENDING_TIP_KEY, JSON.stringify(pendingTip))
 
         // Continue background polling - will transition to "success" when confirmed
-        startStatusPolling(pollAddress)
+        startStatusPolling(pollAddress, txId)
       } else {
         // No deposit address - show success directly
         setFlowState("success")
@@ -795,6 +798,8 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
           if (execRes.ok) {
             const execData = await execRes.json()
             txId = execData.transactionId
+          } else {
+            console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
           }
         } catch (e) {
           console.error("[useTipping] Failed to log tip:", e)
@@ -819,7 +824,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         localStorage.setItem(PENDING_TIP_KEY, JSON.stringify(pendingTip))
 
         // Continue background polling - will transition to "success" when confirmed
-        startStatusPolling(pollAddress)
+        startStatusPolling(pollAddress, txId)
       } else {
         setFlowState("success")
       }

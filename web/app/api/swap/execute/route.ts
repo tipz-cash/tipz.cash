@@ -77,10 +77,12 @@ interface ExecuteResponse {
 }
 
 /**
- * Validate Ethereum address format
+ * Validate wallet address format (EVM or Solana)
  */
-function isValidEthAddress(address: string): boolean {
-  return /^0x[a-fA-F0-9]{40}$/.test(address)
+function isValidWalletAddress(address: string): boolean {
+  if (/^0x[a-fA-F0-9]{40}$/.test(address)) return true // EVM
+  if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) return true // Solana (base58)
+  return false
 }
 
 /**
@@ -134,7 +136,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate wallet address
-    if (!isValidEthAddress(walletAddress)) {
+    if (!isValidWalletAddress(walletAddress)) {
       return NextResponse.json(
         { error: "Invalid wallet address format" },
         { status: 400 }
