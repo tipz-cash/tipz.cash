@@ -9,7 +9,7 @@ import {
 } from "@/lib/near-intents"
 import { type TipzData, type SourcePlatform } from "@/lib/tipz"
 import { encryptMessage, serializeEncryptedMessage, isValidPublicKey } from "@/lib/message-encryption"
-import { supabase } from "@/lib/supabase"
+import { supabase, findCreatorByHandle } from "@/lib/supabase"
 import {
   rateLimit,
   rateLimitHeaders,
@@ -43,7 +43,8 @@ interface ExecuteRequest {
   depositAddress?: string // The deposit address from the quote (for real swaps)
   // SECURITY NOTE: creatorId is no longer accepted from request body.
   // We look up the creator by destinationAddress (shielded address) instead.
-  // This prevents transaction misattribution attacks.
+  // creatorHandle is only used as a fallback lookup if shielded address doesn't match.
+  creatorHandle?: string // Fallback identifier for DB lookup
   sourcePlatform?: SourcePlatform // Where the tip originated
   sourceUrl?: string // URL of content being tipped
   memo?: string // Private message to creator (encrypted into tipz.data)
@@ -121,6 +122,7 @@ export async function POST(request: NextRequest) {
       destinationAddress,
       sourceTxHash,
       depositAddress: requestDepositAddress,
+      creatorHandle,
       sourcePlatform,
       sourceUrl,
       memo,
@@ -205,14 +207,27 @@ export async function POST(request: NextRequest) {
     if (supabase) {
       try {
         // Look up creator by their shielded address (include public_key for encryption)
-        const { data: creator, error: creatorError } = await supabase
+        const { data: addressCreator, error: creatorError } = await supabase
           .from("creators")
           .select("id, public_key")
           .eq("shielded_address", destinationAddress)
           .single()
 
-        if (creatorError || !creator) {
-          console.log("[swap/execute] Creator not found for address:", destinationAddress.slice(0, 12) + "...")
+        let creator = addressCreator
+
+        if ((creatorError || !creator) && creatorHandle) {
+          // Fallback: look up by handle when shielded_address doesn't match
+          const { data: fallbackCreator } = await findCreatorByHandle(creatorHandle, {
+            select: "id, public_key",
+          })
+          if (fallbackCreator) {
+            creator = fallbackCreator
+            console.log("[swap/execute] Found creator via handle fallback:", creatorHandle)
+          }
+        }
+
+        if (!creator) {
+          console.log("[swap/execute] Creator not found for address:", destinationAddress.slice(0, 12) + "...", creatorHandle ? `or handle: ${creatorHandle}` : "")
           // Continue without logging - swap still works, just not tracked
         } else {
           // Encrypt tip data with creator's public key
