@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { supabase, normalizeHandle } from "@/lib/supabase"
+import { supabase, normalizeHandle, findCreatorByHandle } from "@/lib/supabase"
 import {
   rateLimit,
   rateLimitHeaders,
@@ -400,14 +400,11 @@ export async function POST(request: NextRequest) {
     // Check if already registered
     let existing: { id: string } | null = null
     try {
-      const { data, error } = await supabase
-        .from("creators")
-        .select("id")
-        .eq("platform", sanitizedPlatform)
-        .eq("handle_normalized", normalizedHandle)
-        .single()
+      const { data, error } = await findCreatorByHandle(sanitizedHandle, {
+        platform: sanitizedPlatform,
+      })
 
-      if (error && error.code !== "PGRST116") {
+      if (error && error.code !== "PGRST116" && error.message !== "Database not configured") {
         // PGRST116 = row not found, which is expected for new registrations
         console.error("[register] Database query error:", error)
         return createErrorResponse(

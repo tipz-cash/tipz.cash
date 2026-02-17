@@ -24,6 +24,7 @@ vi.mock("@/lib/supabase", () => ({
     }),
   },
   normalizeHandle: (h: string) => h.toLowerCase().replace(/^@/, ""),
+  findCreatorByHandle: () => Promise.resolve({ data: mockCreator, error: null }),
 }))
 
 vi.mock("@/lib/twitter-api", () => ({

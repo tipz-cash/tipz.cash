@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { supabase, normalizeHandle } from "@/lib/supabase"
+import { supabase, findCreatorByHandle } from "@/lib/supabase"
 import { createSessionToken, setSessionCookie } from "@/lib/session"
 
 /**
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
   const accessToken = tokenData.access_token
 
   // Get Twitter username
-  const userRes = await fetch("https://api.twitter.com/2/users/me", {
+  const userRes = await fetch("https://api.twitter.com/2/users/me?user.fields=profile_image_url", {
     headers: { Authorization: `Bearer ${accessToken}` },
   })
 
@@ -76,6 +76,9 @@ export async function GET(request: NextRequest) {
 
   const userData = await userRes.json()
   const username = userData.data?.username
+  const profileImageUrl = userData.data?.profile_image_url
+    ? userData.data.profile_image_url.replace("_normal", "_400x400")
+    : null
 
   if (!username) {
     return NextResponse.redirect(`${origin}/my?error=no_username`)
@@ -86,15 +89,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/my?error=db_unavailable`)
   }
 
-  const normalizedHandle = normalizeHandle(username)
-  const { data: creator, error } = await supabase
-    .from("creators")
-    .select("id, handle")
-    .eq("handle_normalized", normalizedHandle)
-    .single()
+  const { data: creator, error } = await findCreatorByHandle(username, {
+    select: "id, handle",
+  })
 
   if (error || !creator) {
     return NextResponse.redirect(`${origin}/my?error=not_registered`)
+  }
+
+  // Refresh avatar from Twitter
+  if (profileImageUrl) {
+    await supabase
+      .from("creators")
+      .update({ avatar_url: profileImageUrl })
+      .eq("id", creator.id)
   }
 
   // Create session
