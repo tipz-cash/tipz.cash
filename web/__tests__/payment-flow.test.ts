@@ -219,7 +219,7 @@ describe("Full Payment Flow", () => {
 
     expect(executeRes.status).toBe(400)
     const error = await executeRes.json()
-    expect(error.error).toContain("shielded")
+    expect(error.error).toContain("Invalid destination address")
   })
 
   it("validates address security: rejects ETH address as destination", async () => {

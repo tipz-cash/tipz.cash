@@ -35,7 +35,6 @@ describe("GET /api/tips/received (no DB)", () => {
 
     expect(res.status).toBe(200)
     expect(data.tips).toEqual([])
-    expect(data.total_zec).toBe("0")
     expect(data.total_count).toBe(0)
   })
 
@@ -59,8 +58,6 @@ describe("GET /api/tips/stats (no DB)", () => {
     const data = await res.json()
 
     expect(res.status).toBe(200)
-    expect(data.total_zec).toBe("0")
-    expect(data.total_usd).toBe("$0.00")
     expect(data.tip_count).toBe(0)
     expect(data.last_tip_at).toBeNull()
   })

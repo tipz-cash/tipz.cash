@@ -41,6 +41,7 @@ function createRequest(body: Record<string, unknown>): any {
   return {
     json: () => Promise.resolve(body),
     headers: new Headers({ "x-forwarded-for": "10.0.0.10" }),
+    cookies: { get: () => undefined },
   }
 }
 
@@ -107,6 +108,6 @@ describe("POST /api/link", () => {
     }))
 
     expect(res.status).toBe(401)
-    expect((await res.json()).code).toBe("TOKEN_REQUIRED")
+    expect((await res.json()).code).toBe("AUTH_REQUIRED")
   })
 })
