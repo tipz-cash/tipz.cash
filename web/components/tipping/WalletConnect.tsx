@@ -27,7 +27,7 @@ const WALLET_OPTIONS: {
   {
     type: "rabby",
     name: "Rabby",
-    icon: "R",
+    icon: "/icons/rabby.png",
     gradient: "linear-gradient(135deg, #7B3FE4, #8C5CF2)",
     description: "Best for security & simulation",
     badge: "Most Popular"
@@ -35,9 +35,16 @@ const WALLET_OPTIONS: {
   {
     type: "metamask",
     name: "MetaMask",
-    icon: "M",
+    icon: "/icons/metamask.svg",
     gradient: "linear-gradient(135deg, #E2761B, #F5841F)",
     description: "Most widely used"
+  },
+  {
+    type: "phantom" as WalletType,
+    name: "Phantom",
+    icon: "/icons/phantom.png",
+    gradient: "linear-gradient(135deg, #AB9FF2, #7C3AED)",
+    description: "Solana wallet"
   },
 ]
 
@@ -395,26 +402,19 @@ export function WalletConnect({
         {/* Greyscale wallet logos */}
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           {WALLET_OPTIONS.map((wallet) => (
-            <div
+            <img
               key={wallet.type}
+              src={wallet.icon}
+              alt={wallet.name}
+              width={20}
+              height={20}
               style={{
-                width: "20px",
-                height: "20px",
                 borderRadius: "4px",
-                background: isHovered ? wallet.gradient : "rgba(255, 255, 255, 0.15)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                fontSize: "10px",
-                fontWeight: 700,
                 filter: isHovered ? "none" : "grayscale(100%)",
                 opacity: isHovered ? 1 : 0.6,
                 transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
               }}
-            >
-              {wallet.icon}
-            </div>
+            />
           ))}
         </div>
         <span>Connect Wallet</span>
@@ -555,23 +555,16 @@ export function WalletConnect({
                   }}
                 >
                   {/* Wallet icon */}
-                  <div
+                  <img
+                    src={wallet.icon}
+                    alt={wallet.name}
+                    width={40}
+                    height={40}
                     style={{
-                      width: "40px",
-                      height: "40px",
                       borderRadius: "10px",
-                      background: wallet.gradient,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white",
-                      fontSize: "16px",
-                      fontWeight: 700,
                       flexShrink: 0,
                     }}
-                  >
-                    {wallet.icon}
-                  </div>
+                  />
 
                   {/* Wallet info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
