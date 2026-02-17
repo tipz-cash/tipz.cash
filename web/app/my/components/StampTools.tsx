@@ -87,7 +87,7 @@ function Tile({ icon, label, sublabel, onClick, hoverColor = colors.primary, act
         transition: transitions.fast,
         background: "transparent",
         color: currentColor,
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "var(--font-family-mono)",
         padding: "8px",
         flex: 1,
         minWidth: 0,
@@ -146,7 +146,7 @@ export default function StampTools({ handle, animStyle, prefersReducedMotion }: 
         color: colors.muted,
         letterSpacing: "1px",
         marginBottom: "12px",
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "var(--font-family-mono)",
         ...labelAnim,
       }}>
         PROMOTE

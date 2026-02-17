@@ -429,7 +429,7 @@ export default function MyTipzPage() {
       minHeight: "100vh",
       background: colors.pageBg,
       color: colors.text,
-      fontFamily: "'JetBrains Mono', monospace",
+      fontFamily: "var(--font-family-mono)",
     }}>
       {/* Matrix letter grid background */}
       {showBackground && (
@@ -502,7 +502,7 @@ export default function MyTipzPage() {
               borderRadius: "12px",
               fontSize: "14px",
               color: colors.error,
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-family)",
               ...animStyle,
             }}>
               {error}

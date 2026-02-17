@@ -202,7 +202,7 @@ export default function ImageStampTool({ handle, onClose }: ImageStampToolProps)
             fontSize: "13px",
             fontWeight: 500,
             color: colors.primary,
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-family)",
             marginBottom: "4px",
           }}>
             Drop, Paste, or Click to Upload
@@ -210,7 +210,7 @@ export default function ImageStampTool({ handle, onClose }: ImageStampToolProps)
           <div style={{
             fontSize: "11px",
             color: colors.muted,
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-family)",
           }}>
             Ctrl+V to paste from clipboard
           </div>
@@ -250,7 +250,7 @@ export default function ImageStampTool({ handle, onClose }: ImageStampToolProps)
                 border: "none",
                 borderRadius: "8px",
                 cursor: stampedImage ? "pointer" : "default",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
                 transition: transitions.fast,
               }}
             >
@@ -281,7 +281,7 @@ export default function ImageStampTool({ handle, onClose }: ImageStampToolProps)
                 border: `1px solid ${colors.border}`,
                 borderRadius: "8px",
                 cursor: "pointer",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
                 transition: transitions.fast,
               }}
               onMouseEnter={(e) => {

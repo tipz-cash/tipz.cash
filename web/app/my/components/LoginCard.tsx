@@ -72,7 +72,7 @@ export default function LoginCard({ animStyle, prefersReducedMotion }: LoginCard
         color: colors.muted,
         letterSpacing: "3px",
         marginBottom: "16px",
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "var(--font-family-mono)",
       }}>
         YOUR COMMAND CENTER
       </div>
@@ -82,7 +82,7 @@ export default function LoginCard({ animStyle, prefersReducedMotion }: LoginCard
         color: colors.text,
         fontSize: "14px",
         lineHeight: 1.6,
-        fontFamily: "Inter, sans-serif",
+        fontFamily: "var(--font-family)",
         maxWidth: "320px",
         marginLeft: "auto",
         marginRight: "auto",
@@ -107,7 +107,7 @@ export default function LoginCard({ animStyle, prefersReducedMotion }: LoginCard
           transition: transitions.normal,
           border: `1px solid ${colors.border}`,
           cursor: "pointer",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-family-mono)",
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.12)"
@@ -126,7 +126,7 @@ export default function LoginCard({ animStyle, prefersReducedMotion }: LoginCard
         margin: "20px 0 0",
         fontSize: "12px",
         color: colors.muted,
-        fontFamily: "Inter, sans-serif",
+        fontFamily: "var(--font-family)",
       }}>
         Not registered?{" "}
         <Link href="/register" style={{ color: colors.primary, textDecoration: "underline" }}>

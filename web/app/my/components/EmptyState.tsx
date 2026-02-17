@@ -92,7 +92,7 @@ export default function EmptyState({ handle }: EmptyStateProps) {
         fontWeight: 600,
         color: colors.textBright,
         marginBottom: "6px",
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "var(--font-family-mono)",
       }}>
         Your tip page is live
       </div>
@@ -100,7 +100,7 @@ export default function EmptyState({ handle }: EmptyStateProps) {
       <div style={{
         fontSize: "13px",
         color: colors.muted,
-        fontFamily: "Inter, sans-serif",
+        fontFamily: "var(--font-family)",
         lineHeight: 1.6,
         marginBottom: "24px",
         maxWidth: "300px",
@@ -123,7 +123,7 @@ export default function EmptyState({ handle }: EmptyStateProps) {
             padding: "10px 16px",
             fontSize: "12px",
             fontWeight: 600,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
             border: `1px solid ${copied ? colors.success : colors.border}`,
             borderRadius: "8px",
             cursor: "pointer",
@@ -156,7 +156,7 @@ export default function EmptyState({ handle }: EmptyStateProps) {
             padding: "10px 16px",
             fontSize: "12px",
             fontWeight: 600,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
             border: `1px solid ${colors.border}`,
             borderRadius: "8px",
             cursor: "pointer",

@@ -97,7 +97,7 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
                 fontSize: "15px",
                 fontWeight: 600,
                 color: colors.textBright,
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
               }}>
                 {tip.decrypted.amount_zec.toFixed(4)} ZEC
               </span>
@@ -113,7 +113,7 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
             <span style={{
               fontSize: "11px",
               color: colors.muted,
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
               whiteSpace: "nowrap",
             }}>
               {formatDate(tip.created_at)}
@@ -123,7 +123,7 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
             <div style={{
               fontSize: "13px",
               color: colors.text,
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-family)",
               fontStyle: "italic",
               marginTop: "4px",
             }}>
@@ -134,7 +134,7 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
             fontSize: "11px",
             color: colors.muted,
             marginTop: "4px",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
             opacity: 0.7,
           }}>
             via {tip.source_platform}
@@ -155,7 +155,7 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
                 fontSize: "15px",
                 fontWeight: 600,
                 color: colors.textBright,
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
               }}>
                 {tip.amount_zec.toFixed(4)} ZEC
               </span>
@@ -171,7 +171,7 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
             <span style={{
               fontSize: "11px",
               color: colors.muted,
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
               whiteSpace: "nowrap",
             }}>
               {formatDate(tip.created_at)}
@@ -194,7 +194,7 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
             fontSize: "11px",
             color: colors.muted,
             marginTop: "2px",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
             opacity: 0.7,
           }}>
             via {tip.source_platform}
@@ -222,7 +222,7 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
               <span style={{
                 fontSize: "11px",
                 color: colors.muted,
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
                 whiteSpace: "nowrap",
               }}>
                 {formatDate(tip.created_at)}
@@ -232,7 +232,7 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
               fontSize: "11px",
               color: colors.muted,
               marginTop: "2px",
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
               opacity: 0.7,
             }}>
               via {tip.source_platform}

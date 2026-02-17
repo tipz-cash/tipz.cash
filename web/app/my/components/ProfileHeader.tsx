@@ -107,7 +107,7 @@ export default function ProfileHeader({
           display: "flex",
           alignItems: "center",
           gap: "8px",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-family-mono)",
         }}>
           <ConnectionIndicator status={connectionStatus} />
           {connectionStatus === "connected" ? "CONNECTED" : connectionStatus === "connecting" ? "CONNECTING" : "OFFLINE"}
@@ -127,7 +127,7 @@ export default function ProfileHeader({
             borderRadius: "6px",
             cursor: loggingOut ? "not-allowed" : "pointer",
             transition: transitions.fast,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}
           onMouseEnter={(e) => {
             if (!loggingOut) {
@@ -200,7 +200,7 @@ export default function ProfileHeader({
               fontSize: "28px",
               fontWeight: 700,
               color: colors.textBright,
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
             }}>
               {handle.charAt(0).toUpperCase()}
             </div>
@@ -222,7 +222,7 @@ export default function ProfileHeader({
             letterSpacing: "-0.02em",
             lineHeight: 1.15,
             color: colors.textBright,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}>
             @{handle}
           </h1>
@@ -238,7 +238,7 @@ export default function ProfileHeader({
               fontWeight: 600,
               color: colors.primary,
               letterSpacing: "1.5px",
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
             }}>
               VERIFIED
             </span>
@@ -258,7 +258,7 @@ export default function ProfileHeader({
             background: "transparent",
             border: "none",
             cursor: "pointer",
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-family)",
             transition: transitions.fast,
             borderRadius: "4px",
           }}

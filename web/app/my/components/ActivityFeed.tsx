@@ -51,7 +51,7 @@ export default function ActivityFeed({
         color: colors.muted,
         letterSpacing: "1px",
         marginBottom: "12px",
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "var(--font-family-mono)",
         ...labelAnim,
       }}>
         ACTIVITY{tips.length > 0 ? ` (${tips.length})` : ""}
