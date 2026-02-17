@@ -109,6 +109,37 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      // Fallback: insert tip if execute missed it (no transactionId means DB insert never happened)
+      const creatorAddress = request.nextUrl.searchParams.get("creatorAddress")
+      if (isSwapComplete(status.status) && isSwapSuccessful(status.status) && supabase && !transactionId && creatorAddress) {
+        try {
+          const { data: creator } = await supabase
+            .from("creators")
+            .select("id")
+            .eq("shielded_address", creatorAddress)
+            .single()
+
+          if (creator) {
+            const { error: insertError } = await supabase
+              .from("tipz")
+              .insert({
+                creator_id: creator.id,
+                source_platform: "web",
+                status: "confirmed",
+                data: null,
+              })
+
+            if (!insertError) {
+              console.log("[swap/status] Fallback tip insert for creator:", creator.id)
+            } else {
+              console.error("[swap/status] Fallback insert error:", insertError)
+            }
+          }
+        } catch (dbError) {
+          console.error("[swap/status] Fallback insert failed:", dbError)
+        }
+      }
+
       console.log("[swap/status] Status:", {
         address: address.slice(0, 12) + "...",
         status: status.status,
