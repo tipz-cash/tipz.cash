@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { TipzLogo } from "@/components/TipzLogo";
 
 // Color palette - Terminal/Bloomberg style
 const colors = {
@@ -206,7 +207,7 @@ export default function V6DenseHomePage() {
         fontSize: "11px",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700 }}>[TIPZ]</span>
+          <TipzLogo size={14} />
           <span style={{ color: colors.muted }}>v0.1.0-beta</span>
           <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <span style={{ color: colors.success }}>●</span>
@@ -551,7 +552,7 @@ export default function V6DenseHomePage() {
         fontSize: "11px",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700 }}>[TIPZ]</span>
+          <TipzLogo size={14} />
           <span style={{ color: colors.muted }}>v0.1.0-beta</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>

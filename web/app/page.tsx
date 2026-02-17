@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, memo, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SiteHeader from "@/components/SiteHeader";
-// Plain [TIPZ] text logo used throughout
+import { TipzLogo } from "@/components/TipzLogo";
 
 // Color palette - refined for depth and atmosphere
 const colors = {
@@ -5190,7 +5190,7 @@ export default function HomePage() {
         backgroundColor: colors.surface,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px", fontFamily: "'JetBrains Mono', monospace", textShadow: `0 0 15px ${colors.primaryGlow}` }}>[TIPZ]</span>
+          <TipzLogo size={16} />
           <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>v0.1.0-beta</span>
         </div>
         <div style={{ display: "flex", gap: isMobile ? "16px" : "32px", flexWrap: "wrap" }}>

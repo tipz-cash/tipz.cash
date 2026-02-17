@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { colors } from "@/lib/colors";
 import SiteHeader from "@/components/SiteHeader";
+import { TipzLogo } from "@/components/TipzLogo";
 // Typing effect hook
 function useTypingEffect(text: string, speed: number = 30) {
   const [displayText, setDisplayText] = useState("");
@@ -367,13 +368,7 @@ export default function ManifestoPage() {
 
         <div style={{ maxWidth: "800px", margin: "0 auto", padding: "0 24px", position: "relative" }}>
           <div style={{ marginBottom: "40px" }}>
-            <span style={{
-              color: colors.primary,
-              fontWeight: 700,
-              fontSize: "48px",
-              fontFamily: "'JetBrains Mono', monospace",
-              textShadow: `0 0 30px ${colors.primaryGlow}`,
-            }}>[TIPZ]</span>
+            <TipzLogo size={48} />
           </div>
           <p style={{ color: colors.muted, fontSize: "13px", marginBottom: "8px" }}>
             Signed with conviction,
@@ -482,7 +477,7 @@ export default function ManifestoPage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ color: colors.primary, fontWeight: 700, fontSize: "16px", fontFamily: "'JetBrains Mono', monospace", textShadow: `0 0 15px ${colors.primaryGlow}` }}>[TIPZ]</span>
+          <TipzLogo size={16} />
           <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>v0.1.0-beta</span>
         </div>
         <div style={{ display: "flex", gap: "32px" }}>
