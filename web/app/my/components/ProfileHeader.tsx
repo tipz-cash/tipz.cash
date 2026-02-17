@@ -110,7 +110,7 @@ export default function ProfileHeader({
           fontFamily: "'JetBrains Mono', monospace",
         }}>
           <ConnectionIndicator status={connectionStatus} />
-          {connectionStatus === "connected" ? "LIVE" : connectionStatus === "connecting" ? "CONNECTING" : "OFFLINE"}
+          {connectionStatus === "connected" ? "CONNECTED" : connectionStatus === "connecting" ? "CONNECTING" : "OFFLINE"}
         </div>
         <button
           onClick={onLogout}
