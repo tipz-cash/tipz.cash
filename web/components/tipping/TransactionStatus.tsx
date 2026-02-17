@@ -804,6 +804,39 @@ export function TransactionStatus({
           Zero platform fees. Zero trace. ~${savedFees} saved vs. card processing.
         </p>
 
+        {/* Execute warning banner — persists from delivering state if tracking failed */}
+        {executeWarning && (
+          <div
+            style={{
+              background: "rgba(245, 166, 35, 0.1)",
+              border: `1px solid rgba(245, 166, 35, 0.3)`,
+              borderRadius: tokens.radius.md,
+              padding: `${tokens.space.sm}px ${tokens.space.md}px`,
+              marginBottom: tokens.space.md,
+              display: "flex",
+              alignItems: "center",
+              gap: tokens.space.sm,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F5A623" strokeWidth="2" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <p style={{ color: "#F5A623", fontSize: "11px", fontFamily: tokens.font.mono, margin: 0, lineHeight: 1.4, flex: 1 }}>
+              {executeWarning}
+            </p>
+            {onDismissExecuteWarning && (
+              <button
+                onClick={onDismissExecuteWarning}
+                style={{ background: "none", border: "none", color: "#F5A623", cursor: "pointer", padding: "2px", fontSize: "14px", lineHeight: 1, flexShrink: 0 }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Done Button - Hollow outline style */}
         <button
           onClick={onDone}

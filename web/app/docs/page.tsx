@@ -765,9 +765,7 @@ OUTPUT
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px" }}>
           {[
-            { name: "Zashi", note: "Recommended", url: "https://electriccoin.co/zashi/" },
-            { name: "YWallet", note: "Multi-coin", url: "https://ywallet.app/" },
-            { name: "Nighthawk", note: "Privacy-focused", url: "https://nighthawkwallet.com/" },
+            { name: "ZODL", note: "Recommended", url: "https://zodl.com" },
           ].map((wallet) => (
             <a key={wallet.name} href={wallet.url} target="_blank" rel="noopener noreferrer" style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "16px", borderRadius: "4px", textDecoration: "none" }}>
               <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "4px" }}>{wallet.name}</div>
@@ -802,9 +800,8 @@ Symmetric Layer:
 └── Authentication: Built into GCM mode
 
 Key Management:
-├── Public key: Uploaded to TIPZ server on extension install
-├── Private key: Stored locally in chrome.storage.local
-├── Optional: Password protection via PBKDF2 (100k iterations)
+├── Public key: Uploaded to TIPZ server on first dashboard login
+├── Private key: Stored locally in browser IndexedDB
 └── Key never leaves device in plaintext`}</CodeBlock>
 
         <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
@@ -815,7 +812,7 @@ Key Management:
             <li>AES key encrypted with creator&apos;s RSA public key</li>
             <li>Encrypted bundle (key + nonce + ciphertext) sent to server</li>
             <li>Server relays blob to creator via WebSocket</li>
-            <li>Extension decrypts AES key with local RSA private key</li>
+            <li>Dashboard decrypts AES key with local RSA private key</li>
             <li>Message decrypted with AES key</li>
           </ol>
         </div>
