@@ -81,7 +81,7 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, zecPrice, prefe
           fontSize: "clamp(32px, 4vw, 40px)",
           fontWeight: 700,
           color: colors.primary,
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-family-mono)",
           textShadow: `0 0 40px rgba(245, 166, 35, 0.25)`,
           lineHeight: 1.1,
         }}>
@@ -102,7 +102,7 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, zecPrice, prefe
           color: colors.muted,
           letterSpacing: "2px",
           marginTop: "6px",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-family-mono)",
         }}>
           TOTAL EARNED
         </div>
@@ -120,7 +120,7 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, zecPrice, prefe
             fontSize: "18px",
             fontWeight: 600,
             color: colors.textBright,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}>
             {tipCount}
           </div>
@@ -128,7 +128,7 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, zecPrice, prefe
             fontSize: "10px",
             color: colors.muted,
             letterSpacing: "1px",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}>
             {tipCount === 1 ? "TIP" : "TIPS"} RECEIVED
           </div>
@@ -139,7 +139,7 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, zecPrice, prefe
             fontSize: "18px",
             fontWeight: 600,
             color: colors.success,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}>
             $<AnimatedCounter value={totalUsd} decimals={2} prefersReducedMotion={prefersReducedMotion} />
           </div>
@@ -147,7 +147,7 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, zecPrice, prefe
             fontSize: "10px",
             color: colors.muted,
             letterSpacing: "1px",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}>
             USD VALUE
           </div>
@@ -158,7 +158,7 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, zecPrice, prefe
             fontSize: "18px",
             fontWeight: 600,
             color: colors.textBright,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}>
             ${zecPrice > 0 ? zecPrice.toFixed(0) : "—"}
           </div>
@@ -166,7 +166,7 @@ export default function HeroStat({ totalZec, totalUsd, tipCount, zecPrice, prefe
             fontSize: "10px",
             color: colors.muted,
             letterSpacing: "1px",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}>
             ZEC PRICE
           </div>

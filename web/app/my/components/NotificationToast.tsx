@@ -159,7 +159,7 @@ function ToastCard({
           fontSize: "11px",
           color: colors.muted,
           letterSpacing: "1px",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-family-mono)",
         }}>
           NEW TIP
         </span>
@@ -171,7 +171,7 @@ function ToastCard({
             fontSize: "20px",
             fontWeight: 700,
             color: colors.success,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
             marginBottom: "2px",
             animation: prefersReducedMotion ? "none" : "tipSlideIn 0.3s ease-out",
           }}>
@@ -180,7 +180,7 @@ function ToastCard({
           <div style={{
             fontSize: "13px",
             color: colors.primary,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}>
             {tip.decrypted.amount_zec.toFixed(4)} ZEC
           </div>
@@ -188,7 +188,7 @@ function ToastCard({
             <div style={{
               fontSize: "13px",
               color: colors.text,
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-family)",
               fontStyle: "italic",
               marginTop: "8px",
             }}>
