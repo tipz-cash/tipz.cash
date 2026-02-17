@@ -22,23 +22,30 @@ export function ZecDirectSend({
   onDone,
 }: ZecDirectSendProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
+  const [showFullAddress, setShowFullAddress] = useState(false)
+  const [addressCopied, setAddressCopied] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Calculate ZEC amount from USD
   const zecAmount = amount && zecPrice ? amount / zecPrice : undefined
 
+  // Truncated address: first 4 + "…" + last 8
+  const truncatedAddress =
+    shieldedAddress.length > 16
+      ? `${shieldedAddress.slice(0, 4)}…${shieldedAddress.slice(-8)}`
+      : shieldedAddress
+
   // Generate QR code on mount
   useEffect(() => {
     async function generateQR() {
       try {
-        // Include amount in QR if specified
         const qr = await generateZecQR(
           shieldedAddress,
           zecAmount,
           `Tip for @${creatorHandle} via TIPZ`,
           {
-            width: 280,
+            width: 240,
             margin: 2,
             color: {
               dark: "#000000",
@@ -60,8 +67,8 @@ export function ZecDirectSend({
   const copyAddress = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(shieldedAddress)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setAddressCopied(true)
+      setTimeout(() => setAddressCopied(false), 2000)
     } catch {
       setError("Failed to copy address")
     }
@@ -76,24 +83,19 @@ export function ZecDirectSend({
         `Tip for @${creatorHandle} via TIPZ`
       )
       await navigator.clipboard.writeText(uri)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2000)
     } catch {
       setError("Failed to copy payment link")
     }
   }, [shieldedAddress, zecAmount, creatorHandle])
 
+  const qrSize = "min(240px, calc(100vw - 80px))"
+
   return (
     <div style={{ padding: tokens.space.lg }}>
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: tokens.space.sm,
-          marginBottom: tokens.space.lg,
-        }}
-      >
+      {/* 1. Header — Back arrow only */}
+      <div style={{ marginBottom: tokens.space.md }}>
         <button
           onClick={onBack}
           style={{
@@ -101,10 +103,13 @@ export function ZecDirectSend({
             border: "none",
             color: tokens.colors.textMuted,
             cursor: "pointer",
-            padding: "4px",
+            padding: "10px",
+            margin: "-10px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            width: "44px",
+            height: "44px",
           }}
         >
           <svg
@@ -118,356 +123,368 @@ export function ZecDirectSend({
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
-        <div>
-          <h3
-            style={{
-              color: tokens.colors.textBright,
-              fontSize: "16px",
-              fontWeight: 600,
-              fontFamily: tokens.font.sans,
-              margin: 0,
-            }}
-          >
-            Send ZEC Directly
-          </h3>
-          <p
-            style={{
-              color: tokens.colors.textMuted,
-              fontSize: "12px",
-              fontFamily: tokens.font.sans,
-              margin: 0,
-            }}
-          >
-            Scan with Zashi, Ywallet, or any ZEC wallet
-          </p>
-        </div>
       </div>
 
-      {/* Amount Display (if specified) */}
+      {/* 2. Amount display — Floating centered text */}
       {amount && zecAmount && (
         <div
           style={{
-            background: "rgba(255, 215, 0, 0.1)",
-            border: `1px solid rgba(255, 215, 0, 0.2)`,
-            borderRadius: tokens.radius.md,
-            padding: `${tokens.space.sm}px ${tokens.space.md}px`,
-            marginBottom: tokens.space.md,
             textAlign: "center",
+            marginBottom: tokens.space.md,
           }}
         >
           <span
             style={{
               color: tokens.colors.gold,
-              fontSize: "14px",
+              fontSize: "20px",
               fontWeight: 600,
               fontFamily: tokens.font.mono,
             }}
           >
             {zecAmount.toFixed(4)} ZEC
           </span>
+          <br />
           <span
             style={{
               color: tokens.colors.textMuted,
-              fontSize: "12px",
+              fontSize: "13px",
               fontFamily: tokens.font.sans,
-              marginLeft: tokens.space.sm,
+              fontWeight: 400,
             }}
           >
-            (${amount.toFixed(2)})
+            (${amount.toFixed(2)} USD)
           </span>
         </div>
       )}
 
-      {/* QR Code */}
+      {/* 3. QR code hero — with green breathing glow */}
       <div
         style={{
-          background: "#FFFFFF",
-          borderRadius: tokens.radius.lg,
-          padding: tokens.space.md,
           display: "flex",
-          alignItems: "center",
           justifyContent: "center",
-          marginBottom: tokens.space.md,
-        }}
-      >
-        {error ? (
-          <div
-            style={{
-              width: "min(280px, calc(100vw - 64px))",
-              height: "min(280px, calc(100vw - 64px))",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: tokens.colors.error,
-              fontSize: "14px",
-              fontFamily: tokens.font.sans,
-            }}
-          >
-            {error}
-          </div>
-        ) : qrDataUrl ? (
-          <img
-            src={qrDataUrl}
-            alt="ZEC payment QR code"
-            style={{
-              width: "min(280px, calc(100vw - 64px))",
-              height: "min(280px, calc(100vw - 64px))",
-              display: "block",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: "min(280px, calc(100vw - 64px))",
-              height: "min(280px, calc(100vw - 64px))",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                width: "24px",
-                height: "24px",
-                border: `2px solid ${tokens.colors.gold}`,
-                borderTopColor: "transparent",
-                borderRadius: "50%",
-                animation: "spin 1s linear infinite",
-              }}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Address Display */}
-      <div
-        style={{
-          background: "rgba(255, 255, 255, 0.05)",
-          border: `1px solid rgba(255, 255, 255, 0.1)`,
-          borderRadius: tokens.radius.md,
-          padding: tokens.space.md,
           marginBottom: tokens.space.md,
         }}
       >
         <div
           style={{
+            background: "#FFFFFF",
+            borderRadius: tokens.radius.lg,
+            padding: "16px",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            animation: "shieldBreathe 6s ease-in-out infinite",
+          }}
+        >
+          {error ? (
+            <div
+              style={{
+                width: qrSize,
+                height: qrSize,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: tokens.colors.error,
+                fontSize: "14px",
+                fontFamily: tokens.font.sans,
+              }}
+            >
+              {error}
+            </div>
+          ) : qrDataUrl ? (
+            <img
+              src={qrDataUrl}
+              alt="ZEC payment QR code"
+              style={{
+                width: qrSize,
+                height: qrSize,
+                display: "block",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: qrSize,
+                height: qrSize,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  border: `2px solid ${tokens.colors.gold}`,
+                  borderTopColor: "transparent",
+                  borderRadius: "50%",
+                  animation: "spin 1s linear infinite",
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 4. Scan instruction */}
+      <p
+        style={{
+          textAlign: "center",
+          color: tokens.colors.textMuted,
+          fontSize: "12px",
+          fontFamily: tokens.font.sans,
+          margin: 0,
+          marginBottom: tokens.space.md,
+        }}
+      >
+        Scan with Zodl or any ZEC wallet
+      </p>
+
+      {/* 5. Privacy centerpiece — Compact status badge */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "8px",
+          marginBottom: tokens.space.md,
+        }}
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill={tokens.colors.success}
+          stroke="none"
+          style={{
+            filter: `drop-shadow(0 0 4px ${tokens.colors.successGlow})`,
+          }}
+        >
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+        <span
+          style={{
+            color: tokens.colors.success,
+            fontSize: "12px",
+            fontFamily: tokens.font.mono,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+          }}
+        >
+          SHIELDED
+        </span>
+        <span
+          style={{
+            width: "3px",
+            height: "3px",
+            borderRadius: "50%",
+            background: "rgba(255, 255, 255, 0.2)",
+            display: "inline-block",
+          }}
+        />
+        <span
+          style={{
+            color: tokens.colors.textMuted,
+            fontSize: "12px",
+            fontFamily: tokens.font.sans,
+          }}
+        >
+          End-to-end private
+        </span>
+      </div>
+
+      {/* 6. Collapsed address row */}
+      <div
+        style={{
+          background: "rgba(255, 255, 255, 0.03)",
+          border: `1px solid rgba(255, 255, 255, 0.08)`,
+          borderRadius: tokens.radius.md,
+          padding: `${tokens.space.sm}px ${tokens.space.md}px`,
+          marginBottom: tokens.space.md,
+        }}
+      >
+        {/* Truncated row with expand + copy */}
+        <div
+          style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: tokens.space.xs,
+            gap: "8px",
           }}
         >
           <span
             style={{
+              flex: 1,
               color: tokens.colors.textMuted,
-              fontSize: "11px",
+              fontSize: "12px",
               fontFamily: tokens.font.mono,
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
             }}
           >
-            Shielded Address
+            {truncatedAddress}
           </span>
+
+          {/* Expand toggle */}
+          <button
+            onClick={() => setShowFullAddress(!showFullAddress)}
+            style={{
+              background: "none",
+              border: "none",
+              color: tokens.colors.textMuted,
+              cursor: "pointer",
+              padding: "4px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: `transform ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
+              transform: showFullAddress ? "rotate(180deg)" : "rotate(0deg)",
+            }}
+            aria-label={showFullAddress ? "Collapse address" : "Expand address"}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          {/* Copy address */}
           <button
             onClick={copyAddress}
             style={{
               background: "none",
               border: "none",
-              color: copied ? tokens.colors.success : tokens.colors.gold,
+              color: addressCopied ? tokens.colors.success : tokens.colors.textMuted,
               cursor: "pointer",
-              fontSize: "11px",
-              fontFamily: tokens.font.mono,
-              padding: "2px 4px",
+              padding: "4px",
               display: "flex",
               alignItems: "center",
-              gap: "4px",
+              justifyContent: "center",
             }}
+            aria-label="Copy address"
           >
-            {copied ? (
-              <>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                Copied
-              </>
+            {addressCopied ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
             ) : (
-              <>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-                Copy
-              </>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
             )}
           </button>
         </div>
-        <p
-          style={{
-            color: tokens.colors.text,
-            fontSize: "11px",
-            fontFamily: tokens.font.mono,
-            margin: 0,
-            wordBreak: "break-all",
-            lineHeight: 1.4,
-          }}
-        >
-          {shieldedAddress}
-        </p>
+
+        {/* Expanded full address */}
+        {showFullAddress && (
+          <p
+            style={{
+              color: tokens.colors.textSubtle,
+              fontSize: "11px",
+              fontFamily: tokens.font.mono,
+              margin: 0,
+              marginTop: tokens.space.sm,
+              wordBreak: "break-all",
+              lineHeight: 1.4,
+            }}
+          >
+            {shieldedAddress}
+          </p>
+        )}
       </div>
 
-      {/* Instructions */}
+      {/* 7. Copy payment link — Text link */}
       <div
         style={{
-          background: "rgba(0, 255, 148, 0.05)",
-          border: `1px solid rgba(0, 255, 148, 0.15)`,
-          borderRadius: tokens.radius.md,
-          padding: tokens.space.md,
+          textAlign: "center",
           marginBottom: tokens.space.lg,
         }}
       >
-        <div style={{ display: "flex", gap: tokens.space.sm }}>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke={tokens.colors.success}
-            strokeWidth="2"
-            style={{ flexShrink: 0, marginTop: "2px" }}
-          >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-          <div>
-            <p
-              style={{
-                color: tokens.colors.textBright,
-                fontSize: "12px",
-                fontFamily: tokens.font.sans,
-                fontWeight: 500,
-                margin: 0,
-                marginBottom: "4px",
-              }}
-            >
-              100% Private Transaction
-            </p>
-            <p
-              style={{
-                color: tokens.colors.textMuted,
-                fontSize: "11px",
-                fontFamily: tokens.font.sans,
-                margin: 0,
-                lineHeight: 1.4,
-              }}
-            >
-              Sending to a shielded address ensures your tip is completely private.
-              No blockchain observer can see the sender, amount, or recipient.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div style={{ display: "flex", gap: tokens.space.sm }}>
         <button
           onClick={copyUri}
           style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: tokens.space.sm,
-            padding: "12px 16px",
-            background: "rgba(255, 255, 255, 0.05)",
-            border: `1px solid rgba(255, 255, 255, 0.1)`,
-            borderRadius: tokens.radius.md,
-            color: tokens.colors.text,
-            fontSize: "13px",
-            fontWeight: 500,
-            fontFamily: tokens.font.sans,
-            cursor: "pointer",
-            transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
-          }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-          </svg>
-          Copy Payment Link
-        </button>
-        <button
-          onClick={onDone}
-          style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: tokens.space.sm,
-            padding: "12px 16px",
-            background: `linear-gradient(135deg, #FFD700 0%, #FFA500 100%)`,
+            background: "none",
             border: "none",
-            borderRadius: tokens.radius.md,
-            color: tokens.colors.bg,
-            fontSize: "13px",
-            fontWeight: 600,
+            color: linkCopied ? tokens.colors.success : tokens.colors.textMuted,
+            fontSize: "12px",
             fontFamily: tokens.font.sans,
             cursor: "pointer",
-            boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 4px 12px rgba(255, 215, 0, 0.3)",
-            transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
+            textDecoration: linkCopied ? "none" : "underline",
+            padding: "4px 8px",
+            transition: `color ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
+          }}
+          onMouseEnter={(e) => {
+            if (!linkCopied) e.currentTarget.style.color = tokens.colors.gold
+          }}
+          onMouseLeave={(e) => {
+            if (!linkCopied) e.currentTarget.style.color = tokens.colors.textMuted
           }}
         >
-          Done
+          {linkCopied ? "Payment link copied \u2713" : "Copy payment link"}
         </button>
       </div>
 
-      {/* Wallet Recommendations */}
-      <div
+      {/* 8. Done button — "I've Sent It" */}
+      <button
+        onClick={onDone}
         style={{
-          marginTop: tokens.space.lg,
-          paddingTop: tokens.space.md,
-          borderTop: `1px solid rgba(255, 255, 255, 0.1)`,
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "14px 16px",
+          background: `linear-gradient(135deg, #FFD700 0%, #FFA500 100%)`,
+          border: "none",
+          borderRadius: tokens.radius.md,
+          color: tokens.colors.bg,
+          fontSize: "14px",
+          fontWeight: 700,
+          fontFamily: tokens.font.sans,
+          cursor: "pointer",
+          boxShadow:
+            "inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 4px 12px rgba(255, 215, 0, 0.3)",
+          transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
         }}
       >
-        <p
+        I've Sent It
+      </button>
+
+      {/* 9. Wallet recommendation — Single condensed line */}
+      <p
+        style={{
+          textAlign: "center",
+          fontSize: "11px",
+          fontFamily: tokens.font.sans,
+          color: tokens.colors.textSubtle,
+          margin: 0,
+          marginTop: tokens.space.md,
+        }}
+      >
+        Need a wallet?{" "}
+        <a
+          href="https://zodl.com/"
+          target="_blank"
+          rel="noopener noreferrer"
           style={{
             color: tokens.colors.textMuted,
-            fontSize: "11px",
-            fontFamily: tokens.font.sans,
-            margin: 0,
-            marginBottom: tokens.space.sm,
-            textAlign: "center",
+            textDecoration: "none",
+            transition: `color ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = tokens.colors.gold
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = tokens.colors.textMuted
           }}
         >
-          Need a ZEC wallet?
-        </p>
-        <div style={{ display: "flex", justifyContent: "center", gap: tokens.space.md }}>
-          <a
-            href="https://electriccoin.co/zashi/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: tokens.colors.gold,
-              fontSize: "12px",
-              fontFamily: tokens.font.sans,
-              textDecoration: "none",
-            }}
-          >
-            Zashi (iOS/Android)
-          </a>
-          <a
-            href="https://ywallet.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: tokens.colors.gold,
-              fontSize: "12px",
-              fontFamily: tokens.font.sans,
-              textDecoration: "none",
-            }}
-          >
-            Ywallet (All Platforms)
-          </a>
-        </div>
-      </div>
+          Zodl
+        </a>
+      </p>
 
       <style>{keyframes}</style>
     </div>
