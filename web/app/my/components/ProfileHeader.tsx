@@ -155,8 +155,8 @@ export default function ProfileHeader({
         {/* Avatar with gold ring */}
         <div style={{
           position: "relative",
-          width: "64px",
-          height: "64px",
+          width: "80px",
+          height: "80px",
           flexShrink: 0,
           ...anim("100ms", "scaleSpring 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"),
         }}>
@@ -179,8 +179,8 @@ export default function ProfileHeader({
                 position: "absolute",
                 top: "4px",
                 left: "4px",
-                width: "56px",
-                height: "56px",
+                width: "72px",
+                height: "72px",
                 borderRadius: "50%",
                 objectFit: "cover",
               }}
@@ -190,14 +190,14 @@ export default function ProfileHeader({
               position: "absolute",
               top: "4px",
               left: "4px",
-              width: "56px",
-              height: "56px",
+              width: "72px",
+              height: "72px",
               borderRadius: "50%",
               background: getInitialColor(handle),
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "22px",
+              fontSize: "28px",
               fontWeight: 700,
               color: colors.textBright,
               fontFamily: "'JetBrains Mono', monospace",
@@ -210,8 +210,9 @@ export default function ProfileHeader({
         {/* Handle + verified badge */}
         <div style={{
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          gap: "8px",
+          gap: "4px",
           ...anim("250ms", "fadeInUp 0.3s ease-out forwards"),
         }}>
           <h1 style={{

@@ -433,6 +433,8 @@ export default function MyTipzPage() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
         padding: "clamp(24px, 6vw, 48px) clamp(16px, 4vw, 24px)",
         paddingTop: "80px",
       }}>
