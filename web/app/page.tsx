@@ -1782,7 +1782,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                 fontSize: `${7 * scale}px`,
                 fontFamily: "'JetBrains Mono', monospace",
               }}>
-                You saved ~$0.45 in processing fees.
+                No platform fees. Swap spread included in rate.
               </div>
             </motion.div>
           )}

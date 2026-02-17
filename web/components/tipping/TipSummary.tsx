@@ -230,7 +230,7 @@ export function TipSummary({
           }}
         >
           <span style={{ color: tokens.colors.textMuted, fontSize: "12px", fontFamily: tokens.font.mono }}>
-            Network fee
+            Swap spread
           </span>
           <span
             style={{
@@ -240,7 +240,7 @@ export function TipSummary({
               fontFeatureSettings: "'tnum' 1",
             }}
           >
-            ~{formatUsdValue(quote.fees.network)}
+            ~3-4% (included in rate)
           </span>
         </div>
 
@@ -253,17 +253,17 @@ export function TipSummary({
           }}
         >
           <span style={{ color: tokens.colors.textMuted, fontSize: "12px", fontFamily: tokens.font.mono }}>
-            Protocol fee
+            TIPZ fee
           </span>
           <span
             style={{
-              color: tokens.colors.text,
+              color: tokens.colors.success,
               fontSize: "12px",
               fontFamily: tokens.font.mono,
               fontFeatureSettings: "'tnum' 1",
             }}
           >
-            ~{formatUsdValue(quote.fees.protocol)}
+            $0.00
           </span>
         </div>
 

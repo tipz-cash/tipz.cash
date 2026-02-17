@@ -178,6 +178,8 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
           }
           setIsRealSwap(true)
           setShownOptimisticSuccess(true)
+          // Resume delivering state so user sees status screen, not idle form
+          setFlowState("delivering")
           // Show pending tip notification to user
           setPendingTipNotification(pendingTip)
           // Start silent background polling
@@ -398,7 +400,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
 
           if (data.success) {
             console.log("[useTipping] Background swap completed successfully")
-            // Could trigger browser notification here if permission granted
+            setFlowState("success")
           } else {
             // Swap failed/refunded - store for notification banner
             const failedTip: FailedTip = {
@@ -409,6 +411,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
             }
             localStorage.setItem(FAILED_TIP_KEY, JSON.stringify(failedTip))
             setFailedTipNotification(failedTip)
+            setFlowState(data.status === "REFUNDED" ? "refunded" : "error")
             console.log("[useTipping] Background swap failed, stored for notification")
           }
         }
