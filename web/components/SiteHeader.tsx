@@ -29,7 +29,7 @@ function ZecTicker() {
       color: colors.muted,
       fontSize: "11px",
       letterSpacing: "1px",
-      fontFamily: "'JetBrains Mono', monospace",
+      fontFamily: "var(--font-family-mono)",
     }}>
       ZEC {price ? `$${price.toFixed(2)}` : "—"}
     </span>
@@ -48,7 +48,7 @@ const navLinkStyle: React.CSSProperties = {
   fontSize: "11px",
   letterSpacing: "1px",
   transition: "color 0.2s",
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: "var(--font-family-mono)",
 };
 
 const activeLinkStyle: React.CSSProperties = {
@@ -143,7 +143,7 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
                 fontWeight: 600,
                 padding: "8px 14px",
                 borderRadius: "8px",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
                 boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)`,
               }}
             >
@@ -250,7 +250,7 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
                 letterSpacing: "0.5px",
                 fontWeight: 600,
                 borderRadius: "8px",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
                 boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)`,
               }}
             >

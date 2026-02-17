@@ -72,7 +72,7 @@ function TabNavigation({
             fontSize: "11px",
             fontWeight: 500,
             letterSpacing: "1px",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
             color: activeTab === tab.id ? colors.primary : colors.muted,
             backgroundColor: "transparent",
             border: "none",
@@ -128,7 +128,7 @@ function CollapsibleSection({
           fontSize: "14px",
           fontWeight: 600,
           cursor: "pointer",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-family-mono)",
         }}
       >
         <span style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -184,7 +184,7 @@ function CodeBlock({ children }: { children: string }) {
         border: `1px solid ${colors.border}`,
         borderRadius: "4px",
         padding: "16px 20px",
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "var(--font-family-mono)",
         fontSize: "12px",
         color: colors.muted,
         overflowX: "auto",
@@ -887,7 +887,7 @@ export default function DocsPage() {
         minHeight: "100vh",
         background: `linear-gradient(180deg, ${colors.bgGradientStart} 0%, ${colors.bgGradientEnd} 50%, ${colors.bgGradientStart} 100%)`,
         color: colors.text,
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "var(--font-family-mono)",
         position: "relative",
         overflowX: "hidden",
       }}
@@ -946,7 +946,7 @@ export default function DocsPage() {
                   fontWeight: 700,
                   fontSize: "13px",
                   textDecoration: "none",
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                   borderRadius: "4px",
                 }}
               >
@@ -970,7 +970,7 @@ export default function DocsPage() {
                   fontWeight: 600,
                   fontSize: "13px",
                   textDecoration: "none",
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                   borderRadius: "4px",
                 }}
               >

@@ -240,7 +240,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: "140vw",
     height: "140vh",
     gap: "1px",
-    fontFamily: "'JetBrains Mono', monospace",
+    fontFamily: "var(--font-family-mono)",
     fontSize: "clamp(8px, 1vw, 12px)",
     fontWeight: 500,
     textAlign: "center",

@@ -105,7 +105,7 @@ const responsiveStyles = `
     color: ${colors.primary};
     letter-spacing: 2px;
     margin-bottom: 16px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-family-mono);
   }
 
   /* Squircle avatar with gold ring pulse */
@@ -399,7 +399,7 @@ const responsiveStyles = `
     font-weight: 700;
     color: ${colors.primary};
     letter-spacing: 2px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-family-mono);
   }
 
   .tipz-mobile-back {
@@ -714,7 +714,7 @@ export default function CreatorCardPage() {
                     Powered by
                   </span>
                   <span style={{
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: "var(--font-family-mono)",
                     fontSize: "12px",
                     fontWeight: 700,
                     color: "#FFD700",
@@ -778,7 +778,7 @@ export default function CreatorCardPage() {
             Powered by
           </span>
           <span style={{
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
             fontSize: "12px",
             fontWeight: 700,
             color: "#FFD700",
