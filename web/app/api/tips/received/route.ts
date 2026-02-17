@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const { data: creator, error: creatorError } = await supabase
       .from("creators")
       .select("id")
-      .eq("handle", handle.toLowerCase())
+      .eq("handle_normalized", handle.toLowerCase().replace(/^@/, ""))
       .single()
 
     if (creatorError || !creator) {
