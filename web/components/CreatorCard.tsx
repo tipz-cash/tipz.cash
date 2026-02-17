@@ -147,7 +147,7 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
                 color: "#fff",
                 textShadow: "0 2px 4px rgba(0,0,0,0.3)",
                 textTransform: "uppercase",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
                 border: `2px solid ${isHovered ? "transparent" : colors.border}`,
                 transition: "border-color 0.25s ease",
               }}
@@ -164,7 +164,7 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
             fontSize: compact ? "14px" : "16px",
             fontWeight: 600,
             margin: compact ? "0 0 8px" : "0 0 12px",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
             letterSpacing: "-0.01em",
             wordBreak: "break-word",
             textAlign: "center",

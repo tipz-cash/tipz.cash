@@ -943,7 +943,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                         fontSize: `${20 * scale}px`,
                         fontWeight: 800,
                         color: "#FFFFFF",
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: "var(--font-family-mono)",
                         letterSpacing: "-1px",
                       }}>
                         @naval
@@ -962,7 +962,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                         <svg width={8 * scale} height={8 * scale} viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5">
                           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                         </svg>
-                        <span style={{ fontSize: `${7 * scale}px`, fontWeight: 600, color: "#10B981", fontFamily: "'JetBrains Mono', monospace" }}>
+                        <span style={{ fontSize: `${7 * scale}px`, fontWeight: 600, color: "#10B981", fontFamily: "var(--font-family-mono)" }}>
                           Private
                         </span>
                       </div>
@@ -972,7 +972,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                         <svg width={8 * scale} height={8 * scale} viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5">
                           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                         </svg>
-                        <span style={{ fontSize: `${7 * scale}px`, fontWeight: 600, color: "#10B981", fontFamily: "'JetBrains Mono', monospace" }}>
+                        <span style={{ fontSize: `${7 * scale}px`, fontWeight: 600, color: "#10B981", fontFamily: "var(--font-family-mono)" }}>
                           Instant
                         </span>
                       </div>
@@ -983,7 +983,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                           <circle cx="12" cy="12" r="10" />
                           <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
                         </svg>
-                        <span style={{ fontSize: `${7 * scale}px`, fontWeight: 600, color: "#10B981", fontFamily: "'JetBrains Mono', monospace" }}>
+                        <span style={{ fontSize: `${7 * scale}px`, fontWeight: 600, color: "#10B981", fontFamily: "var(--font-family-mono)" }}>
                           0% fees
                         </span>
                       </div>
@@ -1017,7 +1017,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                               borderRadius: `${4 * scale}px`,
                               fontSize: `${10 * scale}px`,
                               fontWeight: 700,
-                              fontFamily: "'JetBrains Mono', monospace",
+                              fontFamily: "var(--font-family-mono)",
                               transition: "all 0.15s ease-out",
                               ...(chip.selected
                                 ? {
@@ -1058,7 +1058,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                       <span style={{
                         color: "rgba(255, 255, 255, 0.4)",
                         fontSize: `${7 * scale}px`,
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: "var(--font-family-mono)",
                       }}>
                         Add a private note...
                       </span>
@@ -1080,7 +1080,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                           color: "#10B981",
                           fontSize: `${5 * scale}px`,
                           fontWeight: 700,
-                          fontFamily: "'JetBrains Mono', monospace",
+                          fontFamily: "var(--font-family-mono)",
                           letterSpacing: "0.5px",
                         }}>
                           ENCRYPTED
@@ -1122,7 +1122,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                           color: "#FFFFFF",
                           fontSize: `${8 * scale}px`,
                           fontWeight: 600,
-                          fontFamily: "'JetBrains Mono', monospace",
+                          fontFamily: "var(--font-family-mono)",
                         }}>
                           ETH
                         </span>
@@ -1133,7 +1133,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                         <span style={{
                           color: "rgba(255, 255, 255, 0.5)",
                           fontSize: `${6 * scale}px`,
-                          fontFamily: "'JetBrains Mono', monospace",
+                          fontFamily: "var(--font-family-mono)",
                         }}>
                           0.0998
                         </span>
@@ -1157,7 +1157,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                       fontSize: `${9 * scale}px`,
                       fontWeight: 700,
                       color: "#050505",
-                      fontFamily: "'JetBrains Mono', monospace",
+                      fontFamily: "var(--font-family-mono)",
                       boxShadow: cursorPosition.hovering === "send"
                         ? "inset 0 2px 0 rgba(255, 255, 255, 0.5), 0 6px 20px rgba(255, 215, 0, 0.7), 0 0 30px rgba(255, 215, 0, 0.4)"
                         : "inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 4px 12px rgba(255, 215, 0, 0.5)",
@@ -1260,7 +1260,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
               color: "#FFFFFF",
               fontSize: `${16 * scale}px`,
               fontWeight: 700,
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
             }}>
               @naval
             </span>
@@ -1299,7 +1299,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                   color: isSelected ? "#050505" : "rgba(255, 255, 255, 0.5)",
                   fontSize: `${15 * scale}px`,
                   fontWeight: 700,
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                   boxShadow: isSelected ? "0 0 20px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)" : "inset 0 1px 0 rgba(255, 255, 255, 0.1)",
                 }}
               >
@@ -1326,7 +1326,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
           transform: phase >= 1 && phase <= 2 ? "translateX(0)" : "translateX(-30px)",
           transition: shouldAnimate ? "all 0.3s ease-out 0.2s" : "none",
         }}>
-          <span style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: `${13 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>
+          <span style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: `${13 * scale}px`, fontFamily: "var(--font-family-mono)" }}>
             Add a private note...
           </span>
           {/* ENCRYPTED badge */}
@@ -1343,7 +1343,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
-            <span style={{ color: "#00FF94", fontSize: `${7 * scale}px`, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.5px" }}>
+            <span style={{ color: "#00FF94", fontSize: `${7 * scale}px`, fontWeight: 700, fontFamily: "var(--font-family-mono)", letterSpacing: "0.5px" }}>
               ENCRYPTED
             </span>
           </div>
@@ -1382,12 +1382,12 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                 <path fill="#fff" d="M127.962 0L0 212.32l127.962 75.639V154.158z"/>
               </svg>
             </div>
-            <span style={{ color: "#FFFFFF", fontSize: `${14 * scale}px`, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>
+            <span style={{ color: "#FFFFFF", fontSize: `${14 * scale}px`, fontWeight: 600, fontFamily: "var(--font-family-mono)" }}>
               ETH
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: `${6 * scale}px` }}>
-            <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${10 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>
+            <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${10 * scale}px`, fontFamily: "var(--font-family-mono)" }}>
               0.0998
             </span>
             <svg width={12 * scale} height={12 * scale} viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2">
@@ -1423,7 +1423,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
               color: "#050505",
               fontSize: `${15 * scale}px`,
               fontWeight: 700,
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
               letterSpacing: "0.5px",
               boxShadow: sendButtonClicked
                 ? "inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(255, 215, 0, 0.3)"
@@ -1452,20 +1452,20 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
             <svg width={10 * scale} height={10 * scale} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: `${9 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>Private</span>
+            <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: `${9 * scale}px`, fontFamily: "var(--font-family-mono)" }}>Private</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: `${3 * scale}px` }}>
             <svg width={10 * scale} height={10 * scale} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
-            <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: `${9 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>Instant</span>
+            <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: `${9 * scale}px`, fontFamily: "var(--font-family-mono)" }}>Instant</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: `${3 * scale}px` }}>
             <svg width={10 * scale} height={10 * scale} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
               <circle cx="12" cy="12" r="10" />
               <line x1="4" y1="4" x2="20" y2="20" />
             </svg>
-            <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: `${9 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>0% fees</span>
+            <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: `${9 * scale}px`, fontFamily: "var(--font-family-mono)" }}>0% fees</span>
           </div>
         </div>
 
@@ -1610,7 +1610,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                   color: "#FFFFFF",
                   fontSize: `${12 * scale}px`,
                   fontWeight: 600,
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                   letterSpacing: "0.5px",
                   marginBottom: `${4 * scale}px`,
                 }}>
@@ -1619,7 +1619,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                 <div style={{
                   color: "rgba(255, 255, 255, 0.5)",
                   fontSize: `${9 * scale}px`,
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                 }}>
                   Your identity is being scrubbed
                 </div>
@@ -1685,7 +1685,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                 color: "#FFD700",
                 fontSize: `${10 * scale}px`,
                 fontWeight: 700,
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
                 letterSpacing: "3px",
                 textTransform: "uppercase",
                 marginBottom: `${4 * scale}px`,
@@ -1695,7 +1695,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
               <div style={{
                 color: "rgba(255, 255, 255, 0.6)",
                 fontSize: `${9 * scale}px`,
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
                 marginBottom: `${12 * scale}px`,
               }}>
                 to <span style={{ color: "#FFFFFF" }}>@naval</span>
@@ -1711,32 +1711,32 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                 border: "1px solid rgba(255, 255, 255, 0.05)",
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: `${6 * scale}px` }}>
-                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "var(--font-family-mono)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     AMOUNT SENT
                   </span>
-                  <span style={{ color: "#FFFFFF", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>
+                  <span style={{ color: "#FFFFFF", fontSize: `${8 * scale}px`, fontFamily: "var(--font-family-mono)", fontWeight: 600 }}>
                     $5.00
                   </span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: `${6 * scale}px` }}>
-                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "var(--font-family-mono)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     NETWORK FEE
                   </span>
-                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace" }}>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "var(--font-family-mono)" }}>
                     $0.01
                   </span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: `${6 * scale}px` }}>
-                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "var(--font-family-mono)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     PLATFORM FEE
                   </span>
-                  <span style={{ color: "#00FF94", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>
+                  <span style={{ color: "#00FF94", fontSize: `${8 * scale}px`, fontFamily: "var(--font-family-mono)", fontWeight: 700 }}>
                     $0.00
                   </span>
                 </div>
                 <div style={{ height: "1px", background: "rgba(255, 255, 255, 0.1)", margin: `${6 * scale}px 0` }} />
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: `${8 * scale}px`, fontFamily: "var(--font-family-mono)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     PRIVACY
                   </span>
                   <motion.span
@@ -1750,7 +1750,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
                       color: "#00FF94",
                       fontSize: `${7 * scale}px`,
                       fontWeight: 700,
-                      fontFamily: "'JetBrains Mono', monospace",
+                      fontFamily: "var(--font-family-mono)",
                       letterSpacing: "1px",
                     }}
                     initial={{ scale: 1, boxShadow: "0 0 0px rgba(0, 255, 148, 0)" }}
@@ -1780,7 +1780,7 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
               <div style={{
                 color: "rgba(255, 255, 255, 0.4)",
                 fontSize: `${7 * scale}px`,
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
               }}>
                 No platform fees. Swap spread included in rate.
               </div>
@@ -1875,7 +1875,7 @@ function CodeBlockReveal({
         color: colors.muted,
         lineHeight: 1.6,
         margin: 0,
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "var(--font-family-mono)",
       }}
     >
       {lines.slice(0, visibleLines).map((line, i) => (
@@ -2451,7 +2451,7 @@ export default function HomePage() {
         height: "auto",
         background: `linear-gradient(180deg, ${colors.bgGradientStart} 0%, ${colors.bgGradientEnd} 50%, ${colors.bgGradientStart} 100%)`,
         color: colors.text,
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "var(--font-family-mono)",
         overflowY: "auto",
         overflowX: "hidden",
         scrollSnapType: isMobile ? "none" : "y proximity",
@@ -2632,7 +2632,7 @@ export default function HomePage() {
                     <path d="M9 12l2 2 4-4" />
                   </svg>
 
-                  <span style={{ position: "relative", zIndex: 1, fontFamily: "'JetBrains Mono', monospace" }}>
+                  <span style={{ position: "relative", zIndex: 1, fontFamily: "var(--font-family-mono)" }}>
                     Claim Your Tipz ID
                   </span>
                 </a>
@@ -3112,7 +3112,7 @@ export default function HomePage() {
                   lineHeight: 1,
                   marginBottom: "8px",
                   textShadow: `0 0 30px ${colors.successGlow}`,
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                 }}>
                   120s
                 </div>
@@ -3209,7 +3209,7 @@ export default function HomePage() {
                     textShadow: `0 0 60px ${colors.successGlow}`,
                     position: "relative",
                     letterSpacing: "-0.05em",
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: "var(--font-family-mono)",
                     animation: prefersReducedMotion ? "none" : "idle-text-glow-pulse 3s ease-in-out infinite",
                   }}>
                     100%
@@ -3264,7 +3264,7 @@ export default function HomePage() {
                   lineHeight: 1,
                   marginBottom: "8px",
                   textShadow: `0 0 30px ${colors.successGlow}`,
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                 }}>
                   0
                 </div>
@@ -4264,7 +4264,7 @@ export default function HomePage() {
                     }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: colors.success }} />
-                        <span style={{ fontSize: "11px", color: colors.muted, letterSpacing: "2px", fontFamily: "'JetBrains Mono', monospace" }}>LIVE</span>
+                        <span style={{ fontSize: "11px", color: colors.muted, letterSpacing: "2px", fontFamily: "var(--font-family-mono)" }}>LIVE</span>
                       </div>
                       <div style={{
                         display: "flex",
@@ -4308,7 +4308,7 @@ export default function HomePage() {
                           alignItems: "center",
                           justifyContent: "center",
                         }}>
-                          <span style={{ fontSize: "16px", fontWeight: 700, color: colors.primary, fontFamily: "'JetBrains Mono', monospace" }}>TIPZ</span>
+                          <span style={{ fontSize: "16px", fontWeight: 700, color: colors.primary, fontFamily: "var(--font-family-mono)" }}>TIPZ</span>
                         </div>
                       </div>
                       {/* Handle */}
@@ -4335,8 +4335,8 @@ export default function HomePage() {
                       zIndex: 2,
                     }}>
                       <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "4px" }}>
-                        <span style={{ fontSize: "24px", fontWeight: 700, color: colors.primary, fontFamily: "'JetBrains Mono', monospace" }}>12.8400</span>
-                        <span style={{ fontSize: "13px", color: colors.muted, fontFamily: "'JetBrains Mono', monospace" }}>ZEC</span>
+                        <span style={{ fontSize: "24px", fontWeight: 700, color: colors.primary, fontFamily: "var(--font-family-mono)" }}>12.8400</span>
+                        <span style={{ fontSize: "13px", color: colors.muted, fontFamily: "var(--font-family-mono)" }}>ZEC</span>
                       </div>
                       <span style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginBottom: "8px" }}>TOTAL EARNED</span>
                       {/* Progress bar */}
@@ -4355,11 +4355,11 @@ export default function HomePage() {
                       zIndex: 2,
                     }}>
                       <div style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: "16px", fontWeight: 700, color: colors.textBright, fontFamily: "'JetBrains Mono', monospace" }}>47</div>
+                        <div style={{ fontSize: "16px", fontWeight: 700, color: colors.textBright, fontFamily: "var(--font-family-mono)" }}>47</div>
                         <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginTop: "2px" }}>TIPS RECEIVED</div>
                       </div>
                       <div style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: "16px", fontWeight: 700, color: colors.success, fontFamily: "'JetBrains Mono', monospace" }}>$583.20</div>
+                        <div style={{ fontSize: "16px", fontWeight: 700, color: colors.success, fontFamily: "var(--font-family-mono)" }}>$583.20</div>
                         <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginTop: "2px" }}>USD VALUE</div>
                       </div>
                     </div>
@@ -4387,7 +4387,7 @@ export default function HomePage() {
                             borderRadius: "8px",
                           }}>
                             {tool.icon}
-                            <span style={{ fontSize: "11px", color: colors.muted, fontFamily: "'JetBrains Mono', monospace" }}>{tool.label}</span>
+                            <span style={{ fontSize: "11px", color: colors.muted, fontFamily: "var(--font-family-mono)" }}>{tool.label}</span>
                           </div>
                         ))}
                       </div>
@@ -4414,7 +4414,7 @@ export default function HomePage() {
                             borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.04)" : "none",
                           }}>
                             <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: colors.success, flexShrink: 0 }} />
-                            <span style={{ fontSize: "12px", fontWeight: 600, color: colors.primary, fontFamily: "'JetBrains Mono', monospace" }}>{tip.amount}</span>
+                            <span style={{ fontSize: "12px", fontWeight: 600, color: colors.primary, fontFamily: "var(--font-family-mono)" }}>{tip.amount}</span>
                             <span style={{ fontSize: "10px", color: colors.muted, marginLeft: "auto" }}>{tip.time}</span>
                             {tip.hasMemo && (
                               <span style={{
@@ -4627,7 +4627,7 @@ export default function HomePage() {
                   color: colors.muted,
                   letterSpacing: "1px",
                   marginBottom: "8px",
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                 }}>
                   RENT PAID
                 </div>
@@ -4635,7 +4635,7 @@ export default function HomePage() {
                   fontSize: isMobile ? "32px" : "36px",
                   fontWeight: 700,
                   color: colors.success,
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                   letterSpacing: "-0.02em",
                   lineHeight: 1,
                 }}>
@@ -4645,7 +4645,7 @@ export default function HomePage() {
                   fontSize: "11px",
                   color: colors.muted,
                   marginTop: "12px",
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                 }}>
                   <span style={{ color: colors.success }}>↓ 100%</span> vs. platforms
                 </div>
@@ -4677,7 +4677,7 @@ export default function HomePage() {
                   color: colors.muted,
                   letterSpacing: "1px",
                   marginBottom: "8px",
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                 }}>
                   VOLUME
                 </div>
@@ -4685,7 +4685,7 @@ export default function HomePage() {
                   fontSize: isMobile ? "32px" : "36px",
                   fontWeight: 700,
                   color: colors.primary,
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                   letterSpacing: "-0.02em",
                   lineHeight: 1,
                 }}>
@@ -4695,7 +4695,7 @@ export default function HomePage() {
                   fontSize: "11px",
                   color: colors.muted,
                   marginTop: "12px",
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                   display: "flex",
                   alignItems: "center",
                   gap: "6px",
@@ -4734,7 +4734,7 @@ export default function HomePage() {
                   color: colors.muted,
                   letterSpacing: "1px",
                   marginBottom: "8px",
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
@@ -4753,7 +4753,7 @@ export default function HomePage() {
                   fontSize: isMobile ? "32px" : "36px",
                   fontWeight: 700,
                   color: colors.success,
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                   letterSpacing: "0.02em",
                   lineHeight: 1,
                 }}>
@@ -4763,7 +4763,7 @@ export default function HomePage() {
                   fontSize: "11px",
                   color: colors.muted,
                   marginTop: "12px",
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                 }}>
                   <span style={{ color: colors.success }}>100%</span> uptime
                 </div>
@@ -5150,7 +5150,7 @@ export default function HomePage() {
                   fontWeight: 700,
                   fontSize: "14px",
                   textDecoration: "none",
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-family-mono)",
                   boxShadow: `
                     0 0 30px ${colors.primaryGlowStrong},
                     0 0 50px ${colors.primaryGlow},

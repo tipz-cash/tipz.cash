@@ -246,7 +246,7 @@ ${shieldedAddress || "[your address]"}`
     padding: "18px 16px",
     minHeight: "58px",
     fontSize: "16px", // Prevents iOS zoom on focus
-    fontFamily: "'JetBrains Mono', monospace",
+    fontFamily: "var(--font-family-mono)",
     backgroundColor: colors.bg,
     border: `1px solid ${colors.border}`,
     borderRadius: "8px",
@@ -288,7 +288,7 @@ ${shieldedAddress || "[your address]"}`
       minHeight: "100vh",
       padding: "clamp(24px, 6vw, 48px) clamp(16px, 4vw, 24px)",
       background: `linear-gradient(180deg, ${colors.bgGradientStart} 0%, ${colors.bgGradientEnd} 100%)`,
-      fontFamily: "'JetBrains Mono', monospace",
+      fontFamily: "var(--font-family-mono)",
       position: "relative",
     }}>
       <div style={{ width: "100%", maxWidth: "520px", position: "relative", zIndex: 1 }}>
@@ -389,7 +389,7 @@ ${shieldedAddress || "[your address]"}`
             letterSpacing: "-0.02em",
             lineHeight: 1.15,
             color: colors.textBright,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}>
             <span style={{ color: colors.primary }}>{">"}</span>{" "}
             Claim Your Sovereign Identity.
@@ -401,7 +401,7 @@ ${shieldedAddress || "[your address]"}`
             color: colors.muted,
             fontSize: "14px",
             lineHeight: 1.7,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
           }}>
             One handle for every asset. Your universal address for the private web.
           </p>
@@ -430,7 +430,7 @@ ${shieldedAddress || "[your address]"}`
                 transform: "translateY(-50%)",
                 color: colors.muted,
                 fontSize: "16px",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
                 pointerEvents: "none",
               }}>@</span>
               <input

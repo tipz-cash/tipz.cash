@@ -112,7 +112,7 @@ export function ActivityTicker({
           display: flex;
           align-items: center;
           gap: 10px;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: var(--font-family-mono);
           font-size: 13px;
           padding: 0 32px;
           contain: layout style;

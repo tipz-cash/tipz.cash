@@ -17,7 +17,7 @@ export function TipzLogo({
       style={{
         fontWeight: 700,
         fontSize: `${size}px`,
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "var(--font-family-mono)",
         display: "inline-flex",
         alignItems: "center",
       }}

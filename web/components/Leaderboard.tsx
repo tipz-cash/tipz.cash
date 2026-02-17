@@ -172,7 +172,7 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
               letterSpacing: "2px",
               color: colors.muted,
               margin: 0,
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
               textTransform: "uppercase",
             }}
           >
@@ -314,7 +314,7 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
             fontSize: "14px",
             fontWeight: 700,
             color: colors.bg,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
             boxShadow: `0 0 16px ${tierGlow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
             opacity: 0,
             animation: prefersReducedMotion
@@ -360,7 +360,7 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
             fontSize: "14px",
             fontWeight: 600,
             color: colors.textBright,
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-family-mono)",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -384,7 +384,7 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
             style={{
               fontSize: "12px",
               color: colors.muted,
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
               transition: "color 0.3s ease",
             }}
           >

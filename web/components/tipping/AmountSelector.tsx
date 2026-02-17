@@ -113,7 +113,7 @@ export function AmountSelector({
                 color: isSelected ? "#050505" : tokens.colors.text,
                 fontSize: "14px",
                 fontWeight: 600,
-                fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                fontFamily: "var(--font-family-mono)",
                 cursor: disabled ? "not-allowed" : "pointer",
                 opacity: disabled ? 0.5 : 1,
                 boxShadow: isSelected ? "0 0 24px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)" : "none",
@@ -158,7 +158,7 @@ export function AmountSelector({
               color: isCustom && inputValue ? "#050505" : tokens.colors.textMuted,
               fontSize: "14px",
               fontWeight: 500,
-              fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
             }}
           >
             $
@@ -186,7 +186,7 @@ export function AmountSelector({
               outline: "none",
               color: isCustom && inputValue ? "#050505" : tokens.colors.textBright,
               fontSize: "14px",
-              fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+              fontFamily: "var(--font-family-mono)",
               fontWeight: 600,
             }}
           />

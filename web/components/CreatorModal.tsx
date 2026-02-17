@@ -220,7 +220,7 @@ export function CreatorModal({ creator, onClose }: CreatorModalProps) {
                       color: isSelected ? "#050505" : tokens.colors.text,
                       fontSize: "14px",
                       fontWeight: 600,
-                      fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                      fontFamily: "var(--font-family-mono)",
                       cursor: "pointer",
                       boxShadow: isSelected ? "0 0 24px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)" : "none",
                       transition: `all ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
@@ -251,7 +251,7 @@ export function CreatorModal({ creator, onClose }: CreatorModalProps) {
                     color: tokens.colors.textMuted,
                     fontSize: "14px",
                     fontWeight: 500,
-                    fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                    fontFamily: "var(--font-family-mono)",
                   }}
                 >
                   $
@@ -260,7 +260,7 @@ export function CreatorModal({ creator, onClose }: CreatorModalProps) {
                   style={{
                     color: tokens.colors.textSubtle,
                     fontSize: "14px",
-                    fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                    fontFamily: "var(--font-family-mono)",
                   }}
                 >
                   Other
