@@ -423,7 +423,14 @@ export default function MyTipzPage() {
         padding: "clamp(24px, 6vw, 48px) clamp(16px, 4vw, 24px)",
         paddingTop: "80px",
       }}>
-        <div style={{ width: "100%", maxWidth: "600px" }}>
+        <div style={{
+          width: "100%",
+          maxWidth: "600px",
+          background: colors.surface,
+          border: `1px solid ${colors.cardBorder}`,
+          borderRadius: "16px",
+          padding: "clamp(16px, 4vw, 24px)",
+        }}>
 
           {/* Loading Skeleton */}
           {loading && <DashboardSkeleton />}
