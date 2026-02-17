@@ -96,6 +96,16 @@ export async function generateQRSvg(
 }
 
 /**
+ * Encode UTF-8 text as base64url without padding (ZIP-321 memo format)
+ */
+function textToBase64url(text: string): string {
+  const bytes = new TextEncoder().encode(text)
+  const binary = String.fromCharCode(...bytes)
+  const base64 = btoa(binary)
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+/**
  * Generate a Zcash payment URI
  * Format: zcash:<address>?amount=<amount>&memo=<memo>
  */
@@ -113,7 +123,7 @@ export function createZcashUri(
 
   if (memo) {
     // URI encode the memo
-    params.push(`memo=${encodeURIComponent(memo)}`)
+    params.push(`memo=${textToBase64url(memo)}`)
   }
 
   if (params.length > 0) {
