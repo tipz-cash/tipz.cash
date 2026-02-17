@@ -69,6 +69,7 @@ interface ExecuteResponse {
   status: "pending" | "pending_deposit" | "confirmed" | "failed"
   intentId: string
   transactionId?: string // Database transaction ID for tracking
+  tracked?: boolean // Whether the tip was logged to the database
   estimatedCompletion?: number
   message?: string
   depositAddress?: string
@@ -261,6 +262,7 @@ export async function POST(request: NextRequest) {
       status,
       intentId,
       transactionId,
+      tracked: !!transactionId,
       estimatedCompletion,
       depositAddress,
       statusUrl,

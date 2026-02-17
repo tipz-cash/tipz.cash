@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { TippingFlow } from "@/components/tipping"
 import { LetterGridBackground } from "@/components/LetterGridBackground"
+import SiteHeader from "@/components/SiteHeader"
 
 const colors = {
   bg: "#050505",
@@ -729,6 +730,7 @@ export default function CreatorCardPage() {
   return (
     <>
       <style>{responsiveStyles}</style>
+      <SiteHeader />
       <div className="tipz-page">
         {showBackground && (
             <div className="tipz-background-wrapper">
