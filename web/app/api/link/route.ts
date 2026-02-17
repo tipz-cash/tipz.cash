@@ -91,6 +91,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid RSA public key" }, { status: 400, headers })
   }
 
+  // Validate RSA key size (must be >= 4096 bits)
+  const modulusBytes = Buffer.from(key.n as string, "base64url")
+  const modulusBits = modulusBytes.length * 8
+  if (modulusBits < 4096) {
+    return NextResponse.json(
+      { error: `RSA key too small: ${modulusBits} bits (minimum 4096)` },
+      { status: 400, headers }
+    )
+  }
+
   if (!supabase) {
     return NextResponse.json({ error: "Database not configured" }, { status: 503 })
   }

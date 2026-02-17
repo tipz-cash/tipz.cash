@@ -50,13 +50,16 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
+// 4096-bit (512-byte) modulus in base64url for test fixtures
+const VALID_4096_MODULUS = "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s"
+
 describe("POST /api/link", () => {
   it("links with valid token and valid public key", async () => {
     mockVerifyTwitterToken.mockResolvedValue({ valid: true, username: "testcreator" })
 
     const res = await linkHandler(createRequest({
       twitterAccessToken: "valid-oauth-token",
-      publicKey: { kty: "RSA", n: "abc123", e: "AQAB" },
+      publicKey: { kty: "RSA", n: VALID_4096_MODULUS, e: "AQAB" },
     }))
     const data = await res.json()
 
@@ -109,5 +112,20 @@ describe("POST /api/link", () => {
 
     expect(res.status).toBe(401)
     expect((await res.json()).code).toBe("AUTH_REQUIRED")
+  })
+
+  it("rejects RSA key smaller than 4096 bits", async () => {
+    mockVerifyTwitterToken.mockResolvedValue({ valid: true, username: "testcreator" })
+
+    // 2048-bit (256-byte) modulus — too small
+    const weakModulus = "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s"
+    const res = await linkHandler(createRequest({
+      twitterAccessToken: "valid-oauth-token",
+      publicKey: { kty: "RSA", n: weakModulus, e: "AQAB" },
+    }))
+    const data = await res.json()
+
+    expect(res.status).toBe(400)
+    expect(data.error).toContain("RSA key too small")
   })
 })

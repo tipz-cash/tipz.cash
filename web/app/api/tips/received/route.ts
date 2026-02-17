@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     const { data: tips, error: txError } = await supabase
       .from("tipz")
-      .select("id, created_at, status, source_platform, data")
+      .select("id, created_at, status, source_platform, data, amount_zec, amount_usd")
       .eq("creator_id", creator.id)
       .order("created_at", { ascending: false })
       .limit(limit)
@@ -48,6 +48,8 @@ export async function GET(request: NextRequest) {
       status: tip.status,
       source_platform: tip.source_platform,
       data: tip.data,
+      amount_zec: tip.amount_zec ? Number(tip.amount_zec) : null,
+      amount_usd: tip.amount_usd ? Number(tip.amount_usd) : null,
     }))
 
     return NextResponse.json({

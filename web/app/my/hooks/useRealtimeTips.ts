@@ -10,6 +10,8 @@ interface RawTip {
   source_platform: string
   data: string | null
   creator_id: string
+  amount_zec: number | null
+  amount_usd: number | null
 }
 
 type ConnectionStatus = "disconnected" | "connecting" | "connected"
