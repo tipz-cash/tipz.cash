@@ -9,6 +9,7 @@ import {
   hasPrivateKey,
   generateKeyPair,
   storePrivateKey,
+  getPublicKeyFromStoredPrivate,
   decryptTipData,
 } from "@/lib/crypto-client"
 import type { TipzData } from "@/lib/tipz"
@@ -292,7 +293,22 @@ export default function MyTipzPage() {
   }, [])
 
   const loadDashboard = useCallback(async (userHandle: string) => {
+    // Fetch tips, stats, and creator profile in parallel
+    const [tipsRes, statsRes, creatorRes] = await Promise.all([
+      fetch(`/api/tips/received?handle=${encodeURIComponent(userHandle)}&limit=5`),
+      fetch(`/api/tips/stats?handle=${encodeURIComponent(userHandle)}`),
+      fetch(`/api/creator?platform=x&handle=${encodeURIComponent(userHandle)}`),
+    ])
+
+    const tipsData = await tipsRes.json()
+    const statsData = await statsRes.json()
+    const creatorData = await creatorRes.json()
+
+    // Key management: two distinct branches to avoid overwriting existing keys
+    const needsKeyUpload = !creatorData.creator?.public_key
+
     if (!hasPrivateKey()) {
+      // No local key — generate fresh pair + upload
       setKeySetup(true)
       try {
         const { publicKey, privateKey } = await generateKeyPair()
@@ -309,18 +325,26 @@ export default function MyTipzPage() {
         console.error("[my] Key generation failed:", err)
       }
       setKeySetup(false)
+    } else if (needsKeyUpload) {
+      // Have local key but DB missing — re-upload existing public key
+      setKeySetup(true)
+      try {
+        const publicKey = getPublicKeyFromStoredPrivate()
+        if (publicKey) {
+          const linkRes = await fetch("/api/link", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ publicKey }),
+          })
+          if (!linkRes.ok) {
+            console.warn("[my] Failed to re-upload public key:", await linkRes.text())
+          }
+        }
+      } catch (err) {
+        console.error("[my] Public key re-upload failed:", err)
+      }
+      setKeySetup(false)
     }
-
-    // Fetch tips, stats, and creator profile in parallel
-    const [tipsRes, statsRes, creatorRes] = await Promise.all([
-      fetch(`/api/tips/received?handle=${encodeURIComponent(userHandle)}&limit=5`),
-      fetch(`/api/tips/stats?handle=${encodeURIComponent(userHandle)}`),
-      fetch(`/api/creator?platform=x&handle=${encodeURIComponent(userHandle)}`),
-    ])
-
-    const tipsData = await tipsRes.json()
-    const statsData = await statsRes.json()
-    const creatorData = await creatorRes.json()
 
     setTipCount(statsData.tip_count || 0)
     setAvatarUrl(creatorData.creator?.avatar_url || null)
@@ -452,7 +476,7 @@ export default function MyTipzPage() {
             borderRight: "none",
             borderBottom: "1px solid rgba(0, 0, 0, 0.8)",
             borderRadius: "24px",
-            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+            boxShadow: "0 0 20px rgba(255, 215, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
             padding: "20px 24px",
             overflow: "hidden",
           }}
