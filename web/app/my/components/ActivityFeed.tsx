@@ -36,7 +36,12 @@ export default function ActivityFeed({
     : { animation: "fadeIn 0.3s ease-out forwards", animationDelay: "300ms", animationFillMode: "both" as const }
 
   return (
-    <div>
+    <div style={{
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      minHeight: 0,
+    }}>
       {/* Section label */}
       <div style={{
         fontSize: "11px",
@@ -52,6 +57,7 @@ export default function ActivityFeed({
       {/* Empty state */}
       {tips.length === 0 && (
         <div style={{
+          flex: 1,
           border: `1px solid ${colors.border}`,
           borderRadius: "12px",
           ...animStyle,
@@ -63,10 +69,13 @@ export default function ActivityFeed({
       {/* Timeline feed */}
       {tips.length > 0 && (
         <div style={{
+          flex: 1,
           position: "relative",
           border: `1px solid rgba(255, 255, 255, 0.06)`,
           borderRadius: "12px",
           overflow: "hidden",
+          overflowY: "auto",
+          maxHeight: "420px",
         }}>
           {/* Vertical timeline line */}
           <div style={{
