@@ -28,6 +28,8 @@ interface Tip {
   status: string
   source_platform: string
   data: string | null
+  amount_zec: number | null
+  amount_usd: number | null
 }
 
 interface DecryptedTip extends Tip {
@@ -195,6 +197,7 @@ export default function MyTipzPage() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [zecPrice, setZecPrice] = useState<number>(0)
   const [showBackground, setShowBackground] = useState(false)
+  const [serverTotalZec, setServerTotalZec] = useState<number | null>(null)
 
   // Real-time tips
   const { status: connectionStatus, newTips, clearNewTips } = useRealtimeTips(
@@ -347,6 +350,7 @@ export default function MyTipzPage() {
     }
 
     setTipCount(statsData.tip_count || 0)
+    setServerTotalZec(statsData.total_zec ?? null)
     setAvatarUrl(creatorData.creator?.avatar_url || null)
 
     const rawTips: Tip[] = tipsData.tips || []
@@ -409,8 +413,11 @@ export default function MyTipzPage() {
     setToastTips((prev) => prev.filter((t) => t.id !== id))
   }
 
-  // Calculate totals
-  const totalZec = tips.reduce((sum, t) => sum + (t.decrypted?.amount_zec || 0), 0)
+  // Calculate totals — prefer server-side sum (includes ALL tips), fall back to client-side
+  const clientTotalZec = tips.reduce((sum, t) => {
+    return sum + (t.decrypted?.amount_zec ?? t.amount_zec ?? 0)
+  }, 0)
+  const totalZec = serverTotalZec ?? clientTotalZec
   const totalUsd = totalZec * zecPrice
 
   const animStyle: React.CSSProperties = prefersReducedMotion
@@ -476,7 +483,7 @@ export default function MyTipzPage() {
             borderRight: "none",
             borderBottom: "1px solid rgba(0, 0, 0, 0.8)",
             borderRadius: "24px",
-            boxShadow: "0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(255, 215, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+            boxShadow: "0 0 40px rgba(255, 215, 0, 0.5), 0 0 80px rgba(255, 215, 0, 0.25), 0 0 120px rgba(255, 215, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
             padding: "20px 24px",
             overflow: "hidden",
           }}
