@@ -300,7 +300,7 @@ export default function MyTipzPage() {
 
     // Fetch tips, stats, and creator profile in parallel
     const [tipsRes, statsRes, creatorRes] = await Promise.all([
-      fetch(`/api/tips/received?handle=${encodeURIComponent(userHandle)}&limit=50`),
+      fetch(`/api/tips/received?handle=${encodeURIComponent(userHandle)}&limit=5`),
       fetch(`/api/tips/stats?handle=${encodeURIComponent(userHandle)}`),
       fetch(`/api/creator?platform=x&handle=${encodeURIComponent(userHandle)}`),
     ])

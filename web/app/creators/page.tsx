@@ -156,7 +156,7 @@ export default function CreatorsPage() {
 
         @media (max-width: 768px) {
           .hero-section {
-            padding: 40px 16px 32px;
+            padding: 80px 16px 32px;
           }
 
           .creators-grid-section {
@@ -192,7 +192,7 @@ export default function CreatorsPage() {
             padding: 0 12px 32px;
           }
           .hero-section {
-            padding: 32px 12px 24px;
+            padding: 80px 12px 24px;
           }
         }
       `}</style>
@@ -302,7 +302,7 @@ export default function CreatorsPage() {
                     border: `1px solid ${colors.border}`,
                     borderRadius: "8px",
                     color: colors.textBright,
-                    fontSize: "14px",
+                    fontSize: "16px",
                     fontFamily: "inherit",
                     outline: "none",
                   }}

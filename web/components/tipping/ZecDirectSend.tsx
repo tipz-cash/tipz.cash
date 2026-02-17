@@ -193,8 +193,8 @@ export function ZecDirectSend({
         {error ? (
           <div
             style={{
-              width: "280px",
-              height: "280px",
+              width: "min(280px, calc(100vw - 64px))",
+              height: "min(280px, calc(100vw - 64px))",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -210,16 +210,16 @@ export function ZecDirectSend({
             src={qrDataUrl}
             alt="ZEC payment QR code"
             style={{
-              width: "280px",
-              height: "280px",
+              width: "min(280px, calc(100vw - 64px))",
+              height: "min(280px, calc(100vw - 64px))",
               display: "block",
             }}
           />
         ) : (
           <div
             style={{
-              width: "280px",
-              height: "280px",
+              width: "min(280px, calc(100vw - 64px))",
+              height: "min(280px, calc(100vw - 64px))",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

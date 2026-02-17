@@ -539,6 +539,7 @@ ${shieldedAddress || "[your address]"}`
                   color: colors.primary,
                   cursor: "pointer",
                   fontWeight: 500,
+                  padding: "12px 0",
                 }}>
                   Need a wallet?
                 </summary>
@@ -619,7 +620,7 @@ ${shieldedAddress || "[your address]"}`
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
-                    padding: "10px 18px",
+                    padding: "14px 18px",
                     fontSize: "14px",
                     fontWeight: 500,
                     color: colors.textBright,
@@ -851,10 +852,9 @@ ${shieldedAddress || "[your address]"}`
             <div style={{
               position: isMobile ? "sticky" : "relative",
               bottom: 0,
-              left: isMobile ? "-16px" : 0,
-              right: isMobile ? "-16px" : 0,
-              width: isMobile ? "calc(100% + 32px)" : "100%",
-              padding: isMobile ? "16px" : 0,
+              margin: isMobile ? "0 calc(-1 * clamp(16px, 4vw, 24px))" : 0,
+              width: isMobile ? "auto" : "100%",
+              padding: isMobile ? "16px clamp(16px, 4vw, 24px)" : 0,
               paddingBottom: isMobile ? "max(16px, env(safe-area-inset-bottom))" : 0,
               background: isMobile ? `linear-gradient(180deg, transparent 0%, ${colors.bgGradientEnd} 20%)` : "transparent",
               marginTop: isMobile ? "16px" : 0,
