@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       .from("tipz")
       .select("created_at")
       .eq("creator_id", creator.id)
-      .eq("status", "confirmed")
+      .in("status", ["pending", "confirmed"])
       .order("created_at", { ascending: false })
 
     if (txError) {

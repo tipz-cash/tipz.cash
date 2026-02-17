@@ -40,6 +40,38 @@ export type SwapStatusType =
 // localStorage keys for fire-and-forget persistence
 const PENDING_TIP_KEY = "tipz_pending_tip"
 const FAILED_TIP_KEY = "tipz_failed_tip"
+const TIP_HISTORY_KEY = "tipz_tip_history"
+const MAX_HISTORY = 20
+
+export interface TipHistoryEntry {
+  creatorHandle: string
+  amount: string
+  tokenSymbol: string
+  status: "delivered" | "failed" | "refunded"
+  timestamp: number
+  depositAddress?: string
+}
+
+function addToTipHistory(entry: TipHistoryEntry): void {
+  try {
+    const raw = localStorage.getItem(TIP_HISTORY_KEY)
+    const history: TipHistoryEntry[] = raw ? JSON.parse(raw) : []
+    history.unshift(entry)
+    if (history.length > MAX_HISTORY) history.length = MAX_HISTORY
+    localStorage.setItem(TIP_HISTORY_KEY, JSON.stringify(history))
+  } catch (e) {
+    console.error("[useTipping] Failed to persist tip history:", e)
+  }
+}
+
+export function getTipHistory(): TipHistoryEntry[] {
+  try {
+    const raw = localStorage.getItem(TIP_HISTORY_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
 
 interface PendingTip {
   depositAddress: string
@@ -85,6 +117,8 @@ interface UseTippingReturn {
   // Fire-and-forget: tip status from previous session
   failedTipNotification: FailedTip | null
   pendingTipNotification: PendingTip | null
+  // Warning when execute call fails (tip still sent, just not tracked)
+  executeWarning: string | null
 
   // Actions
   expand: () => void
@@ -99,10 +133,29 @@ interface UseTippingReturn {
   retry: () => void
   dismissFailedTipNotification: () => void
   dismissPendingTipNotification: () => void
+  dismissExecuteWarning: () => void
 }
 
 const PRESET_AMOUNTS = [1, 5, 10, 25]
 const STATUS_POLL_INTERVAL = 5000 // 5 seconds
+
+/**
+ * Retry wrapper for fetch calls. Retries on network errors and 5xx responses.
+ * Safe for idempotent endpoints like /api/swap/execute (unique deposit address).
+ */
+async function fetchWithRetry(url: string, options: RequestInit, retries = 2): Promise<Response> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch(url, options)
+      if (res.ok || res.status < 500) return res // Don't retry client errors
+      if (i < retries) await new Promise(r => setTimeout(r, 1000 * (i + 1)))
+    } catch (e) {
+      if (i === retries) throw e
+      await new Promise(r => setTimeout(r, 1000 * (i + 1)))
+    }
+  }
+  throw new Error("Max retries exceeded")
+}
 
 export function useTipping(options: UseTippingOptions): UseTippingReturn {
   const { creatorHandle, shieldedAddress, walletAddress, chainId, isWalletConnected } = options
@@ -131,6 +184,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
   const [shownOptimisticSuccess, setShownOptimisticSuccess] = useState(false)
   const [failedTipNotification, setFailedTipNotification] = useState<FailedTip | null>(null)
   const [pendingTipNotification, setPendingTipNotification] = useState<PendingTip | null>(null)
+  const [executeWarning, setExecuteWarning] = useState<string | null>(null)
 
   // Polling ref
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
@@ -183,7 +237,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
           // Show pending tip notification to user
           setPendingTipNotification(pendingTip)
           // Start silent background polling
-          startBackgroundPolling(pendingTip.depositAddress, pendingTip.creatorHandle, pendingTip.amount, pendingTip.transactionId)
+          startBackgroundPolling(pendingTip.depositAddress, pendingTip.creatorHandle, pendingTip.amount, pendingTip.transactionId, pendingTip.tokenSymbol, shieldedAddress)
         } else {
           // Tip too old, clean up
           localStorage.removeItem(PENDING_TIP_KEY)
@@ -257,6 +311,9 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
       if (effectiveTxId) {
         url += `&transactionId=${encodeURIComponent(effectiveTxId)}`
       }
+      if (shieldedAddress) {
+        url += `&creatorAddress=${encodeURIComponent(shieldedAddress)}`
+      }
       const response = await fetch(url)
       if (!response.ok) {
         console.error("[useTipping] Status poll failed:", response.status)
@@ -292,8 +349,24 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
               completedAt: Date.now(),
             })
           }
+          addToTipHistory({
+            creatorHandle,
+            amount: transaction?.fromAmount || "unknown",
+            tokenSymbol: selectedToken?.symbol || "UNKNOWN",
+            status: "delivered",
+            timestamp: Date.now(),
+            depositAddress: depositAddress || undefined,
+          })
         } else if (data.status === "REFUNDED") {
           // Swap was refunded
+          addToTipHistory({
+            creatorHandle,
+            amount: transaction?.fromAmount || "unknown",
+            tokenSymbol: selectedToken?.symbol || "UNKNOWN",
+            status: "refunded",
+            timestamp: Date.now(),
+            depositAddress: depositAddress || undefined,
+          })
           if (shownOptimisticSuccess) {
             // User already saw success screen - store failure for next visit
             const failedTip: FailedTip = {
@@ -310,6 +383,14 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
           }
         } else {
           // Swap failed
+          addToTipHistory({
+            creatorHandle,
+            amount: transaction?.fromAmount || "unknown",
+            tokenSymbol: selectedToken?.symbol || "UNKNOWN",
+            status: "failed",
+            timestamp: Date.now(),
+            depositAddress: depositAddress || undefined,
+          })
           if (shownOptimisticSuccess) {
             // User already saw success screen - store failure for next visit
             const failedTip: FailedTip = {
@@ -329,7 +410,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     } catch (err) {
       console.error("[useTipping] Status poll error:", err)
     }
-  }, [transaction, shownOptimisticSuccess, creatorHandle, transactionId])
+  }, [transaction, shownOptimisticSuccess, creatorHandle, transactionId, selectedToken, depositAddress, shieldedAddress])
 
   /**
    * Start polling for swap status (updates UI)
@@ -360,7 +441,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
    * Start silent background polling (fire-and-forget mode)
    * Does NOT update UI state - just tracks completion for notifications
    */
-  const startBackgroundPolling = useCallback((address: string, handle: string, amount: string, txId?: string) => {
+  const startBackgroundPolling = useCallback((address: string, handle: string, amount: string, txId?: string, tokenSymbol?: string, creatorAddr?: string) => {
     // Don't start if already polling
     if (pollingRef.current && pollingAddressRef.current === address) {
       return
@@ -378,6 +459,9 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         let url = `/api/swap/status?depositAddress=${encodeURIComponent(address)}`
         if (txId) {
           url += `&transactionId=${encodeURIComponent(txId)}`
+        }
+        if (creatorAddr) {
+          url += `&creatorAddress=${encodeURIComponent(creatorAddr)}`
         }
         const response = await fetch(url)
         if (!response.ok) {
@@ -402,12 +486,29 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
           if (data.success) {
             console.log("[useTipping] Background swap completed successfully")
             setFlowState("success")
+            addToTipHistory({
+              creatorHandle: handle,
+              amount,
+              tokenSymbol: tokenSymbol || "UNKNOWN",
+              status: "delivered",
+              timestamp: Date.now(),
+              depositAddress: address,
+            })
           } else {
             // Swap failed/refunded - store for notification banner
+            const status = data.status === "REFUNDED" ? "refunded" : "failed"
+            addToTipHistory({
+              creatorHandle: handle,
+              amount,
+              tokenSymbol: tokenSymbol || "UNKNOWN",
+              status,
+              timestamp: Date.now(),
+              depositAddress: address,
+            })
             const failedTip: FailedTip = {
               creatorHandle: handle,
               amount,
-              reason: data.status === "REFUNDED" ? "refunded" : "failed",
+              reason: status,
               timestamp: Date.now(),
             }
             localStorage.setItem(FAILED_TIP_KEY, JSON.stringify(failedTip))
@@ -562,10 +663,11 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         setDepositAddress(pollAddress)
 
         // Log the tip to the database via /api/swap/execute (includes encrypted memo)
+        // Uses retry to handle transient failures — the endpoint is idempotent (unique deposit address)
         let txId: string | undefined
         if (quote) {
           try {
-            const execRes = await fetch("/api/swap/execute", {
+            const execRes = await fetchWithRetry("/api/swap/execute", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -595,9 +697,11 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
               txId = execData.transactionId
             } else {
               console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
+              setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
             }
           } catch (e) {
-            console.error("[useTipping] Failed to log tip:", e)
+            console.error("[useTipping] Failed to log tip after retries:", e)
+            setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
           }
         }
 
@@ -624,6 +728,13 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
       } else {
         // No deposit address - show success directly
         setFlowState("success")
+        addToTipHistory({
+          creatorHandle,
+          amount: tx.fromAmount || selectedAmount?.toString() || customAmount || "unknown",
+          tokenSymbol: selectedToken?.symbol || "UNKNOWN",
+          status: "delivered",
+          timestamp: Date.now(),
+        })
       }
     } catch (err: any) {
       // Handle specific errors
@@ -659,6 +770,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     setSwapStatus(null)
     setIsRealSwap(false)
     setShownOptimisticSuccess(false)
+    setExecuteWarning(null)
   }, [])
 
   const dismissFailedTipNotification = useCallback(() => {
@@ -670,6 +782,10 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     setPendingTipNotification(null)
     // Don't remove from localStorage - still need to track the tip
     // Just hide the UI notification
+  }, [])
+
+  const dismissExecuteWarning = useCallback(() => {
+    setExecuteWarning(null)
   }, [])
 
   const retry = useCallback(() => {
@@ -768,9 +884,10 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         setDepositAddress(pollAddress)
 
         // Log the tip to the database via /api/swap/execute (includes encrypted memo)
+        // Uses retry to handle transient failures — the endpoint is idempotent (unique deposit address)
         let txId: string | undefined
         try {
-          const execRes = await fetch("/api/swap/execute", {
+          const execRes = await fetchWithRetry("/api/swap/execute", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -800,9 +917,11 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
             txId = execData.transactionId
           } else {
             console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
+            setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
           }
         } catch (e) {
-          console.error("[useTipping] Failed to log tip:", e)
+          console.error("[useTipping] Failed to log tip after retries:", e)
+          setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
         }
 
         if (txId) setTransactionId(txId)
@@ -827,6 +946,13 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         startStatusPolling(pollAddress, txId)
       } else {
         setFlowState("success")
+        addToTipHistory({
+          creatorHandle,
+          amount: tx.fromAmount || selectedAmount?.toString() || customAmount || "unknown",
+          tokenSymbol: selectedToken?.symbol || "UNKNOWN",
+          status: "delivered",
+          timestamp: Date.now(),
+        })
       }
     } catch (err: any) {
       if (err.message?.includes("rejected") || err.message?.includes("cancelled")) {
@@ -868,6 +994,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     isRealSwap,
     failedTipNotification,
     pendingTipNotification,
+    executeWarning,
 
     expand,
     collapse,
@@ -881,5 +1008,6 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     retry,
     dismissFailedTipNotification,
     dismissPendingTipNotification,
+    dismissExecuteWarning,
   }
 }
