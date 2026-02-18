@@ -54,13 +54,11 @@ export async function GET(request: NextRequest) {
         creator_id,
         creators!inner(
           handle,
-          verification_status,
           avatar_url
         )
       `
       )
-      .eq("status", "confirmed")
-      .eq("creators.verification_status", "verified")
+      .in("status", ["pending", "confirmed"])
 
     if (error) {
       console.error("[leaderboard] Query error:", error)
