@@ -18,8 +18,6 @@ interface DecryptedTip {
   status: string
   source_platform: string
   data: string | null
-  amount_zec: number | null
-  amount_usd: number | null
   decrypted?: TipzData
   decryptFailed?: boolean
   isNew?: boolean
@@ -140,68 +138,8 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
             via {tip.source_platform}
           </div>
         </div>
-      ) : tip.amount_zec != null ? (
-        /* State 2: Plaintext amounts available, memo still locked */
-        <div>
-          <div style={{
-            display: "flex",
-            alignItems: "baseline",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "8px",
-          }}>
-            <div>
-              <span style={{
-                fontSize: "15px",
-                fontWeight: 600,
-                color: colors.textBright,
-                fontFamily: "var(--font-family-mono)",
-              }}>
-                {tip.amount_zec.toFixed(4)} ZEC
-              </span>
-              <span style={{
-                color: colors.success,
-                fontWeight: 400,
-                fontSize: "13px",
-                marginLeft: "8px",
-              }}>
-                ${(tip.amount_usd ?? tip.amount_zec * zecPrice).toFixed(2)}
-              </span>
-            </div>
-            <span style={{
-              fontSize: "11px",
-              color: colors.muted,
-              fontFamily: "var(--font-family-mono)",
-              whiteSpace: "nowrap",
-            }}>
-              {formatDate(tip.created_at)}
-            </span>
-          </div>
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            fontSize: "12px",
-            color: colors.muted,
-            marginTop: "4px",
-            fontStyle: "italic",
-            opacity: 0.7,
-          }}>
-            <LockIcon size={12} color={colors.muted} />
-            memo encrypted
-          </div>
-          <div style={{
-            fontSize: "11px",
-            color: colors.muted,
-            marginTop: "2px",
-            fontFamily: "var(--font-family-mono)",
-            opacity: 0.7,
-          }}>
-            via {tip.source_platform}
-          </div>
-        </div>
       ) : (
-        /* State 3: Fully encrypted — no amounts available */
+        /* Encrypted — amounts only available after decryption */
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <LockIcon size={14} color={colors.muted} />
           <div>

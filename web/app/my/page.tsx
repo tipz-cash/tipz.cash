@@ -28,8 +28,6 @@ interface Tip {
   status: string
   source_platform: string
   data: string | null
-  amount_zec: number | null
-  amount_usd: number | null
 }
 
 interface DecryptedTip extends Tip {
@@ -197,7 +195,6 @@ export default function MyTipzPage() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [zecPrice, setZecPrice] = useState<number>(0)
   const [showBackground, setShowBackground] = useState(false)
-  const [serverTotalZec, setServerTotalZec] = useState<number | null>(null)
 
   // Real-time tips
   const { status: connectionStatus, newTips, clearNewTips } = useRealtimeTips(
@@ -298,7 +295,7 @@ export default function MyTipzPage() {
   const loadDashboard = useCallback(async (userHandle: string) => {
     // Fetch tips, stats, and creator profile in parallel
     const [tipsRes, statsRes, creatorRes] = await Promise.all([
-      fetch(`/api/tips/received?handle=${encodeURIComponent(userHandle)}&limit=5`),
+      fetch(`/api/tips/received?handle=${encodeURIComponent(userHandle)}`),
       fetch(`/api/tips/stats?handle=${encodeURIComponent(userHandle)}`),
       fetch(`/api/creator?platform=x&handle=${encodeURIComponent(userHandle)}`),
     ])
@@ -350,7 +347,6 @@ export default function MyTipzPage() {
     }
 
     setTipCount(statsData.tip_count || 0)
-    setServerTotalZec(statsData.total_zec ?? null)
     setAvatarUrl(creatorData.creator?.avatar_url || null)
 
     const rawTips: Tip[] = tipsData.tips || []
@@ -413,11 +409,8 @@ export default function MyTipzPage() {
     setToastTips((prev) => prev.filter((t) => t.id !== id))
   }
 
-  // Calculate totals — prefer server-side sum (includes ALL tips), fall back to client-side
-  const clientTotalZec = tips.reduce((sum, t) => {
-    return sum + (t.decrypted?.amount_zec ?? t.amount_zec ?? 0)
-  }, 0)
-  const totalZec = serverTotalZec ?? clientTotalZec
+  // Calculate totals from decrypted tip data (amounts live only in encrypted blob)
+  const totalZec = tips.reduce((sum, t) => sum + (t.decrypted?.amount_zec ?? 0), 0)
   const totalUsd = totalZec * zecPrice
 
   const animStyle: React.CSSProperties = prefersReducedMotion

@@ -7,6 +7,8 @@ import { supabase, findCreatorByHandle } from "@/lib/supabase"
  *
  * When `since` is provided, returns all tips after that timestamp as `{ tips: [...] }`.
  * Otherwise returns the single most recent tip as `{ tip: ... }`.
+ *
+ * The `data` field on each tip is encrypted and must be decrypted client-side.
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -42,7 +44,7 @@ export async function GET(request: NextRequest) {
     if (since) {
       const { data: tips, error: txError } = await supabase
         .from("tipz")
-        .select("id, created_at, status, source_platform, data, creator_id, amount_zec, amount_usd")
+        .select("id, created_at, status, source_platform, data, creator_id")
         .eq("creator_id", creatorId!)
         .gt("created_at", since)
         .order("created_at", { ascending: false })
@@ -57,7 +59,7 @@ export async function GET(request: NextRequest) {
     // No since: return single latest tip
     const { data: tip, error: txError } = await supabase
       .from("tipz")
-      .select("id, created_at, status, source_platform, data, amount_zec, amount_usd")
+      .select("id, created_at, status, source_platform, data")
       .eq("creator_id", creatorId!)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -74,8 +76,6 @@ export async function GET(request: NextRequest) {
         status: tip.status,
         source_platform: tip.source_platform,
         data: tip.data,
-        amount_zec: tip.amount_zec ? Number(tip.amount_zec) : null,
-        amount_usd: tip.amount_usd ? Number(tip.amount_usd) : null,
       },
     })
   } catch (error) {

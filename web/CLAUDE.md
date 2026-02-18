@@ -24,13 +24,15 @@ if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 
 ```
 
 ### Sensitive data is encrypted
-The `tipz` table has an encrypted `data` column (RSA + AES-GCM). Amounts (`amount_zec`, `amount_usd`) are plaintext for aggregation. Never store tipper wallet addresses, memos, swap details, or transaction hashes in plaintext columns.
+The `tipz` table has an encrypted `data` column (RSA + AES-GCM). All tip amounts and memos live exclusively inside this encrypted blob — there are no plaintext amount columns. Totals are computed client-side by decrypting all tips. Never store tipper wallet addresses, memos, amounts, swap details, or transaction hashes in plaintext columns.
 
 ### Auth-gated endpoints
-Any endpoint that returns a creator's tip data (`/api/tips/received`, `/api/tips/stats`) requires a valid session. Validate that the requested handle matches `session.handle`.
+Any endpoint that returns privileged creator data (e.g. session management, profile updates) requires a valid session. Validate that the requested handle matches `session.handle` and/or `creator_id` matches `session.creatorId`.
 
 ### Public endpoints
-These are intentionally public: `/api/activity`, `/api/creators`, `/api/leaderboard`, `/api/zec-price`, `/api/health`, `/api/og/[handle]`.
+These are intentionally public: `/api/activity`, `/api/creators`, `/api/leaderboard`, `/api/zec-price`, `/api/health`, `/api/og/[handle]`, `/api/tips/latest`, `/api/tips/received`, `/api/tips/stats`.
+
+The tips endpoints are safe to be public because all sensitive data (amounts, memos) lives in the encrypted `data` blob — no one can read it without the creator's RSA private key stored in IndexedDB.
 
 ## Code Quality Rules
 
@@ -51,7 +53,7 @@ Wallet errors get classified into user-friendly messages (`classifyTxError()`). 
 - `lib/near-intents.ts` — NEAR Intents cross-chain swap API
 - `hooks/useTipping.ts` — Tipping state machine (quote → sign → deliver → poll)
 - `app/api/swap/` — Quote, execute, status endpoints
-- `app/api/tips/` — Tips data endpoints (auth-gated)
+- `app/api/tips/` — Tips data endpoints (public — encrypted data only)
 - `app/api/auth/` — Twitter OAuth 2.0 PKCE + session management
 
 ## Testing
