@@ -259,8 +259,6 @@ export async function POST(request: NextRequest) {
               source_platform: sourcePlatform || "web",
               status: "pending",
               data: encryptedData,
-              amount_zec: parseFloat(quote.toAmount),
-              amount_usd: parseFloat(fromAmount) * parseFloat(quote.exchangeRate),
             })
             .select("id")
             .single()
