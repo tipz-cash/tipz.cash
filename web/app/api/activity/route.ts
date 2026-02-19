@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ activity: [] })
     }
 
-    // Filter out stealth mode creators and add randomized delay
+    // add randomized delay
     const activity: ActivityItem[] = (transactions || [])
       .slice(0, limit)
       .map((t: any) => {
