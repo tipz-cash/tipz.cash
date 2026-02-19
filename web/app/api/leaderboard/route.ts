@@ -16,6 +16,7 @@ export interface LeaderboardEntry {
   tip_count: number
   tier: "bronze" | "silver" | "gold" | "diamond"
   avatar_url?: string
+  is_og_cypherpunk?: boolean
 }
 
 interface LeaderboardResponse {

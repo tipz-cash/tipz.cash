@@ -197,6 +197,8 @@ export default function MyTipzPage() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [zecPrice, setZecPrice] = useState<number>(0)
   const [showBackground, setShowBackground] = useState(false)
+  const [isOgCypherpunk, setIsOgCypherpunk] = useState(false)
+  const [ogNumber, setOgNumber] = useState<number | undefined>(undefined)
 
   // Real-time tips
   const { status: connectionStatus, newTips, clearNewTips } = useRealtimeTips(
@@ -350,6 +352,8 @@ export default function MyTipzPage() {
 
     setTipCount(statsData.tip_count || 0)
     setAvatarUrl(creatorData.creator?.avatar_url || null)
+    setIsOgCypherpunk(creatorData.creator?.is_og_cypherpunk ?? false)
+    setOgNumber(creatorData.creator?.og_number)
 
     const rawTips: Tip[] = tipsData.tips || []
     const decrypted: DecryptedTip[] = await Promise.all(
@@ -549,6 +553,7 @@ export default function MyTipzPage() {
                 loggingOut={loggingOut}
                 onLogout={handleLogout}
                 prefersReducedMotion={prefersReducedMotion}
+                isOgCypherpunk={isOgCypherpunk}
               />
 
               <HeroStat

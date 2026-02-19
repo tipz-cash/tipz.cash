@@ -48,6 +48,7 @@ interface ProfileHeaderProps {
   loggingOut: boolean
   onLogout: () => void
   prefersReducedMotion: boolean
+  isOgCypherpunk?: boolean
 }
 
 function getInitialColor(handle: string): string {
@@ -66,6 +67,7 @@ export default function ProfileHeader({
   loggingOut,
   onLogout,
   prefersReducedMotion,
+  isOgCypherpunk,
 }: ProfileHeaderProps) {
   const [urlCopied, setUrlCopied] = useState(false)
   const tipUrl = `tipz.cash/${handle}`
@@ -243,6 +245,31 @@ export default function ProfileHeader({
               VERIFIED
             </span>
           </div>
+
+          {/* OG Cypherpunk badge */}
+          {isOgCypherpunk && (
+            <div style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "4px 12px",
+              borderRadius: "6px",
+              border: "1px solid rgba(245, 166, 35, 0.3)",
+              background: "rgba(245, 166, 35, 0.08)",
+              boxShadow: "0 0 20px rgba(245, 166, 35, 0.1)",
+              ...anim("400ms", "fadeIn 0.3s ease-out forwards"),
+            }}>
+              <span style={{
+                fontSize: "10px",
+                fontWeight: 700,
+                color: colors.primary,
+                letterSpacing: "1.5px",
+                fontFamily: "var(--font-family-mono)",
+              }}>
+                OG::CYPHERPUNK
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Tip URL with copy */}

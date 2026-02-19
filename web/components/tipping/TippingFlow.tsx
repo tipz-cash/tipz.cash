@@ -29,9 +29,10 @@ interface TippingFlowProps {
   avatarColor?: string
   avatarUrl?: string
   publicKey?: JsonWebKey  // Creator's public key for message encryption
+  isOgCypherpunk?: boolean
 }
 
-export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, avatarColor = "#4B5563", avatarUrl, publicKey }: TippingFlowProps) {
+export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, avatarColor = "#4B5563", avatarUrl, publicKey, isOgCypherpunk }: TippingFlowProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [showZecDirect, setShowZecDirect] = useState(false)
   const [showPaymentPicker, setShowPaymentPicker] = useState(false)
@@ -791,6 +792,28 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 <path d="M9 12l2 2 4-4" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
+            {/* Cypherpunk badge */}
+            {isOgCypherpunk && (
+              <div style={{
+                display: "inline-flex",
+                alignItems: "center",
+                padding: "3px 8px",
+                borderRadius: "4px",
+                border: "1px solid rgba(245, 166, 35, 0.3)",
+                background: "rgba(245, 166, 35, 0.08)",
+                marginTop: "4px",
+              }}>
+                <span style={{
+                  fontSize: "9px",
+                  fontWeight: 700,
+                  color: tokens.colors.gold,
+                  letterSpacing: "1.5px",
+                  fontFamily: tokens.font.mono,
+                }}>
+                  CYPHERPUNK
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

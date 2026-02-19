@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, memo, useMemo } from "react";
+import { useEffect, useState, useRef, memo, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SiteHeader from "@/components/SiteHeader";
 import { TipzLogo } from "@/components/TipzLogo";
@@ -573,6 +573,133 @@ function useCurrentChapter() {
   return currentChapter;
 }
 
+// Dashboard animation hook — counting stats, staggered activity feed, periodic live tips
+type ActivityItem = { amount: string; time: string; hasMemo: boolean; visible: boolean };
+
+function useDashboardAnimation(inView: boolean, reducedMotion: boolean) {
+  const FINAL_TIPS = 47;
+  const FINAL_ZEC = 12.84;
+  const FINAL_USD = 583.2;
+  const FINAL_PROGRESS = 65;
+  const TICK_MS = 40;
+  const PHASE1_TICKS = 50; // 2s at 40ms
+  const PHASE2_START = 2000;
+  const PHASE3_START = 3500;
+  const PHASE3_INTERVAL = 6000;
+
+  const initialActivity: ActivityItem[] = [
+    { amount: "+0.42 ZEC", time: "2m ago", hasMemo: true, visible: false },
+    { amount: "+1.05 ZEC", time: "18m ago", hasMemo: false, visible: false },
+    { amount: "+0.15 ZEC", time: "1h ago", hasMemo: true, visible: false },
+  ];
+
+  const [tipCount, setTipCount] = useState(0);
+  const [zecTotal, setZecTotal] = useState(0);
+  const [usdValue, setUsdValue] = useState(0);
+  const [progressPct, setProgressPct] = useState(0);
+  const [activityItems, setActivityItems] = useState<ActivityItem[]>(initialActivity);
+  const [flashTipCount, setFlashTipCount] = useState(false);
+  const startedRef = useRef(false);
+
+  useEffect(() => {
+    if (!inView || startedRef.current) return;
+    startedRef.current = true;
+
+    // Reduced motion: show final values immediately
+    if (reducedMotion) {
+      setTipCount(FINAL_TIPS);
+      setZecTotal(FINAL_ZEC);
+      setUsdValue(FINAL_USD);
+      setProgressPct(FINAL_PROGRESS);
+      setActivityItems(initialActivity.map(item => ({ ...item, visible: true })));
+      return;
+    }
+
+    // Phase 1: Ease-out counting (fast start, slow finish)
+    let tick = 0;
+    const phase1 = setInterval(() => {
+      tick++;
+      // ease-out: 1 - (1 - t)^3
+      const t = Math.min(tick / PHASE1_TICKS, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+
+      setTipCount(Math.round(eased * FINAL_TIPS));
+      setZecTotal(eased * FINAL_ZEC);
+      setUsdValue(eased * FINAL_USD);
+      setProgressPct(eased * FINAL_PROGRESS);
+
+      if (tick >= PHASE1_TICKS) clearInterval(phase1);
+    }, TICK_MS);
+
+    // Phase 2: Stagger activity items
+    const staggerTimers = initialActivity.map((_, i) =>
+      setTimeout(() => {
+        setActivityItems(prev => prev.map((item, j) =>
+          j === i ? { ...item, visible: true } : item
+        ));
+      }, PHASE2_START + i * 500)
+    );
+
+    // Phase 3: Periodic new tip arrivals
+    const randomTipAmounts = [0.08, 0.22, 0.35, 0.12, 0.47, 0.18, 0.31, 0.09, 0.55, 0.14];
+    const randomTipTimes = ["just now", "1s ago", "just now", "2s ago", "just now"];
+    let arrivalIndex = 0;
+
+    const phase3Timer = setTimeout(() => {
+      const phase3 = setInterval(() => {
+        const zecBump = randomTipAmounts[arrivalIndex % randomTipAmounts.length];
+        const timeLabel = randomTipTimes[arrivalIndex % randomTipTimes.length];
+        const hasMemo = arrivalIndex % 3 === 0;
+        arrivalIndex++;
+
+        // Increment counters
+        setTipCount(prev => prev + 1);
+        setZecTotal(prev => prev + zecBump);
+        setUsdValue(prev => prev + zecBump * (FINAL_USD / FINAL_ZEC));
+
+        // Flash tip count green
+        setFlashTipCount(true);
+        setTimeout(() => setFlashTipCount(false), 200);
+
+        // Add new activity item at top, keep max 3 visible
+        setActivityItems(prev => {
+          const newItem: ActivityItem = {
+            amount: `+${zecBump.toFixed(2)} ZEC`,
+            time: timeLabel,
+            hasMemo,
+            visible: true,
+          };
+          return [{ ...newItem, visible: false }, ...prev.slice(0, 2)];
+        });
+        // Trigger fade-in on next frame
+        requestAnimationFrame(() => {
+          setActivityItems(prev => prev.map((item, i) =>
+            i === 0 ? { ...item, visible: true } : item
+          ));
+        });
+      }, PHASE3_INTERVAL);
+
+      return () => clearInterval(phase3);
+    }, PHASE3_START);
+
+    return () => {
+      clearInterval(phase1);
+      staggerTimers.forEach(t => clearTimeout(t));
+      clearTimeout(phase3Timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView, reducedMotion]);
+
+  return {
+    tipCount,
+    zecTotal: zecTotal.toFixed(4),
+    usdValue: usdValue.toFixed(2),
+    progressPct,
+    activityItems,
+    flashTipCount,
+  };
+}
+
 // Terminal-style reveal component
 function TerminalReveal({
   children,
@@ -614,7 +741,8 @@ function TerminalReveal({
       style={{
         opacity: shouldAnimate ? (visible ? 1 : 0) : 1,
         transform: shouldAnimate ? (visible ? "translateY(0) scale(1)" : "translateY(16px) scale(0.98)") : "none",
-        transition: shouldAnimate ? "opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)" : "none",
+        transition: shouldAnimate ? "opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
+        willChange: shouldAnimate && !visible ? "opacity, transform" : "auto",
         ...style,
       }}
     >
@@ -2260,6 +2388,131 @@ function ChapterIndicator({ currentChapter }: { currentChapter: number }) {
   );
 }
 
+// [REDACTED] text that glitches on hover — scrambles characters for 200ms then settles
+function RedactedGlitch({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const base = "[REDACTED]";
+  const glitchChars = "█▓▒░#@$%&*!?<>{}";
+  const [text, setText] = useState(base);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleHover = useCallback(() => {
+    if (prefersReducedMotion) return;
+    const interval = setInterval(() => {
+      setText(
+        base.split("").map((ch) =>
+          ch === "[" || ch === "]" ? ch : glitchChars[Math.floor(Math.random() * glitchChars.length)]
+        ).join("")
+      );
+    }, 40);
+    timeoutRef.current = setTimeout(() => {
+      clearInterval(interval);
+      setText(base);
+    }, 200);
+    return () => { clearInterval(interval); if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+  }, [prefersReducedMotion]);
+
+  return (
+    <span
+      onMouseEnter={handleHover}
+      style={{ color: colors.primary, cursor: "default", fontFamily: "var(--font-family-mono)" }}
+    >
+      {text}
+    </span>
+  );
+}
+
+// Animated Cypherpunk badge with scan line, number flicker, pulsing glow
+function OgBadgeVisual({ isMobile, prefersReducedMotion }: { isMobile: boolean; prefersReducedMotion: boolean }) {
+  const [displayNumber, setDisplayNumber] = useState("001");
+  const [settled, setSettled] = useState(false);
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setSettled(true);
+      return;
+    }
+    const interval = setInterval(() => {
+      setDisplayNumber(String(Math.floor(Math.random() * 100) + 1).padStart(3, "0"));
+    }, 60);
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+      setDisplayNumber("001");
+      setSettled(true);
+    }, 1500);
+    return () => { clearInterval(interval); clearTimeout(timeout); };
+  }, [prefersReducedMotion]);
+
+  return (
+    <div style={{
+      position: "relative",
+      display: "inline-flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: "12px",
+      padding: isMobile ? "28px 24px" : "32px 40px",
+      borderRadius: "14px",
+      border: "1px solid rgba(245, 166, 35, 0.25)",
+      background: "rgba(245, 166, 35, 0.04)",
+      backdropFilter: "blur(24px)",
+      WebkitBackdropFilter: "blur(24px)",
+      overflow: "hidden",
+      animation: prefersReducedMotion ? "none" : "badge-glow 4s ease-in-out infinite",
+    }}>
+      {/* Scan line */}
+      {!prefersReducedMotion && (
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          overflow: "hidden",
+          pointerEvents: "none",
+        }}>
+          <div style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "linear-gradient(90deg, transparent 0%, rgba(245, 166, 35, 0.06) 45%, rgba(245, 166, 35, 0.12) 50%, rgba(245, 166, 35, 0.06) 55%, transparent 100%)",
+            animation: "badge-scan 4s ease-in-out infinite",
+          }} />
+        </div>
+      )}
+      {/* Top accent line */}
+      <div style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "2px",
+        background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+        borderRadius: "14px 14px 0 0",
+      }} />
+      <span style={{
+        fontSize: isMobile ? "20px" : "28px",
+        fontWeight: 700,
+        color: colors.primary,
+        letterSpacing: "3px",
+        fontFamily: "var(--font-family-mono)",
+        textShadow: "0 0 30px rgba(245, 166, 35, 0.4)",
+      }}>
+        CYPHERPUNK
+      </span>
+      <span style={{
+        fontSize: isMobile ? "14px" : "18px",
+        color: settled ? "rgba(245, 166, 35, 0.5)" : "rgba(245, 166, 35, 0.7)",
+        fontFamily: "var(--font-family-mono)",
+        letterSpacing: "2px",
+        transition: "color 0.3s",
+      }}>
+        #{displayNumber} OF 100
+      </span>
+    </div>
+  );
+}
+
 // Section wrapper with smooth scroll snap
 function SnapSection({
   children,
@@ -2375,6 +2628,7 @@ const HEADER_HEIGHT = 60; // px
 export default function HomePage() {
   const heroText = "Uncensorable\nIncome on X";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
+  const handleHeroComplete = useCallback(() => setHeroAnimationReady(true), []);
   const [tweetVisible, setTweetVisible] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
   const currentChapter = useCurrentChapter();
@@ -2384,6 +2638,10 @@ export default function HomePage() {
   const prefersReducedMotion = usePrefersReducedMotion();
   // Treat mobile as reduced motion for simpler, faster experience
   const effectiveReducedMotion = prefersReducedMotion || isMobile;
+
+  // Dashboard mockup animation
+  const dashboardInView = useInView(0.3);
+  const dashAnim = useDashboardAnimation(dashboardInView.isInView, prefersReducedMotion);
 
   // Scroll-triggered checklist animation
   const [checklistVisible, setChecklistVisible] = useState(false);
@@ -2431,7 +2689,7 @@ export default function HomePage() {
   useEffect(() => {
     if (heroAnimationReady) {
       // Tweet becomes visible 400ms after heroAnimationReady
-      const timer = setTimeout(() => setTweetVisible(true), 600);
+      const timer = setTimeout(() => setTweetVisible(true), 700);
       return () => clearTimeout(timer);
     }
   }, [heroAnimationReady]);
@@ -2543,38 +2801,29 @@ export default function HomePage() {
                 <HeroTitle
                   text={heroText}
                   isMobile={isMobile}
-                  onComplete={() => setHeroAnimationReady(true)}
+                  onComplete={handleHeroComplete}
                   reducedMotion={effectiveReducedMotion}
                 />
               </div>
             </div>
 
             {/* Sub-copy */}
-            <TerminalReveal delay={heroAnimationReady ? 0 : 99999}>
+            <TerminalReveal delay={heroAnimationReady ? 100 : 99999}>
               <p style={{
-                fontSize: isMobile ? "11px" : "14px",
-                lineHeight: 1.7,
+                fontSize: isMobile ? "13px" : "16px",
+                lineHeight: 1.6,
                 marginBottom: "32px",
-                letterSpacing: "0.04em",
-                color: colors.textBright,
-                display: "flex",
-                alignItems: "center",
-                gap: isMobile ? "8px" : "14px",
-                flexWrap: "nowrap",
-                whiteSpace: "nowrap",
+                letterSpacing: "0.01em",
+                color: colors.muted,
               }}>
-                <span>Private Tips</span>
-                <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
-                <span>Non-Custodial</span>
-                <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
-                <span>Unfreezable</span>
-                <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
-                <span>Untrackable</span>
+                No platform cut. No frozen accounts.
+                <br />
+                <span style={{ color: colors.textBright }}>Just your audience paying you directly.</span>
               </p>
             </TerminalReveal>
 
             {/* CTA Button */}
-            <TerminalReveal delay={heroAnimationReady ? 200 : 99999}>
+            <TerminalReveal delay={heroAnimationReady ? 300 : 99999}>
               <div style={{ position: "relative", marginBottom: isMobile ? "0" : "0" }}>
                 <a
                   href="/register"
@@ -2643,7 +2892,7 @@ export default function HomePage() {
           </div>
 
           {/* Right side: Demo Animation */}
-          <TerminalReveal delay={heroAnimationReady ? 400 : 99999}>
+          <TerminalReveal delay={heroAnimationReady ? 500 : 99999}>
             <div style={{
               position: "relative",
               flexShrink: 0,
@@ -3140,30 +3389,6 @@ export default function HomePage() {
               <div style={{
                 position: "relative",
               }}>
-                {/* Floating ring/halo effect with slow rotation */}
-                <div style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  width: "180px",
-                  height: "180px",
-                  borderRadius: "50%",
-                  border: `1px solid ${colors.success}30`,
-                  animation: prefersReducedMotion ? "none" : "idle-spin-slow 20s linear infinite, ringPulse 3s ease-in-out infinite",
-                  pointerEvents: "none",
-                }} />
-                <div style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  width: "220px",
-                  height: "220px",
-                  borderRadius: "50%",
-                  border: `1px solid ${colors.success}15`,
-                  animation: prefersReducedMotion ? "none" : "idle-spin-slow-reverse 15s linear infinite, ringPulse 3s ease-in-out infinite 0.5s",
-                  pointerEvents: "none",
-                }} />
-
                 <div style={{
                   backgroundColor: colors.surface,
                   border: `2px solid ${colors.success}`,
@@ -4185,41 +4410,12 @@ export default function HomePage() {
 
             {/* Right: Dashboard Mockup (below text on mobile) */}
             <TerminalReveal delay={300}>
-              <div style={{
+              <div ref={dashboardInView.ref} style={{
                 position: "relative",
                 height: isMobile ? "auto" : "540px",
                 minHeight: isMobile ? "440px" : undefined,
                 order: isMobile ? 1 : 0,
               }}>
-                {/* Ambient Glow Layer 1 — primary */}
-                <div style={{
-                  position: "absolute",
-                  top: "40%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  width: "400px",
-                  height: "400px",
-                  background: "radial-gradient(circle, rgba(245, 166, 35, 0.12) 0%, transparent 70%)",
-                  borderRadius: "50%",
-                  filter: "blur(60px)",
-                  animation: prefersReducedMotion ? "none" : "dashboard-ambient 5s ease-in-out infinite",
-                  pointerEvents: "none",
-                }} />
-                {/* Ambient Glow Layer 2 — offset, phase-shifted */}
-                <div style={{
-                  position: "absolute",
-                  top: "48%",
-                  left: "55%",
-                  transform: "translate(-50%, -50%)",
-                  width: "250px",
-                  height: "250px",
-                  background: "radial-gradient(circle, rgba(245, 166, 35, 0.06) 0%, transparent 70%)",
-                  borderRadius: "50%",
-                  filter: "blur(40px)",
-                  animation: prefersReducedMotion ? "none" : "dashboard-ambient 7s ease-in-out 1s infinite",
-                  pointerEvents: "none",
-                }} />
-
                 {/* Gradient Border Wrapper */}
                 <div style={{
                   position: "absolute",
@@ -4230,27 +4426,18 @@ export default function HomePage() {
                   borderRadius: "13px",
                   padding: "1px",
                   background: "linear-gradient(135deg, rgba(245,166,35,0.4) 0%, rgba(245,166,35,0.1) 30%, rgba(42,47,56,0.5) 50%, rgba(245,166,35,0.1) 70%, rgba(245,166,35,0.3) 100%)",
+                  boxShadow: "0 0 40px rgba(255, 215, 0, 0.12), 0 0 80px rgba(245, 166, 35, 0.06)",
                   animation: prefersReducedMotion || isMobile ? "none" : "dashboard-float 6s ease-in-out infinite",
                 }}>
                   {/* Dashboard Card — Inner */}
                   <div style={{
                     width: "100%",
-                    background: "linear-gradient(165deg, rgba(22,25,32,0.97) 0%, rgba(18,20,26,0.99) 50%, rgba(14,16,22,1) 100%)",
+                    background: "linear-gradient(165deg, #161920 0%, #12141a 50%, #0e1016 100%)",
                     borderRadius: "12px",
                     overflow: "hidden",
                     position: "relative",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.4), 0 25px 60px rgba(0,0,0,0.5), 0 0 80px rgba(245,166,35,0.04)",
                   }}>
-                    {/* Shimmer sweep overlay */}
-                    <div style={{
-                      position: "absolute",
-                      inset: 0,
-                      background: "linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%)",
-                      backgroundSize: "200% 200%",
-                      animation: prefersReducedMotion ? "none" : "dashboard-shimmer 8s linear infinite",
-                      pointerEvents: "none",
-                      zIndex: 1,
-                    }} />
 
                     {/* Header Bar */}
                     <div style={{
@@ -4335,13 +4522,13 @@ export default function HomePage() {
                       zIndex: 2,
                     }}>
                       <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "4px" }}>
-                        <span style={{ fontSize: "24px", fontWeight: 700, color: colors.primary, fontFamily: "var(--font-family-mono)" }}>12.8400</span>
+                        <span style={{ fontSize: "24px", fontWeight: 700, color: colors.primary, fontFamily: "var(--font-family-mono)" }}>{dashAnim.zecTotal}</span>
                         <span style={{ fontSize: "13px", color: colors.muted, fontFamily: "var(--font-family-mono)" }}>ZEC</span>
                       </div>
                       <span style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginBottom: "8px" }}>TOTAL EARNED</span>
                       {/* Progress bar */}
                       <div style={{ width: "100%", position: "relative", height: "2px", background: "rgba(255,255,255,0.06)", borderRadius: "1px" }}>
-                        <div style={{ position: "absolute", left: "65%", top: "-3px", width: "8px", height: "8px", borderRadius: "50%", background: colors.primary, boxShadow: "0 0 8px rgba(245,166,35,0.4)" }} />
+                        <div style={{ position: "absolute", left: `${dashAnim.progressPct}%`, top: "-3px", width: "8px", height: "8px", borderRadius: "50%", background: colors.primary, boxShadow: "0 0 8px rgba(245,166,35,0.4)", transition: "left 0.3s ease-out" }} />
                       </div>
                     </div>
 
@@ -4355,11 +4542,11 @@ export default function HomePage() {
                       zIndex: 2,
                     }}>
                       <div style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: "16px", fontWeight: 700, color: colors.textBright, fontFamily: "var(--font-family-mono)" }}>47</div>
+                        <div style={{ fontSize: "16px", fontWeight: 700, color: dashAnim.flashTipCount ? colors.success : colors.textBright, textShadow: dashAnim.flashTipCount ? `0 0 12px ${colors.successGlow}` : "none", fontFamily: "var(--font-family-mono)", transition: "color 0.2s ease, text-shadow 0.2s ease" }}>{dashAnim.tipCount}</div>
                         <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginTop: "2px" }}>TIPS RECEIVED</div>
                       </div>
                       <div style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: "16px", fontWeight: 700, color: colors.success, fontFamily: "var(--font-family-mono)" }}>$583.20</div>
+                        <div style={{ fontSize: "16px", fontWeight: 700, color: colors.success, fontFamily: "var(--font-family-mono)" }}>${dashAnim.usdValue}</div>
                         <div style={{ fontSize: "10px", color: colors.muted, letterSpacing: "2px", marginTop: "2px" }}>USD VALUE</div>
                       </div>
                     </div>
@@ -4401,17 +4588,16 @@ export default function HomePage() {
                     }}>
                       <div style={{ fontSize: "11px", color: colors.muted, letterSpacing: "1px", marginBottom: "10px" }}>ACTIVITY</div>
                       <div style={{ display: "flex", flexDirection: "column" }}>
-                        {[
-                          { amount: "+0.42 ZEC", time: "2m ago", hasMemo: true },
-                          { amount: "+1.05 ZEC", time: "18m ago", hasMemo: false },
-                          { amount: "+0.15 ZEC", time: "1h ago", hasMemo: true },
-                        ].map((tip, i) => (
-                          <div key={i} style={{
+                        {dashAnim.activityItems.map((tip, i) => (
+                          <div key={`${tip.amount}-${tip.time}-${i}`} style={{
                             display: "flex",
                             alignItems: "center",
                             gap: "8px",
                             padding: "8px 0",
-                            borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                            borderBottom: i < dashAnim.activityItems.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                            opacity: tip.visible ? 1 : 0,
+                            transform: tip.visible ? "translateY(0)" : "translateY(8px)",
+                            transition: "opacity 0.3s ease-out, transform 0.3s ease-out",
                           }}>
                             <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: colors.success, flexShrink: 0 }} />
                             <span style={{ fontSize: "12px", fontWeight: 600, color: colors.primary, fontFamily: "var(--font-family-mono)" }}>{tip.amount}</span>
@@ -4439,7 +4625,7 @@ export default function HomePage() {
           </div>
         </div>
       </SnapSection>
-      {/* Chapter 06: Genesis Cohort */}
+      {/* Chapter 06: The First 100 */}
       <SnapSection id="proof" isMobile={isMobile} style={{ paddingInline: isMobile ? "16px" : "48px" }}>
         <div style={contentPadding}>
           <TerminalReveal delay={0}>
@@ -4449,12 +4635,12 @@ export default function HomePage() {
               letterSpacing: "2px",
               marginBottom: "32px",
             }}>
-              CHAPTER 06: GENESIS COHORT
+              CHAPTER 06: THE FIRST 100
             </div>
           </TerminalReveal>
 
           <TypingHeading
-            text="Join the Genesis Cohort."
+            text={`"The Cypherpunks."`}
             style={{ marginBottom: "16px" }}
           />
 
@@ -4462,312 +4648,109 @@ export default function HomePage() {
             <p style={{
               fontSize: "16px",
               color: colors.muted,
-              marginBottom: "48px",
+              marginBottom: "40px",
+              maxWidth: "560px",
             }}>
-              The first 1,000 sovereigns set the standard. Reserve your handle. Secure your privacy.
+              100 badges. First come, first numbered. Then the window closes.
             </p>
           </TerminalReveal>
 
-          {/* Testimonial Cards - Refined Style */}
+          {/* Animated Badge Visual */}
           <TerminalReveal delay={200}>
             <div style={{
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-              gap: "24px",
+              display: "flex",
+              justifyContent: "center",
               marginBottom: "40px",
             }}>
-              {/* Testimonial 1 */}
-              <div style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: isMobile ? "16px" : "28px",
-                position: "relative",
-                overflow: "hidden",
-              }}>
-                {/* Top accent */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "3px",
-                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
-                  borderRadius: "12px 12px 0 0",
-                }} />
-
-                <p style={{
-                  fontSize: "16px",
-                  color: colors.textBright,
-                  margin: "0 0 24px",
-                  lineHeight: 1.7,
-                  fontStyle: "italic",
-                }}>
-                  &quot;Direct settlement means no middlemen holding my funds for 30 days. The capital efficiency of receiving instant, global payments is unmatched.&quot;
-                </p>
-
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  {/* Avatar */}
-                  <div style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${colors.success}40 0%, ${colors.success}20 100%)`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: `0 0 15px ${colors.successGlow}`,
-                  }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>
-                      Verified Creator
-                    </div>
-                    <div style={{ fontSize: "12px", color: colors.muted }}>
-                      Anonymous • X User
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Testimonial 2 */}
-              <div style={{
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: isMobile ? "16px" : "28px",
-                position: "relative",
-                overflow: "hidden",
-              }}>
-                {/* Top accent */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "3px",
-                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-                  borderRadius: "12px 12px 0 0",
-                }} />
-
-                <p style={{
-                  fontSize: "16px",
-                  color: colors.textBright,
-                  margin: "0 0 24px",
-                  lineHeight: 1.7,
-                  fontStyle: "italic",
-                }}>
-                  &quot;In a world of surveillance, unlinkable wealth is the only asset that truly belongs to you. This is the new standard for digital ownership.&quot;
-                </p>
-
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  {/* Avatar */}
-                  <div style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${colors.primary}40 0%, ${colors.primary}20 100%)`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: `0 0 15px ${colors.primaryGlow}`,
-                  }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
-                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright }}>
-                      Private Investor
-                    </div>
-                    <div style={{ fontSize: "12px", color: colors.muted }}>
-                      Tech Founder • Anonymous
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <OgBadgeVisual isMobile={isMobile} prefersReducedMotion={prefersReducedMotion} />
             </div>
           </TerminalReveal>
 
-          {/* Stats Bar - Glass Morphism Style */}
-          <TerminalReveal delay={350}>
+          {/* Privilege Strip — compact single row */}
+          <TerminalReveal delay={300}>
             <div style={{
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr",
-              gap: "16px",
+              display: "flex",
+              flexDirection: isMobile ? "column" : "row",
+              gap: isMobile ? "12px" : "0",
+              borderRadius: "10px",
+              border: `1px solid ${colors.border}`,
+              backgroundColor: colors.surface,
+              overflow: "hidden",
+              marginBottom: "24px",
             }}>
-              {/* Stat 1: Rent Paid */}
-              <div style={{
-                backgroundColor: "rgba(26, 26, 26, 0.6)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: isMobile ? "24px 20px" : "24px 28px",
-                position: "relative",
-                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
-              }}>
-                {/* Top gradient accent */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
-                  borderRadius: "12px 12px 0 0",
-                }} />
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  letterSpacing: "1px",
-                  marginBottom: "8px",
-                  fontFamily: "var(--font-family-mono)",
-                }}>
-                  RENT PAID
-                </div>
-                <div style={{
-                  fontSize: isMobile ? "32px" : "36px",
-                  fontWeight: 700,
-                  color: colors.success,
-                  fontFamily: "var(--font-family-mono)",
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1,
-                }}>
-                  $0<span style={{ fontSize: "0.6em", opacity: 0.7 }}>.00</span>
-                </div>
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  marginTop: "12px",
-                  fontFamily: "var(--font-family-mono)",
-                }}>
-                  <span style={{ color: colors.success }}>↓ 100%</span> vs. platforms
-                </div>
-              </div>
-
-              {/* Stat 2: Volume (Redacted) */}
-              <div style={{
-                backgroundColor: "rgba(26, 26, 26, 0.6)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: isMobile ? "24px 20px" : "24px 28px",
-                position: "relative",
-                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
-              }}>
-                {/* Top gradient accent */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-                  borderRadius: "12px 12px 0 0",
-                }} />
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  letterSpacing: "1px",
-                  marginBottom: "8px",
-                  fontFamily: "var(--font-family-mono)",
-                }}>
-                  VOLUME
-                </div>
-                <div style={{
-                  fontSize: isMobile ? "32px" : "36px",
-                  fontWeight: 700,
-                  color: colors.primary,
-                  fontFamily: "var(--font-family-mono)",
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1,
-                }}>
-                  [REDACTED]
-                </div>
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  marginTop: "12px",
-                  fontFamily: "var(--font-family-mono)",
+              {[
+                { label: "PROVENANCE", text: "First 100 verified. Numbered by order of arrival.", color: colors.primary },
+                { label: "THE SIGNAL", text: "Permanent mark on your profile and directory.", color: colors.success },
+                { label: "PROTOCOL ACCESS", text: "Priority access to future unlocks. Details classified.", color: colors.primary },
+              ].map((item, i) => (
+                <div key={item.label} style={{
+                  flex: 1,
                   display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                  <span style={{ color: colors.primary }}>Shielded</span>
-                </div>
-              </div>
-
-              {/* Stat 3: System Status */}
-              <div style={{
-                backgroundColor: "rgba(26, 26, 26, 0.6)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: `1px solid ${colors.border}`,
-                borderRadius: "12px",
-                padding: isMobile ? "24px 20px" : "24px 28px",
-                position: "relative",
-                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
-              }}>
-                {/* Top gradient accent */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  background: `linear-gradient(90deg, transparent, ${colors.success}, transparent)`,
-                  borderRadius: "12px 12px 0 0",
-                }} />
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  letterSpacing: "1px",
-                  marginBottom: "8px",
-                  fontFamily: "var(--font-family-mono)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
+                  flexDirection: "column",
+                  justifyContent: "flex-start",
+                  padding: isMobile ? "14px 16px" : "16px 20px",
+                  borderRight: !isMobile && i < 2 ? `1px solid ${colors.border}` : "none",
+                  borderBottom: isMobile && i < 2 ? `1px solid ${colors.border}` : "none",
                 }}>
                   <span style={{
-                    width: "6px",
-                    height: "6px",
-                    backgroundColor: colors.success,
-                    borderRadius: "50%",
-                    boxShadow: `0 0 8px ${colors.success}`,
-                    animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
-                  }} />
-                  STATUS
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    color: item.color,
+                    letterSpacing: "1.5px",
+                    fontFamily: "var(--font-family-mono)",
+                    lineHeight: 1,
+                  }}>
+                    {item.label}
+                  </span>
+                  <p style={{
+                    fontSize: "13px",
+                    color: colors.muted,
+                    margin: "8px 0 0",
+                    lineHeight: 1.5,
+                  }}>
+                    {item.text}
+                  </p>
                 </div>
-                <div style={{
-                  fontSize: isMobile ? "32px" : "36px",
-                  fontWeight: 700,
-                  color: colors.success,
-                  fontFamily: "var(--font-family-mono)",
-                  letterSpacing: "0.02em",
-                  lineHeight: 1,
-                }}>
-                  ONLINE
-                </div>
-                <div style={{
-                  fontSize: "11px",
-                  color: colors.muted,
-                  marginTop: "12px",
-                  fontFamily: "var(--font-family-mono)",
-                }}>
-                  <span style={{ color: colors.success }}>100%</span> uptime
-                </div>
-              </div>
+              ))}
+            </div>
+          </TerminalReveal>
+
+          {/* Stats Strip — single inline bar */}
+          <TerminalReveal delay={400}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: isMobile ? "flex-start" : "center",
+              flexWrap: "wrap",
+              gap: isMobile ? "8px 16px" : "0 24px",
+              padding: "12px 20px",
+              borderRadius: "8px",
+              border: `1px solid ${colors.border}`,
+              backgroundColor: "rgba(26, 26, 26, 0.6)",
+              fontFamily: "var(--font-family-mono)",
+              fontSize: "12px",
+            }}>
+              <span><span style={{ color: colors.primary, fontWeight: 700 }}>97</span><span style={{ color: colors.muted }}> / 100 slots remaining</span></span>
+              {!isMobile && <span style={{ color: colors.border }}>&middot;</span>}
+              <span style={{ color: colors.muted }}>Volume: </span>
+              <RedactedGlitch prefersReducedMotion={prefersReducedMotion} />
+              {!isMobile && <span style={{ color: colors.border }}>&middot;</span>}
+              <span style={{ color: colors.muted }}>Status: </span>
+              <span style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+              }}>
+                <span style={{
+                  width: "6px",
+                  height: "6px",
+                  backgroundColor: colors.success,
+                  borderRadius: "50%",
+                  boxShadow: `0 0 8px ${colors.success}`,
+                  animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
+                }} />
+                <span style={{ color: colors.success, fontWeight: 700 }}>ONLINE</span>
+              </span>
             </div>
           </TerminalReveal>
         </div>
@@ -4820,10 +4803,10 @@ export default function HomePage() {
                 animation: prefersReducedMotion ? "none" : "idle-float-micro 6s ease-in-out infinite 0.5s",
               }}>
                 <div style={{ fontSize: "14px", fontWeight: 600, color: colors.textBright, marginBottom: "12px" }}>
-                  How do I convert tips to cash?
+                  How can I convert ZEC to other assets?
                 </div>
                 <div style={{ fontSize: "13px", color: colors.muted, lineHeight: 1.6 }}>
-                  Send to any exchange (Coinbase, Kraken, etc.) and sell. ZEC is widely supported.
+                  In ZODL you can swap directly using NEAR Intents into multiple assets. Or send to any exchange (Coinbase, Kraken, etc.) to off-ramp into fiat.
                 </div>
               </div>
 
@@ -5164,6 +5147,15 @@ export default function HomePage() {
                 CLAIM SOVEREIGNTY →
               </a>
             </div>
+            <p style={{
+              fontSize: "13px",
+              color: colors.muted,
+              textAlign: "center",
+              margin: 0,
+              fontFamily: "var(--font-family-mono)",
+            }}>
+              The first 100 get the <span style={{ color: colors.primary }}>CYPHERPUNK</span> badge.
+            </p>
           </TerminalReveal>
 
           {/* signup-flow-cro: trust signals near CTA */}
@@ -5267,6 +5259,18 @@ export default function HomePage() {
             opacity: 1;
             transform: scaleY(1) translateY(0);
           }
+        }
+
+        /* Badge scan line — horizontal light sweep */
+        @keyframes badge-scan {
+          0%, 100% { transform: translateX(-100%); }
+          50% { transform: translateX(100%); }
+        }
+
+        /* Badge glow — pulsing amber box-shadow */
+        @keyframes badge-glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(245, 166, 35, 0.05); }
+          50% { box-shadow: 0 0 30px rgba(245, 166, 35, 0.15); }
         }
 
         /* GPU-accelerated pulse glow using filter */
@@ -5703,10 +5707,6 @@ export default function HomePage() {
           50% { transform: translate(-50%, -45%) perspective(1200px) rotateX(2deg) rotateY(-1deg) translateY(-3px); }
         }
 
-        @keyframes dashboard-ambient {
-          0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-          50% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.1); }
-        }
 
 
         /* Chapter 2: The False Choice - Simplified Animations */

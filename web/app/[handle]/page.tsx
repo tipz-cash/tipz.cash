@@ -476,6 +476,8 @@ interface Creator {
   avatar_url?: string
   publicKey?: JsonWebKey
   canReceiveMessages?: boolean
+  is_og_cypherpunk?: boolean
+  og_number?: number
 }
 
 type PageState = "loading" | "found" | "not_found" | "error"
@@ -523,6 +525,8 @@ export default function CreatorCardPage() {
           setCreator({
             ...data.creator,
             publicKey: data.creator.public_key,
+            is_og_cypherpunk: data.creator.is_og_cypherpunk,
+            og_number: data.creator.og_number,
           })
           setState("found")
         } else {
@@ -691,6 +695,8 @@ export default function CreatorCardPage() {
                   avatarColor={getAvatarColor(creator?.handle || handle)}
                   avatarUrl={creator?.avatar_url}
                   publicKey={creator?.publicKey}
+                  isOgCypherpunk={creator?.is_og_cypherpunk}
+
                 />
 
                 {/* Powered by TIPZ footer */}
@@ -751,7 +757,7 @@ export default function CreatorCardPage() {
               avatarColor={getAvatarColor(creator?.handle || handle)}
               avatarUrl={creator?.avatar_url}
               publicKey={creator?.publicKey}
-
+              isOgCypherpunk={creator?.is_og_cypherpunk}
             />
           </div>
         </div>
