@@ -6,7 +6,7 @@ const TTL_SECONDS = 7 * 24 * 60 * 60 // 7 days
 
 interface SessionPayload {
   handle: string
-  creatorId: string
+  creatorId: string | null
 }
 
 function getSecret(): Uint8Array {
@@ -17,9 +17,9 @@ function getSecret(): Uint8Array {
 
 export async function createSessionToken(
   handle: string,
-  creatorId: string
+  creatorId: string | null
 ): Promise<string> {
-  return new SignJWT({ handle, creatorId })
+  return new SignJWT({ handle, creatorId: creatorId ?? "" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${TTL_SECONDS}s`)
@@ -33,8 +33,8 @@ export async function verifySessionToken(
     const { payload } = await jwtVerify(token, getSecret())
     const handle = payload.handle as string | undefined
     const creatorId = payload.creatorId as string | undefined
-    if (!handle || !creatorId) return null
-    return { handle, creatorId }
+    if (!handle) return null
+    return { handle, creatorId: creatorId || null }
   } catch {
     return null
   }

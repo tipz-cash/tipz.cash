@@ -2565,7 +2565,7 @@ export default function HomePage() {
               }}>
                 <span>Private Tips</span>
                 <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
-                <span>Unlinkable</span>
+                <span>Non-Custodial</span>
                 <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
                 <span>Unfreezable</span>
                 <span style={{ color: colors.muted, opacity: 0.3, fontWeight: 300 }}>/</span>
@@ -3478,7 +3478,7 @@ export default function HomePage() {
                         fontSize: "13px",
                         color: colors.muted,
                         marginTop: "4px",
-                      }}>100% yours. Untraceable. Unlinkable.</div>
+                      }}>100% yours. Self-custody. Zero fees.</div>
                     </div>
                   </div>
 
@@ -3511,7 +3511,7 @@ export default function HomePage() {
                       fontWeight: 600,
                       letterSpacing: "0.5px",
                     }}>
-                      Verified Unlinkable
+                      Verified Shielded
                     </span>
                   </div>
                 </div>
@@ -5035,7 +5035,7 @@ export default function HomePage() {
                   {
                     step: "03",
                     title: "Confirm & send",
-                    desc: "100% arrives instantly. Zero fees. Zero trace.",
+                    desc: "100% arrives instantly. Zero fees. Shielded delivery.",
                     icon: "/icons/lock.svg",
                   },
                 ]}

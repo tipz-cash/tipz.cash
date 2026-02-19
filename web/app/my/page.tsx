@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { colors } from "@/lib/colors"
 import { animationKeyframes } from "@/lib/animations"
+import { useRouter } from "next/navigation"
 import SiteHeader from "@/components/SiteHeader"
 import { LetterGridBackground } from "@/components/LetterGridBackground"
 import {
@@ -180,6 +181,7 @@ function DashboardSkeleton() {
 }
 
 export default function MyTipzPage() {
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
   const [handle, setHandle] = useState("")
@@ -375,6 +377,11 @@ export default function MyTipzPage() {
         const data = await res.json()
 
         if (data.authenticated) {
+          if (!data.registered) {
+            // Authenticated but not registered — redirect to complete registration
+            router.replace("/register")
+            return
+          }
           setAuthenticated(true)
           setHandle(data.handle)
           setCreatorId(data.creatorId || null)
