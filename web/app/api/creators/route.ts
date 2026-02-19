@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json(
     {
-      creators: data || [],
+      creators: (data || []).map((c: any) => ({ ...c, is_og_cypherpunk: true })),
       total: count || 0,
       limit,
       offset,

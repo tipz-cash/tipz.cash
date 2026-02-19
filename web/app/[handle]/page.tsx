@@ -56,7 +56,7 @@ const responsiveStyles = `
     height: 150%;
     background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
     filter: blur(100px);
-    animation: auroraDrift 20s ease-in-out infinite;
+    transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: -1;
   }
@@ -70,11 +70,6 @@ const responsiveStyles = `
     opacity: 0.03;
     pointer-events: none;
     z-index: 0;
-  }
-
-  @keyframes auroraDrift {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.15); }
   }
 
   @keyframes backgroundFadeIn {
