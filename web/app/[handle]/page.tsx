@@ -43,22 +43,22 @@ const responsiveStyles = `
     padding: 16px;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     position: relative;
-    overflow: hidden;
+    overflow: clip;
   }
 
-  /* Aurora glow effect */
-  .tipz-page::before {
+  /* Aurora glow effect — anchored to card, not page */
+  .tipz-card::before {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
-    width: min(600px, 100vw);
-    height: min(600px, 100vw);
+    width: 150%;
+    height: 150%;
     background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
     filter: blur(100px);
     animation: auroraDrift 20s ease-in-out infinite;
     pointer-events: none;
-    z-index: 0;
+    z-index: -1;
   }
 
   /* Noise texture overlay */
@@ -74,7 +74,7 @@ const responsiveStyles = `
 
   @keyframes auroraDrift {
     0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-30%, -40%) scale(1.2); }
+    50% { transform: translate(-50%, -50%) scale(1.15); }
   }
 
   @keyframes backgroundFadeIn {

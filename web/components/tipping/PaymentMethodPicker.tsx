@@ -17,7 +17,7 @@ export function PaymentRow({
   onClick,
 }: {
   title: string
-  description: string
+  description: React.ReactNode
   children: React.ReactNode
   onClick?: () => void
 }) {
@@ -163,12 +163,13 @@ export function LogoButton({
 }
 
 // Static logo display (for exchange row where the whole row is clickable)
-export function LogoDisplay({ src, alt }: { src: string; alt: string }) {
+export function LogoDisplay({ src, alt, size = 32 }: { src: string; alt: string; size?: number }) {
+  const containerSize = size + 4
   return (
     <div
       style={{
-        width: "36px",
-        height: "36px",
+        width: `${containerSize}px`,
+        height: `${containerSize}px`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -177,8 +178,8 @@ export function LogoDisplay({ src, alt }: { src: string; alt: string }) {
       <Image
         src={src}
         alt={alt}
-        width={32}
-        height={32}
+        width={size}
+        height={size}
         style={{
           borderRadius: "6px",
           display: "block",
