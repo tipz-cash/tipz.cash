@@ -89,25 +89,39 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/my?error=db_unavailable`)
   }
 
-  const { data: creator, error } = await findCreatorByHandle(username, {
+  const { data: creator } = await findCreatorByHandle(username, {
     select: "id, handle",
   })
 
-  if (error || !creator) {
-    return NextResponse.redirect(`${origin}/my?error=not_registered`)
+  if (creator) {
+    // Registered creator — refresh avatar and create full session
+    if (profileImageUrl) {
+      await supabase
+        .from("creators")
+        .update({ avatar_url: profileImageUrl })
+        .eq("id", creator.id)
+    }
+
+    const token = await createSessionToken(creator.handle, creator.id)
+    const response = NextResponse.redirect(`${origin}/my`)
+    setSessionCookie(response, token)
+
+    // Clear OAuth state cookie
+    response.cookies.set("tipz_oauth_state", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0,
+      path: "/",
+    })
+
+    console.log("[auth/callback] Session created for registered creator:", creator.handle)
+    return response
   }
 
-  // Refresh avatar from Twitter
-  if (profileImageUrl) {
-    await supabase
-      .from("creators")
-      .update({ avatar_url: profileImageUrl })
-      .eq("id", creator.id)
-  }
-
-  // Create session
-  const token = await createSessionToken(creator.handle, creator.id)
-  const response = NextResponse.redirect(`${origin}/my`)
+  // Unregistered user — create pending session and redirect to register
+  const token = await createSessionToken(username, null)
+  const response = NextResponse.redirect(`${origin}/register`)
   setSessionCookie(response, token)
 
   // Clear OAuth state cookie
@@ -119,6 +133,6 @@ export async function GET(request: NextRequest) {
     path: "/",
   })
 
-  console.log("[auth/callback] Session created for:", creator.handle)
+  console.log("[auth/callback] Pending session created for unregistered user:", username)
   return response
 }

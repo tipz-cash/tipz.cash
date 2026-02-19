@@ -411,9 +411,8 @@ function CreatorsTab() {
           <StepList
             steps={[
               { num: "01", title: "Get a Zcash wallet", desc: "Download Zashi (iOS/Android). Free. Takes 30 seconds. Create wallet, backup seed phrase." },
-              { num: "02", title: "Register at tipz.cash/register", desc: "Enter your X handle and paste your unified address (starts with u1...)." },
-              { num: "03", title: "Verify via tweet", desc: "Post a verification tweet. We'll confirm automatically." },
-              { num: "04", title: "Share your link", desc: "Your tip page is live at tipz.cash/yourhandle. Add it to your bio." },
+              { num: "02", title: "Register at tipz.cash/register", desc: "Sign in with X and paste your unified address (starts with u1...)." },
+              { num: "03", title: "Share your link", desc: "Your tip page is live at tipz.cash/yourhandle. Add it to your bio." },
             ]}
           />
         </div>
@@ -823,7 +822,7 @@ Key Management:
         <div style={{ paddingTop: "16px" }}>
           <div style={{ display: "grid", gap: "16px", fontSize: "13px" }}>
             {[
-              { title: "Sender privacy", desc: "Tipper's identity is not linked to the final shielded transaction" },
+              { title: "Sender privacy", desc: "For cross-chain tips, the tipper's identity is not linked to the final shielded transaction" },
               { title: "Receiver privacy", desc: "Creator's shielded address is not visible on transparent chains" },
               { title: "Amount privacy", desc: "Final tip amount is encrypted. Only the creator can see it." },
             ].map((item) => (

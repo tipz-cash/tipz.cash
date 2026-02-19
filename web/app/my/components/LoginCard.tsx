@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { colors } from "@/lib/colors"
 import { transitions } from "@/lib/animations"
 
@@ -128,10 +127,7 @@ export default function LoginCard({ animStyle, prefersReducedMotion }: LoginCard
         color: colors.muted,
         fontFamily: "var(--font-family)",
       }}>
-        Not registered?{" "}
-        <Link href="/register" style={{ color: colors.primary, textDecoration: "underline" }}>
-          Claim your handle first
-        </Link>
+        New here? Signing in will start your registration.
       </p>
     </div>
   )

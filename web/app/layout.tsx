@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "TIPZ",
-  description: "Private micro-tipping for creators using Zcash shielded addresses. Tip anyone on X with any token.",
+  description: "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://tipz.cash"),
   appleWebApp: {
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
     title: "TIPZ",
   },
   openGraph: {
-    title: "TIPZ - Private Tips. Any Asset. Zero Trace.",
-    description: "Private micro-tipping for creators using Zcash shielded addresses.",
+    title: "TIPZ - Private Tips. Any Asset. Zero Fees.",
+    description: "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
     type: "website",
     siteName: "TIPZ",
     url: "https://tipz.cash",
@@ -42,8 +42,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TIPZ - Private Tips. Any Asset. Zero Trace.",
-    description: "Private micro-tipping for creators using Zcash shielded addresses.",
+    title: "TIPZ - Private Tips. Any Asset. Zero Fees.",
+    description: "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
     images: ["/og-image.png"],
   },
 }

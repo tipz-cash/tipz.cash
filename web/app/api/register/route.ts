@@ -6,11 +6,8 @@ import {
   getClientIP,
   RATE_LIMITS
 } from "@/lib/rate-limit"
-import {
-  verifyTweetContent,
-  isTwitterApiConfigured,
-  fetchUserProfileImage
-} from "@/lib/twitter-api"
+import { fetchUserProfileImage } from "@/lib/twitter-api"
+import { getSessionFromRequest, createSessionToken, setSessionCookie } from "@/lib/session"
 
 /**
  * Error codes for registration API responses.
@@ -21,11 +18,8 @@ export const ERROR_CODES = {
   INVALID_JSON: "INVALID_JSON",
   MISSING_FIELDS: "MISSING_FIELDS",
   INVALID_FIELD_TYPE: "INVALID_FIELD_TYPE",
-  INVALID_PLATFORM: "INVALID_PLATFORM",
-  INVALID_HANDLE: "INVALID_HANDLE",
   INVALID_ADDRESS: "INVALID_ADDRESS",
-  INVALID_TWEET_URL: "INVALID_TWEET_URL",
-  TWEET_HANDLE_MISMATCH: "TWEET_HANDLE_MISMATCH",
+  NOT_AUTHENTICATED: "NOT_AUTHENTICATED",
   DATABASE_ERROR: "DATABASE_ERROR",
   INTERNAL_ERROR: "INTERNAL_ERROR"
 } as const
@@ -71,16 +65,6 @@ function sanitizeInput(input: string): string {
 }
 
 /**
- * Validate Twitter/X handle format.
- * Must be 1-15 alphanumeric characters or underscores.
- */
-function isValidTwitterHandle(handle: string): boolean {
-  // Remove @ prefix if present
-  const cleanHandle = handle.replace(/^@/, "")
-  return /^[a-zA-Z0-9_]{1,15}$/.test(cleanHandle)
-}
-
-/**
  * Zcash Unified Address Validation
  *
  * Validates that the address is a valid Zcash unified address:
@@ -106,155 +90,13 @@ function isValidShieldedAddress(address: string): boolean {
 }
 
 /**
- * Tweet Verification Status
+ * POST /api/register
  *
- * Tracks the verification state of a registration tweet.
- * Used internally for processing and stored for audit purposes.
+ * Registers a creator. Requires an authenticated session (from Twitter OAuth).
+ * Handle comes from the session — only shielded_address is submitted.
+ *
+ * Body: { shielded_address: string }
  */
-export type TweetVerificationStatus =
-  | "pending"       // Initial state, URL validated but content not verified
-  | "verified"      // Tweet content verified via API
-  | "failed"        // Verification attempted but failed
-  | "manual_review" // Flagged for manual review
-
-export interface TweetVerificationResult {
-  valid: boolean
-  status: TweetVerificationStatus
-  error?: string
-  tweetId?: string
-  verifiedAt?: string
-}
-
-/**
- * Extract and validate tweet URL components.
- *
- * Validates:
- * - URL format matches Twitter/X status URL pattern
- * - Protocol is HTTPS
- * - Domain is x.com or twitter.com
- * - Path contains valid handle and status ID
- * - Status ID is a valid numeric string (Twitter IDs are large integers)
- *
- * @param url - The tweet URL to parse
- * @returns Parsed components or null if invalid
- */
-function parseTweetUrl(url: string): {
-  domain: string
-  handle: string
-  tweetId: string
-} | null {
-  if (!url || typeof url !== "string") {
-    return null
-  }
-
-  // Trim whitespace and ensure lowercase for domain matching
-  const trimmedUrl = url.trim()
-
-  // Strict URL pattern for Twitter/X status URLs
-  // Captures: domain (x.com or twitter.com), handle, and tweet ID
-  const tweetPattern =
-    /^https:\/\/(x\.com|twitter\.com)\/([a-zA-Z0-9_]{1,15})\/status\/(\d{1,20})(?:\?.*)?$/i
-
-  const match = trimmedUrl.match(tweetPattern)
-
-  if (!match) {
-    return null
-  }
-
-  const [, domain, handle, tweetId] = match
-
-  // Validate tweet ID is a reasonable Twitter ID (minimum 7 digits for older tweets)
-  // Twitter IDs are snowflake IDs, typically 18-19 digits for recent tweets
-  if (tweetId.length < 7 || tweetId.length > 20) {
-    return null
-  }
-
-  // Ensure handle follows Twitter handle rules (1-15 alphanumeric or underscore)
-  if (!/^[a-zA-Z0-9_]{1,15}$/.test(handle)) {
-    return null
-  }
-
-  return {
-    domain: domain.toLowerCase(),
-    handle: handle.toLowerCase(),
-    tweetId
-  }
-}
-
-/**
- * Verify tweet ownership and content.
- *
- * Implementation:
- * 1. Validates URL format
- * 2. Verifies handle matches URL path
- * 3. If Twitter API is configured, verifies tweet content:
- *    - Tweet exists and is not deleted
- *    - Author matches expected handle
- *    - Contains "TIPZ" keyword
- *    - Contains shielded address (or first/last 8 chars)
- *    - Posted within 48 hours
- *
- * @param tweetUrl - Full URL to the verification tweet
- * @param handle - The handle being registered
- * @param shieldedAddress - The shielded address being registered
- * @returns Verification result with status and metadata
- */
-async function verifyTweet(
-  tweetUrl: string,
-  handle: string,
-  shieldedAddress: string
-): Promise<TweetVerificationResult> {
-  // Parse and validate URL structure
-  const parsed = parseTweetUrl(tweetUrl)
-
-  if (!parsed) {
-    return {
-      valid: false,
-      status: "failed",
-      error:
-        "Invalid tweet URL format. Expected: https://x.com/{handle}/status/{id}"
-    }
-  }
-
-  // Verify the tweet is from the handle being registered (URL path check)
-  const expectedHandle = normalizeHandle(handle)
-
-  if (parsed.handle !== expectedHandle) {
-    return {
-      valid: false,
-      status: "failed",
-      error: `Tweet must be from @${handle}. Found tweet from @${parsed.handle}`
-    }
-  }
-
-  // If Twitter API is configured, verify tweet content
-  if (isTwitterApiConfigured()) {
-    console.log("[register] Twitter API configured, verifying tweet content")
-
-    const apiResult = await verifyTweetContent(
-      parsed.tweetId,
-      handle,
-      shieldedAddress
-    )
-
-    return {
-      valid: apiResult.valid,
-      status: apiResult.status,
-      tweetId: parsed.tweetId,
-      error: apiResult.error,
-      verifiedAt: apiResult.status === "verified" ? new Date().toISOString() : undefined
-    }
-  }
-
-  // Twitter API not configured - return pending status for manual review
-  console.log("[register] Twitter API not configured, returning pending status")
-  return {
-    valid: true,
-    status: "pending",
-    tweetId: parsed.tweetId
-  }
-}
-
 export async function POST(request: NextRequest) {
   // Apply rate limiting
   const clientIP = getClientIP(request.headers)
@@ -275,6 +117,19 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // Require authenticated session (from Twitter OAuth)
+  const session = await getSessionFromRequest(request)
+  if (!session) {
+    return createErrorResponse(
+      "Authentication required. Please sign in with X first.",
+      ERROR_CODES.NOT_AUTHENTICATED,
+      401,
+      headers
+    )
+  }
+
+  const sessionHandle = session.handle
+
   // Parse request body
   let body: Record<string, unknown>
   try {
@@ -288,68 +143,32 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { platform, handle, shielded_address, tweet_url } = body
+  const { shielded_address } = body
 
   // Validate required fields
-  const missingFields: string[] = []
-  if (!platform) missingFields.push("platform")
-  if (!handle) missingFields.push("handle")
-  if (!shielded_address) missingFields.push("shielded_address")
-  if (!tweet_url) missingFields.push("tweet_url")
-
-  if (missingFields.length > 0) {
+  if (!shielded_address) {
     return createErrorResponse(
-      `Missing required fields: ${missingFields.join(", ")}`,
+      "Missing required field: shielded_address",
       ERROR_CODES.MISSING_FIELDS,
       400,
       headers,
-      { missing: missingFields.join(", ") }
+      { missing: "shielded_address" }
     )
   }
 
-  // Validate field types
-  const invalidTypes: string[] = []
-  if (typeof platform !== "string") invalidTypes.push("platform")
-  if (typeof handle !== "string") invalidTypes.push("handle")
-  if (typeof shielded_address !== "string") invalidTypes.push("shielded_address")
-  if (typeof tweet_url !== "string") invalidTypes.push("tweet_url")
-
-  if (invalidTypes.length > 0) {
+  // Validate field type
+  if (typeof shielded_address !== "string") {
     return createErrorResponse(
-      `Invalid field types. Expected strings for: ${invalidTypes.join(", ")}`,
+      "Invalid field type. Expected string for: shielded_address",
       ERROR_CODES.INVALID_FIELD_TYPE,
       400,
       headers,
-      { invalid_fields: invalidTypes.join(", ") }
+      { invalid_fields: "shielded_address" }
     )
   }
 
-  // Sanitize inputs (type assertion safe after validation above)
-  const sanitizedPlatform = sanitizeInput(platform as string).toLowerCase()
-  const sanitizedHandle = sanitizeInput(handle as string)
+  // Sanitize address
   const sanitizedAddress = sanitizeInput(shielded_address as string)
-  const sanitizedTweetUrl = sanitizeInput(tweet_url as string)
-
-  // Validate platform - only X (Twitter) is supported
-  if (sanitizedPlatform !== "x") {
-    return createErrorResponse(
-      "Invalid platform. Only X (Twitter) is supported.",
-      ERROR_CODES.INVALID_PLATFORM,
-      400,
-      headers,
-      { provided: sanitizedPlatform, supported: "x" }
-    )
-  }
-
-  // Validate X handle
-  if (!isValidTwitterHandle(sanitizedHandle)) {
-    return createErrorResponse(
-      "Invalid X/Twitter handle. Must be 1-15 alphanumeric characters or underscores.",
-      ERROR_CODES.INVALID_HANDLE,
-      400,
-      headers
-    )
-  }
 
   // Validate shielded address
   if (!isValidShieldedAddress(sanitizedAddress)) {
@@ -362,152 +181,141 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Verify tweet ownership
-  const tweetVerification = await verifyTweet(
-    sanitizedTweetUrl,
-    sanitizedHandle,
-    sanitizedAddress
-  )
+  const normalizedHandle = normalizeHandle(sessionHandle)
 
-  if (!tweetVerification.valid) {
-    const errorCode = tweetVerification.error?.includes("Tweet must be from")
-      ? ERROR_CODES.TWEET_HANDLE_MISMATCH
-      : ERROR_CODES.INVALID_TWEET_URL
+  // Fetch profile image from Twitter API (best-effort)
+  const avatarUrl = await fetchUserProfileImage(normalizedHandle)
 
+  // If Supabase is not configured, return an error
+  if (!supabase) {
     return createErrorResponse(
-      tweetVerification.error || "Invalid tweet URL",
-      errorCode,
-      400,
+      "Database not configured. Please contact support.",
+      ERROR_CODES.DATABASE_ERROR,
+      503,
       headers
     )
   }
 
-    const normalizedHandle = normalizeHandle(sanitizedHandle)
+  // Check if already registered
+  let existing: { id: string } | null = null
+  try {
+    const { data, error } = await findCreatorByHandle(sessionHandle, {
+      platform: "x",
+    })
 
-    // Fetch profile image from Twitter API (best-effort, non-blocking)
-    const avatarUrl = await fetchUserProfileImage(normalizedHandle)
-
-    // If Supabase is not configured, return an error
-    if (!supabase) {
+    if (error && error.code !== "PGRST116" && error.message !== "Database not configured") {
+      console.error("[register] Database query error:", error)
       return createErrorResponse(
-        "Database not configured. Please contact support.",
-        ERROR_CODES.DATABASE_ERROR,
-        503,
-        headers
-      )
-    }
-
-    // Check if already registered
-    let existing: { id: string } | null = null
-    try {
-      const { data, error } = await findCreatorByHandle(sanitizedHandle, {
-        platform: sanitizedPlatform,
-      })
-
-      if (error && error.code !== "PGRST116" && error.message !== "Database not configured") {
-        // PGRST116 = row not found, which is expected for new registrations
-        console.error("[register] Database query error:", error)
-        return createErrorResponse(
-          "Database error while checking registration",
-          ERROR_CODES.DATABASE_ERROR,
-          500,
-          headers
-        )
-      }
-
-      existing = data
-    } catch (error) {
-      console.error("[register] Unexpected database error:", error)
-      return createErrorResponse(
-        "Unexpected database error",
+        "Database error while checking registration",
         ERROR_CODES.DATABASE_ERROR,
         500,
         headers
       )
     }
 
-    if (existing) {
-      // Update existing registration
-      const { error: updateError } = await supabase
-        .from("creators")
-        .update({
-          handle: sanitizedHandle,
-          shielded_address: sanitizedAddress,
-          tweet_url: sanitizedTweetUrl,
-          verification_status: tweetVerification.status,
-          tweet_id: tweetVerification.tweetId,
-          verified_at: tweetVerification.verifiedAt || null,
-          updated_at: new Date().toISOString(),
-          ...(avatarUrl && { avatar_url: avatarUrl }),
-        })
-        .eq("id", existing.id)
+    existing = data
+  } catch (error) {
+    console.error("[register] Unexpected database error:", error)
+    return createErrorResponse(
+      "Unexpected database error",
+      ERROR_CODES.DATABASE_ERROR,
+      500,
+      headers
+    )
+  }
 
-      if (updateError) {
-        console.error("[register] Update error:", updateError)
-        return createErrorResponse(
-          "Failed to update registration. Please try again.",
-          ERROR_CODES.DATABASE_ERROR,
-          500,
-          headers
-        )
-      }
-
-      return NextResponse.json(
-        {
-          success: true,
-          message: "Registration updated",
-          verification_status: tweetVerification.status,
-          handle: sanitizedHandle,
-          platform: sanitizedPlatform
-        },
-        { status: 200, headers }
-      )
-    }
-
-    // Create new registration
-    const { error: insertError } = await supabase
+  if (existing) {
+    // Update existing registration (e.g. changing address)
+    const { error: updateError } = await supabase
       .from("creators")
-      .insert({
-        platform: sanitizedPlatform,
-        handle: sanitizedHandle,
-        handle_normalized: normalizedHandle,
+      .update({
         shielded_address: sanitizedAddress,
-        tweet_url: sanitizedTweetUrl,
-        verification_status: tweetVerification.status,
-        tweet_id: tweetVerification.tweetId,
-        verified_at: tweetVerification.verifiedAt || null,
+        verification_status: "verified",
+        verified_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         ...(avatarUrl && { avatar_url: avatarUrl }),
       })
+      .eq("id", existing.id)
 
-    if (insertError) {
-      console.error("[register] Insert error:", insertError)
-
-      // Check for unique constraint violation (duplicate registration race condition)
-      if (insertError.code === "23505") {
-        return createErrorResponse(
-          "This handle is already registered. Please update your existing registration instead.",
-          ERROR_CODES.DATABASE_ERROR,
-          409,
-          headers
-        )
-      }
-
+    if (updateError) {
+      console.error("[register] Update error:", updateError)
       return createErrorResponse(
-        "Failed to create registration. Please try again.",
+        "Failed to update registration. Please try again.",
         ERROR_CODES.DATABASE_ERROR,
         500,
         headers
       )
     }
 
-    return NextResponse.json(
+    // Upgrade session to include creatorId
+    const response = NextResponse.json(
       {
         success: true,
-        message: "Registration successful",
-        verification_status: tweetVerification.status,
-        handle: sanitizedHandle,
-        platform: sanitizedPlatform
+        message: "Registration updated",
+        handle: sessionHandle,
+        platform: "x"
       },
-      { status: 201, headers }
+      { status: 200, headers }
     )
+
+    const token = await createSessionToken(sessionHandle, existing.id)
+    setSessionCookie(response, token)
+
+    return response
+  }
+
+  // Create new registration
+  const { data: newCreator, error: insertError } = await supabase
+    .from("creators")
+    .insert({
+      platform: "x",
+      handle: sessionHandle,
+      handle_normalized: normalizedHandle,
+      shielded_address: sanitizedAddress,
+      verification_status: "verified",
+      verified_at: new Date().toISOString(),
+      ...(avatarUrl && { avatar_url: avatarUrl }),
+    })
+    .select("id")
+    .single()
+
+  if (insertError) {
+    console.error("[register] Insert error:", insertError)
+
+    // Check for unique constraint violation (duplicate registration race condition)
+    if (insertError.code === "23505") {
+      return createErrorResponse(
+        "This handle is already registered.",
+        ERROR_CODES.DATABASE_ERROR,
+        409,
+        headers
+      )
+    }
+
+    return createErrorResponse(
+      "Failed to create registration. Please try again.",
+      ERROR_CODES.DATABASE_ERROR,
+      500,
+      headers
+    )
+  }
+
+  // Upgrade session to include creatorId
+  const creatorId = newCreator?.id
+  const response = NextResponse.json(
+    {
+      success: true,
+      message: "Registration successful",
+      handle: sessionHandle,
+      platform: "x"
+    },
+    { status: 201, headers }
+  )
+
+  if (creatorId) {
+    const token = await createSessionToken(sessionHandle, creatorId)
+    setSessionCookie(response, token)
+  }
+
+  return response
 }

@@ -315,7 +315,7 @@ export function TransactionStatus({
             letterSpacing: "0.3px",
           }}
         >
-          This transaction is invisible to the public.
+          Delivered to a shielded address.
         </p>
 
         <style>{keyframes}</style>
