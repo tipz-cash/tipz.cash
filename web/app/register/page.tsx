@@ -24,6 +24,14 @@ function LockIcon({ size = 16, color = "currentColor" }: { size?: number; color?
   );
 }
 
+function ShieldIcon({ size = 48, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  )
+}
+
 function CelebrationIcon({ size = 32, color = "currentColor" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -216,9 +224,9 @@ export default function RegisterPage() {
     minHeight: "58px",
     fontSize: "16px",
     fontFamily: "var(--font-family-mono)",
-    backgroundColor: colors.bg,
+    backgroundColor: "rgba(8, 9, 10, 0.8)",
     border: `1px solid ${colors.border}`,
-    borderRadius: "8px",
+    borderRadius: "10px",
     color: colors.textBright,
     boxSizing: "border-box",
     transition: transitions.normal,
@@ -230,9 +238,12 @@ export default function RegisterPage() {
   const labelStyle: React.CSSProperties = {
     display: "block",
     marginBottom: "8px",
-    fontSize: "14px",
+    fontSize: "11px",
     fontWeight: 500,
-    color: colors.muted
+    color: colors.muted,
+    textTransform: "uppercase",
+    letterSpacing: "1px",
+    fontFamily: "var(--font-family-mono)",
   }
 
   // Calculate progress for progress bar
@@ -255,17 +266,62 @@ export default function RegisterPage() {
         alignItems: "center",
         justifyContent: "center",
         minHeight: "100vh",
-        background: `linear-gradient(180deg, ${colors.bgGradientStart} 0%, ${colors.bgGradientEnd} 100%)`,
+        background: colors.pageBg,
         fontFamily: "var(--font-family-mono)",
       }}>
-        <div style={{
-          width: "24px",
-          height: "24px",
-          border: `2px solid ${colors.border}`,
-          borderTopColor: colors.primary,
-          borderRadius: "50%",
-          animation: "spin 0.8s linear infinite",
-        }} />
+        <div className="register-card" style={{
+          width: "100%",
+          maxWidth: "560px",
+          position: "relative",
+          background: "rgba(26, 26, 26, 0.6)",
+          backdropFilter: "blur(24px) saturate(150%)",
+          WebkitBackdropFilter: "blur(24px) saturate(150%)",
+          border: `1px solid rgba(245, 166, 35, 0.25)`,
+          borderRadius: "24px",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04)",
+          padding: "48px 24px",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "16px",
+        }}>
+          <div style={{
+            width: "24px",
+            height: "24px",
+            border: `2px solid ${colors.border}`,
+            borderTopColor: colors.primary,
+            borderRadius: "50%",
+            animation: "spin 0.8s linear infinite",
+          }} />
+          <span style={{
+            fontSize: "11px",
+            color: colors.muted,
+            letterSpacing: "3px",
+            textTransform: "uppercase",
+            fontFamily: "var(--font-family-mono)",
+          }}>INITIALIZING</span>
+        </div>
+        <style>{`
+          ${animationKeyframes}
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+          .register-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: inherit;
+          }
+          .register-card > * {
+            position: relative;
+            z-index: 1;
+          }
+        `}</style>
       </main>
     )
   }
@@ -277,26 +333,45 @@ export default function RegisterPage() {
       alignItems: "center",
       minHeight: "100vh",
       padding: "clamp(24px, 6vw, 48px) clamp(16px, 4vw, 24px)",
-      background: `linear-gradient(180deg, ${colors.bgGradientStart} 0%, ${colors.bgGradientEnd} 100%)`,
+      paddingTop: "80px",
+      background: colors.pageBg,
       fontFamily: "var(--font-family-mono)",
       position: "relative",
     }}>
-      <div style={{ width: "100%", maxWidth: "520px", position: "relative", zIndex: 1 }}>
+      <div className="register-card" style={{
+        width: "100%",
+        maxWidth: "560px",
+        position: "relative",
+        background: "rgba(26, 26, 26, 0.6)",
+        backdropFilter: "blur(24px) saturate(150%)",
+        WebkitBackdropFilter: "blur(24px) saturate(150%)",
+        border: `1px solid rgba(245, 166, 35, 0.25)`,
+        borderRadius: "24px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04)",
+        padding: "28px 24px",
+        overflow: "hidden",
+      }}>
         {/* Progress Bar */}
         {authenticated && (
           <div style={{
             marginBottom: "24px",
-            padding: "16px 20px",
-            backgroundColor: colors.surface,
-            border: `1px solid ${colors.border}`,
-            borderRadius: "8px",
+            padding: "16px 0",
           }}>
             <div style={{
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: "space-between",
               alignItems: "center",
               marginBottom: "10px",
             }}>
+              <span style={{
+                fontSize: "11px",
+                color: colors.muted,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                fontFamily: "var(--font-family-mono)",
+              }}>
+                REGISTRATION
+              </span>
               <span style={{
                 fontSize: "11px",
                 color: colors.primary,
@@ -307,7 +382,7 @@ export default function RegisterPage() {
             </div>
             <div style={{
               height: "4px",
-              backgroundColor: colors.bg,
+              backgroundColor: "rgba(255, 255, 255, 0.06)",
               borderRadius: "2px",
               overflow: "hidden",
             }}>
@@ -344,12 +419,8 @@ export default function RegisterPage() {
         {/* Value Prop Header */}
         <div style={{
           marginBottom: "32px",
-          padding: "28px",
-          backgroundColor: colors.surface,
-          border: `1px solid ${colors.border}`,
-          borderRadius: "20px",
+          padding: "28px 0",
           position: "relative",
-          overflow: "hidden",
         }}>
           <div style={{
             fontSize: "11px",
@@ -405,20 +476,51 @@ export default function RegisterPage() {
         {/* Not authenticated — Sign in with X */}
         {!authenticated && (
           <div style={{
-            padding: "36px 28px",
-            backgroundColor: colors.surface,
-            border: `1px solid ${colors.border}`,
-            borderRadius: "16px",
+            padding: "48px 32px",
             textAlign: "center",
+            background: "rgba(18, 20, 26, 0.85)",
+            backdropFilter: "blur(24px)",
+            border: "1px solid rgba(245, 166, 35, 0.12)",
+            borderRadius: "12px",
+            position: "relative",
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
             ...animationStyle,
           }}>
+            {/* Gold top accent — 3px */}
+            <div style={{
+              position: "absolute",
+              top: 0, left: 0, right: 0,
+              height: "3px",
+              background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+              borderRadius: "12px 12px 0 0",
+              backgroundSize: "200% 100%",
+              animation: prefersReducedMotion ? "none" : "goldBorderSweep 3s ease-in-out infinite",
+            }} />
+
+            {/* Shield icon with glow */}
+            <div style={{
+              marginBottom: "24px",
+              ...(prefersReducedMotion ? {} : { animation: "scaleSpring 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both" }),
+            }}>
+              <div style={{
+                display: "inline-block",
+                filter: "drop-shadow(0 0 30px rgba(245, 166, 35, 0.15))",
+              }}>
+                <ShieldIcon size={48} color={colors.primary} />
+              </div>
+            </div>
+
             <p style={{
-              margin: "0 0 24px",
+              margin: "0 0 28px",
               color: colors.text,
               fontSize: "14px",
               lineHeight: 1.6,
+              fontFamily: "var(--font-family)",
+              maxWidth: "320px",
+              marginLeft: "auto",
+              marginRight: "auto",
             }}>
-              TIPZ uses X login to verify your handle. No tweet required — your address stays between you and your wallet.
+              TIPZ uses X login to verify your handle. Your address stays between you and your wallet.
             </p>
 
             <a
@@ -518,7 +620,7 @@ export default function RegisterPage() {
                 aria-describedby="address-hint"
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = fieldErrors.shielded_address ? colors.error : colors.primary
-                  e.currentTarget.style.boxShadow = `0 0 0 1px ${fieldErrors.shielded_address ? colors.error : colors.primary}`
+                  e.currentTarget.style.boxShadow = `0 0 0 1px ${fieldErrors.shielded_address ? colors.error : colors.primary}, 0 0 20px ${fieldErrors.shielded_address ? colors.errorGlow : colors.primaryGlow}`
                 }}
                 onBlur={(e) => {
                   const isValid = isAddressComplete(shieldedAddress);
@@ -557,8 +659,8 @@ export default function RegisterPage() {
                 <div style={{
                   marginTop: "12px",
                   padding: "12px 14px",
-                  backgroundColor: colors.goldGlow,
-                  border: `1px solid ${colors.primaryGlow}`,
+                  backgroundColor: "rgba(18, 20, 26, 0.85)",
+                  border: "1px solid rgba(245, 166, 35, 0.12)",
                   borderRadius: "8px",
                 }}>
                   <p style={{ margin: 0, fontSize: "12px", color: colors.text, lineHeight: 1.5 }}>
@@ -594,7 +696,7 @@ export default function RegisterPage() {
               width: isMobile ? "auto" : "100%",
               padding: isMobile ? "16px clamp(16px, 4vw, 24px)" : 0,
               paddingBottom: isMobile ? "max(16px, env(safe-area-inset-bottom))" : 0,
-              background: isMobile ? `linear-gradient(180deg, transparent 0%, ${colors.bgGradientEnd} 20%)` : "transparent",
+              background: isMobile ? "linear-gradient(180deg, transparent 0%, rgba(26, 26, 26, 0.95) 20%)" : "transparent",
               marginTop: isMobile ? "16px" : 0,
               zIndex: 10,
             }}>
@@ -607,10 +709,10 @@ export default function RegisterPage() {
                   minHeight: "56px",
                   fontSize: "15px",
                   fontWeight: 700,
-                  color: colors.bg,
-                  backgroundColor: (isSubmitting || !isAddressComplete(shieldedAddress)) ? colors.muted : colors.primary,
-                  border: "none",
-                  borderRadius: "8px",
+                  color: (isSubmitting || !isAddressComplete(shieldedAddress)) ? colors.muted : colors.bg,
+                  backgroundColor: (isSubmitting || !isAddressComplete(shieldedAddress)) ? "rgba(255, 255, 255, 0.08)" : colors.primary,
+                  border: (isSubmitting || !isAddressComplete(shieldedAddress)) ? `1px solid ${colors.border}` : "none",
+                  borderRadius: "10px",
                   cursor: (isSubmitting || !isAddressComplete(shieldedAddress)) ? "not-allowed" : "pointer",
                   transition: transitions.normal,
                   display: "flex",
@@ -630,7 +732,7 @@ export default function RegisterPage() {
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.backgroundColor = (isSubmitting || !isAddressComplete(shieldedAddress)) ? colors.muted : colors.primary;
+                  e.currentTarget.style.backgroundColor = (isSubmitting || !isAddressComplete(shieldedAddress)) ? "rgba(255, 255, 255, 0.08)" : colors.primary;
                 }}
               >
                 {isSubmitting && (
@@ -700,39 +802,64 @@ export default function RegisterPage() {
           <div style={{
             marginBottom: "24px",
             padding: "24px",
-            backgroundColor: colors.successGlow,
-            border: `1px solid ${colors.success}`,
+            background: "rgba(18, 20, 26, 0.85)",
+            border: "1px solid rgba(245, 166, 35, 0.12)",
             borderRadius: "12px",
+            position: "relative",
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
             animation: prefersReducedMotion ? "none" : "fadeInUp 0.5s ease-out",
           }}>
+            {/* Gold top accent bar */}
+            <div style={{
+              position: "absolute",
+              top: 0, left: 0, right: 0,
+              height: "3px",
+              background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+              borderRadius: "12px 12px 0 0",
+              backgroundSize: "200% 100%",
+              animation: prefersReducedMotion ? "none" : "goldBorderSweep 3s ease-in-out infinite",
+            }} />
+
             <div style={{
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
+              textAlign: "center",
               gap: "12px",
-              marginBottom: "20px",
+              marginBottom: "24px",
             }}>
               <span style={{
-                animation: prefersReducedMotion ? "none" : "stampIn 0.6s ease-out",
-              }}><CelebrationIcon size={32} color={colors.success} /></span>
-              <div>
-                <div style={{
-                  fontWeight: 700,
-                  fontSize: "18px",
-                  marginBottom: "4px",
-                  color: colors.success,
-                }}>
-                  You&apos;re all set!
-                </div>
-                <div style={{ color: colors.text, fontSize: "13px" }}>
-                  Tips will arrive directly to your shielded address.
-                </div>
+                ...(prefersReducedMotion ? {} : { animation: "scaleSpring 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both" }),
+                filter: "drop-shadow(0 0 30px rgba(245, 166, 35, 0.15))",
+              }}><CelebrationIcon size={32} color={colors.primary} /></span>
+
+              <div style={{
+                fontSize: "11px",
+                color: colors.muted,
+                letterSpacing: "3px",
+                fontFamily: "var(--font-family-mono)",
+              }}>
+                REGISTRATION COMPLETE
+              </div>
+
+              <div style={{
+                fontWeight: 700,
+                fontSize: "18px",
+                color: colors.textBright,
+              }}>
+                Welcome, <span style={{ color: colors.primary }}>@{registeredHandle || handle}</span>
+              </div>
+
+              <div style={{ color: colors.text, fontSize: "13px" }}>
+                Tips will arrive directly to your shielded address.
               </div>
             </div>
 
             <div style={{
               padding: "16px",
-              backgroundColor: colors.bg,
-              borderRadius: "8px",
+              backgroundColor: "rgba(8, 9, 10, 0.6)",
+              border: `1px solid ${colors.border}`,
+              borderRadius: "10px",
               marginBottom: "16px",
             }}>
               <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "8px", letterSpacing: "1px" }}>
@@ -755,7 +882,7 @@ export default function RegisterPage() {
                     fontSize: "11px",
                     backgroundColor: linkCopied ? colors.success : colors.surface,
                     border: `1px solid ${linkCopied ? colors.success : colors.border}`,
-                    borderRadius: "4px",
+                    borderRadius: "6px",
                     color: linkCopied ? colors.bg : colors.text,
                     cursor: "pointer",
                     transition: transitions.fast,
@@ -766,8 +893,30 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Share CTA — optional promo tweet (no address!) */}
+            {/* Action buttons — Dashboard is primary CTA */}
             <div className="success-buttons" style={{ display: "flex", gap: "12px" }}>
+              <Link
+                href="/my"
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  backgroundColor: colors.primary,
+                  color: colors.bg,
+                  textDecoration: "none",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  fontFamily: "Inter, -apple-system, sans-serif",
+                  boxShadow: `0 0 20px ${colors.primaryGlow}`,
+                }}
+              >
+                Go to Dashboard
+              </Link>
               <a
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(promoTweetText)}`}
                 target="_blank"
@@ -775,10 +924,10 @@ export default function RegisterPage() {
                 style={{
                   flex: 1,
                   padding: "12px",
-                  backgroundColor: "#1DA1F2",
-                  color: "white",
+                  backgroundColor: "rgba(255, 255, 255, 0.08)",
+                  color: colors.text,
                   textDecoration: "none",
-                  borderRadius: "6px",
+                  borderRadius: "8px",
                   textAlign: "center",
                   fontSize: "13px",
                   fontWeight: 600,
@@ -786,30 +935,13 @@ export default function RegisterPage() {
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "8px",
+                  border: `1px solid ${colors.border}`,
                   fontFamily: "Inter, -apple-system, sans-serif",
                 }}
               >
                 <XIcon size={14} />
                 Share on X
               </a>
-              <Link
-                href="/my"
-                style={{
-                  flex: 1,
-                  padding: "12px",
-                  backgroundColor: colors.surface,
-                  color: colors.text,
-                  textDecoration: "none",
-                  borderRadius: "6px",
-                  textAlign: "center",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  border: `1px solid ${colors.border}`,
-                  fontFamily: "Inter, -apple-system, sans-serif",
-                }}
-              >
-                Go to Dashboard
-              </Link>
             </div>
           </div>
         )}
@@ -818,10 +950,8 @@ export default function RegisterPage() {
         {!message?.type && (
           <div style={{
             marginTop: "32px",
-            padding: "16px 20px",
-            backgroundColor: colors.surface,
-            border: `1px solid ${colors.border}`,
-            borderRadius: "8px",
+            paddingTop: "20px",
+            borderTop: "1px solid rgba(255, 255, 255, 0.06)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -858,6 +988,20 @@ export default function RegisterPage() {
         ${animationKeyframes}
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+        .register-card::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+          opacity: 0.03;
+          pointer-events: none;
+          z-index: 0;
+          border-radius: inherit;
+        }
+        .register-card > * {
+          position: relative;
+          z-index: 1;
         }
         @media (prefers-reduced-motion: reduce) {
           * {
