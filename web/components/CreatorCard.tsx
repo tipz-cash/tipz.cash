@@ -10,6 +10,7 @@ export interface Creator {
   shielded_address: string;
   created_at: string;
   avatar_url?: string;
+  is_og_cypherpunk?: boolean;
 }
 
 // Generate a consistent hue from a string
@@ -194,6 +195,30 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
             SHIELDED
           </span>
         </div>
+
+        {/* Cypherpunk badge */}
+        {creator.is_og_cypherpunk && (
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "4px 10px",
+            borderRadius: "6px",
+            border: "1px solid rgba(245, 166, 35, 0.3)",
+            background: "rgba(245, 166, 35, 0.08)",
+            marginBottom: compact ? "12px" : "16px",
+          }}>
+            <span style={{
+              fontSize: "9px",
+              fontWeight: 700,
+              color: colors.primary,
+              letterSpacing: "1.5px",
+              fontFamily: "var(--font-family-mono)",
+            }}>
+              CYPHERPUNK
+            </span>
+          </div>
+        )}
 
         {/* Tip CTA */}
         <div
