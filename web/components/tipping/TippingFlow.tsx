@@ -483,13 +483,25 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 <LogoDisplay src="/icons/rabby.png" alt="Rabby" />
               </PaymentRow>
 
-              {/* ZEC row */}
+              {/* ZEC row — fully private, visually differentiated */}
               <PaymentRow
                 title="ZEC Direct"
-                description="Send from any Zcash wallet"
+                description={
+                  <>
+                    Send from any Zcash wallet
+                    <span style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.signalGreen} strokeWidth="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                      <span style={{ color: tokens.colors.signalGreen, fontSize: "11px", fontFamily: tokens.font.sans, fontWeight: 500 }}>
+                        Fully private
+                      </span>
+                    </span>
+                  </>
+                }
                 onClick={handleZecSelect}
               >
-                <LogoDisplay src="/icons/zcash.png" alt="Zcash" />
+                <LogoDisplay src="/icons/zcash.svg" alt="Zcash" size={40} />
               </PaymentRow>
             </div>
 
