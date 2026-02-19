@@ -766,7 +766,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
             )}
           </div>
 
-          {/* Handle + Shield Badge */}
+          {/* Handle + Badge */}
           <div style={{ flex: "0 1 auto", minWidth: 0 }}>
             <div
               style={{
@@ -777,10 +777,29 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 fontSize: "16px",
                 fontWeight: 600,
                 fontFamily: tokens.font.sans,
+                ...(isOgCypherpunk ? {
+                  padding: "4px 10px 4px 8px",
+                  borderRadius: "6px",
+                  border: "1px solid rgba(245, 166, 35, 0.2)",
+                  background: "rgba(245, 166, 35, 0.04)",
+                  boxShadow: "0 0 12px rgba(245, 166, 35, 0.06)",
+                } : {}),
               }}
             >
+              {isOgCypherpunk && (
+                <span style={{
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  color: tokens.colors.gold,
+                  letterSpacing: "1px",
+                  fontFamily: tokens.font.mono,
+                  opacity: 0.6,
+                }}>
+                  OG::
+                </span>
+              )}
               @{creatorHandle}
-              {/* Shield badge */}
+              {/* Verified badge */}
               <svg
                 width="14"
                 height="14"
@@ -792,28 +811,6 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 <path d="M9 12l2 2 4-4" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            {/* Cypherpunk badge */}
-            {isOgCypherpunk && (
-              <div style={{
-                display: "inline-flex",
-                alignItems: "center",
-                padding: "3px 8px",
-                borderRadius: "4px",
-                border: "1px solid rgba(245, 166, 35, 0.3)",
-                background: "rgba(245, 166, 35, 0.08)",
-                marginTop: "4px",
-              }}>
-                <span style={{
-                  fontSize: "9px",
-                  fontWeight: 700,
-                  color: tokens.colors.gold,
-                  letterSpacing: "1.5px",
-                  fontFamily: tokens.font.mono,
-                }}>
-                  CYPHERPUNK
-                </span>
-              </div>
-            )}
           </div>
         </div>
 

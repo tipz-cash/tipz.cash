@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
       shielded_address: data.shielded_address,
       avatar_url: data.avatar_url,
       public_key: data.public_key,
+      is_og_cypherpunk: true,
     }
   })
 }
