@@ -33,8 +33,8 @@ const chapters = [
   { id: "broken", num: "02", title: "THE FALSE CHOICE" },
   { id: "solution", num: "03", title: "THE SOLUTION" },
   { id: "any-token", num: "04", title: "UNIVERSAL INTAKE" },
-  { id: "proof", num: "05", title: "GENESIS COHORT" },
-  { id: "creator-tools", num: "06", title: "COMMAND CENTER" },
+  { id: "creator-tools", num: "05", title: "COMMAND CENTER" },
+  { id: "proof", num: "06", title: "GENESIS COHORT" },
   { id: "faq", num: "07", title: "FAQ" },
   { id: "how-it-works", num: "08", title: "GET STARTED" },
   { id: "join", num: "09", title: "EXIT" },
@@ -1392,10 +1392,11 @@ function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; scale?: nu
             }}>
               @naval
             </span>
-            {/* Gold shield badge */}
-            <svg width={12 * scale} height={12 * scale} viewBox="0 0 24 24" fill="#FFD700" stroke="none">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              <path d="M9 12l2 2 4-4" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            {/* Premium Cypherpunk shield */}
+            <svg width={12 * scale} height={12 * scale} viewBox="0 0 24 24" style={{ filter: "drop-shadow(0 0 4px rgba(245,166,35,0.4))" }}>
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#F5A623" />
+              <path d="M12 3l7 2.5v6.5c0 4-4 7.2-7 9" fill="rgba(255,255,255,0.15)" />
+              <path d="M9 8h6l-6 8h6" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
         </div>
@@ -2421,94 +2422,183 @@ function RedactedGlitch({ prefersReducedMotion }: { prefersReducedMotion: boolea
   );
 }
 
-// Animated Cypherpunk badge with scan line, number flicker, pulsing glow
-function OgBadgeVisual({ isMobile, prefersReducedMotion }: { isMobile: boolean; prefersReducedMotion: boolean }) {
-  const [displayNumber, setDisplayNumber] = useState("001");
-  const [settled, setSettled] = useState(false);
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setSettled(true);
-      return;
-    }
-    const interval = setInterval(() => {
-      setDisplayNumber(String(Math.floor(Math.random() * 100) + 1).padStart(3, "0"));
-    }, 60);
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-      setDisplayNumber("001");
-      setSettled(true);
-    }, 1500);
-    return () => { clearInterval(interval); clearTimeout(timeout); };
-  }, [prefersReducedMotion]);
-
+// Static payment card preview showing the Cypherpunk badge in context
+function CypherpunkCardPreview({ isMobile }: { isMobile: boolean }) {
   return (
     <div style={{
-      position: "relative",
-      display: "inline-flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: "12px",
-      padding: isMobile ? "28px 24px" : "32px 40px",
-      borderRadius: "14px",
-      border: "1px solid rgba(245, 166, 35, 0.25)",
-      background: "rgba(245, 166, 35, 0.04)",
-      backdropFilter: "blur(24px)",
-      WebkitBackdropFilter: "blur(24px)",
+      width: isMobile ? "100%" : "320px",
+      maxWidth: "320px",
+      background: "rgba(26, 26, 26, 0.6)",
+      backdropFilter: "blur(24px) saturate(150%)",
+      WebkitBackdropFilter: "blur(24px) saturate(150%)",
+      borderRadius: "24px",
+      borderTop: "1px solid rgba(255, 215, 0, 0.5)",
+      borderLeft: "none",
+      borderRight: "none",
+      borderBottom: "1px solid rgba(0, 0, 0, 0.8)",
+      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
       overflow: "hidden",
-      animation: prefersReducedMotion ? "none" : "badge-glow 4s ease-in-out infinite",
+      padding: "16px",
     }}>
-      {/* Scan line */}
-      {!prefersReducedMotion && (
-        <div style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          overflow: "hidden",
-          pointerEvents: "none",
-        }}>
-          <div style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "linear-gradient(90deg, transparent 0%, rgba(245, 166, 35, 0.06) 45%, rgba(245, 166, 35, 0.12) 50%, rgba(245, 166, 35, 0.06) 55%, transparent 100%)",
-            animation: "badge-scan 4s ease-in-out infinite",
-          }} />
-        </div>
-      )}
-      {/* Top accent line */}
+      {/* Header: Avatar + Handle + Shield */}
       <div style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "2px",
-        background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-        borderRadius: "14px 14px 0 0",
-      }} />
-      <span style={{
-        fontSize: isMobile ? "20px" : "28px",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        marginBottom: "16px",
+        paddingBottom: "12px",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+      }}>
+        <div style={{
+          width: "44px",
+          height: "44px",
+          borderRadius: "22%",
+          boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+          flexShrink: 0,
+          overflow: "hidden",
+        }}>
+          <img
+            src="/tipz-avatar.png"
+            alt="tipz_cash"
+            style={{
+              width: "130%",
+              height: "130%",
+              objectFit: "cover",
+              objectPosition: "center",
+              marginLeft: "-15%",
+              marginTop: "-15%",
+            }}
+          />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <span style={{
+            color: "#FFFFFF",
+            fontSize: "16px",
+            fontWeight: 600,
+            fontFamily: "var(--font-family)",
+          }}>
+            @tipz_cash
+          </span>
+          {/* Gold Cypherpunk shield — same badge shown in the title */}
+          <svg width={16} height={16} viewBox="0 0 24 24" style={{ filter: "drop-shadow(0 0 4px rgba(245,166,35,0.4))", flexShrink: 0 }}>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#F5A623" />
+            <path d="M12 3l7 2.5v6.5c0 4-4 7.2-7 9" fill="rgba(255,255,255,0.15)" />
+            <path d="M9 8h6l-6 8h6" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Amount pills */}
+      <div style={{ display: "flex", gap: "6px", marginBottom: "10px" }}>
+        {[1, 5, 10, 25, 50].map((amount) => {
+          const isSelected = amount === 5;
+          return (
+            <div key={amount} style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "40px",
+              background: isSelected ? "#FFFFFF" : "rgba(255, 255, 255, 0.06)",
+              borderRadius: "8px",
+              color: isSelected ? "#050505" : "rgba(255, 255, 255, 0.5)",
+              fontSize: "14px",
+              fontWeight: 700,
+              fontFamily: "var(--font-family-mono)",
+              boxShadow: isSelected
+                ? "0 0 20px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)"
+                : "inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+            }}>
+              ${amount}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Message trench */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 12px",
+        height: "38px",
+        background: "rgba(0, 0, 0, 0.4)",
+        borderRadius: "8px",
+        border: "1px solid rgba(255, 255, 255, 0.05)",
+        boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.3)",
+        marginBottom: "12px",
+      }}>
+        <span style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "13px", fontFamily: "var(--font-family-mono)" }}>
+          Add a private note...
+        </span>
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "3px",
+          padding: "3px 6px",
+          background: "rgba(0, 255, 148, 0.1)",
+          borderRadius: "6px",
+          flexShrink: 0,
+        }}>
+          <svg width={8} height={8} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          <span style={{ color: "#00FF94", fontSize: "7px", fontWeight: 700, fontFamily: "var(--font-family-mono)", letterSpacing: "0.5px" }}>
+            ENCRYPTED
+          </span>
+        </div>
+      </div>
+
+      {/* Send button */}
+      <div style={{
+        width: "100%",
+        height: "44px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(180deg, #FCD34D 0%, #F59E0B 50%, #D97706 100%)",
+        borderRadius: "8px",
+        color: "#050505",
+        fontSize: "15px",
         fontWeight: 700,
-        color: colors.primary,
-        letterSpacing: "3px",
         fontFamily: "var(--font-family-mono)",
-        textShadow: "0 0 30px rgba(245, 166, 35, 0.4)",
+        letterSpacing: "0.5px",
+        boxShadow: "inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 8px 24px rgba(255, 215, 0, 0.5)",
       }}>
-        CYPHERPUNK
-      </span>
-      <span style={{
-        fontSize: isMobile ? "14px" : "18px",
-        color: settled ? "rgba(245, 166, 35, 0.5)" : "rgba(245, 166, 35, 0.7)",
-        fontFamily: "var(--font-family-mono)",
-        letterSpacing: "2px",
-        transition: "color 0.3s",
+        Send $5.00
+      </div>
+
+      {/* Trust footer */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "12px",
+        marginTop: "10px",
+        paddingTop: "8px",
+        borderTop: "1px solid rgba(255, 255, 255, 0.1)",
       }}>
-        #{displayNumber} OF 100
-      </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+          <svg width={10} height={10} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "9px", fontFamily: "var(--font-family-mono)" }}>Private</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+          <svg width={10} height={10} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+          <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "9px", fontFamily: "var(--font-family-mono)" }}>Instant</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+          <svg width={10} height={10} viewBox="0 0 24 24" fill="none" stroke="#00FF94" strokeWidth="2.5">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="4" y1="4" x2="20" y2="20" />
+          </svg>
+          <span style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "9px", fontFamily: "var(--font-family-mono)" }}>0% fees</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -4416,28 +4506,19 @@ export default function HomePage() {
                 minHeight: isMobile ? "440px" : undefined,
                 order: isMobile ? 1 : 0,
               }}>
-                {/* Gradient Border Wrapper */}
+                {/* Dashboard Card */}
                 <div style={{
                   position: "absolute",
                   top: "50%",
                   left: "50%",
                   transform: isMobile ? "translate(-50%, -50%)" : undefined,
                   width: isMobile ? "min(300px, calc(100vw - 46px))" : "400px",
-                  borderRadius: "13px",
-                  padding: "1px",
-                  background: "linear-gradient(135deg, rgba(245,166,35,0.4) 0%, rgba(245,166,35,0.1) 30%, rgba(42,47,56,0.5) 50%, rgba(245,166,35,0.1) 70%, rgba(245,166,35,0.3) 100%)",
-                  boxShadow: "0 0 40px rgba(255, 215, 0, 0.12), 0 0 80px rgba(245, 166, 35, 0.06)",
+                  background: "linear-gradient(165deg, #161920 0%, #12141a 50%, #0e1016 100%)",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.4), 0 25px 60px rgba(0,0,0,0.5), 0 0 80px rgba(245,166,35,0.04)",
                   animation: prefersReducedMotion || isMobile ? "none" : "dashboard-float 6s ease-in-out infinite",
                 }}>
-                  {/* Dashboard Card — Inner */}
-                  <div style={{
-                    width: "100%",
-                    background: "linear-gradient(165deg, #161920 0%, #12141a 50%, #0e1016 100%)",
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    position: "relative",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.4), 0 25px 60px rgba(0,0,0,0.5), 0 0 80px rgba(245,166,35,0.04)",
-                  }}>
 
                     {/* Header Bar */}
                     <div style={{
@@ -4617,7 +4698,6 @@ export default function HomePage() {
                         ))}
                       </div>
                     </div>
-                  </div>
                 </div>
 
               </div>
@@ -4639,19 +4719,27 @@ export default function HomePage() {
             </div>
           </TerminalReveal>
 
-          <TypingHeading
-            text={`"The Cypherpunks."`}
-            style={{ marginBottom: "16px" }}
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <TypingHeading
+              text={`Join the Cypherpunks.`}
+              style={{ marginBottom: 0 }}
+            />
+            {/* Z shield next to title — connects to badge in card below */}
+            <svg width={28} height={28} viewBox="0 0 24 24" style={{ filter: "drop-shadow(0 0 8px rgba(245,166,35,0.5))", flexShrink: 0, marginTop: "2px" }}>
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#F5A623" />
+              <path d="M12 3l7 2.5v6.5c0 4-4 7.2-7 9" fill="rgba(255,255,255,0.15)" />
+              <path d="M9 8h6l-6 8h6" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
 
           <TerminalReveal delay={100}>
             <p style={{
               fontSize: "16px",
               color: colors.muted,
               marginBottom: "40px",
-              maxWidth: "560px",
+              whiteSpace: "nowrap",
             }}>
-              100 badges. First come, first numbered. Then the window closes.
+              Join the first 100 creators building the private creator economy.
             </p>
           </TerminalReveal>
 
@@ -4662,7 +4750,7 @@ export default function HomePage() {
               justifyContent: "center",
               marginBottom: "40px",
             }}>
-              <OgBadgeVisual isMobile={isMobile} prefersReducedMotion={prefersReducedMotion} />
+              <CypherpunkCardPreview isMobile={isMobile} />
             </div>
           </TerminalReveal>
 
@@ -4679,7 +4767,7 @@ export default function HomePage() {
               marginBottom: "24px",
             }}>
               {[
-                { label: "PROVENANCE", text: "First 100 verified. Numbered by order of arrival.", color: colors.primary },
+                { label: "PROVENANCE", text: "First 100 verified. Limited run, then the window closes.", color: colors.primary },
                 { label: "THE SIGNAL", text: "Permanent mark on your profile and directory.", color: colors.success },
                 { label: "PROTOCOL ACCESS", text: "Priority access to future unlocks. Details classified.", color: colors.primary },
               ].map((item, i) => (
@@ -4715,42 +4803,27 @@ export default function HomePage() {
             </div>
           </TerminalReveal>
 
-          {/* Stats Strip — single inline bar */}
+          {/* Spots Remaining */}
           <TerminalReveal delay={400}>
             <div style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: isMobile ? "flex-start" : "center",
-              flexWrap: "wrap",
-              gap: isMobile ? "8px 16px" : "0 24px",
-              padding: "12px 20px",
+              justifyContent: "center",
+              padding: "14px 20px",
               borderRadius: "8px",
               border: `1px solid ${colors.border}`,
               backgroundColor: "rgba(26, 26, 26, 0.6)",
               fontFamily: "var(--font-family-mono)",
-              fontSize: "12px",
+              fontSize: "13px",
+              gap: "8px",
             }}>
-              <span><span style={{ color: colors.primary, fontWeight: 700 }}>97</span><span style={{ color: colors.muted }}> / 100 slots remaining</span></span>
-              {!isMobile && <span style={{ color: colors.border }}>&middot;</span>}
-              <span style={{ color: colors.muted }}>Volume: </span>
-              <RedactedGlitch prefersReducedMotion={prefersReducedMotion} />
-              {!isMobile && <span style={{ color: colors.border }}>&middot;</span>}
-              <span style={{ color: colors.muted }}>Status: </span>
               <span style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-              }}>
-                <span style={{
-                  width: "6px",
-                  height: "6px",
-                  backgroundColor: colors.success,
-                  borderRadius: "50%",
-                  boxShadow: `0 0 8px ${colors.success}`,
-                  animation: prefersReducedMotion ? "none" : "pulse-glow 2s ease-in-out infinite",
-                }} />
-                <span style={{ color: colors.success, fontWeight: 700 }}>ONLINE</span>
-              </span>
+                color: colors.primary,
+                fontWeight: 700,
+                fontSize: "18px",
+              }}>97</span>
+              <span style={{ color: colors.muted }}>/</span>
+              <span style={{ color: colors.muted }}>100 spots remaining</span>
             </div>
           </TerminalReveal>
         </div>
@@ -4901,20 +4974,20 @@ export default function HomePage() {
                 items={[
                   {
                     step: "01",
-                    title: "Link your wallet",
-                    desc: "Connect a Zashi shielded wallet. Takes 2 mins to set up.",
-                    icon: "/icons/wallet.svg",
+                    title: "Sign in with X",
+                    desc: "Connect your account in the dashboard. One click.",
+                    icon: "/icons/link.svg",
                   },
                   {
                     step: "02",
-                    title: "Verify your identity",
-                    desc: "One tweet binds your X handle to your keys.",
-                    icon: "/icons/link.svg",
+                    title: "Add your address",
+                    desc: "Paste your Zcash unified address. That's it.",
+                    icon: "/icons/wallet.svg",
                   },
                   {
                     step: "03",
                     title: "Go live",
-                    desc: "Your uncensorable payment link is now active.",
+                    desc: "Your tip page is active. Share it and start earning.",
                     icon: "/icons/coins.svg",
                   },
                 ]}
@@ -5116,7 +5189,7 @@ export default function HomePage() {
               fontSize: "18px",
               marginBottom: "32px",
             }}>
-              Platforms tax your income and survey your data. Tipz is 0% rent and 100% private. Stop working for the algorithm. Start building equity.
+              Platforms tax your income and surveil your data. TIPZ is 0% fees with privacy by default. Stop working for the algorithm. Start building equity.
             </p>
           </TerminalReveal>
 
