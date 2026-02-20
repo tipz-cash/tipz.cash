@@ -2461,12 +2461,12 @@ function CypherpunkCardPreview({ isMobile }: { isMobile: boolean }) {
             src="/tipz-avatar.png"
             alt="tipz_cash"
             style={{
-              width: "130%",
-              height: "130%",
+              width: "180%",
+              height: "180%",
               objectFit: "cover",
               objectPosition: "center",
-              marginLeft: "-15%",
-              marginTop: "-15%",
+              marginLeft: "-40%",
+              marginTop: "-40%",
             }}
           />
         </div>
