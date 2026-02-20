@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    console.log("[swap/status] Checking status for:", address.slice(0, 12) + "...")
+    console.log("[swap/status] Checking status")
 
     try {
       const status = await getSwapStatus(address)
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
             const { data: fallbackCreator } = await findCreatorByHandle(creatorHandle, { select: "id" })
             creator = fallbackCreator
             if (creator) {
-              console.log("[swap/status] Found creator via handle fallback:", creatorHandle)
+              console.log("[swap/status] Found creator via handle fallback")
             }
           }
 
@@ -157,7 +157,6 @@ export async function GET(request: NextRequest) {
       }
 
       console.log("[swap/status] Status:", {
-        address: address.slice(0, 12) + "...",
         status: status.status,
         complete: isSwapComplete(status.status),
       })

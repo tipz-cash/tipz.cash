@@ -264,7 +264,6 @@ export async function getSwapQuote(params: QuoteRequest): Promise<QuoteResponse>
     from: params.originAsset,
     to: params.destinationAsset,
     amount: params.depositAmount,
-    recipient: params.recipient.slice(0, 12) + "...",
     deadline,
   })
 
@@ -275,7 +274,6 @@ export async function getSwapQuote(params: QuoteRequest): Promise<QuoteResponse>
 
   console.log("[near-intents] Quote received:", {
     correlationId: response.correlationId,
-    depositAddress: response.quote?.depositAddress,
     amountOut: response.quote?.amountOut,
     deadline: response.quote?.deadline,
   })
@@ -293,10 +291,7 @@ export async function submitDeposit(
   depositAddress: string,
   txHash: string
 ): Promise<{ success: boolean }> {
-  console.log("[near-intents] Submitting deposit:", {
-    depositAddress,
-    txHash: txHash.slice(0, 16) + "...",
-  })
+  console.log("[near-intents] Submitting deposit")
 
   return makeRequest<{ success: boolean }>("/v0/deposit/submit", {
     method: "POST",
@@ -319,7 +314,6 @@ export async function getSwapStatus(depositAddress: string): Promise<StatusRespo
   )
 
   console.log("[near-intents] Status check:", {
-    address: depositAddress.slice(0, 12) + "...",
     status: response.status,
   })
 

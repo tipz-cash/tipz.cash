@@ -138,7 +138,6 @@ async function generateRealQuote(
     originAsset,
     depositAmount,
     destinationAsset: ZEC_ASSET_ID,
-    recipient: destinationAddress.slice(0, 12) + "...",
   })
 
   try {
@@ -172,9 +171,8 @@ async function generateRealQuote(
     const amountOutNum = parseFloat(quote.amountOutFormatted)
     const exchangeRate = amountInNum > 0 ? (amountOutNum / amountInNum).toString() : "0"
 
-    console.log("[swap/quote] Real quote received:", {
+    console.log("[swap/quote] Quote received:", {
       correlationId: nearResponse.correlationId,
-      depositAddress: quote.depositAddress,
       amountIn: quote.amountInFormatted,
       amountOut: quote.amountOutFormatted,
       deadline: quote.deadline,
