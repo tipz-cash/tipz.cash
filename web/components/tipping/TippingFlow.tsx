@@ -14,6 +14,7 @@ import { TipHistory } from "./TipHistory"
 import { tokens, keyframes } from "./designTokens"
 import type { WalletType, SupportedToken } from "@/lib/wallet"
 import { isValidPublicKey } from "@/lib/message-encryption"
+import { CypherpunkShield, VerifiedCheck } from "@/components/BadgeIcons"
 
 // Animation variants for content transitions - fast and subtle
 const contentVariants = {
@@ -777,39 +778,10 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 fontSize: "16px",
                 fontWeight: 600,
                 fontFamily: tokens.font.sans,
-                ...(isOgCypherpunk ? {
-                  padding: "4px 10px 4px 8px",
-                  borderRadius: "6px",
-                  border: "1px solid rgba(245, 166, 35, 0.2)",
-                  background: "rgba(245, 166, 35, 0.04)",
-                  boxShadow: "0 0 12px rgba(245, 166, 35, 0.06)",
-                } : {}),
               }}
             >
-              {isOgCypherpunk && (
-                <span style={{
-                  fontSize: "10px",
-                  fontWeight: 700,
-                  color: tokens.colors.gold,
-                  letterSpacing: "1px",
-                  fontFamily: tokens.font.mono,
-                  opacity: 0.6,
-                }}>
-                  OG::
-                </span>
-              )}
               @{creatorHandle}
-              {/* Verified badge */}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill={tokens.colors.gold}
-                stroke="none"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                <path d="M9 12l2 2 4-4" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              {isOgCypherpunk ? <CypherpunkShield size={16} /> : <VerifiedCheck size={14} />}
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { colors } from "@/lib/colors";
+import { CypherpunkShield, VerifiedCheck } from "@/components/BadgeIcons";
 
 export interface Creator {
   id: string;
@@ -149,76 +150,32 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
           )}
         </div>
 
-        {/* Handle */}
-        <h3
-          style={{
-            color: colors.textBright,
-            fontSize: compact ? "14px" : "16px",
-            fontWeight: 600,
-            margin: compact ? "0 0 8px" : "0 0 12px",
-            fontFamily: "var(--font-family-mono)",
-            letterSpacing: "-0.01em",
-            wordBreak: "break-word",
-            textAlign: "center",
-          }}
-        >
-          @{creator.handle}
-        </h3>
-
-        {/* Shielded badge - gold shield icon */}
+        {/* Handle + badge */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: compact ? "4px" : "6px",
-            marginBottom: compact ? "12px" : "16px",
+            justifyContent: "center",
+            gap: "6px",
+            margin: compact ? "0 0 12px" : "0 0 16px",
           }}
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="#FFD700"
-            stroke="none"
-          >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            <path d="M9 12l2 2 4-4" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span
+          <h3
             style={{
-              fontSize: "10px",
+              color: colors.textBright,
+              fontSize: compact ? "14px" : "16px",
               fontWeight: 600,
-              color: "#FFD700",
-              letterSpacing: "0.5px",
+              margin: 0,
+              fontFamily: "var(--font-family-mono)",
+              letterSpacing: "-0.01em",
+              wordBreak: "break-word",
+              textAlign: "center",
             }}
           >
-            SHIELDED
-          </span>
+            @{creator.handle}
+          </h3>
+          {creator.is_og_cypherpunk ? <CypherpunkShield size={16} /> : <VerifiedCheck size={14} />}
         </div>
-
-        {/* Cypherpunk badge */}
-        {creator.is_og_cypherpunk && (
-          <div style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "4px 10px",
-            borderRadius: "6px",
-            border: "1px solid rgba(245, 166, 35, 0.3)",
-            background: "rgba(245, 166, 35, 0.08)",
-            marginBottom: compact ? "12px" : "16px",
-          }}>
-            <span style={{
-              fontSize: "9px",
-              fontWeight: 700,
-              color: colors.primary,
-              letterSpacing: "1.5px",
-              fontFamily: "var(--font-family-mono)",
-            }}>
-              CYPHERPUNK
-            </span>
-          </div>
-        )}
 
         {/* Tip CTA */}
         <div
