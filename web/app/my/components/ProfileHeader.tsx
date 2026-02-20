@@ -4,6 +4,7 @@ import { useState } from "react"
 import { colors } from "@/lib/colors"
 import { transitions } from "@/lib/animations"
 import ConnectionIndicator from "./ConnectionIndicator"
+import { CypherpunkShield, VerifiedCheck } from "@/components/BadgeIcons"
 
 function LogOutIcon({ size = 16, color = "currentColor" }: { size?: number; color?: string }) {
   return (
@@ -15,14 +16,6 @@ function LogOutIcon({ size = 16, color = "currentColor" }: { size?: number; colo
   )
 }
 
-function ShieldCheckIcon({ size = 16, color = "currentColor" }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <path d="M9 12l2 2 4-4" />
-    </svg>
-  )
-}
 
 function CopyIcon({ size = 14 }: { size?: number }) {
   return (
@@ -48,6 +41,7 @@ interface ProfileHeaderProps {
   loggingOut: boolean
   onLogout: () => void
   prefersReducedMotion: boolean
+  isOgCypherpunk?: boolean
 }
 
 function getInitialColor(handle: string): string {
@@ -66,6 +60,7 @@ export default function ProfileHeader({
   loggingOut,
   onLogout,
   prefersReducedMotion,
+  isOgCypherpunk,
 }: ProfileHeaderProps) {
   const [urlCopied, setUrlCopied] = useState(false)
   const tipUrl = `tipz.cash/${handle}`
@@ -207,12 +202,11 @@ export default function ProfileHeader({
           )}
         </div>
 
-        {/* Handle + verified badge */}
+        {/* Handle + badge */}
         <div style={{
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
-          gap: "4px",
+          gap: "6px",
           ...anim("250ms", "fadeInUp 0.3s ease-out forwards"),
         }}>
           <h1 style={{
@@ -226,23 +220,7 @@ export default function ProfileHeader({
           }}>
             @{handle}
           </h1>
-          <div style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "4px",
-            ...anim("350ms", "fadeIn 0.3s ease-out forwards"),
-          }}>
-            <ShieldCheckIcon size={13} color={colors.primary} />
-            <span style={{
-              fontSize: "10px",
-              fontWeight: 600,
-              color: colors.primary,
-              letterSpacing: "1.5px",
-              fontFamily: "var(--font-family-mono)",
-            }}>
-              VERIFIED
-            </span>
-          </div>
+          {isOgCypherpunk ? <CypherpunkShield size={16} /> : <VerifiedCheck size={14} />}
         </div>
 
         {/* Tip URL with copy */}

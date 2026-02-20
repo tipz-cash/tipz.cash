@@ -36,10 +36,13 @@ function ZecTicker() {
   );
 }
 
-const navLinks = [
-  { href: "/creators", label: "CREATORS", key: "creators" },
+const navLinksLeft = [
   { href: "/manifesto", label: "MANIFESTO", key: "manifesto" },
   { href: "/docs", label: "DOCS", key: "docs" },
+] as const;
+
+const navLinksRight = [
+  { href: "/creators", label: "CREATORS", key: "creators" },
 ] as const;
 
 const navLinkStyle: React.CSSProperties = {
@@ -115,7 +118,7 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
           <nav className="site-desktop-nav" style={{ gap: "32px", alignItems: "center" }}>
             <ZecTicker />
             <span style={{ color: colors.border }}>|</span>
-            {navLinks.map((link) => (
+            {navLinksLeft.map((link) => (
               activePage === link.key ? (
                 <span key={link.key} style={activeLinkStyle}>{link.label}</span>
               ) : (
@@ -123,6 +126,13 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
               )
             ))}
             <span style={{ color: colors.border }}>|</span>
+            {navLinksRight.map((link) => (
+              activePage === link.key ? (
+                <span key={link.key} style={activeLinkStyle}>{link.label}</span>
+              ) : (
+                <Link key={link.key} href={link.href} style={navLinkStyle}>{link.label}</Link>
+              )
+            ))}
             {activePage === "my" ? (
               <span style={activeLinkStyle}>MY TIPZ</span>
             ) : (
@@ -220,7 +230,7 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
             <div style={{ padding: "12px 0", borderBottom: `1px solid ${colors.border}` }}>
               <ZecTicker />
             </div>
-            {navLinks.map((link) => (
+            {navLinksLeft.map((link) => (
               activePage === link.key ? (
                 <span key={link.key} style={mobileActiveLinkStyle}>{link.label}</span>
               ) : (
@@ -228,6 +238,13 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
               )
             ))}
             <div style={{ height: "1px", background: colors.border, margin: "4px 0" }} />
+            {navLinksRight.map((link) => (
+              activePage === link.key ? (
+                <span key={link.key} style={mobileActiveLinkStyle}>{link.label}</span>
+              ) : (
+                <Link key={link.key} href={link.href} onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>{link.label}</Link>
+              )
+            ))}
             {activePage === "my" ? (
               <span style={mobileActiveLinkStyle}>MY TIPZ</span>
             ) : (

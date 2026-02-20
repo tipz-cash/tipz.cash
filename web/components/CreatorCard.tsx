@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { colors } from "@/lib/colors";
+import { CypherpunkShield, VerifiedCheck } from "@/components/BadgeIcons";
 
 export interface Creator {
   id: string;
@@ -10,6 +11,7 @@ export interface Creator {
   shielded_address: string;
   created_at: string;
   avatar_url?: string;
+  is_og_cypherpunk?: boolean;
 }
 
 // Generate a consistent hue from a string
@@ -58,12 +60,14 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
           alignItems: "center",
           textDecoration: "none",
           cursor: "pointer",
-          background: colors.surface,
-          borderTop: "1px solid rgba(255, 215, 0, 0.4)",
-          borderLeft: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : colors.border}`,
-          borderRight: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : colors.border}`,
-          borderBottom: `1px solid ${isHovered ? "rgba(255, 215, 0, 0.3)" : colors.border}`,
-          borderRadius: compact ? "12px" : "20px",
+          background: "rgba(26, 26, 26, 0.6)",
+          backdropFilter: "blur(24px) saturate(150%)",
+          WebkitBackdropFilter: "blur(24px) saturate(150%)",
+          borderTop: "1px solid rgba(255, 215, 0, 0.5)",
+          borderLeft: isHovered ? "1px solid rgba(255, 215, 0, 0.3)" : "none",
+          borderRight: isHovered ? "1px solid rgba(255, 215, 0, 0.3)" : "none",
+          borderBottom: isHovered ? "1px solid rgba(255, 215, 0, 0.3)" : "1px solid rgba(0, 0, 0, 0.8)",
+          borderRadius: compact ? "16px" : "24px",
           padding: compact ? "20px 16px" : "32px 24px",
           opacity: 0,
           animation: "fadeInUp 0.4s ease forwards",
@@ -71,22 +75,11 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
           transition: "all 0.25s ease",
           transform: isHovered ? "translateY(-4px)" : "translateY(0)",
           boxShadow: isHovered
-            ? `0 16px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.15)`
-            : "0 4px 16px rgba(0, 0, 0, 0.3)",
+            ? `0 16px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)`
+            : "0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
           overflow: "hidden",
         }}
       >
-        {/* Dot grid texture background - matches hero cards */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `radial-gradient(circle, ${colors.border} 1px, transparent 1px)`,
-            backgroundSize: "24px 24px",
-            opacity: 0.3,
-            pointerEvents: "none",
-          }}
-        />
         {/* Avatar with gold ring on hover */}
         <div
           style={{
@@ -157,51 +150,31 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
           )}
         </div>
 
-        {/* Handle */}
-        <h3
-          style={{
-            color: colors.textBright,
-            fontSize: compact ? "14px" : "16px",
-            fontWeight: 600,
-            margin: compact ? "0 0 8px" : "0 0 12px",
-            fontFamily: "var(--font-family-mono)",
-            letterSpacing: "-0.01em",
-            wordBreak: "break-word",
-            textAlign: "center",
-          }}
-        >
-          @{creator.handle}
-        </h3>
-
-        {/* Shielded badge - gold shield icon */}
+        {/* Handle + badge */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: compact ? "4px" : "6px",
-            marginBottom: compact ? "12px" : "16px",
+            justifyContent: "center",
+            gap: "6px",
+            margin: compact ? "0 0 12px" : "0 0 16px",
           }}
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="#FFD700"
-            stroke="none"
-          >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            <path d="M9 12l2 2 4-4" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span
+          <h3
             style={{
-              fontSize: "10px",
+              color: colors.textBright,
+              fontSize: compact ? "14px" : "16px",
               fontWeight: 600,
-              color: "#FFD700",
-              letterSpacing: "0.5px",
+              margin: 0,
+              fontFamily: "var(--font-family-mono)",
+              letterSpacing: "-0.01em",
+              wordBreak: "break-word",
+              textAlign: "center",
             }}
           >
-            SHIELDED
-          </span>
+            @{creator.handle}
+          </h3>
+          {creator.is_og_cypherpunk ? <CypherpunkShield size={16} /> : <VerifiedCheck size={14} />}
         </div>
 
         {/* Tip CTA */}
@@ -254,9 +227,14 @@ export function SkeletonCard({ index }: { index: number }) {
       `}</style>
       <div
         style={{
-          background: colors.surface,
-          border: `1px solid ${colors.border}`,
-          borderRadius: "20px",
+          background: "rgba(26, 26, 26, 0.6)",
+          backdropFilter: "blur(24px) saturate(150%)",
+          WebkitBackdropFilter: "blur(24px) saturate(150%)",
+          borderTop: "1px solid rgba(255, 215, 0, 0.5)",
+          borderLeft: "none",
+          borderRight: "none",
+          borderBottom: "1px solid rgba(0, 0, 0, 0.8)",
+          borderRadius: "24px",
           padding: "32px 24px",
           display: "flex",
           flexDirection: "column",
@@ -267,19 +245,9 @@ export function SkeletonCard({ index }: { index: number }) {
           opacity: 0,
           position: "relative",
           overflow: "hidden",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
         }}
       >
-        {/* Dot grid texture background */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `radial-gradient(circle, ${colors.border} 1px, transparent 1px)`,
-            backgroundSize: "24px 24px",
-            opacity: 0.3,
-            pointerEvents: "none",
-          }}
-        />
         {/* Avatar skeleton */}
         <div
           style={{

@@ -346,9 +346,21 @@ body {
     box-shadow: 0 0 20px currentColor;
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.5;
     box-shadow: 0 0 40px currentColor;
   }
+}
+
+/* Badge scan line sweep */
+@keyframes badge-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Badge border glow pulse */
+@keyframes badge-glow {
+  0%, 100% { box-shadow: 0 0 40px rgba(245, 166, 35, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+  50% { box-shadow: 0 0 60px rgba(245, 166, 35, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
 }
 
 /* Glow effect for accent elements */

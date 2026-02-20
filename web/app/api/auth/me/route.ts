@@ -17,5 +17,6 @@ export async function GET(request: NextRequest) {
     authenticated: true,
     handle: session.handle,
     creatorId: session.creatorId,
+    registered: !!session.creatorId,
   })
 }

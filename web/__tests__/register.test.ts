@@ -15,17 +15,25 @@ vi.mock("@/lib/supabase", () => ({
     }),
   },
   normalizeHandle: (h: string) => h.toLowerCase().replace(/^@/, ""),
+  findCreatorByHandle: vi.fn(),
 }))
 
-// Mock twitter API — not configured by default
+// Mock twitter API
 vi.mock("@/lib/twitter-api", () => ({
-  verifyTweetContent: vi.fn(),
-  isTwitterApiConfigured: () => false,
   fetchUserProfileImage: vi.fn(() => Promise.resolve(null)),
+}))
+
+// Mock session — authenticated by default
+const mockSession = vi.fn()
+vi.mock("@/lib/session", () => ({
+  getSessionFromRequest: (...args: unknown[]) => mockSession(...args),
+  createSessionToken: vi.fn(() => Promise.resolve("mock-token")),
+  setSessionCookie: vi.fn(),
 }))
 
 import { POST } from "@/app/api/register/route"
 import { clearAllRateLimits } from "@/lib/rate-limit"
+import { findCreatorByHandle } from "@/lib/supabase"
 
 const VALID_U1 = "u1" + "q".repeat(139)  // 141 chars, bech32m charset
 
@@ -33,15 +41,13 @@ function createRequest(body: Record<string, unknown>): any {
   return {
     json: () => Promise.resolve(body),
     headers: new Headers({ "x-forwarded-for": "10.0.0.5" }),
+    cookies: { get: () => ({ value: "mock-session-cookie" }) },
   }
 }
 
 function validBody(overrides: Record<string, unknown> = {}) {
   return {
-    platform: "x",
-    handle: "testuser",
     shielded_address: VALID_U1,
-    tweet_url: "https://x.com/testuser/status/1234567890123456789",
     ...overrides,
   }
 }
@@ -51,51 +57,50 @@ beforeEach(() => {
   mockSingle.mockReset()
   mockInsert.mockReset()
   mockUpdate.mockReset()
+  mockSession.mockReset()
+
+  // Default: authenticated session
+  mockSession.mockResolvedValue({ handle: "testuser", creatorId: null })
 
   // Default: no existing registration
-  mockSingle.mockResolvedValue({ data: null, error: { code: "PGRST116" } })
+  vi.mocked(findCreatorByHandle).mockResolvedValue({ data: null, error: { code: "PGRST116", message: "" } } as any)
+
   // Default: insert succeeds
-  mockInsert.mockReturnValue({ select: () => ({ single: () => Promise.resolve({ data: { id: "new-id" }, error: null }) }) })
-  mockInsert.mockResolvedValue({ error: null })
+  mockInsert.mockReturnValue({
+    select: () => ({
+      single: () => Promise.resolve({ data: { id: "new-id" }, error: null })
+    })
+  })
 })
 
 describe("POST /api/register", () => {
   // ================================================================
+  // Authentication
+  // ================================================================
+
+  it("rejects unauthenticated requests", async () => {
+    mockSession.mockResolvedValue(null)
+    const res = await POST(createRequest(validBody()))
+    expect(res.status).toBe(401)
+    const data = await res.json()
+    expect(data.code).toBe("NOT_AUTHENTICATED")
+  })
+
+  it("accepts authenticated requests", async () => {
+    const res = await POST(createRequest(validBody()))
+    const data = await res.json()
+    expect(data.code).not.toBe("NOT_AUTHENTICATED")
+  })
+
+  // ================================================================
   // Input Validation
   // ================================================================
 
-  it("rejects missing fields", async () => {
-    const res = await POST(createRequest({ platform: "x" }))
+  it("rejects missing shielded_address", async () => {
+    const res = await POST(createRequest({}))
     expect(res.status).toBe(400)
     const data = await res.json()
     expect(data.code).toBe("MISSING_FIELDS")
-    expect(data.details.missing).toContain("handle")
-  })
-
-  it("rejects invalid platform", async () => {
-    const res = await POST(createRequest(validBody({ platform: "instagram" })))
-    expect(res.status).toBe(400)
-    const data = await res.json()
-    expect(data.code).toBe("INVALID_PLATFORM")
-  })
-
-  it("rejects invalid handle", async () => {
-    const res = await POST(createRequest(validBody({ handle: "way-too-long-handle!" })))
-    expect(res.status).toBe(400)
-    const data = await res.json()
-    expect(data.code).toBe("INVALID_HANDLE")
-  })
-
-  it("accepts handle with @ prefix", async () => {
-    // The handle validation strips @, but tweet URL won't match
-    // Let's test that @ is stripped properly
-    const res = await POST(createRequest(validBody({
-      handle: "@testuser",
-      tweet_url: "https://x.com/testuser/status/1234567890123456789",
-    })))
-    // Should pass handle validation (not 400 for INVALID_HANDLE)
-    const data = await res.json()
-    expect(data.code).not.toBe("INVALID_HANDLE")
   })
 
   // ================================================================
@@ -141,65 +146,16 @@ describe("POST /api/register", () => {
   })
 
   // ================================================================
-  // Tweet URL Validation
-  // ================================================================
-
-  it("accepts valid x.com tweet URL", async () => {
-    const res = await POST(createRequest(validBody({
-      tweet_url: "https://x.com/testuser/status/1234567890123456789",
-    })))
-    const data = await res.json()
-    expect(data.code).not.toBe("INVALID_TWEET_URL")
-  })
-
-  it("accepts valid twitter.com tweet URL", async () => {
-    const res = await POST(createRequest(validBody({
-      tweet_url: "https://twitter.com/testuser/status/1234567890123456789",
-    })))
-    const data = await res.json()
-    expect(data.code).not.toBe("INVALID_TWEET_URL")
-  })
-
-  it("rejects non-tweet URL", async () => {
-    const res = await POST(createRequest(validBody({
-      tweet_url: "https://google.com/search?q=test",
-    })))
-    expect(res.status).toBe(400)
-    const data = await res.json()
-    expect(data.code).toBe("INVALID_TWEET_URL")
-  })
-
-  it("rejects tweet from wrong handle", async () => {
-    const res = await POST(createRequest(validBody({
-      handle: "testuser",
-      tweet_url: "https://x.com/otheruser/status/1234567890123456789",
-    })))
-    expect(res.status).toBe(400)
-    const data = await res.json()
-    expect(data.code).toBe("TWEET_HANDLE_MISMATCH")
-  })
-
-  it("handles case-insensitive tweet URL matching", async () => {
-    const res = await POST(createRequest(validBody({
-      handle: "TestUser",
-      tweet_url: "https://x.com/testuser/status/1234567890123456789",
-    })))
-    const data = await res.json()
-    // Should NOT fail on handle mismatch
-    expect(data.code).not.toBe("TWEET_HANDLE_MISMATCH")
-  })
-
-  // ================================================================
   // Sanitization
   // ================================================================
 
-  it("strips HTML from inputs", async () => {
+  it("strips HTML from address input", async () => {
     const res = await POST(createRequest(validBody({
-      handle: "<script>alert('xss')</script>testuser",
+      shielded_address: "<script>alert('xss')</script>" + VALID_U1,
     })))
-    // The handle after stripping HTML would be "alert('xss')testuser" which is invalid
+    // After stripping HTML, the address won't start with u1
     const data = await res.json()
-    expect(data.code).toBe("INVALID_HANDLE")
+    expect(data.code).toBe("INVALID_ADDRESS")
   })
 
   // ================================================================
@@ -222,8 +178,8 @@ describe("POST /api/register", () => {
   // Non-string field types
   // ================================================================
 
-  it("rejects numeric handle", async () => {
-    const res = await POST(createRequest(validBody({ handle: 12345 })))
+  it("rejects numeric shielded_address", async () => {
+    const res = await POST(createRequest(validBody({ shielded_address: 12345 })))
     expect(res.status).toBe(400)
     const data = await res.json()
     expect(data.code).toBe("INVALID_FIELD_TYPE")
