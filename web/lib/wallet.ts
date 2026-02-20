@@ -953,8 +953,6 @@ async function executeSolanaTip(
       const lamports = Math.floor(parseFloat(quote.fromAmount) * 1e9)
 
       console.log("[wallet] Sending SOL to deposit address:", {
-        from: currentSolanaPublicKey,
-        to: depositAddress,
         lamports,
       })
 
@@ -1125,7 +1123,6 @@ export async function executeTip(
         const amountWei = parseUnits(quote.fromAmount, quote.fromToken.decimals)
 
         console.log("[wallet] Sending native token to deposit address:", {
-          to: depositAddress,
           amount: quote.fromAmount,
           amountWei: amountWei.toString(),
         })
@@ -1162,7 +1159,6 @@ export async function executeTip(
 
         console.log("[wallet] Sending ERC20 to deposit address:", {
           token: quote.fromToken.symbol,
-          to: depositAddress,
           amount: quote.fromAmount,
         })
 

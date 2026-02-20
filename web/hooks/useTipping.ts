@@ -265,7 +265,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
         const pendingTip = JSON.parse(pendingTipJson) as PendingTip
         // Only resume if less than 30 minutes old (swaps typically complete within this time)
         if (Date.now() - pendingTip.timestamp < 30 * 60 * 1000) {
-          console.log("[useTipping] Resuming polling for pending tip:", pendingTip.depositAddress)
+          console.log("[useTipping] Resuming polling for pending tip")
           setDepositAddress(pendingTip.depositAddress)
           if (pendingTip.transactionId) {
             setTransactionId(pendingTip.transactionId)

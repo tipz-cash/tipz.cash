@@ -177,10 +177,7 @@ export async function POST(request: NextRequest) {
     if (sourceTxHash) {
       try {
         await submitDeposit(depositAddress, sourceTxHash)
-        console.log("[swap/execute] Deposit tx submitted:", {
-          depositAddress,
-          txHash: sourceTxHash.slice(0, 16) + "...",
-        })
+        console.log("[swap/execute] Deposit tx submitted")
       } catch (error) {
         // Non-fatal - swap will still work, just might take longer
         console.warn("[swap/execute] Failed to submit deposit tx:", error)
@@ -193,10 +190,8 @@ export async function POST(request: NextRequest) {
     const status: ExecuteResponse["status"] = sourceTxHash ? "pending" : "pending_deposit"
     const statusUrl = `/api/swap/status?address=${encodeURIComponent(depositAddress)}`
 
-    console.log("[swap/execute] Real swap initiated:", {
-      depositAddress,
+    console.log("[swap/execute] Swap initiated:", {
       amount: `${quote.toAmount} ZEC`,
-      destination: destinationAddress.slice(0, 12) + "...",
       status,
     })
 
@@ -207,7 +202,7 @@ export async function POST(request: NextRequest) {
     if (supabase) {
       try {
         // Look up creator by their shielded address (include public_key for encryption)
-        console.log("[swap/execute] DB lookup — destinationAddress:", destinationAddress.slice(0, 20) + "...", "creatorHandle:", creatorHandle || "(none)")
+        console.log("[swap/execute] DB lookup — looking up creator")
 
         const { data: addressCreator, error: creatorError } = await supabase
           .from("creators")
@@ -221,20 +216,20 @@ export async function POST(request: NextRequest) {
 
         if ((creatorError || !creator) && creatorHandle) {
           // Fallback: look up by handle when shielded_address doesn't match
-          console.log("[swap/execute] Attempting handle fallback for:", creatorHandle)
+          console.log("[swap/execute] Attempting handle fallback")
           const { data: fallbackCreator, error: fallbackError } = await findCreatorByHandle(creatorHandle, {
             select: "id, public_key",
           })
           if (fallbackCreator) {
             creator = fallbackCreator
-            console.log("[swap/execute] Handle fallback FOUND:", creatorHandle, "id=", fallbackCreator.id)
+            console.log("[swap/execute] Handle fallback FOUND id=", fallbackCreator.id)
           } else {
-            console.log("[swap/execute] Handle fallback FAILED:", creatorHandle, "error=", fallbackError?.message)
+            console.log("[swap/execute] Handle fallback FAILED error=", fallbackError?.message)
           }
         }
 
         if (!creator) {
-          console.log("[swap/execute] Creator NOT FOUND — tip will NOT be tracked. address:", destinationAddress.slice(0, 20) + "...", creatorHandle ? `handle: ${creatorHandle}` : "")
+          console.log("[swap/execute] Creator NOT FOUND — tip will NOT be tracked")
           // Continue without logging - swap still works, just not tracked
         } else {
           // Encrypt tip data with creator's public key
@@ -299,10 +294,7 @@ export async function POST(request: NextRequest) {
     console.log("[swap/execute] Execution complete:", {
       from: `${fromAmount} ${fromToken === "0x0000000000000000000000000000000000000000" ? "ETH" : "token"}`,
       to: `${quote?.toAmount || "?"} ZEC`,
-      wallet: walletAddress.slice(0, 10) + "...",
-      destination: destinationAddress.slice(0, 10) + "...",
       intentId,
-      depositAddress,
     })
 
     return NextResponse.json(response)
