@@ -37,7 +37,7 @@ const colors = {
 };
 
 // Tab types
-type TabId = "tippers" | "creators" | "technical";
+type TabId = "tippers" | "creators" | "technical" | "privacy";
 
 // Tab navigation component - underline style
 function TabNavigation({
@@ -51,6 +51,7 @@ function TabNavigation({
     { id: "tippers", label: "FOR TIPPERS" },
     { id: "creators", label: "FOR CREATORS" },
     { id: "technical", label: "TECHNICAL" },
+    { id: "privacy", label: "WHY PRIVACY?" },
   ];
 
   return (
@@ -912,6 +913,407 @@ Key Management:
 }
 
 // ============================================
+// TAB CONTENT: WHY PRIVACY?
+// ============================================
+function PrivacyTab() {
+  return (
+    <>
+      {/* The Surveillance Problem */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          THE SURVEILLANCE PROBLEM
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Every crypto tip you send creates permanent surveillance data. Not temporarily. Not approximately. Permanently, precisely, and publicly.
+        </p>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "24px" }}>
+          <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", letterSpacing: "1px" }}>WHAT A TRANSPARENT TIP EXPOSES</div>
+          <div style={{ display: "grid", gap: "12px", fontSize: "13px" }}>
+            {[
+              { title: "Your wallet address", desc: "Linkable to your identity through exchanges, ENS, or past transactions" },
+              { title: "Their wallet address", desc: "Creator's income exposed — every tip they've ever received, from everyone, visible to anyone" },
+              { title: "The amount", desc: "Financial profiling — how much you give, how often, to whom" },
+              { title: "The timestamp", desc: "Behavioral analysis — when you're online, what you respond to, patterns over time" },
+            ].map((item) => (
+              <div key={item.title} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                <span style={{ color: colors.primary }}>→</span>
+                <div>
+                  <span style={{ fontWeight: 600, color: colors.textBright }}>{item.title}</span>
+                  <p style={{ color: colors.muted, margin: "4px 0 0" }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <CodeBlock>{`Transparent tip:
+"0x7a3...sent 0.05 ETH to 0x9b2...at 14:32 UTC"
+→ Both wallets linked. Their histories are your business.
+→ Indexed by chain analysis firms. Forever.
+
+TIPZ (shielded ZEC):
+"An encrypted transaction occurred."
+→ That's all anyone knows.`}</CodeBlock>
+
+        <p style={{ color: colors.muted, fontSize: "13px", lineHeight: 1.7, marginBottom: "24px" }}>
+          This isn&apos;t hypothetical. Chain analysis firms like Chainalysis and Elliptic build profiles from on-chain data. Employers screen wallets. Governments subpoena exchanges. Every indexed transaction is a data point that can be used against you — or the creator you support.
+        </p>
+
+        <CollapsibleSection title="Real-World Privacy Risks">
+          <div style={{ paddingTop: "16px", display: "grid", gap: "16px", fontSize: "13px" }}>
+            {[
+              { scenario: "Creator income doxxing", desc: "A competitor analyzes a creator's public wallet to estimate their earnings, then undercuts them or harasses their supporters." },
+              { scenario: "Employer surveillance", desc: "Your employer screens your wallet activity. Your donations to a labor organizer or political dissident are now a liability." },
+              { scenario: "Divorce discovery", desc: "Financial data from public transactions becomes evidence. Every tip is a line item in someone's legal filing." },
+              { scenario: "Journalist source exposure", desc: "A journalist receives tips from sources. Public transactions create a map of who funds their work." },
+              { scenario: "Political targeting", desc: "You tip a creator critical of a regime. The transaction links your identity to political opposition — permanently." },
+            ].map((item) => (
+              <div key={item.scenario} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                <span style={{ color: colors.primary }}>→</span>
+                <div>
+                  <span style={{ fontWeight: 600, color: colors.textBright }}>{item.scenario}</span>
+                  <p style={{ color: colors.muted, margin: "4px 0 0" }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CollapsibleSection>
+      </section>
+
+      {/* How Zcash Protects You */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          HOW ZCASH PROTECTS YOU
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Zcash shielded transactions use zero-knowledge proofs to encrypt sender, receiver, and amount on-chain. The blockchain verifies every transaction is valid — without seeing its contents.
+        </p>
+
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.primary}`, padding: "24px", borderRadius: "4px", marginBottom: "24px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <div style={{ color: colors.primary, fontWeight: 600, fontSize: "11px", letterSpacing: "1px" }}>SHIELDED TRANSACTIONS</div>
+            <span style={{ fontSize: "11px", color: colors.primary, border: `1px solid ${colors.primary}`, padding: "2px 8px", borderRadius: "2px" }}>CRYPTOGRAPHIC PRIVACY</span>
+          </div>
+          <div style={{ display: "grid", gap: "12px", fontSize: "13px" }}>
+            {[
+              { title: "Sender: encrypted", desc: "No one can see who sent the transaction — not the network, not chain analysis, not TIPZ" },
+              { title: "Receiver: encrypted", desc: "The recipient address is hidden. Only the recipient knows they received funds" },
+              { title: "Amount: encrypted", desc: "The value transferred is invisible. Only the recipient can see it with their viewing key" },
+              { title: "Mathematically proven", desc: "zk-SNARKs prove the transaction is valid without revealing any details — peer-reviewed, audited, in production since 2016" },
+            ].map((item) => (
+              <div key={item.title} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                <span style={{ color: colors.primary }}>→</span>
+                <div>
+                  <span style={{ fontWeight: 600, color: colors.textBright }}>{item.title}</span>
+                  <p style={{ color: colors.muted, margin: "4px 0 0" }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "24px" }}>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>Cryptographic Privacy</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>Privacy enforced by mathematics. No company, government, or hacker can revoke it. Unlike &quot;privacy policies,&quot; code can&apos;t change its mind.</p>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>Viewing Keys</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>Only the recipient holds the key to decrypt their transactions. Nobody else — not the network, not TIPZ — can see what you received.</p>
+          </div>
+        </div>
+
+        <Callout>
+          Regular crypto is pseudonymous — addresses are public, and chain analysis can link them to identities. Zcash shielded is genuinely private — the data simply doesn&apos;t exist on-chain for anyone to analyze.
+        </Callout>
+
+        <CollapsibleSection title="What Can Blockchain Observers See?">
+          <div style={{ paddingTop: "16px" }}>
+            <div style={{ fontSize: "12px" }}>
+              {[
+                { question: "Who sent the tip?", answer: "Unknown", highlight: true },
+                { question: "Who received the tip?", answer: "Unknown", highlight: true },
+                { question: "How much was sent?", answer: "Unknown", highlight: true },
+                { question: "When was it sent?", answer: "Approximate (block time only)", highlight: false },
+                { question: "Was it even a tip?", answer: "Unknown — looks like any ZEC transaction", highlight: true },
+              ].map((item, i) => (
+                <div
+                  key={item.question}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "16px",
+                    padding: "12px 16px",
+                    backgroundColor: colors.surface,
+                    border: `1px solid ${colors.border}`,
+                    borderBottom: i < 4 ? "none" : undefined,
+                    borderRadius: i === 0 ? "4px 4px 0 0" : i === 4 ? "0 0 4px 4px" : undefined,
+                  }}
+                >
+                  <span style={{ color: colors.muted, minWidth: "200px", fontSize: "12px" }}>
+                    {item.question}
+                  </span>
+                  <span style={{ color: item.highlight ? colors.primary : colors.muted, fontWeight: item.highlight ? 600 : 400, fontSize: "12px" }}>
+                    {item.answer}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CollapsibleSection>
+      </section>
+
+      {/* TIPZ vs Alternatives */}
+      <section style={{ marginBottom: "64px" }}>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          TIPZ VS ALTERNATIVES
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          Every other platform indexes your financial relationships. TIPZ encrypts them.
+        </p>
+
+        {/* Comparison Table */}
+        <div style={{ overflowX: "auto", marginBottom: "24px" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", fontFamily: "var(--font-family-mono)" }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                {["Platform", "Tipper Privacy", "Creator Privacy", "Custody", "Fees"].map((header) => (
+                  <th
+                    key={header}
+                    style={{
+                      textAlign: "left",
+                      padding: "12px 16px",
+                      color: colors.muted,
+                      fontWeight: 600,
+                      fontSize: "10px",
+                      letterSpacing: "1px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {header.toUpperCase()}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { platform: "Patreon", tipperPrivacy: "None", creatorPrivacy: "None", custody: "Platform", fees: "5-12%", highlight: false },
+                { platform: "Ko-fi", tipperPrivacy: "None", creatorPrivacy: "Partial", custody: "Platform", fees: "0-5%", highlight: false },
+                { platform: "Buy Me a Coffee", tipperPrivacy: "None", creatorPrivacy: "None", custody: "Platform", fees: "5%", highlight: false },
+                { platform: "PayPal", tipperPrivacy: "None", creatorPrivacy: "None", custody: "Platform", fees: "2.9%+", highlight: false },
+                { platform: "TIPZ", tipperPrivacy: "Full (shielded)", creatorPrivacy: "Full", custody: "Self-custody", fees: "0%", highlight: true },
+              ].map((row) => (
+                <tr
+                  key={row.platform}
+                  style={{
+                    borderBottom: `1px solid ${colors.border}`,
+                    backgroundColor: row.highlight ? "rgba(245, 166, 35, 0.05)" : "transparent",
+                  }}
+                >
+                  <td style={{ padding: "12px 16px", color: row.highlight ? colors.primary : colors.textBright, fontWeight: row.highlight ? 700 : 600, whiteSpace: "nowrap" }}>
+                    {row.platform}
+                  </td>
+                  <td style={{ padding: "12px 16px", color: row.highlight ? colors.primary : colors.muted }}>
+                    {row.tipperPrivacy}
+                  </td>
+                  <td style={{ padding: "12px 16px", color: row.highlight ? colors.primary : colors.muted }}>
+                    {row.creatorPrivacy}
+                  </td>
+                  <td style={{ padding: "12px 16px", color: row.highlight ? colors.primary : colors.muted }}>
+                    {row.custody}
+                  </td>
+                  <td style={{ padding: "12px 16px", color: row.highlight ? colors.primary : colors.muted }}>
+                    {row.fees}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "24px" }}>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>Zero Extraction</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>Zero platform fee. Zero revenue share. Zero data extraction. Every satoshi your supporters send arrives in your shielded address.</p>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>Self-Custody</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>You hold the keys. No middleman. No withdrawal requests. No platform that can freeze your funds or change terms.</p>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "20px", borderRadius: "4px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, marginBottom: "8px", fontSize: "13px" }}>No Smart Contracts</div>
+            <p style={{ color: colors.muted, fontSize: "12px", margin: 0, lineHeight: 1.6 }}>TIPZ deploys zero contracts. We&apos;re a routing layer, not a custody solution. Your funds flow directly to the creator.</p>
+          </div>
+        </div>
+
+        <Callout>
+          Other platforms give you a &quot;privacy policy&quot; — a promise that can be updated, breached, or subpoenaed. TIPZ gives you cryptographic privacy — enforced by mathematics, not trust.
+        </Callout>
+      </section>
+
+      {/* What TIPZ Stores */}
+      <section>
+        <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+          WHAT TIPZ STORES
+        </h2>
+
+        <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+          We built TIPZ on a simple principle: we can&apos;t leak what we don&apos;t have.
+        </p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
+            <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", letterSpacing: "1px" }}>WE STORE</div>
+            <div style={{ display: "grid", gap: "8px", fontSize: "13px" }}>
+              {[
+                "Creator X handle and user ID",
+                "Shielded address (for routing)",
+                "Registration and verification data",
+                "RSA public key (for encrypted messages)",
+                "Encrypted tip records (unreadable by TIPZ)",
+              ].map((item) => (
+                <div key={item} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ color: colors.muted }}>•</span>
+                  <span style={{ color: colors.text }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.primary}`, padding: "24px", borderRadius: "4px" }}>
+            <div style={{ fontSize: "11px", color: colors.primary, marginBottom: "16px", letterSpacing: "1px" }}>WE DO NOT STORE</div>
+            <div style={{ display: "grid", gap: "8px", fontSize: "13px" }}>
+              {[
+                "Tipper identity — never collected",
+                "Tipper wallet address — not logged",
+                "IP addresses — ephemeral rate limiting only, not persisted",
+                "Tip amounts and memos — encrypted, unreadable by TIPZ",
+                "ZEC transaction IDs — on-chain only",
+              ].map((item) => (
+                <div key={item} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ color: colors.primary }}>✕</span>
+                  <span style={{ color: colors.text }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <Callout>
+          Tip records persist for dashboard functionality but contain only encrypted data — TIPZ cannot read amounts or memos. Server logs are managed by Vercel with short-term retention and contain no wallet addresses or tip content.
+        </Callout>
+
+        {/* Metadata Transparency */}
+        <div style={{ marginTop: "48px" }}>
+          <h2 style={{ fontSize: "12px", color: colors.primary, letterSpacing: "2px", marginBottom: "24px" }}>
+            METADATA TRANSPARENCY
+          </h2>
+
+          <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
+            We believe honest disclosure beats marketing claims. Here&apos;s exactly what each party in the system can see.
+          </p>
+
+          {/* What NEAR Intents sees */}
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "16px" }}>
+            <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", letterSpacing: "1px" }}>WHAT NEAR INTENTS SEES (CROSS-CHAIN TIPS ONLY)</div>
+            <div style={{ display: "grid", gap: "8px", fontSize: "13px" }}>
+              {[
+                "Source chain + token type",
+                "Deposit amount",
+                "Creator's shielded address (destination)",
+                "Tipper's wallet address (for refund routing)",
+              ].map((item) => (
+                <div key={item} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ color: colors.muted }}>•</span>
+                  <span style={{ color: colors.text }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* What remains in server logs */}
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "16px" }}>
+            <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", letterSpacing: "1px" }}>WHAT REMAINS IN SERVER LOGS (SHORT-TERM RETENTION)</div>
+            <div style={{ display: "grid", gap: "8px", fontSize: "13px" }}>
+              {[
+                "Swap status transitions (no addresses)",
+                "Error messages (no PII)",
+                "Flow markers (e.g. \"quote requested\", \"swap completed\")",
+              ].map((item) => (
+                <div key={item} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ color: colors.muted }}>•</span>
+                  <span style={{ color: colors.text }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* What the tipper's browser stores */}
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "16px" }}>
+            <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", letterSpacing: "1px" }}>WHAT THE TIPPER&apos;S BROWSER STORES (LOCALSTORAGE)</div>
+            <div style={{ display: "grid", gap: "8px", fontSize: "13px" }}>
+              {[
+                "Wallet session (address, chain, wallet type)",
+                "Recent tip history (for UX continuity)",
+                "Can be cleared anytime via browser settings",
+              ].map((item) => (
+                <div key={item} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ color: colors.muted }}>•</span>
+                  <span style={{ color: colors.text }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* What third parties see */}
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "24px" }}>
+            <div style={{ fontSize: "11px", color: colors.muted, marginBottom: "16px", letterSpacing: "1px" }}>WHAT THIRD PARTIES SEE</div>
+            <div style={{ display: "grid", gap: "12px", fontSize: "13px" }}>
+              {[
+                { service: "NEAR Intents", detail: "Full cross-chain swap details (source wallet, destination ZEC address, amounts)" },
+                { service: "CoinGecko", detail: "Price quote requests (no user identification)" },
+                { service: "Vercel", detail: "Server function logs (short-term retention, no wallet addresses or tip content)" },
+              ].map((item) => (
+                <div key={item.service} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                  <span style={{ color: colors.primary }}>→</span>
+                  <div>
+                    <span style={{ fontWeight: 600, color: colors.textBright }}>{item.service}</span>
+                    <p style={{ color: colors.muted, margin: "4px 0 0" }}>{item.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Best practices callout */}
+          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.primary}`, padding: "24px", borderRadius: "4px" }}>
+            <div style={{ fontSize: "11px", color: colors.primary, marginBottom: "16px", letterSpacing: "1px" }}>BEST PRACTICES FOR MAXIMUM PRIVACY</div>
+            <div style={{ display: "grid", gap: "12px", fontSize: "13px" }}>
+              {[
+                { title: "Tip directly with ZEC", desc: "Bypasses NEAR Intents entirely. Zero metadata. Use Zashi or Zodl." },
+                { title: "Use a dedicated wallet", desc: "Don't tip from your main wallet. A fresh wallet has no transaction history to correlate." },
+                { title: "Clear localStorage after tipping", desc: "Browser settings → Clear site data for tipz.cash. Removes wallet session and tip history." },
+              ].map((item) => (
+                <div key={item.title} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                  <span style={{ color: colors.primary }}>→</span>
+                  <div>
+                    <span style={{ fontWeight: 600, color: colors.textBright }}>{item.title}</span>
+                    <p style={{ color: colors.muted, margin: "4px 0 0" }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+// ============================================
 // MAIN PAGE
 // ============================================
 export default function DocsPage() {
@@ -922,7 +1324,7 @@ export default function DocsPage() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "") as TabId;
-      if (["tippers", "creators", "technical"].includes(hash)) {
+      if (["tippers", "creators", "technical", "privacy"].includes(hash)) {
         setActiveTab(hash);
       }
     };
@@ -979,6 +1381,7 @@ export default function DocsPage() {
         {activeTab === "tippers" && <TippersTab />}
         {activeTab === "creators" && <CreatorsTab />}
         {activeTab === "technical" && <TechnicalTab />}
+        {activeTab === "privacy" && <PrivacyTab />}
 
         {/* CTA - Dual Path */}
         <section
@@ -1063,7 +1466,7 @@ export default function DocsPage() {
           <Link href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MANIFESTO</Link>
           <span style={{ color: colors.primary, fontSize: "11px", letterSpacing: "1px", fontWeight: 600 }}>DOCS</span>
           <Link href="/my" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MY TIPZ</Link>
-          <a href="https://github.com/tipz-app" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>GITHUB</a>
+          <a href="https://github.com/tipz-cash" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>GITHUB</a>
           <a href="https://x.com/tipz_cash" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>X</a>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", color: colors.muted }}>
