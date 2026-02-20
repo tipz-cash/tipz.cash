@@ -355,10 +355,10 @@ export function TipSummary({
         </div>
         <div>
           <div style={{ color: tokens.colors.success, fontSize: "12px", fontWeight: 600, fontFamily: tokens.font.mono }}>
-            Shielded Transaction
+            Shielded Delivery
           </div>
           <div style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>
-            Routed through NEAR Intents for privacy
+            Routed via NEAR Intents to shielded ZEC
           </div>
         </div>
       </div>

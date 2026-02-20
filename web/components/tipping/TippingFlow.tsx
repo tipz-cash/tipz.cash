@@ -14,6 +14,7 @@ import { TipHistory } from "./TipHistory"
 import { tokens, keyframes } from "./designTokens"
 import type { WalletType, SupportedToken } from "@/lib/wallet"
 import { isValidPublicKey } from "@/lib/message-encryption"
+import { CypherpunkShield, VerifiedCheck } from "@/components/BadgeIcons"
 
 // Animation variants for content transitions - fast and subtle
 const contentVariants = {
@@ -29,9 +30,10 @@ interface TippingFlowProps {
   avatarColor?: string
   avatarUrl?: string
   publicKey?: JsonWebKey  // Creator's public key for message encryption
+  isOgCypherpunk?: boolean
 }
 
-export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, avatarColor = "#4B5563", avatarUrl, publicKey }: TippingFlowProps) {
+export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, avatarColor = "#4B5563", avatarUrl, publicKey, isOgCypherpunk }: TippingFlowProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [showZecDirect, setShowZecDirect] = useState(false)
   const [showPaymentPicker, setShowPaymentPicker] = useState(false)
@@ -483,13 +485,25 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
                 <LogoDisplay src="/icons/rabby.png" alt="Rabby" />
               </PaymentRow>
 
-              {/* ZEC row */}
+              {/* ZEC row — fully private, visually differentiated */}
               <PaymentRow
                 title="ZEC Direct"
-                description="Send from any Zcash wallet"
+                description={
+                  <>
+                    Send from any Zcash wallet
+                    <span style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.signalGreen} strokeWidth="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                      <span style={{ color: tokens.colors.signalGreen, fontSize: "11px", fontFamily: tokens.font.sans, fontWeight: 500 }}>
+                        Fully private
+                      </span>
+                    </span>
+                  </>
+                }
                 onClick={handleZecSelect}
               >
-                <LogoDisplay src="/icons/zcash.png" alt="Zcash" />
+                <LogoDisplay src="/icons/zcash.svg" alt="Zcash" size={40} />
               </PaymentRow>
             </div>
 
@@ -753,7 +767,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
             )}
           </div>
 
-          {/* Handle + Shield Badge */}
+          {/* Handle + Badge */}
           <div style={{ flex: "0 1 auto", minWidth: 0 }}>
             <div
               style={{
@@ -767,17 +781,7 @@ export function TippingFlow({ creatorHandle, shieldedAddress, isMobile = false, 
               }}
             >
               @{creatorHandle}
-              {/* Shield badge */}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill={tokens.colors.gold}
-                stroke="none"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                <path d="M9 12l2 2 4-4" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              {isOgCypherpunk ? <CypherpunkShield size={16} /> : <VerifiedCheck size={14} />}
             </div>
           </div>
         </div>

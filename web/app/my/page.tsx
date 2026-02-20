@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { colors } from "@/lib/colors"
 import { animationKeyframes } from "@/lib/animations"
+import { useRouter } from "next/navigation"
 import SiteHeader from "@/components/SiteHeader"
 import { LetterGridBackground } from "@/components/LetterGridBackground"
 import {
@@ -180,6 +181,7 @@ function DashboardSkeleton() {
 }
 
 export default function MyTipzPage() {
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
   const [handle, setHandle] = useState("")
@@ -195,6 +197,8 @@ export default function MyTipzPage() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [zecPrice, setZecPrice] = useState<number>(0)
   const [showBackground, setShowBackground] = useState(false)
+  const [isOgCypherpunk, setIsOgCypherpunk] = useState(false)
+  const [ogNumber, setOgNumber] = useState<number | undefined>(undefined)
 
   // Real-time tips
   const { status: connectionStatus, newTips, clearNewTips } = useRealtimeTips(
@@ -348,6 +352,8 @@ export default function MyTipzPage() {
 
     setTipCount(statsData.tip_count || 0)
     setAvatarUrl(creatorData.creator?.avatar_url || null)
+    setIsOgCypherpunk(creatorData.creator?.is_og_cypherpunk ?? false)
+    setOgNumber(creatorData.creator?.og_number)
 
     const rawTips: Tip[] = tipsData.tips || []
     const decrypted: DecryptedTip[] = await Promise.all(
@@ -375,6 +381,11 @@ export default function MyTipzPage() {
         const data = await res.json()
 
         if (data.authenticated) {
+          if (!data.registered) {
+            // Authenticated but not registered — redirect to complete registration
+            router.replace("/register")
+            return
+          }
           setAuthenticated(true)
           setHandle(data.handle)
           setCreatorId(data.creatorId || null)
@@ -471,12 +482,9 @@ export default function MyTipzPage() {
             background: "rgba(26, 26, 26, 0.6)",
             backdropFilter: "blur(24px) saturate(150%)",
             WebkitBackdropFilter: "blur(24px) saturate(150%)",
-            borderTop: "1px solid rgba(255, 215, 0, 0.5)",
-            borderLeft: "none",
-            borderRight: "none",
-            borderBottom: "1px solid rgba(0, 0, 0, 0.8)",
+            border: "1px solid rgba(245, 166, 35, 0.25)",
             borderRadius: "24px",
-            boxShadow: "0 0 35px rgba(255, 215, 0, 0.4), 0 0 70px rgba(255, 215, 0, 0.18), 0 0 100px rgba(255, 215, 0, 0.07), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04)",
             padding: "20px 24px",
             overflow: "hidden",
           }}
@@ -545,6 +553,7 @@ export default function MyTipzPage() {
                 loggingOut={loggingOut}
                 onLogout={handleLogout}
                 prefersReducedMotion={prefersReducedMotion}
+                isOgCypherpunk={isOgCypherpunk}
               />
 
               <HeroStat

@@ -252,7 +252,7 @@ function TippersTab() {
         >
           <StepList
             steps={[
-              { num: "01", title: "Connect wallet", desc: "MetaMask, Rabby, Coinbase Wallet, or Phantom. One click. No signup." },
+              { num: "01", title: "Connect wallet", desc: "MetaMask, Rabby, or Phantom. One click. No signup." },
               { num: "02", title: "Pick your amount", desc: "$1, $5, $10, $25—or custom. See exactly how much ZEC the creator will receive." },
               { num: "03", title: "Confirm in wallet", desc: "One signature. Success screen appears immediately after confirmation." },
               { num: "04", title: "Done", desc: "That's it. We handle the cross-chain swap in the background. Delivery in 5-10 minutes." },
@@ -262,22 +262,6 @@ function TippersTab() {
 
         {/* Simplified flow */}
         <CodeBlock>{`Your Token → NEAR Intents → Shielded ZEC → Creator`}</CodeBlock>
-      </section>
-
-      {/* Exchange Payments — Coming Soon */}
-      <section style={{ marginBottom: "64px" }}>
-        <h2 style={{ fontSize: "12px", color: colors.muted, letterSpacing: "2px", marginBottom: "24px" }}>
-          EXCHANGE PAYMENTS — COMING SOON
-        </h2>
-
-        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "32px", borderRadius: "4px", opacity: 0.7 }}>
-          <p style={{ color: colors.text, fontSize: "14px", marginBottom: "16px", lineHeight: 1.7 }}>
-            Connect your Coinbase, Kraken, or Binance account to tip directly — no wallet needed. Exchange payments are coming in a future update.
-          </p>
-          <p style={{ color: colors.muted, fontSize: "13px", margin: 0, lineHeight: 1.7 }}>
-            For now, connect a crypto wallet (MetaMask, Phantom, Rabby) to send tips.
-          </p>
-        </div>
       </section>
 
       {/* What Happens to Your Tip */}
@@ -311,27 +295,63 @@ Auto-refund if swap fails (rare, but handled).`}</CodeBlock>
         </h2>
 
         <p style={{ color: colors.text, fontSize: "14px", marginBottom: "32px", lineHeight: 1.7 }}>
-          Honest privacy expectations—what&apos;s visible and what&apos;s not.
+          There are two ways to tip on TIPZ, with different privacy levels. Here&apos;s an honest breakdown.
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
-          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
-            <div style={{ color: colors.muted, fontWeight: 600, marginBottom: "12px", fontSize: "11px", letterSpacing: "1px" }}>VISIBLE ON SOURCE CHAIN</div>
-            <ul style={{ color: colors.muted, fontSize: "13px", margin: 0, paddingLeft: "16px", lineHeight: 1.8 }}>
-              <li>Your deposit transaction</li>
-              <li>That you sent to a NEAR Intents address</li>
-              <li>The token type and amount you deposited</li>
-            </ul>
+        {/* Direct ZEC — Full Privacy */}
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.primary}`, padding: "24px", borderRadius: "4px", marginBottom: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <div style={{ color: colors.primary, fontWeight: 600, fontSize: "11px", letterSpacing: "1px" }}>DIRECT ZEC TIPS (VIA ZASHI OR ZODL)</div>
+            <span style={{ fontSize: "11px", color: colors.primary, border: `1px solid ${colors.primary}`, padding: "2px 8px", borderRadius: "2px" }}>FULL PRIVACY</span>
           </div>
-          <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px" }}>
-            <div style={{ color: colors.primary, fontWeight: 600, marginBottom: "12px", fontSize: "11px", letterSpacing: "1px" }}>PRIVATE (ZCASH SHIELDED)</div>
-            <ul style={{ color: colors.muted, fontSize: "13px", margin: 0, paddingLeft: "16px", lineHeight: 1.8 }}>
-              <li>Who receives the ZEC</li>
-              <li>The final tip amount</li>
-              <li>Any link between you and the creator</li>
-            </ul>
-          </div>
+          <ul style={{ color: colors.muted, fontSize: "13px", margin: 0, paddingLeft: "16px", lineHeight: 1.8 }}>
+            <li>Shielded transactions encrypt sender, receiver, and amount on-chain</li>
+            <li>No record on any explorer — not Zcash, not NEAR, not anywhere</li>
+            <li>Even TIPZ has zero visibility into these transactions</li>
+            <li>The strongest privacy guarantee in crypto</li>
+          </ul>
         </div>
+
+        {/* Cross-Chain — Limited Privacy */}
+        <div style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, padding: "24px", borderRadius: "4px", marginBottom: "24px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <div style={{ color: colors.textBright, fontWeight: 600, fontSize: "11px", letterSpacing: "1px" }}>CROSS-CHAIN TIPS (ETH, SOL, USDC, ETC.)</div>
+            <span style={{ fontSize: "11px", color: colors.muted, border: `1px solid ${colors.border}`, padding: "2px 8px", borderRadius: "2px" }}>LIMITED PRIVACY</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+            <div>
+              <div style={{ color: colors.muted, fontWeight: 600, marginBottom: "8px", fontSize: "11px", letterSpacing: "1px" }}>VISIBLE ON SOURCE CHAIN</div>
+              <ul style={{ color: colors.muted, fontSize: "13px", margin: 0, paddingLeft: "16px", lineHeight: 1.8 }}>
+                <li>Your deposit transaction</li>
+                <li>That you sent to a NEAR Intents address</li>
+                <li>The token type and amount you deposited</li>
+              </ul>
+            </div>
+            <div>
+              <div style={{ color: colors.muted, fontWeight: 600, marginBottom: "8px", fontSize: "11px", letterSpacing: "1px" }}>VISIBLE ON NEAR</div>
+              <ul style={{ color: colors.muted, fontSize: "13px", margin: 0, paddingLeft: "16px", lineHeight: 1.8 }}>
+                <li>The destination shielded address</li>
+                <li>The ZEC amount</li>
+                <li>The link between your wallet and the creator&apos;s address</li>
+              </ul>
+            </div>
+            <div>
+              <div style={{ color: colors.primary, fontWeight: 600, marginBottom: "8px", fontSize: "11px", letterSpacing: "1px" }}>PRIVATE (ZCASH SHIELDED)</div>
+              <ul style={{ color: colors.muted, fontSize: "13px", margin: 0, paddingLeft: "16px", lineHeight: 1.8 }}>
+                <li>Creator&apos;s total wallet balance</li>
+                <li>What creator does with the ZEC after receiving</li>
+                <li>Direct ZEC tips (these never touch NEAR)</li>
+              </ul>
+            </div>
+          </div>
+          <p style={{ color: colors.muted, fontSize: "12px", marginTop: "16px", marginBottom: 0, borderTop: `1px solid ${colors.border}`, paddingTop: "12px" }}>
+            Cross-chain tips are routed through NEAR Intents. The full transaction is public on NEAR&apos;s explorer. For full privacy, tip directly with ZEC.
+          </p>
+        </div>
+
+        <Callout>
+          For maximum privacy, tip directly with shielded ZEC using <a href="https://electriccoin.co/zashi/" target="_blank" rel="noopener noreferrer" style={{ color: colors.primary, textDecoration: "underline" }}>Zashi</a> or <a href="https://zodl.com" target="_blank" rel="noopener noreferrer" style={{ color: colors.primary, textDecoration: "underline" }}>Zodl</a>. Zero public footprint. Zero trace.
+        </Callout>
       </section>
 
       {/* Send a Private Message */}
@@ -411,9 +431,8 @@ function CreatorsTab() {
           <StepList
             steps={[
               { num: "01", title: "Get a Zcash wallet", desc: "Download Zashi (iOS/Android). Free. Takes 30 seconds. Create wallet, backup seed phrase." },
-              { num: "02", title: "Register at tipz.cash/register", desc: "Enter your X handle and paste your unified address (starts with u1...)." },
-              { num: "03", title: "Verify via tweet", desc: "Post a verification tweet. We'll confirm automatically." },
-              { num: "04", title: "Share your link", desc: "Your tip page is live at tipz.cash/yourhandle. Add it to your bio." },
+              { num: "02", title: "Register at tipz.cash/register", desc: "Sign in with X and paste your unified address (starts with u1...)." },
+              { num: "03", title: "Share your link", desc: "Your tip page is live at tipz.cash/yourhandle. Add it to your bio." },
             ]}
           />
         </div>
@@ -549,7 +568,7 @@ function CreatorsTab() {
               <span style={{ color: colors.primary }}>→</span>
               <div>
                 <span style={{ fontWeight: 600, color: colors.textBright }}>Your wallet still gets it</span>
-                <p style={{ color: colors.muted, margin: "4px 0 0" }}>The ZEC lands in your Zashi wallet regardless. Only you hold the viewing key to see it.</p>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>The ZEC lands in your Zashi or Zodl wallet regardless. Only you hold the viewing key to see it.</p>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
@@ -559,11 +578,18 @@ function CreatorsTab() {
                 <p style={{ color: colors.muted, margin: "4px 0 0" }}>These tips won&apos;t appear in your TIPZ dashboard or activity feed — because we never knew they happened.</p>
               </div>
             </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+              <span style={{ color: colors.primary }}>→</span>
+              <div>
+                <span style={{ fontWeight: 600, color: colors.textBright }}>Your balance is never visible</span>
+                <p style={{ color: colors.muted, margin: "4px 0 0" }}>Shielded addresses don&apos;t expose how much ZEC you hold — regardless of how you received it. No one can see your total earnings.</p>
+              </div>
+            </div>
           </div>
         </div>
 
         <Callout>
-          This is the power of real privacy. Not even the platform that connects you can surveil your income. Check your Zashi wallet periodically for direct ZEC tips.
+          This is the power of real privacy. Not even the platform that connects you can surveil your income. Check your Zashi or Zodl wallet periodically for direct ZEC tips.
         </Callout>
       </section>
 
@@ -821,28 +847,62 @@ Key Management:
       {/* Privacy Guarantees */}
       <CollapsibleSection title="Privacy Guarantees">
         <div style={{ paddingTop: "16px" }}>
-          <div style={{ display: "grid", gap: "16px", fontSize: "13px" }}>
-            {[
-              { title: "Sender privacy", desc: "Tipper's identity is not linked to the final shielded transaction" },
-              { title: "Receiver privacy", desc: "Creator's shielded address is not visible on transparent chains" },
-              { title: "Amount privacy", desc: "Final tip amount is encrypted. Only the creator can see it." },
-            ].map((item) => (
-              <div key={item.title} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                <span style={{ color: colors.primary }}>→</span>
-                <div>
-                  <span style={{ fontWeight: 600, color: colors.textBright }}>{item.title}</span>
-                  <p style={{ color: colors.muted, margin: "4px 0 0" }}>{item.desc}</p>
+          {/* Direct ZEC → ZEC */}
+          <div style={{ marginBottom: "24px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+              <div style={{ color: colors.primary, fontWeight: 600, fontSize: "11px", letterSpacing: "1px" }}>DIRECT ZEC → ZEC</div>
+              <span style={{ fontSize: "11px", color: colors.primary, border: `1px solid ${colors.primary}`, padding: "2px 8px", borderRadius: "2px" }}>MAXIMUM PRIVACY</span>
+            </div>
+            <div style={{ display: "grid", gap: "12px", fontSize: "13px" }}>
+              {[
+                { title: "Sender fully private", desc: "Shielded transaction — no explorer trace, no public record anywhere" },
+                { title: "Receiver fully private", desc: "Shielded address — no balance visibility, no transaction history exposed" },
+                { title: "Amount fully private", desc: "Encrypted on-chain — only the creator can see what they received" },
+                { title: "Zero third-party exposure", desc: "No information shared with TIPZ, NEAR, or any intermediary" },
+              ].map((item) => (
+                <div key={item.title} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                  <span style={{ color: colors.primary }}>→</span>
+                  <div>
+                    <span style={{ fontWeight: 600, color: colors.textBright }}>{item.title}</span>
+                    <p style={{ color: colors.muted, margin: "4px 0 0" }}>{item.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", borderTop: `1px solid ${colors.border}`, paddingTop: "16px", marginTop: "4px" }}>
-              <span style={{ color: colors.muted }}>!</span>
-              <div>
-                <span style={{ fontWeight: 600, color: colors.text }}>Initial deposit is visible</span>
-                <p style={{ color: colors.muted, margin: "4px 0 0" }}>
-                  Your wallet&apos;s deposit transaction is visible on the source chain (Ethereum, Solana, etc). Privacy starts after the funds enter the Zcash shielded pool.
-                </p>
-              </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Cross-Chain (NEAR Intents) */}
+          <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: "24px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+              <div style={{ color: colors.textBright, fontWeight: 600, fontSize: "11px", letterSpacing: "1px" }}>CROSS-CHAIN (NEAR INTENTS)</div>
+              <span style={{ fontSize: "11px", color: colors.muted, border: `1px solid ${colors.border}`, padding: "2px 8px", borderRadius: "2px" }}>LIMITED PRIVACY</span>
+            </div>
+            <div style={{ display: "grid", gap: "12px", fontSize: "13px" }}>
+              {[
+                { title: "Sender exposed", desc: "Deposit transaction visible on source chain; your wallet address linked to creator's shielded address on NEAR explorer" },
+                { title: "Receiver exposed on NEAR", desc: "Creator's shielded address is visible in the NEAR swap record" },
+                { title: "Amount exposed", desc: "Both the deposit amount (source chain) and the ZEC amount (NEAR) are public" },
+                { title: "Creator's balance private", desc: "Shielded addresses don't expose total holdings or what happens to funds after receipt" },
+              ].map((item) => (
+                <div key={item.title} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                  <span style={{ color: colors.primary }}>→</span>
+                  <div>
+                    <span style={{ fontWeight: 600, color: colors.textBright }}>{item.title}</span>
+                    <p style={{ color: colors.muted, margin: "4px 0 0" }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Callout */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", borderTop: `1px solid ${colors.border}`, paddingTop: "16px", marginTop: "24px" }}>
+            <span style={{ color: colors.muted }}>!</span>
+            <div>
+              <span style={{ fontWeight: 600, color: colors.text }}>Cross-chain tips are fully transparent on NEAR</span>
+              <p style={{ color: colors.muted, margin: "4px 0 0" }}>
+                Cross-chain tips are fully visible on NEAR explorer — including the destination address, amount, and link to your wallet. For zero public footprint, tip directly with shielded ZEC via <a href="https://electriccoin.co/zashi/" target="_blank" rel="noopener noreferrer" style={{ color: colors.primary, textDecoration: "underline" }}>Zashi</a> or <a href="https://zodl.com" target="_blank" rel="noopener noreferrer" style={{ color: colors.primary, textDecoration: "underline" }}>Zodl</a>.
+              </p>
             </div>
           </div>
         </div>

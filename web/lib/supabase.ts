@@ -30,6 +30,8 @@ export interface Creator {
   verified_at?: string
   public_key?: Record<string, unknown>
   key_created_at?: string
+  is_og_cypherpunk?: boolean
+  og_number?: number
 }
 
 export function normalizeHandle(handle: string): string {

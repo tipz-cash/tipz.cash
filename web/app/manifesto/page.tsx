@@ -134,7 +134,7 @@ Private money. Self-custody. Zero extraction.
 The door is open.`
   },
   {
-    title: "VI. SUPPORT WITHOUT TRACE",
+    title: "VI. SUPPORT WITHOUT SURVEILLANCE",
     content: `To tip someone today is to create a permanent record.
 
 Your wallet. Their wallet. The amount. The timestamp. Indexed forever. Analyzed by algorithms. Sold to data brokers.
@@ -143,7 +143,7 @@ What should be a private act of appreciation becomes a node in someone else's gr
 
 We build for a different world:
 
-Where generosity leaves no trace.
+Where generosity needs no permission.
 Where support needs no justification.
 Where the act of giving belongs to giver and receiver alone.`
   },
