@@ -86,39 +86,57 @@ export default function ImageStampTool({ handle, onClose }: ImageStampToolProps)
       canvas.height = img.height
       ctx.drawImage(img, 0, 0)
 
-      // Scale stamp based on image size
-      const largerDim = Math.max(img.width, img.height)
-      const stampWidthTarget = largerDim * 0.18
-      const fontSize = Math.max(16, Math.min(48, stampWidthTarget / 8))
-      const padding = fontSize * 0.6
+      // Scale stamp based on image area (geometric mean handles banners well)
+      const effectiveSize = Math.sqrt(img.width * img.height)
+      const fontSize = Math.max(12, Math.min(28, effectiveSize * 0.018))
       const margin = fontSize * 1.2
-      const borderRadius = fontSize * 0.35
-      const borderWidth = Math.max(2, fontSize * 0.12)
 
       ctx.font = `600 ${fontSize}px "JetBrains Mono", "SF Mono", monospace`
       const textWidth = ctx.measureText(tipUrl).width
-      const boxWidth = textWidth + padding * 2
-      const boxHeight = fontSize + padding * 2
 
-      // Bottom-right corner
-      const x = img.width - boxWidth - margin
-      const y = img.height - boxHeight - margin
+      // Position: bottom-right corner
+      const textX = img.width - textWidth - margin
+      const textY = img.height - margin
 
-      // Background
-      ctx.fillStyle = "rgba(0, 0, 0, 0.8)"
-      ctx.beginPath()
-      ctx.roundRect(x, y, boxWidth, boxHeight, borderRadius)
-      ctx.fill()
+      // Sample background brightness in the stamp region
+      const sampleX = Math.max(0, Math.floor(textX - 4))
+      const sampleY = Math.max(0, Math.floor(textY - fontSize - 4))
+      const sampleW = Math.min(Math.floor(textWidth + 8), img.width - sampleX)
+      const sampleH = Math.min(Math.floor(fontSize + 8), img.height - sampleY)
+      const pixels = ctx.getImageData(sampleX, sampleY, sampleW, sampleH).data
+      let totalLuminance = 0
+      const pixelCount = pixels.length / 4
+      for (let i = 0; i < pixels.length; i += 4) {
+        totalLuminance += (pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114)
+      }
+      const avgLuminance = totalLuminance / pixelCount // 0-255
 
-      // Border
-      ctx.strokeStyle = "#F4B728"
-      ctx.lineWidth = borderWidth
-      ctx.stroke()
+      // Pick colors based on background: dark bg → orange+white, light bg → dark orange+dark
+      const isLight = avgLuminance > 140
+      const tipzColor = isLight ? "#C47B0A" : "#F5A623"
+      const cashColor = isLight ? "#1a1a1a" : "#FFFFFF"
+      const shadowColor = isLight ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.7)"
 
-      // Text
-      ctx.fillStyle = "#F4B728"
-      ctx.textBaseline = "middle"
-      ctx.fillText(tipUrl, x + padding, y + boxHeight / 2)
+      ctx.textBaseline = "alphabetic"
+
+      // Subtle shadow for readability
+      ctx.shadowColor = shadowColor
+      ctx.shadowBlur = fontSize * 0.3
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = 0
+
+      // "tipz" in orange
+      ctx.fillStyle = tipzColor
+      ctx.fillText("tipz", textX, textY)
+      const tipzWidth = ctx.measureText("tipz").width
+
+      // ".cash/{handle}" in white/dark
+      ctx.fillStyle = cashColor
+      ctx.fillText(`.cash/${handle}`, textX + tipzWidth, textY)
+
+      // Reset shadow
+      ctx.shadowColor = "transparent"
+      ctx.shadowBlur = 0
 
       setStampedImage(canvas.toDataURL("image/png"))
     }
