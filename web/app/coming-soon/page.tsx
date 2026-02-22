@@ -12,25 +12,28 @@ export default function ComingSoon() {
   return (
     <>
       <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
         @keyframes pulseGlow {
           0%, 100% { opacity: 0.4; }
           50% { opacity: 1; }
         }
-        @keyframes shimmerSweep {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
+        .noise-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          pointer-events: none;
+          z-index: 9999;
+          opacity: 0.03;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
         }
-        @keyframes borderSweep {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 200% 50%; }
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
+        .grid-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          pointer-events: none;
+          z-index: 1;
+          opacity: 0.04;
+          background-image:
+            linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+          background-size: 60px 60px;
         }
         @media (prefers-reduced-motion: reduce) {
           * { animation-duration: 0.01ms !important; }
@@ -48,15 +51,18 @@ export default function ComingSoon() {
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* Subtle radial glow behind content */}
+        <div className="noise-overlay" />
+        <div className="grid-overlay" />
+
+        {/* Radial amber glow behind content */}
         <div style={{
           position: 'absolute',
-          top: '40%',
+          top: '45%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '600px',
+          width: '800px',
           height: '600px',
-          background: 'radial-gradient(circle, rgba(245, 166, 35, 0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, rgba(245, 166, 35, 0.08) 0%, transparent 65%)',
           pointerEvents: 'none',
         }} />
 
@@ -65,39 +71,65 @@ export default function ComingSoon() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '40px',
           position: 'relative',
-          zIndex: 1,
-          maxWidth: '480px',
+          zIndex: 2,
           textAlign: 'center',
           opacity: mounted ? 1 : 0,
           transform: mounted ? 'translateY(0)' : 'translateY(24px)',
           transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
         }}>
-          {/* Logo */}
-          <img
-            src="/logo.svg"
-            alt="TIPZ"
-            style={{
-              height: '40px',
-              width: 'auto',
-            }}
-          />
+          {/* Large wordmark: tipz.cash */}
+          <h1 style={{
+            fontFamily: "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace",
+            fontSize: 'clamp(48px, 8vw, 88px)',
+            fontWeight: 400,
+            color: '#ffffff',
+            letterSpacing: '0.05em',
+            margin: 0,
+            lineHeight: 1.1,
+          }}>
+            tip<span style={{ color: '#F5A623' }}>z</span>.cash
+          </h1>
 
           {/* Tagline */}
           <p style={{
             fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: '16px',
-            color: '#D1D5DB',
+            fontSize: 'clamp(16px, 2.5vw, 22px)',
+            color: '#e5e7eb',
             letterSpacing: '-0.01em',
             lineHeight: 1.5,
+            margin: '20px 0 0 0',
             opacity: mounted ? 1 : 0,
-            transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s',
+            transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s',
           }}>
-            Private tips. Any asset. Zero trace.
+            Private tips for creators.
           </p>
 
-          {/* Launching Soon badge */}
+          {/* Divider */}
+          <div style={{
+            width: '48px',
+            height: '1px',
+            background: 'rgba(255, 255, 255, 0.15)',
+            margin: '28px 0',
+            opacity: mounted ? 1 : 0,
+            transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s',
+          }} />
+
+          {/* Value prop line */}
+          <p style={{
+            fontFamily: "'Inter', system-ui, sans-serif",
+            fontSize: 'clamp(13px, 1.8vw, 16px)',
+            color: '#9CA3AF',
+            letterSpacing: '0.01em',
+            lineHeight: 1.6,
+            margin: 0,
+            opacity: mounted ? 1 : 0,
+            transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s',
+          }}>
+            Your money. Your audience. <span style={{ color: '#F5A623' }}>Your privacy.</span>
+          </p>
+
+          {/* Coming Soon badge */}
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -106,10 +138,10 @@ export default function ComingSoon() {
             borderRadius: '999px',
             border: '1px solid rgba(245, 166, 35, 0.2)',
             background: 'rgba(245, 166, 35, 0.05)',
+            marginTop: '32px',
             opacity: mounted ? 1 : 0,
             transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s',
           }}>
-            {/* Pulsing dot */}
             <span style={{
               width: '6px',
               height: '6px',
@@ -125,50 +157,10 @@ export default function ComingSoon() {
               letterSpacing: '0.08em',
               textTransform: 'uppercase',
             }}>
-              Launching Soon
+              Coming Soon
             </span>
           </div>
 
-          {/* CTA button */}
-          <a
-            href="https://x.com/tipz_cash"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              background: '#F5A623',
-              color: '#08090a',
-              fontFamily: "'Inter', system-ui, sans-serif",
-              fontSize: '14px',
-              fontWeight: 600,
-              textDecoration: 'none',
-              letterSpacing: '-0.01em',
-              transition: 'background 0.2s ease, transform 0.2s ease',
-              opacity: mounted ? 1 : 0,
-              transitionProperty: 'opacity, background, transform',
-              transitionDuration: '0.8s, 0.2s, 0.2s',
-              transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1), ease, ease',
-              transitionDelay: '0.6s, 0s, 0s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#FFB84D'
-              e.currentTarget.style.transform = 'translateY(-1px)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#F5A623'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-          >
-            {/* X icon */}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
-            Follow @tipz_cash
-          </a>
         </div>
 
         {/* Footer */}
