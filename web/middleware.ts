@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 const PREVIEW_SECRET = 'tipz-preview-2026'
 const PREVIEW_COOKIE = 'tipz-preview'
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
 
   // Check for preview bypass via query param — set cookie and strip param
