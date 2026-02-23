@@ -74,7 +74,6 @@ tipz/
 │   │       ├── leaderboard/       # Creator rankings
 │   │       ├── activity/          # Recent tip activity
 │   │       ├── creator/           # Single creator lookup
-│   │       ├── link/              # Extension re-linking
 │   │       ├── mesh/              # MeshConnect link tokens
 │   │       ├── zec-price/         # ZEC price (CoinGecko)
 │   │       └── health/            # Health check
@@ -160,7 +159,7 @@ tipz/
 | `/api/og` | GET | Default OG image |
 | `/api/og/[handle]` | GET | Dynamic OG image per creator |
 | `/api/register` | POST | Register as creator (tweet verification) |
-| `/api/link` | POST | Re-link returning creator's extension |
+
 
 ### Swap (NEAR Intents)
 
@@ -209,7 +208,7 @@ CREATE TABLE tipz (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   creator_id UUID REFERENCES creators(id) ON DELETE SET NULL,
-  source_platform TEXT NOT NULL,       -- 'x', 'web', 'extension', etc.
+  source_platform TEXT NOT NULL,       -- 'x', 'web', etc.
   status transaction_status NOT NULL DEFAULT 'pending',
   data TEXT                            -- Encrypted blob (RSA + AES-GCM)
   -- No plaintext amount columns. All tip amounts and memos live
