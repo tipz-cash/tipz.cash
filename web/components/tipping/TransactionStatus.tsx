@@ -5,6 +5,12 @@ import { type TipTransaction, formatTokenAmount } from "@/lib/wallet"
 import { type TippingFlowState, type SwapStatusType } from "@/hooks/useTipping"
 import { useTextScramble } from "@/hooks/useTextScramble"
 import { tokens, keyframes } from "./designTokens"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface TransactionStatusProps {
   flowState: TippingFlowState
@@ -105,7 +111,14 @@ export function TransactionStatus({
   // Processing state - "The Private Tunnel"
   if (flowState === "signing" || flowState === "processing") {
     return (
-      <div style={{ width: "100%", textAlign: "center", padding: `${tokens.space.xl}px 0`, position: "relative" }}>
+      <div
+        style={{
+          width: "100%",
+          textAlign: "center",
+          padding: `${tokens.space.xl}px 0`,
+          position: "relative",
+        }}
+      >
         {/* Vertical Light Beam (behind shield) */}
         <div
           style={{
@@ -247,15 +260,26 @@ export function TransactionStatus({
         {isRealSwap && swapStatus && (
           <div style={{ marginBottom: tokens.space.lg }}>
             {/* Progress Steps */}
-            <div style={{ display: "flex", justifyContent: "center", gap: tokens.space.md, marginBottom: tokens.space.md }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: tokens.space.md,
+                marginBottom: tokens.space.md,
+              }}
+            >
               {["PENDING_DEPOSIT", "PROCESSING", "SUCCESS"].map((step, index) => {
                 const isActive = swapStatus === step
                 const isPast =
-                  (step === "PENDING_DEPOSIT" && (swapStatus === "PROCESSING" || swapStatus === "SUCCESS")) ||
+                  (step === "PENDING_DEPOSIT" &&
+                    (swapStatus === "PROCESSING" || swapStatus === "SUCCESS")) ||
                   (step === "PROCESSING" && swapStatus === "SUCCESS")
 
                 return (
-                  <div key={step} style={{ display: "flex", alignItems: "center", gap: tokens.space.sm }}>
+                  <div
+                    key={step}
+                    style={{ display: "flex", alignItems: "center", gap: tokens.space.sm }}
+                  >
                     <div
                       style={{
                         width: "24px",
@@ -264,8 +288,8 @@ export function TransactionStatus({
                         background: isPast
                           ? tokens.colors.success
                           : isActive
-                          ? tokens.colors.gold
-                          : "rgba(255, 255, 255, 0.1)",
+                            ? tokens.colors.gold
+                            : "rgba(255, 255, 255, 0.1)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -274,11 +298,24 @@ export function TransactionStatus({
                       }}
                     >
                       {isPast ? (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3">
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#000"
+                          strokeWidth="3"
+                        >
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
                       ) : (
-                        <span style={{ color: isActive ? tokens.colors.bg : tokens.colors.textMuted, fontSize: "10px", fontWeight: 700 }}>
+                        <span
+                          style={{
+                            color: isActive ? tokens.colors.bg : tokens.colors.textMuted,
+                            fontSize: "10px",
+                            fontWeight: 700,
+                          }}
+                        >
                           {index + 1}
                         </span>
                       )}
@@ -299,9 +336,33 @@ export function TransactionStatus({
 
             {/* Status Labels */}
             <div style={{ display: "flex", justifyContent: "center", gap: "60px" }}>
-              <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>DEPOSIT</span>
-              <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>PROCESS</span>
-              <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>COMPLETE</span>
+              <span
+                style={{
+                  color: tokens.colors.textMuted,
+                  fontSize: "10px",
+                  fontFamily: tokens.font.mono,
+                }}
+              >
+                DEPOSIT
+              </span>
+              <span
+                style={{
+                  color: tokens.colors.textMuted,
+                  fontSize: "10px",
+                  fontFamily: tokens.font.mono,
+                }}
+              >
+                PROCESS
+              </span>
+              <span
+                style={{
+                  color: tokens.colors.textMuted,
+                  fontSize: "10px",
+                  fontFamily: tokens.font.mono,
+                }}
+              >
+                COMPLETE
+              </span>
             </div>
           </div>
         )}
@@ -326,10 +387,18 @@ export function TransactionStatus({
   // Delivering state - Honest messaging while ZEC is in transit
   if (flowState === "delivering" && transaction) {
     const zecAmount = parseFloat(formatTokenAmount(transaction.toAmount, 6))
-    const estimatedUsd = transaction.usdAmount || usdAmount || parseFloat(transaction.fromAmount) || zecAmount * 40
+    const estimatedUsd =
+      transaction.usdAmount || usdAmount || parseFloat(transaction.fromAmount) || zecAmount * 40
 
     return (
-      <div style={{ width: "100%", textAlign: "center", padding: `${tokens.space.xl}px 0`, position: "relative" }}>
+      <div
+        style={{
+          width: "100%",
+          textAlign: "center",
+          padding: `${tokens.space.xl}px 0`,
+          position: "relative",
+        }}
+      >
         {/* Vertical Light Beam */}
         <div
           style={{
@@ -390,7 +459,12 @@ export function TransactionStatus({
               strokeWidth="1.5"
             >
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              <path d="M12 8v4m0 4h.01" stroke={tokens.colors.gold} strokeWidth="2" strokeLinecap="round" />
+              <path
+                d="M12 8v4m0 4h.01"
+                stroke={tokens.colors.gold}
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
         </div>
@@ -419,12 +493,21 @@ export function TransactionStatus({
             marginBottom: tokens.space.sm,
           }}
         >
-          ~{zecAmount.toFixed(4)} ZEC (${estimatedUsd.toFixed(2)}) to <span style={{ color: tokens.colors.textBright }}>@{creatorHandle}</span>
+          ~{zecAmount.toFixed(4)} ZEC (${estimatedUsd.toFixed(2)}) to{" "}
+          <span style={{ color: tokens.colors.textBright }}>@{creatorHandle}</span>
         </p>
 
         {/* Progress Steps */}
         <div style={{ marginBottom: tokens.space.lg }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: tokens.space.sm, marginBottom: tokens.space.sm }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: tokens.space.sm,
+              marginBottom: tokens.space.sm,
+            }}
+          >
             {/* Step 1: Deposit - Complete */}
             <div
               style={{
@@ -438,13 +521,27 @@ export function TransactionStatus({
                 flexShrink: 0,
               }}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#000"
+                strokeWidth="3"
+              >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
 
             {/* Line 1→2 */}
-            <div style={{ width: "40px", height: "2px", background: tokens.colors.success, flexShrink: 0 }} />
+            <div
+              style={{
+                width: "40px",
+                height: "2px",
+                background: tokens.colors.success,
+                flexShrink: 0,
+              }}
+            />
 
             {/* Step 2: Delivering - Active */}
             <div
@@ -473,7 +570,14 @@ export function TransactionStatus({
             </div>
 
             {/* Line 2→3 */}
-            <div style={{ width: "40px", height: "2px", background: "rgba(255, 255, 255, 0.1)", flexShrink: 0 }} />
+            <div
+              style={{
+                width: "40px",
+                height: "2px",
+                background: "rgba(255, 255, 255, 0.1)",
+                flexShrink: 0,
+              }}
+            />
 
             {/* Step 3: Confirmed - Pending */}
             <div
@@ -488,15 +592,54 @@ export function TransactionStatus({
                 flexShrink: 0,
               }}
             >
-              <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontWeight: 700 }}>3</span>
+              <span style={{ color: tokens.colors.textMuted, fontSize: "10px", fontWeight: 700 }}>
+                3
+              </span>
             </div>
           </div>
 
           {/* Status Labels — equal-width columns centered under circles */}
-          <div style={{ display: "flex", justifyContent: "center", width: `${24 + 8 + 40 + 8 + 24 + 8 + 40 + 8 + 24}px`, margin: "0 auto" }}>
-            <span style={{ width: `${24 + 4 + 20}px`, textAlign: "center", color: tokens.colors.success, fontSize: "10px", fontFamily: tokens.font.mono }}>SENT</span>
-            <span style={{ flex: 1, textAlign: "center", color: tokens.colors.gold, fontSize: "10px", fontFamily: tokens.font.mono }}>DELIVERING</span>
-            <span style={{ width: `${20 + 4 + 24}px`, textAlign: "center", color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>CONFIRMED</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              width: `${24 + 8 + 40 + 8 + 24 + 8 + 40 + 8 + 24}px`,
+              margin: "0 auto",
+            }}
+          >
+            <span
+              style={{
+                width: `${24 + 4 + 20}px`,
+                textAlign: "center",
+                color: tokens.colors.success,
+                fontSize: "10px",
+                fontFamily: tokens.font.mono,
+              }}
+            >
+              SENT
+            </span>
+            <span
+              style={{
+                flex: 1,
+                textAlign: "center",
+                color: tokens.colors.gold,
+                fontSize: "10px",
+                fontFamily: tokens.font.mono,
+              }}
+            >
+              DELIVERING
+            </span>
+            <span
+              style={{
+                width: `${20 + 4 + 24}px`,
+                textAlign: "center",
+                color: tokens.colors.textMuted,
+                fontSize: "10px",
+                fontFamily: tokens.font.mono,
+              }}
+            >
+              CONFIRMED
+            </span>
           </div>
         </div>
 
@@ -512,11 +655,24 @@ export function TransactionStatus({
             marginBottom: tokens.space.md,
           }}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.textMuted} strokeWidth="2">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={tokens.colors.textMuted}
+            strokeWidth="2"
+          >
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
-          <span style={{ color: tokens.colors.textMuted, fontSize: "11px", fontFamily: tokens.font.mono }}>
+          <span
+            style={{
+              color: tokens.colors.textMuted,
+              fontSize: "11px",
+              fontFamily: tokens.font.mono,
+            }}
+          >
             Estimated arrival: ~5 min
           </span>
         </div>
@@ -535,18 +691,44 @@ export function TransactionStatus({
               gap: tokens.space.sm,
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F5A623" strokeWidth="2" style={{ flexShrink: 0 }}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#F5A623"
+              strokeWidth="2"
+              style={{ flexShrink: 0 }}
+            >
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
-            <p style={{ color: "#F5A623", fontSize: "11px", fontFamily: tokens.font.mono, margin: 0, lineHeight: 1.4, flex: 1 }}>
+            <p
+              style={{
+                color: "#F5A623",
+                fontSize: "11px",
+                fontFamily: tokens.font.mono,
+                margin: 0,
+                lineHeight: 1.4,
+                flex: 1,
+              }}
+            >
               {executeWarning}
             </p>
             {onDismissExecuteWarning && (
               <button
                 onClick={onDismissExecuteWarning}
-                style={{ background: "none", border: "none", color: "#F5A623", cursor: "pointer", padding: "2px", fontSize: "14px", lineHeight: 1, flexShrink: 0 }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#F5A623",
+                  cursor: "pointer",
+                  padding: "2px",
+                  fontSize: "14px",
+                  lineHeight: 1,
+                  flexShrink: 0,
+                }}
               >
                 ✕
               </button>
@@ -564,12 +746,34 @@ export function TransactionStatus({
             marginBottom: tokens.space.lg,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: tokens.space.sm, marginBottom: tokens.space.xs }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.gold} strokeWidth="2">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: tokens.space.sm,
+              marginBottom: tokens.space.xs,
+            }}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={tokens.colors.gold}
+              strokeWidth="2"
+            >
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               <path d="M9 12l2 2 4-4" stroke={tokens.colors.gold} strokeWidth="2" />
             </svg>
-            <span style={{ color: tokens.colors.gold, fontSize: "12px", fontWeight: 600, fontFamily: tokens.font.mono }}>
+            <span
+              style={{
+                color: tokens.colors.gold,
+                fontSize: "12px",
+                fontWeight: 600,
+                fontFamily: tokens.font.mono,
+              }}
+            >
               You can close this page
             </span>
           </div>
@@ -619,11 +823,16 @@ export function TransactionStatus({
     // Calculate amounts from transaction (stored at time of tip) or props as fallback
     const zecAmount = parseFloat(formatTokenAmount(transaction.toAmount, 6))
     // Prefer transaction.usdAmount (stored at tip time), then props, then estimate
-    const estimatedUsd = transaction.usdAmount || usdAmount || parseFloat(transaction.fromAmount) || zecAmount * 40
+    const estimatedUsd =
+      transaction.usdAmount || usdAmount || parseFloat(transaction.fromAmount) || zecAmount * 40
     // Prefer transaction.networkFee (stored at tip time), then props, then minimal estimate
-    const displayNetworkFee = transaction.networkFee ? parseFloat(transaction.networkFee) : (networkFee ? parseFloat(networkFee) : 0.01)
-    const platformFee = 0.00
-    const savedFees = (estimatedUsd * 0.029 + 0.30).toFixed(2) // Typical card processing
+    const displayNetworkFee = transaction.networkFee
+      ? parseFloat(transaction.networkFee)
+      : networkFee
+        ? parseFloat(networkFee)
+        : 0.01
+    const platformFee = 0.0
+    const savedFees = (estimatedUsd * 0.029 + 0.3).toFixed(2) // Typical card processing
 
     return (
       <div style={{ width: "100%", textAlign: "center", padding: `${tokens.space.lg}px 0` }}>
@@ -708,7 +917,8 @@ export function TransactionStatus({
             marginBottom: tokens.space.xs,
           }}
         >
-          ~{zecAmount.toFixed(4)} ZEC has arrived in <span style={{ color: tokens.colors.textBright }}>@{creatorHandle}</span>'s wallet
+          ~{zecAmount.toFixed(4)} ZEC has arrived in{" "}
+          <span style={{ color: tokens.colors.textBright }}>@{creatorHandle}</span>'s wallet
         </p>
         <p
           style={{
@@ -732,41 +942,117 @@ export function TransactionStatus({
           }}
         >
           {/* Row 1: Amount Sent */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: tokens.space.sm }}>
-            <span style={{ color: tokens.colors.textMuted, fontSize: "11px", fontFamily: tokens.font.mono, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: tokens.space.sm,
+            }}
+          >
+            <span
+              style={{
+                color: tokens.colors.textMuted,
+                fontSize: "11px",
+                fontFamily: tokens.font.mono,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
               AMOUNT SENT
             </span>
-            <span style={{ color: tokens.colors.textBright, fontSize: "11px", fontFamily: tokens.font.mono, fontWeight: 600 }}>
+            <span
+              style={{
+                color: tokens.colors.textBright,
+                fontSize: "11px",
+                fontFamily: tokens.font.mono,
+                fontWeight: 600,
+              }}
+            >
               ${estimatedUsd.toFixed(2)}
             </span>
           </div>
 
           {/* Row 2: Network Fee */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: tokens.space.sm }}>
-            <span style={{ color: tokens.colors.textMuted, fontSize: "11px", fontFamily: tokens.font.mono, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: tokens.space.sm,
+            }}
+          >
+            <span
+              style={{
+                color: tokens.colors.textMuted,
+                fontSize: "11px",
+                fontFamily: tokens.font.mono,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
               NETWORK FEE
             </span>
-            <span style={{ color: tokens.colors.textMuted, fontSize: "11px", fontFamily: tokens.font.mono }}>
+            <span
+              style={{
+                color: tokens.colors.textMuted,
+                fontSize: "11px",
+                fontFamily: tokens.font.mono,
+              }}
+            >
               ${displayNetworkFee.toFixed(2)}
             </span>
           </div>
 
           {/* Row 3: Platform Fee - THE FLEX */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: tokens.space.sm }}>
-            <span style={{ color: tokens.colors.textMuted, fontSize: "11px", fontFamily: tokens.font.mono, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: tokens.space.sm,
+            }}
+          >
+            <span
+              style={{
+                color: tokens.colors.textMuted,
+                fontSize: "11px",
+                fontFamily: tokens.font.mono,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
               PLATFORM FEE
             </span>
-            <span style={{ color: tokens.colors.success, fontSize: "11px", fontFamily: tokens.font.mono, fontWeight: 700 }}>
+            <span
+              style={{
+                color: tokens.colors.success,
+                fontSize: "11px",
+                fontFamily: tokens.font.mono,
+                fontWeight: 700,
+              }}
+            >
               $0.00
             </span>
           </div>
 
           {/* Divider */}
-          <div style={{ height: "1px", background: "rgba(255, 255, 255, 0.1)", margin: `${tokens.space.sm}px 0` }} />
+          <div
+            style={{
+              height: "1px",
+              background: "rgba(255, 255, 255, 0.1)",
+              margin: `${tokens.space.sm}px 0`,
+            }}
+          />
 
           {/* Row 4: Privacy Status */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ color: tokens.colors.textMuted, fontSize: "11px", fontFamily: tokens.font.mono, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+            <span
+              style={{
+                color: tokens.colors.textMuted,
+                fontSize: "11px",
+                fontFamily: tokens.font.mono,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
               PRIVACY
             </span>
             <span
@@ -784,7 +1070,14 @@ export function TransactionStatus({
                 letterSpacing: "1px",
               }}
             >
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <svg
+                width="8"
+                height="8"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+              >
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
               SEALED
@@ -818,18 +1111,44 @@ export function TransactionStatus({
               gap: tokens.space.sm,
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F5A623" strokeWidth="2" style={{ flexShrink: 0 }}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#F5A623"
+              strokeWidth="2"
+              style={{ flexShrink: 0 }}
+            >
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
-            <p style={{ color: "#F5A623", fontSize: "11px", fontFamily: tokens.font.mono, margin: 0, lineHeight: 1.4, flex: 1 }}>
+            <p
+              style={{
+                color: "#F5A623",
+                fontSize: "11px",
+                fontFamily: tokens.font.mono,
+                margin: 0,
+                lineHeight: 1.4,
+                flex: 1,
+              }}
+            >
               {executeWarning}
             </p>
             {onDismissExecuteWarning && (
               <button
                 onClick={onDismissExecuteWarning}
-                style={{ background: "none", border: "none", color: "#F5A623", cursor: "pointer", padding: "2px", fontSize: "14px", lineHeight: 1, flexShrink: 0 }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#F5A623",
+                  cursor: "pointer",
+                  padding: "2px",
+                  fontSize: "14px",
+                  lineHeight: 1,
+                  flexShrink: 0,
+                }}
               >
                 ✕
               </button>
@@ -862,72 +1181,48 @@ export function TransactionStatus({
         </button>
 
         {/* Block Explorer Link */}
-        <div style={{ marginTop: tokens.space.md, position: "relative" }}>
-          <button
-            onClick={() => {
-              // Show tooltip instead of navigating
-              const tooltip = document.getElementById("explorer-tooltip")
-              if (tooltip) {
-                tooltip.style.opacity = "1"
-                tooltip.style.transform = "translateX(-50%) translateY(0)"
-                setTimeout(() => {
-                  tooltip.style.opacity = "0"
-                  tooltip.style.transform = "translateX(-50%) translateY(4px)"
-                }, 3000)
-              }
-            }}
-            style={{
-              background: "none",
-              border: "none",
-              color: tokens.colors.textMuted,
-              fontSize: "11px",
-              fontFamily: tokens.font.mono,
-              cursor: "pointer",
-              textDecoration: "underline",
-              textDecorationColor: "rgba(255, 255, 255, 0.2)",
-              textUnderlineOffset: "2px",
-            }}
-          >
-            View on Block Explorer
-          </button>
-          {/* Tooltip */}
-          <div
-            id="explorer-tooltip"
-            style={{
-              position: "absolute",
-              bottom: "calc(100% + 8px)",
-              left: "50%",
-              transform: "translateX(-50%) translateY(4px)",
-              background: tokens.colors.surface,
-              border: `1px solid ${tokens.colors.border}`,
-              borderRadius: tokens.radius.sm,
-              padding: `${tokens.space.sm}px ${tokens.space.md}px`,
-              width: "260px",
-              maxWidth: "calc(100vw - 48px)",
-              opacity: 0,
-              pointerEvents: "none",
-              transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
-              zIndex: 10,
-            }}
-          >
-            <p style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono, margin: 0, lineHeight: 1.5 }}>
-              This transaction is shielded. The explorer will not show the sender, receiver, or amount.
-            </p>
-            {/* Arrow */}
-            <div
-              style={{
-                position: "absolute",
-                bottom: "-5px",
-                left: "50%",
-                transform: "translateX(-50%) rotate(45deg)",
-                width: "8px",
-                height: "8px",
-                background: tokens.colors.surface,
-                borderRight: `1px solid ${tokens.colors.border}`,
-                borderBottom: `1px solid ${tokens.colors.border}`,
-              }}
-            />
-          </div>
+        <div style={{ marginTop: tokens.space.md }}>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: tokens.colors.textMuted,
+                    fontSize: "11px",
+                    fontFamily: tokens.font.mono,
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                    textDecorationColor: "rgba(255, 255, 255, 0.2)",
+                    textUnderlineOffset: "2px",
+                  }}
+                >
+                  View on Block Explorer
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                className="max-w-[260px] border-white/10 bg-[rgba(26,26,26,0.95)] backdrop-blur-[24px]"
+                style={{
+                  padding: `${tokens.space.sm}px ${tokens.space.md}px`,
+                }}
+              >
+                <p
+                  style={{
+                    color: tokens.colors.textMuted,
+                    fontSize: "10px",
+                    fontFamily: tokens.font.mono,
+                    margin: 0,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  This transaction is shielded. The explorer will not show the sender, receiver, or
+                  amount.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         <style>{`
@@ -1003,7 +1298,14 @@ export function TransactionStatus({
             animation: "scaleIn 0.3s ease",
           }}
         >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.gold} strokeWidth="2">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={tokens.colors.gold}
+            strokeWidth="2"
+          >
             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
             <path d="M3 3v5h5" />
             <path d="M12 7v5l4 2" />
@@ -1062,7 +1364,10 @@ export function TransactionStatus({
 
   // Error state
   if (flowState === "error") {
-    const isRetryable = !error?.includes("cancelled") && !error?.includes("rejected") && !error?.includes("Insufficient")
+    const isRetryable =
+      !error?.includes("cancelled") &&
+      !error?.includes("rejected") &&
+      !error?.includes("Insufficient")
 
     return (
       <div style={{ width: "100%", textAlign: "center", padding: `${tokens.space.lg}px 0` }}>
@@ -1082,7 +1387,14 @@ export function TransactionStatus({
             animation: "scaleIn 0.3s ease",
           }}
         >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.error} strokeWidth="2">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={tokens.colors.error}
+            strokeWidth="2"
+          >
             <circle cx="12" cy="12" r="10" />
             <line x1="15" y1="9" x2="9" y2="15" />
             <line x1="9" y1="9" x2="15" y2="15" />
