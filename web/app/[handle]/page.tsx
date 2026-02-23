@@ -502,10 +502,10 @@ export default function CreatorCardPage() {
     checkMobile()
 
     // Re-check on resize for DevTools testing
-    window.addEventListener('resize', checkMobile)
+    window.addEventListener("resize", checkMobile)
 
     return () => {
-      window.removeEventListener('resize', checkMobile)
+      window.removeEventListener("resize", checkMobile)
     }
   }, [])
 
@@ -537,10 +537,9 @@ export default function CreatorCardPage() {
 
   // Avatar color based on handle
   const getAvatarColor = (h: string) => {
-    const hue = h.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360
+    const hue = h.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360
     return `hsl(${hue}, 55%, 35%)`
   }
-
 
   // Loading state - compact skeleton
   if (state === "loading") {
@@ -555,8 +554,14 @@ export default function CreatorCardPage() {
           )}
           <div className="tipz-card">
             <div className="tipz-card-content">
-              <div className="tipz-skeleton" style={{ width: 60, height: 16, margin: "0 auto 16px" }} />
-              <div className="tipz-skeleton" style={{ width: "100%", height: 200, borderRadius: 10 }} />
+              <div
+                className="tipz-skeleton"
+                style={{ width: 60, height: 16, margin: "0 auto 16px" }}
+              />
+              <div
+                className="tipz-skeleton"
+                style={{ width: "100%", height: 200, borderRadius: 10 }}
+              />
             </div>
           </div>
         </div>
@@ -586,15 +591,33 @@ export default function CreatorCardPage() {
               <h1 className="tipz-notfound-handle">@{handle}</h1>
 
               <div className="tipz-notfound-badge">
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: colors.error }} />
-                <span style={{ color: colors.error, fontSize: 11, fontWeight: 500, fontFamily: "'Inter', sans-serif" }}>
+                <div
+                  style={{ width: 6, height: 6, borderRadius: "50%", background: colors.error }}
+                />
+                <span
+                  style={{
+                    color: colors.error,
+                    fontSize: 11,
+                    fontWeight: 500,
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                >
                   Not registered
                 </span>
               </div>
 
               <div className="tipz-info-box">
-                <p style={{ color: colors.text, fontSize: 14, margin: 0, lineHeight: 1.5, fontFamily: "'Inter', sans-serif" }}>
-                  This creator hasn't joined yet. Let them know they can receive private, fee-free tips!
+                <p
+                  style={{
+                    color: colors.text,
+                    fontSize: 14,
+                    margin: 0,
+                    lineHeight: 1.5,
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                >
+                  This creator hasn't joined yet. Let them know they can receive private, fee-free
+                  tips!
                 </p>
               </div>
 
@@ -616,8 +639,15 @@ export default function CreatorCardPage() {
           </div>
 
           <a href="/" className="tipz-back">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
             Back to TIPZ
           </a>
@@ -674,8 +704,15 @@ export default function CreatorCardPage() {
               {/* Header with back button only */}
               <div className="tipz-mobile-header" style={{ justifyContent: "flex-start" }}>
                 <a href="/" className="tipz-mobile-back">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
                   </svg>
                   Back
                 </a>
@@ -691,7 +728,6 @@ export default function CreatorCardPage() {
                   avatarUrl={creator?.avatar_url}
                   publicKey={creator?.publicKey}
                   isOgCypherpunk={creator?.is_og_cypherpunk}
-
                 />
 
                 {/* Powered by TIPZ footer */}
@@ -707,20 +743,24 @@ export default function CreatorCardPage() {
                     gap: "4px",
                   }}
                 >
-                  <span style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: "12px",
-                    color: "rgba(255, 255, 255, 0.4)",
-                  }}>
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "12px",
+                      color: "rgba(255, 255, 255, 0.4)",
+                    }}
+                  >
                     Powered by
                   </span>
-                  <span style={{
-                    fontFamily: "var(--font-family-mono)",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    color: "#FFD700",
-                    letterSpacing: "1px",
-                  }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-family-mono)",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      color: "#FFD700",
+                      letterSpacing: "1px",
+                    }}
+                  >
                     TIPZ
                   </span>
                 </a>
@@ -739,10 +779,10 @@ export default function CreatorCardPage() {
       <SiteHeader />
       <div className="tipz-page">
         {showBackground && (
-            <div className="tipz-background-wrapper">
-              <LetterGridBackground />
-            </div>
-          )}
+          <div className="tipz-background-wrapper">
+            <LetterGridBackground />
+          </div>
+        )}
         <div className="tipz-card">
           <div className="tipz-card-content">
             <TippingFlow
@@ -771,20 +811,24 @@ export default function CreatorCardPage() {
             transition: "opacity 0.2s ease",
           }}
         >
-          <span style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: "12px",
-            color: "rgba(255, 255, 255, 0.4)",
-          }}>
+          <span
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "12px",
+              color: "rgba(255, 255, 255, 0.4)",
+            }}
+          >
             Powered by
           </span>
-          <span style={{
-            fontFamily: "var(--font-family-mono)",
-            fontSize: "12px",
-            fontWeight: 700,
-            color: "#FFD700",
-            letterSpacing: "1px",
-          }}>
+          <span
+            style={{
+              fontFamily: "var(--font-family-mono)",
+              fontSize: "12px",
+              fontWeight: 700,
+              color: "#FFD700",
+              letterSpacing: "1px",
+            }}
+          >
             TIPZ
           </span>
         </a>

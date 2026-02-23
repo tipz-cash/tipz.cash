@@ -141,7 +141,8 @@ export function LetterGridBackground({ fillCenter = false }: LetterGridBackgroun
       for (let row = 0; row < ROWS; row++) {
         for (let col = 0; col < COLS; col++) {
           if (grid[row][col].isHighlight && grid[row][col].highlightBrightness >= 0.95) {
-            if (Math.random() < 0.025) { // Lower probability = words stay longer
+            if (Math.random() < 0.025) {
+              // Lower probability = words stay longer
               grid[row][col].isHighlight = false
             }
           }
@@ -149,7 +150,7 @@ export function LetterGridBackground({ fillCenter = false }: LetterGridBackgroun
       }
 
       // Trigger re-render
-      setRenderKey(k => k + 1)
+      setRenderKey((k) => k + 1)
     }
 
     // Slower interval for smoother interactions (100ms = 10fps)
@@ -163,10 +164,12 @@ export function LetterGridBackground({ fillCenter = false }: LetterGridBackgroun
 
   const gridStyle: React.CSSProperties = {
     ...styles.grid,
-    ...(fillCenter ? {} : {
-      maskImage: `radial-gradient(circle at 50% 50%, transparent 0%, transparent 16%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%)`,
-      WebkitMaskImage: `radial-gradient(circle at 50% 50%, transparent 0%, transparent 16%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%)`,
-    }),
+    ...(fillCenter
+      ? {}
+      : {
+          maskImage: `radial-gradient(circle at 50% 50%, transparent 0%, transparent 16%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%)`,
+          WebkitMaskImage: `radial-gradient(circle at 50% 50%, transparent 0%, transparent 16%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%)`,
+        }),
   }
 
   return (
@@ -178,7 +181,8 @@ export function LetterGridBackground({ fillCenter = false }: LetterGridBackgroun
             const isGlowing = cell.highlightBrightness > 0.05
             const baseOpacity = cell.brightness * 0.32
             const glowOpacity = cell.highlightBrightness * 0.7
-            const morphOpacity = cell.morphProgress > 0 ? 1 - Math.abs(cell.morphProgress - 0.5) * 0.6 : 1
+            const morphOpacity =
+              cell.morphProgress > 0 ? 1 - Math.abs(cell.morphProgress - 0.5) * 0.6 : 1
             const displayChar = cell.morphProgress >= 0.5 ? cell.nextChar : cell.char
 
             return (

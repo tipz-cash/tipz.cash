@@ -184,10 +184,7 @@ export interface TokenInfo {
 /**
  * Make an authenticated request to NEAR Intents API
  */
-async function makeRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+async function makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${NEAR_INTENTS_BASE_URL}${endpoint}`
   const token = getAuthToken()
 
@@ -350,7 +347,11 @@ export function mapAddressToAssetId(address: string, chainId: number): AssetId |
   // Solana native token (base58 addresses, not hex)
   if (chainId === 501) {
     // SOL native is indicated by special address or empty
-    if (address === "So11111111111111111111111111111111111111112" || address === "" || address === "native") {
+    if (
+      address === "So11111111111111111111111111111111111111112" ||
+      address === "" ||
+      address === "native"
+    ) {
       return mapTokenToAssetId("SOL", chainId)
     }
     return null // SPL tokens not yet supported

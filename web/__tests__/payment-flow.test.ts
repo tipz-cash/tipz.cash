@@ -27,7 +27,8 @@ vi.mock("@/lib/near-intents", () => ({
   }),
   mapAddressToAssetId: vi.fn((address: string) => {
     if (address === "0x0000000000000000000000000000000000000000") return "nep141:eth.omft.near"
-    if (address === "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48") return "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near"
+    if (address === "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
+      return "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near"
     return null
   }),
   ZEC_ASSET_ID: "nep141:zec.omft.near",

@@ -74,10 +74,7 @@ export async function generateQRCanvas(
 /**
  * Generate QR code as SVG string
  */
-export async function generateQRSvg(
-  data: string,
-  options: QRCodeOptions = {}
-): Promise<string> {
+export async function generateQRSvg(data: string, options: QRCodeOptions = {}): Promise<string> {
   const mergedOptions = { ...defaultOptions, ...options }
 
   try {
@@ -102,18 +99,14 @@ function textToBase64url(text: string): string {
   const bytes = new TextEncoder().encode(text)
   const binary = String.fromCharCode(...bytes)
   const base64 = btoa(binary)
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
 }
 
 /**
  * Generate a Zcash payment URI
  * Format: zcash:<address>?amount=<amount>&memo=<memo>
  */
-export function createZcashUri(
-  address: string,
-  amount?: number,
-  memo?: string
-): string {
+export function createZcashUri(address: string, amount?: number, memo?: string): string {
   let uri = `zcash:${address}`
   const params: string[] = []
 

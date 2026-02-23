@@ -7,10 +7,7 @@ export async function GET(request: NextRequest) {
   const handle = searchParams.get("handle")
 
   if (!platform || !handle) {
-    return NextResponse.json(
-      { error: "Missing platform or handle parameter" },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: "Missing platform or handle parameter" }, { status: 400 })
   }
 
   if (!supabase) {
@@ -37,6 +34,6 @@ export async function GET(request: NextRequest) {
       avatar_url: data.avatar_url,
       public_key: data.public_key,
       is_og_cypherpunk: true,
-    }
+    },
   })
 }

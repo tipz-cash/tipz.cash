@@ -26,9 +26,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Get confirmed transactions from last 24 hours
-    const twentyFourHoursAgo = new Date(
-      Date.now() - 24 * 60 * 60 * 1000
-    ).toISOString()
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
     const { data: transactions, error } = await supabase
       .from("tipz")
@@ -65,8 +63,7 @@ export async function GET(request: NextRequest) {
       // Sort by displayed_at descending
       .sort(
         (a: ActivityItem, b: ActivityItem) =>
-          new Date(b.displayed_at).getTime() -
-          new Date(a.displayed_at).getTime()
+          new Date(b.displayed_at).getTime() - new Date(a.displayed_at).getTime()
       )
 
     return NextResponse.json({ activity })

@@ -84,12 +84,23 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
       <>
         <style jsx>{`
           @keyframes skeletonPulse {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
+            0%,
+            100% {
+              opacity: 0.3;
+            }
+            50% {
+              opacity: 0.6;
+            }
           }
           @keyframes skeletonFadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+              opacity: 0;
+              transform: translateY(12px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
           }
         `}</style>
         <div
@@ -191,18 +202,15 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
           }}
         >
           {/* Reorder for podium: 2nd place left, 1st place center, 3rd place right */}
-          {[leaderboard[1], leaderboard[0], leaderboard[2]]
-            .filter(Boolean)
-            .map((entry, index) => (
-              <LeaderboardCard
-                key={entry.handle}
-                entry={entry}
-                index={index}
-                prefersReducedMotion={prefersReducedMotion}
-              />
-            ))}
+          {[leaderboard[1], leaderboard[0], leaderboard[2]].filter(Boolean).map((entry, index) => (
+            <LeaderboardCard
+              key={entry.handle}
+              entry={entry}
+              index={index}
+              prefersReducedMotion={prefersReducedMotion}
+            />
+          ))}
         </div>
-
       </div>
     </>
   )
@@ -249,7 +257,6 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
             opacity: 1;
           }
         }
-
       `}</style>
 
       <a
@@ -284,9 +291,7 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
           maxWidth: "180px",
           // Staggered entrance animation
           opacity: 0,
-          animation: prefersReducedMotion
-            ? "none"
-            : `fadeInUp 0.5s ease forwards`,
+          animation: prefersReducedMotion ? "none" : `fadeInUp 0.5s ease forwards`,
           animationDelay: `${0.1 + index * 0.1}s`,
           // 3D perspective hover effect
           transform: isHovered

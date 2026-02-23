@@ -1,49 +1,49 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { colors } from "@/lib/colors";
-import { TipzLogo } from "@/components/TipzLogo";
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { colors } from "@/lib/colors"
+import { TipzLogo } from "@/components/TipzLogo"
 
 // ZEC Ticker component
 function ZecTicker() {
-  const [price, setPrice] = useState<number | null>(null);
+  const [price, setPrice] = useState<number | null>(null)
 
   useEffect(() => {
     async function fetchPrice() {
       try {
-        const res = await fetch("/api/zec-price");
-        const data = await res.json();
-        if (data.price) setPrice(data.price);
+        const res = await fetch("/api/zec-price")
+        const data = await res.json()
+        if (data.price) setPrice(data.price)
       } catch {
         // Ignore errors
       }
     }
-    fetchPrice();
-    const interval = setInterval(fetchPrice, 60000);
-    return () => clearInterval(interval);
-  }, []);
+    fetchPrice()
+    const interval = setInterval(fetchPrice, 60000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
-    <span style={{
-      color: colors.muted,
-      fontSize: "11px",
-      letterSpacing: "1px",
-      fontFamily: "var(--font-family-mono)",
-    }}>
+    <span
+      style={{
+        color: colors.muted,
+        fontSize: "11px",
+        letterSpacing: "1px",
+        fontFamily: "var(--font-family-mono)",
+      }}
+    >
       ZEC {price ? `$${price.toFixed(2)}` : "—"}
     </span>
-  );
+  )
 }
 
 const navLinksLeft = [
   { href: "/manifesto", label: "MANIFESTO", key: "manifesto" },
   { href: "/docs", label: "DOCS", key: "docs" },
-] as const;
+] as const
 
-const navLinksRight = [
-  { href: "/creators", label: "CREATORS", key: "creators" },
-] as const;
+const navLinksRight = [{ href: "/creators", label: "CREATORS", key: "creators" }] as const
 
 const navLinkStyle: React.CSSProperties = {
   color: colors.muted,
@@ -52,14 +52,14 @@ const navLinkStyle: React.CSSProperties = {
   letterSpacing: "1px",
   transition: "color 0.2s",
   fontFamily: "var(--font-family-mono)",
-};
+}
 
 const activeLinkStyle: React.CSSProperties = {
   ...navLinkStyle,
   color: colors.primary,
   fontWeight: 600,
   textShadow: `0 0 10px ${colors.primaryGlow}`,
-};
+}
 
 const mobileLinkStyle: React.CSSProperties = {
   display: "block",
@@ -69,74 +69,96 @@ const mobileLinkStyle: React.CSSProperties = {
   fontSize: "14px",
   letterSpacing: "1px",
   borderBottom: `1px solid ${colors.border}`,
-};
+}
 
 const mobileActiveLinkStyle: React.CSSProperties = {
   ...mobileLinkStyle,
   color: colors.primary,
   fontWeight: 600,
-};
+}
 
 interface SiteHeaderProps {
-  activePage?: "home" | "creators" | "manifesto" | "docs" | "my";
+  activePage?: "home" | "creators" | "manifesto" | "docs" | "my"
 }
 
 export default function SiteHeader({ activePage }: SiteHeaderProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <>
-      <header style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: `${colors.bg}f0`,
-        backdropFilter: "blur(12px)",
-        zIndex: 100,
-        borderBottom: `1px solid ${colors.border}`,
-      }}>
-        <div className="site-header-inner" style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
+      <header
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: `${colors.bg}f0`,
+          backdropFilter: "blur(12px)",
+          zIndex: 100,
+          borderBottom: `1px solid ${colors.border}`,
+        }}
+      >
+        <div
+          className="site-header-inner"
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Link
+            href="/"
+            style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}
+          >
             <TipzLogo size={18} />
-            <span style={{
-              color: colors.muted,
-              fontSize: "10px",
-              letterSpacing: "1px",
-              padding: "2px 6px",
-              border: `1px solid ${colors.border}`,
-              borderRadius: "2px",
-            }}>BETA</span>
+            <span
+              style={{
+                color: colors.muted,
+                fontSize: "10px",
+                letterSpacing: "1px",
+                padding: "2px 6px",
+                border: `1px solid ${colors.border}`,
+                borderRadius: "2px",
+              }}
+            >
+              BETA
+            </span>
           </Link>
 
           <nav className="site-desktop-nav" style={{ gap: "32px", alignItems: "center" }}>
             <ZecTicker />
             <span style={{ color: colors.border }}>|</span>
-            {navLinksLeft.map((link) => (
+            {navLinksLeft.map((link) =>
               activePage === link.key ? (
-                <span key={link.key} style={activeLinkStyle}>{link.label}</span>
+                <span key={link.key} style={activeLinkStyle}>
+                  {link.label}
+                </span>
               ) : (
-                <Link key={link.key} href={link.href} style={navLinkStyle}>{link.label}</Link>
+                <Link key={link.key} href={link.href} style={navLinkStyle}>
+                  {link.label}
+                </Link>
               )
-            ))}
+            )}
             <span style={{ color: colors.border }}>|</span>
-            {navLinksRight.map((link) => (
+            {navLinksRight.map((link) =>
               activePage === link.key ? (
-                <span key={link.key} style={activeLinkStyle}>{link.label}</span>
+                <span key={link.key} style={activeLinkStyle}>
+                  {link.label}
+                </span>
               ) : (
-                <Link key={link.key} href={link.href} style={navLinkStyle}>{link.label}</Link>
+                <Link key={link.key} href={link.href} style={navLinkStyle}>
+                  {link.label}
+                </Link>
               )
-            ))}
+            )}
             {activePage === "my" ? (
               <span style={activeLinkStyle}>MY TIPZ</span>
             ) : (
-              <Link href="/my" style={navLinkStyle}>MY TIPZ</Link>
+              <Link href="/my" style={navLinkStyle}>
+                MY TIPZ
+              </Link>
             )}
             <Link
               href="/register"
@@ -157,7 +179,16 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
                 boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)`,
               }}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 <path d="M9 12l2 2 4-4" />
               </svg>
@@ -171,9 +202,15 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Open menu"
           >
-            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
-            <span style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }} />
+            <span
+              style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }}
+            />
+            <span
+              style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }}
+            />
+            <span
+              style={{ width: "20px", height: "2px", background: colors.text, borderRadius: "1px" }}
+            />
           </button>
         </div>
       </header>
@@ -190,22 +227,24 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
               zIndex: 200,
             }}
           />
-          <div style={{
-            position: "fixed",
-            top: 0,
-            right: 0,
-            bottom: 0,
-            width: "280px",
-            maxWidth: "80vw",
-            background: colors.bg,
-            borderLeft: `1px solid ${colors.border}`,
-            zIndex: 201,
-            padding: "20px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "8px",
-            overflowY: "auto",
-          }}>
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "280px",
+              maxWidth: "80vw",
+              background: colors.bg,
+              borderLeft: `1px solid ${colors.border}`,
+              zIndex: 201,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              overflowY: "auto",
+            }}
+          >
             <button
               onClick={() => setMobileMenuOpen(false)}
               style={{
@@ -222,7 +261,14 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
               }}
               aria-label="Close menu"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth="2">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={colors.text}
+                strokeWidth="2"
+              >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -230,25 +276,45 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
             <div style={{ padding: "12px 0", borderBottom: `1px solid ${colors.border}` }}>
               <ZecTicker />
             </div>
-            {navLinksLeft.map((link) => (
+            {navLinksLeft.map((link) =>
               activePage === link.key ? (
-                <span key={link.key} style={mobileActiveLinkStyle}>{link.label}</span>
+                <span key={link.key} style={mobileActiveLinkStyle}>
+                  {link.label}
+                </span>
               ) : (
-                <Link key={link.key} href={link.href} onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>{link.label}</Link>
+                <Link
+                  key={link.key}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={mobileLinkStyle}
+                >
+                  {link.label}
+                </Link>
               )
-            ))}
+            )}
             <div style={{ height: "1px", background: colors.border, margin: "4px 0" }} />
-            {navLinksRight.map((link) => (
+            {navLinksRight.map((link) =>
               activePage === link.key ? (
-                <span key={link.key} style={mobileActiveLinkStyle}>{link.label}</span>
+                <span key={link.key} style={mobileActiveLinkStyle}>
+                  {link.label}
+                </span>
               ) : (
-                <Link key={link.key} href={link.href} onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>{link.label}</Link>
+                <Link
+                  key={link.key}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={mobileLinkStyle}
+                >
+                  {link.label}
+                </Link>
               )
-            ))}
+            )}
             {activePage === "my" ? (
               <span style={mobileActiveLinkStyle}>MY TIPZ</span>
             ) : (
-              <Link href="/my" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>MY TIPZ</Link>
+              <Link href="/my" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>
+                MY TIPZ
+              </Link>
             )}
             <Link
               href="/register"
@@ -271,7 +337,16 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
                 boxShadow: `0 0 20px ${colors.primaryGlow}, 0 4px 12px rgba(0,0,0,0.3)`,
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 <path d="M9 12l2 2 4-4" />
               </svg>
@@ -314,5 +389,5 @@ export default function SiteHeader({ activePage }: SiteHeaderProps) {
         }
       `}</style>
     </>
-  );
+  )
 }

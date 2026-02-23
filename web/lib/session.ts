@@ -26,9 +26,7 @@ export async function createSessionToken(
     .sign(getSecret())
 }
 
-export async function verifySessionToken(
-  token: string
-): Promise<SessionPayload | null> {
+export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSecret())
     const handle = payload.handle as string | undefined
@@ -40,9 +38,7 @@ export async function verifySessionToken(
   }
 }
 
-export async function getSessionFromRequest(
-  request: NextRequest
-): Promise<SessionPayload | null> {
+export async function getSessionFromRequest(request: NextRequest): Promise<SessionPayload | null> {
   const token = request.cookies.get(COOKIE_NAME)?.value
   if (!token) return null
   return verifySessionToken(token)

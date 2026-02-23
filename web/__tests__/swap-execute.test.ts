@@ -77,18 +77,14 @@ describe("POST /api/swap/execute", () => {
   })
 
   it("rejects invalid ETH address", async () => {
-    const res = await POST(
-      createRequest(validBody({ walletAddress: "not-an-address" }))
-    )
+    const res = await POST(createRequest(validBody({ walletAddress: "not-an-address" })))
     expect(res.status).toBe(400)
     const data = await res.json()
     expect(data.error).toContain("Invalid wallet address")
   })
 
   it("rejects invalid ZEC destination", async () => {
-    const res = await POST(
-      createRequest(validBody({ destinationAddress: "t1notshielded123" }))
-    )
+    const res = await POST(createRequest(validBody({ destinationAddress: "t1notshielded123" })))
     expect(res.status).toBe(400)
     const data = await res.json()
     expect(data.error).toContain("Invalid destination address")
@@ -147,9 +143,7 @@ describe("POST /api/swap/execute", () => {
 
   it("enforces rate limits", async () => {
     // swapExecute rate limit is 10/min
-    await Promise.all(
-      Array.from({ length: 10 }, () => POST(createRequest(validBody())))
-    )
+    await Promise.all(Array.from({ length: 10 }, () => POST(createRequest(validBody()))))
 
     const res = await POST(createRequest(validBody()))
     expect(res.status).toBe(429)

@@ -6,12 +6,12 @@ import { breakpoints } from "@/lib/responsive"
 interface ResponsiveState {
   width: number
   height: number
-  isXs: boolean      // < 375px
-  isSm: boolean      // < 428px (includes xs)
-  isMobile: boolean  // < 768px (includes xs, sm)
-  isTablet: boolean  // 768px - 1023px
+  isXs: boolean // < 375px
+  isSm: boolean // < 428px (includes xs)
+  isMobile: boolean // < 768px (includes xs, sm)
+  isTablet: boolean // 768px - 1023px
   isDesktop: boolean // >= 1024px
-  isTouch: boolean   // Touch device detected
+  isTouch: boolean // Touch device detected
   isReducedMotion: boolean // User prefers reduced motion
 }
 

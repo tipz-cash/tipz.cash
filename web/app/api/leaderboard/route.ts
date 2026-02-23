@@ -39,10 +39,9 @@ export async function GET(request: NextRequest) {
   }
 
   if (!supabase) {
-    return NextResponse.json(
-      { leaderboard: [] } satisfies LeaderboardResponse,
-      { headers: cacheHeaders }
-    )
+    return NextResponse.json({ leaderboard: [] } satisfies LeaderboardResponse, {
+      headers: cacheHeaders,
+    })
   }
 
   try {
@@ -63,17 +62,16 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error("[leaderboard] Query error:", error)
-      return NextResponse.json(
-        { leaderboard: [] } satisfies LeaderboardResponse,
-        { status: 503, headers: cacheHeaders }
-      )
+      return NextResponse.json({ leaderboard: [] } satisfies LeaderboardResponse, {
+        status: 503,
+        headers: cacheHeaders,
+      })
     }
 
     if (!data || data.length === 0) {
-      return NextResponse.json(
-        { leaderboard: [] } satisfies LeaderboardResponse,
-        { headers: cacheHeaders }
-      )
+      return NextResponse.json({ leaderboard: [] } satisfies LeaderboardResponse, {
+        headers: cacheHeaders,
+      })
     }
 
     // Aggregate tip counts by handle
@@ -89,16 +87,13 @@ export async function GET(request: NextRequest) {
     }
 
     if (counts.size === 0) {
-      return NextResponse.json(
-        { leaderboard: [] } satisfies LeaderboardResponse,
-        { headers: cacheHeaders }
-      )
+      return NextResponse.json({ leaderboard: [] } satisfies LeaderboardResponse, {
+        headers: cacheHeaders,
+      })
     }
 
     // Sort by tip count descending and take top N
-    const sorted = [...counts.entries()]
-      .sort((a, b) => b[1].count - a[1].count)
-      .slice(0, limit)
+    const sorted = [...counts.entries()].sort((a, b) => b[1].count - a[1].count).slice(0, limit)
 
     const leaderboard: LeaderboardEntry[] = sorted.map(
       ([handle, { count: tip_count, avatar_url }], index) => ({
@@ -110,15 +105,14 @@ export async function GET(request: NextRequest) {
       })
     )
 
-    return NextResponse.json(
-      { leaderboard } satisfies LeaderboardResponse,
-      { headers: cacheHeaders }
-    )
+    return NextResponse.json({ leaderboard } satisfies LeaderboardResponse, {
+      headers: cacheHeaders,
+    })
   } catch (error) {
     console.error("[leaderboard] Error:", error)
-    return NextResponse.json(
-      { leaderboard: [] } satisfies LeaderboardResponse,
-      { status: 503, headers: cacheHeaders }
-    )
+    return NextResponse.json({ leaderboard: [] } satisfies LeaderboardResponse, {
+      status: 503,
+      headers: cacheHeaders,
+    })
   }
 }

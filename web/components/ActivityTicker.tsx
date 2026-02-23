@@ -31,9 +31,7 @@ interface ActivityTickerProps {
   prefersReducedMotion?: boolean
 }
 
-export function ActivityTicker({
-  prefersReducedMotion = false,
-}: ActivityTickerProps) {
+export function ActivityTicker({ prefersReducedMotion = false }: ActivityTickerProps) {
   const [activity, setActivity] = useState<ActivityItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -86,7 +84,8 @@ export function ActivityTicker({
         }
 
         @keyframes soft-pulse {
-          0%, 100% {
+          0%,
+          100% {
             opacity: 1;
           }
           50% {
@@ -172,12 +171,7 @@ export function ActivityTicker({
           {tickerItems.map((item, index) => (
             <div key={`${item.creator_handle}-${index}`} className="ticker-item">
               {/* Shield icon - simple, no blur */}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill={colors.primary}
-              >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill={colors.primary}>
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
 
@@ -209,7 +203,6 @@ export function ActivityTicker({
             </div>
           ))}
         </div>
-
       </div>
     </>
   )

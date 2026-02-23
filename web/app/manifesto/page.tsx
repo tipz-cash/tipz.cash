@@ -1,49 +1,47 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { colors } from "@/lib/colors";
-import SiteHeader from "@/components/SiteHeader";
-import { TipzLogo } from "@/components/TipzLogo";
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { colors } from "@/lib/colors"
+import SiteHeader from "@/components/SiteHeader"
+import { TipzLogo } from "@/components/TipzLogo"
 // Typing effect hook
 function useTypingEffect(text: string, speed: number = 30) {
-  const [displayText, setDisplayText] = useState("");
-  const [isComplete, setIsComplete] = useState(false);
+  const [displayText, setDisplayText] = useState("")
+  const [isComplete, setIsComplete] = useState(false)
 
   useEffect(() => {
-    let index = 0;
-    setDisplayText("");
-    setIsComplete(false);
+    let index = 0
+    setDisplayText("")
+    setIsComplete(false)
 
     const timer = setInterval(() => {
       if (index < text.length) {
-        setDisplayText(text.slice(0, index + 1));
-        index++;
+        setDisplayText(text.slice(0, index + 1))
+        index++
       } else {
-        setIsComplete(true);
-        clearInterval(timer);
+        setIsComplete(true)
+        clearInterval(timer)
       }
-    }, speed);
+    }, speed)
 
-    return () => clearInterval(timer);
-  }, [text, speed]);
+    return () => clearInterval(timer)
+  }, [text, speed])
 
-  return { displayText, isComplete };
+  return { displayText, isComplete }
 }
 
 // Blinking cursor component
 function Cursor({ visible }: { visible: boolean }) {
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(true)
 
   useEffect(() => {
-    const interval = setInterval(() => setShow((s) => !s), 530);
-    return () => clearInterval(interval);
-  }, []);
+    const interval = setInterval(() => setShow((s) => !s), 530)
+    return () => clearInterval(interval)
+  }, [])
 
-  if (!visible) return null;
-  return (
-    <span style={{ color: colors.primary, opacity: show ? 1 : 0 }}>_</span>
-  );
+  if (!visible) return null
+  return <span style={{ color: colors.primary, opacity: show ? 1 : 0 }}>_</span>
 }
 
 const manifestoSections = [
@@ -59,7 +57,7 @@ The creator who bleeds into their work, who fails and returns, who says somethin
 
 In an age of infinite production, authentic creation becomes the scarcest resource.
 
-Creators are not content factories. They are the last signal in a sea of noise.`
+Creators are not content factories. They are the last signal in a sea of noise.`,
   },
   {
     title: "II. TECHNOFEUDALISM",
@@ -79,7 +77,7 @@ You do not own your money. The bank does.
 
 Creators deserve self-custody of their earnings, privacy of their financial life, zero intermediaries extracting value, and freedom from platform capture.
 
-Your audience found you. You earned their support. No middleman should stand between.`
+Your audience found you. You earned their support. No middleman should stand between.`,
   },
   {
     title: "III. PRIVACY IS NOT A CRIME",
@@ -101,7 +99,7 @@ Models trained on your financial life. Profiles built from your every exchange. 
 
 We reject the premise that transparency is virtue.
 We reject the demand to justify our shadows.
-We reject surveillance as the price of participation.`
+We reject surveillance as the price of participation.`,
   },
   {
     title: "IV. CYPHERPUNKS WRITE CODE",
@@ -115,7 +113,7 @@ Zcash gave us shielded transactions. Solana gave us speed and reach.
 
 We give you TIPZ.
 
-The tools exist. The math is sound. Now we ship.`
+The tools exist. The math is sound. Now we ship.`,
   },
   {
     title: "V. EXIT",
@@ -131,7 +129,7 @@ Not improved surveillance. No surveillance.
 
 Private money. Self-custody. Zero extraction.
 
-The door is open.`
+The door is open.`,
   },
   {
     title: "VI. SUPPORT WITHOUT SURVEILLANCE",
@@ -145,7 +143,7 @@ We build for a different world:
 
 Where generosity needs no permission.
 Where support needs no justification.
-Where the act of giving belongs to giver and receiver alone.`
+Where the act of giving belongs to giver and receiver alone.`,
   },
   {
     title: "VII. PROTOCOL, NOT PLATFORM",
@@ -162,7 +160,7 @@ Your privacy does not depend on us.
 The protocol works without us.
 We built it that way on purpose.
 
-Trust math. Not us.`
+Trust math. Not us.`,
   },
   {
     title: "VIII. JOIN US",
@@ -177,18 +175,18 @@ Register your address. Send a shielded tip.
 
 The surveillance economy ends when we stop participating.
 
-Exit the ledger.`
-  }
-];
+Exit the ledger.`,
+  },
+]
 
 export default function ManifestoPage() {
-  const heroText = "THE CREATORS MANIFESTO";
-  const { displayText, isComplete } = useTypingEffect(heroText, 50);
-  const [mounted, setMounted] = useState(false);
+  const heroText = "THE CREATORS MANIFESTO"
+  const { displayText, isComplete } = useTypingEffect(heroText, 50)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
   return (
     <div
@@ -261,14 +259,16 @@ export default function ManifestoPage() {
         }}
       >
         {/* Accent line */}
-        <div style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "2px",
-          background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-        }} />
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "2px",
+            background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+          }}
+        />
 
         <div style={{ maxWidth: "800px", margin: "0 auto", padding: "0 24px" }}>
           <blockquote
@@ -280,15 +280,22 @@ export default function ManifestoPage() {
               color: colors.text,
             }}
           >
-            <p style={{ margin: "0 0 16px", fontSize: "18px", lineHeight: 1.9, color: colors.textBright }}>
-              &quot;Privacy is necessary for an open society in the electronic age.
-              Privacy is not secrecy. A private matter is something one doesn&apos;t
-              want the whole world to know, but a secret matter is something one
-              doesn&apos;t want anybody to know. Privacy is the power to selectively
-              reveal oneself to the world.&quot;
+            <p
+              style={{
+                margin: "0 0 16px",
+                fontSize: "18px",
+                lineHeight: 1.9,
+                color: colors.textBright,
+              }}
+            >
+              &quot;Privacy is necessary for an open society in the electronic age. Privacy is not
+              secrecy. A private matter is something one doesn&apos;t want the whole world to know,
+              but a secret matter is something one doesn&apos;t want anybody to know. Privacy is the
+              power to selectively reveal oneself to the world.&quot;
             </p>
             <footer style={{ color: colors.muted, fontSize: "13px" }}>
-              — Eric Hughes, <cite style={{ color: colors.primary }}>A Cypherpunk&apos;s Manifesto</cite> (1993)
+              — Eric Hughes,{" "}
+              <cite style={{ color: colors.primary }}>A Cypherpunk&apos;s Manifesto</cite> (1993)
             </footer>
           </blockquote>
         </div>
@@ -307,14 +314,16 @@ export default function ManifestoPage() {
         >
           {/* Section accent for even sections */}
           {index % 2 === 0 && (
-            <div style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "3px",
-              height: "100%",
-              background: `linear-gradient(180deg, transparent, ${colors.primary}40, transparent)`,
-            }} />
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "3px",
+                height: "100%",
+                background: `linear-gradient(180deg, transparent, ${colors.primary}40, transparent)`,
+              }}
+            />
           )}
 
           <div className="manifesto-content">
@@ -355,18 +364,22 @@ export default function ManifestoPage() {
         }}
       >
         {/* Glow background */}
-        <div style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "400px",
-          height: "400px",
-          background: `radial-gradient(circle, ${colors.primaryGlow} 0%, transparent 70%)`,
-          pointerEvents: "none",
-        }} />
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "400px",
+            height: "400px",
+            background: `radial-gradient(circle, ${colors.primaryGlow} 0%, transparent 70%)`,
+            pointerEvents: "none",
+          }}
+        />
 
-        <div style={{ maxWidth: "800px", margin: "0 auto", padding: "0 24px", position: "relative" }}>
+        <div
+          style={{ maxWidth: "800px", margin: "0 auto", padding: "0 24px", position: "relative" }}
+        >
           <div style={{ marginBottom: "40px" }}>
             <TipzLogo size={48} />
           </div>
@@ -392,16 +405,20 @@ export default function ManifestoPage() {
         }}
       >
         {/* Accent line */}
-        <div style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "2px",
-          background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-        }} />
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "2px",
+            background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+          }}
+        />
 
-        <div style={{ maxWidth: "800px", margin: "0 auto", padding: "0 24px", textAlign: "center" }}>
+        <div
+          style={{ maxWidth: "800px", margin: "0 auto", padding: "0 24px", textAlign: "center" }}
+        >
           <h3
             style={{
               fontSize: "28px",
@@ -478,23 +495,81 @@ export default function ManifestoPage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <TipzLogo size={16} />
-          <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>v0.1.0-beta</span>
+          <span style={{ color: colors.muted, fontSize: "10px", letterSpacing: "1px" }}>
+            v0.1.0-beta
+          </span>
         </div>
         <div style={{ display: "flex", gap: "32px" }}>
-          <span style={{ color: colors.primary, fontSize: "11px", letterSpacing: "1px", fontWeight: 600 }}>MANIFESTO</span>
-          <Link href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>DOCS</Link>
-          <Link href="/my" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>MY TIPZ</Link>
-          <a href="https://github.com/tipz-app" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>GITHUB</a>
-          <a href="https://x.com/tipz_cash" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px" }}>X</a>
+          <span
+            style={{
+              color: colors.primary,
+              fontSize: "11px",
+              letterSpacing: "1px",
+              fontWeight: 600,
+            }}
+          >
+            MANIFESTO
+          </span>
+          <Link
+            href="/docs"
+            style={{
+              color: colors.muted,
+              textDecoration: "none",
+              fontSize: "11px",
+              letterSpacing: "1px",
+            }}
+          >
+            DOCS
+          </Link>
+          <Link
+            href="/my"
+            style={{
+              color: colors.muted,
+              textDecoration: "none",
+              fontSize: "11px",
+              letterSpacing: "1px",
+            }}
+          >
+            MY TIPZ
+          </Link>
+          <a
+            href="https://github.com/tipz-app"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: colors.muted,
+              textDecoration: "none",
+              fontSize: "11px",
+              letterSpacing: "1px",
+            }}
+          >
+            GITHUB
+          </a>
+          <a
+            href="https://x.com/tipz_cash"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: colors.muted,
+              textDecoration: "none",
+              fontSize: "11px",
+              letterSpacing: "1px",
+            }}
+          >
+            X
+          </a>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", color: colors.muted }}>
-          <span className="status-pulse" style={{
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            backgroundColor: colors.success,
-            boxShadow: `0 0 10px ${colors.success}`,
-          }} />
+          <span
+            className="status-pulse"
+            style={{
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              backgroundColor: colors.success,
+              boxShadow: `0 0 10px ${colors.success}`,
+            }}
+          />
           <span style={{ fontSize: "11px", letterSpacing: "1px" }}>PRIVATE BY DEFAULT</span>
         </div>
       </footer>
@@ -632,5 +707,5 @@ export default function ManifestoPage() {
         }
       `}</style>
     </div>
-  );
+  )
 }

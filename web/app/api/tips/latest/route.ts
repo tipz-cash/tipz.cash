@@ -17,10 +17,7 @@ export async function GET(request: NextRequest) {
   const since = searchParams.get("since")
 
   if (!handle && !creatorIdParam) {
-    return NextResponse.json(
-      { error: "Missing handle or creator_id parameter" },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: "Missing handle or creator_id parameter" }, { status: 400 })
   }
 
   if (!supabase) {

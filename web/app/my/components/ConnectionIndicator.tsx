@@ -25,7 +25,12 @@ export default function ConnectionIndicator({ status }: ConnectionIndicatorProps
         background: config.color,
         borderRadius: "50%",
         boxShadow: status === "connected" ? `0 0 10px ${config.color}` : "none",
-        animation: status === "connected" ? "pulse 1.5s ease-in-out infinite" : status === "connecting" ? "pulse 1.5s ease-in-out infinite" : "none",
+        animation:
+          status === "connected"
+            ? "pulse 1.5s ease-in-out infinite"
+            : status === "connecting"
+              ? "pulse 1.5s ease-in-out infinite"
+              : "none",
       }}
     />
   )

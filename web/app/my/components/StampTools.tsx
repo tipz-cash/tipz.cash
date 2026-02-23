@@ -4,48 +4,12 @@ import { useState } from "react"
 import { colors } from "@/lib/colors"
 import { transitions } from "@/lib/animations"
 import ImageStampTool from "./ImageStampTool"
+import { CopyIcon, CheckIcon, ShareIcon, ImageIcon } from "@/components/Icons"
 
 interface StampToolsProps {
   handle: string
   animStyle: React.CSSProperties
   prefersReducedMotion: boolean
-}
-
-function CopyIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-    </svg>
-  )
-}
-
-function CheckIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 6L9 17l-5-5" />
-    </svg>
-  )
-}
-
-function ShareIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
-      <polyline points="16 6 12 2 8 6"/>
-      <line x1="12" y1="2" x2="12" y2="15"/>
-    </svg>
-  )
-}
-
-function ImageIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-      <circle cx="8.5" cy="8.5" r="1.5"/>
-      <path d="M21 15l-5-5L5 21"/>
-    </svg>
-  )
 }
 
 interface TileProps {
@@ -60,14 +24,28 @@ interface TileProps {
   prefersReducedMotion: boolean
 }
 
-function Tile({ icon, label, sublabel, onClick, hoverColor = colors.primary, activeColor, active, delay, prefersReducedMotion }: TileProps) {
+function Tile({
+  icon,
+  label,
+  sublabel,
+  onClick,
+  hoverColor = colors.primary,
+  activeColor,
+  active,
+  delay,
+  prefersReducedMotion,
+}: TileProps) {
   const [hovered, setHovered] = useState(false)
   const isActive = active && activeColor
   const currentColor = isActive ? activeColor : hovered ? hoverColor : colors.muted
 
   const tileAnim = prefersReducedMotion
     ? { opacity: 1 }
-    : { animation: "fadeInUp 0.3s ease-out forwards", animationDelay: delay, animationFillMode: "both" as const }
+    : {
+        animation: "fadeInUp 0.3s ease-out forwards",
+        animationDelay: delay,
+        animationFillMode: "both" as const,
+      }
 
   return (
     <button
@@ -134,30 +112,40 @@ export default function StampTools({ handle, animStyle, prefersReducedMotion }: 
 
   const labelAnim = prefersReducedMotion
     ? { opacity: 1 }
-    : { animation: "fadeInUp 0.3s ease-out forwards", animationDelay: "200ms", animationFillMode: "both" as const }
+    : {
+        animation: "fadeInUp 0.3s ease-out forwards",
+        animationDelay: "200ms",
+        animationFillMode: "both" as const,
+      }
 
   return (
-    <div style={{
-      borderTop: "1px solid rgba(255,255,255,0.06)",
-      paddingTop: "16px",
-    }}>
-      <div style={{
-        fontSize: "11px",
-        color: colors.muted,
-        letterSpacing: "1px",
-        marginBottom: "12px",
-        fontFamily: "var(--font-family-mono)",
-        ...labelAnim,
-      }}>
+    <div
+      style={{
+        borderTop: "1px solid rgba(255,255,255,0.06)",
+        paddingTop: "16px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "11px",
+          color: colors.muted,
+          letterSpacing: "1px",
+          marginBottom: "12px",
+          fontFamily: "var(--font-family-mono)",
+          ...labelAnim,
+        }}
+      >
         PROMOTE
       </div>
 
       {/* 3-column tile grid */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
-        gap: "8px",
-      }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "8px",
+        }}
+      >
         <Tile
           icon={copied ? <CheckIcon /> : <CopyIcon />}
           label="Copy Link"
@@ -190,10 +178,7 @@ export default function StampTools({ handle, animStyle, prefersReducedMotion }: 
 
       {stampOpen && (
         <div style={{ marginTop: "12px" }}>
-          <ImageStampTool
-            handle={handle}
-            onClose={() => setStampOpen(false)}
-          />
+          <ImageStampTool handle={handle} onClose={() => setStampOpen(false)} />
         </div>
       )}
     </div>

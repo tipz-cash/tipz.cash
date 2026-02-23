@@ -9,9 +9,9 @@
  */
 
 export interface EncryptedMessage {
-  encryptedKey: string   // RSA-encrypted AES key (base64)
-  nonce: string          // AES-GCM nonce (base64)
-  encryptedBody: string  // AES-encrypted message (base64)
+  encryptedKey: string // RSA-encrypted AES key (base64)
+  nonce: string // AES-GCM nonce (base64)
+  encryptedBody: string // AES-encrypted message (base64)
 }
 
 /**
@@ -56,11 +56,7 @@ export async function encryptMessage(
   )
 
   // 6. Encrypt AES key with RSA-OAEP
-  const encryptedKey = await crypto.subtle.encrypt(
-    { name: "RSA-OAEP" },
-    publicKey,
-    exportedAesKey
-  )
+  const encryptedKey = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, publicKey, exportedAesKey)
 
   // 7. Encode all components as base64
   return {
@@ -82,7 +78,7 @@ export function serializeEncryptedMessage(msg: EncryptedMessage): string {
  */
 function arrayBufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
   const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer)
-  let binary = ''
+  let binary = ""
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i])
   }
@@ -93,11 +89,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
  * Validate that a public key is in the expected format.
  */
 export function isValidPublicKey(key: unknown): key is JsonWebKey {
-  if (!key || typeof key !== 'object') return false
+  if (!key || typeof key !== "object") return false
   const jwk = key as Record<string, unknown>
-  return (
-    jwk.kty === 'RSA' &&
-    typeof jwk.n === 'string' &&
-    typeof jwk.e === 'string'
-  )
+  return jwk.kty === "RSA" && typeof jwk.n === "string" && typeof jwk.e === "string"
 }

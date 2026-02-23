@@ -60,15 +60,24 @@ export function MessageTrench({
         <span style={{ fontSize: "10px" }}>{isExpanded ? "▼" : "▶"}</span>
         <span>Add a message (optional)</span>
         {value.length > 0 && !isExpanded && (
-          <span style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            marginLeft: "auto",
-            color: tokens.colors.signalGreen,
-            fontSize: "11px",
-          }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              marginLeft: "auto",
+              color: tokens.colors.signalGreen,
+              fontSize: "11px",
+            }}
+          >
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <path d="M20 6L9 17l-5-5" />
             </svg>
             Added

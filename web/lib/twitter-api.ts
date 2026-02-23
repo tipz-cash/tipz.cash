@@ -40,12 +40,14 @@ interface TwitterTweetResponse {
   }>
 }
 
-export type TwitterTokenResult = {
-  valid: true
-  username: string
-} | {
-  valid: false
-}
+export type TwitterTokenResult =
+  | {
+      valid: true
+      username: string
+    }
+  | {
+      valid: false
+    }
 
 /**
  * Verify a user's Twitter OAuth access token by calling /2/users/me.
@@ -63,7 +65,7 @@ export async function verifyTwitterToken(accessToken: string): Promise<TwitterTo
       return { valid: false }
     }
 
-    const body = await response.json() as { data?: { username?: string } }
+    const body = (await response.json()) as { data?: { username?: string } }
     const username = body.data?.username
 
     if (!username) {
@@ -227,8 +229,8 @@ export async function verifyTweetContent(
 
     // Check tweet content for required keywords
     const tweetTextLower = tweet.text.toLowerCase()
-    const hasRequiredKeyword = REQUIRED_KEYWORDS.some(
-      (keyword) => tweetTextLower.includes(keyword.toLowerCase())
+    const hasRequiredKeyword = REQUIRED_KEYWORDS.some((keyword) =>
+      tweetTextLower.includes(keyword.toLowerCase())
     )
 
     if (!hasRequiredKeyword) {

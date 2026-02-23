@@ -12,9 +12,11 @@ npm run test:watch   # Watch mode
 ## Architecture Rules
 
 ### One code path: production
+
 No demo modes, feature flags, or `if (demoMode)` branches. Every endpoint does one thing — the real thing. If something isn't ready, don't ship it behind a flag.
 
 ### Identity comes from auth, never from user input
+
 Never trust `creatorId`, `handle`, or identity fields from request bodies or query params for privileged operations. Derive identity from the session:
 
 ```ts
@@ -24,12 +26,15 @@ if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 
 ```
 
 ### Sensitive data is encrypted
+
 The `tipz` table has an encrypted `data` column (RSA + AES-GCM). All tip amounts and memos live exclusively inside this encrypted blob — there are no plaintext amount columns. Totals are computed client-side by decrypting all tips. Never store tipper wallet addresses, memos, amounts, swap details, or transaction hashes in plaintext columns.
 
 ### Auth-gated endpoints
+
 Any endpoint that returns privileged creator data (e.g. session management, profile updates) requires a valid session. Validate that the requested handle matches `session.handle` and/or `creator_id` matches `session.creatorId`.
 
 ### Public endpoints
+
 These are intentionally public: `/api/activity`, `/api/creators`, `/api/leaderboard`, `/api/zec-price`, `/api/health`, `/api/og/[handle]`, `/api/tips/latest`, `/api/tips/received`, `/api/tips/stats`.
 
 The tips endpoints are safe to be public because all sensitive data (amounts, memos) lives in the encrypted `data` blob — no one can read it without the creator's RSA private key stored in IndexedDB.
@@ -37,12 +42,15 @@ The tips endpoints are safe to be public because all sensitive data (amounts, me
 ## Code Quality Rules
 
 ### No copy-paste duplication
+
 If two functions share >50% of their logic, extract the shared part. The `useTipping.ts` hook uses `calculateTokenAmount()`, `handlePostExecution()`, and `executeAndFinalize()` as shared helpers between `getQuote`/`confirmTip`/`sendTip`. Never duplicate the DB logging + polling + localStorage persistence block.
 
 ### Select what you need from Supabase
+
 Always include all fields you'll use in `.select()` queries. Missing fields silently return `null` and cause subtle UI bugs (tips rendering as `[Encrypted]` when amounts exist in DB).
 
 ### Error handling is specific
+
 Wallet errors get classified into user-friendly messages (`classifyTxError()`). API errors return structured JSON, not stack traces.
 
 ## Key Files

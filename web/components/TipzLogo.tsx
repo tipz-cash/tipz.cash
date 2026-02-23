@@ -1,16 +1,12 @@
-"use client";
+"use client"
 
 interface TipzLogoProps {
-  size?: number;
-  glow?: boolean;
-  className?: string;
+  size?: number
+  glow?: boolean
+  className?: string
 }
 
-export function TipzLogo({
-  size = 18,
-  glow = true,
-  className,
-}: TipzLogoProps) {
+export function TipzLogo({ size = 18, glow = true, className }: TipzLogoProps) {
   return (
     <span
       className={className}
@@ -32,5 +28,5 @@ export function TipzLogo({
         Z
       </span>
     </span>
-  );
+  )
 }

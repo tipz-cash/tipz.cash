@@ -67,9 +67,7 @@ function isValidBase64(s: string): boolean {
   return /^[A-Za-z0-9+/]*={0,2}$/.test(s)
 }
 
-export async function decryptTipData(
-  encryptedBlob: string
-): Promise<TipzData> {
+export async function decryptTipData(encryptedBlob: string): Promise<TipzData> {
   try {
     const { encryptedKey, nonce, encryptedBody } = JSON.parse(encryptedBlob)
 
@@ -79,9 +77,12 @@ export async function decryptTipData(
     }
 
     if (
-      typeof encryptedKey !== "string" || !isValidBase64(encryptedKey) ||
-      typeof nonce !== "string" || !isValidBase64(nonce) ||
-      typeof encryptedBody !== "string" || !isValidBase64(encryptedBody)
+      typeof encryptedKey !== "string" ||
+      !isValidBase64(encryptedKey) ||
+      typeof nonce !== "string" ||
+      !isValidBase64(nonce) ||
+      typeof encryptedBody !== "string" ||
+      !isValidBase64(encryptedBody)
     ) {
       throw new Error("Decryption failed")
     }
@@ -94,15 +95,9 @@ export async function decryptTipData(
       ["decrypt"]
     )
 
-    const encryptedKeyBytes = Uint8Array.from(
-      atob(encryptedKey),
-      (c) => c.charCodeAt(0)
-    )
+    const encryptedKeyBytes = Uint8Array.from(atob(encryptedKey), (c) => c.charCodeAt(0))
     const nonceBytes = Uint8Array.from(atob(nonce), (c) => c.charCodeAt(0))
-    const encryptedBodyBytes = Uint8Array.from(
-      atob(encryptedBody),
-      (c) => c.charCodeAt(0)
-    )
+    const encryptedBodyBytes = Uint8Array.from(atob(encryptedBody), (c) => c.charCodeAt(0))
 
     const aesKeyRaw = await crypto.subtle.decrypt(
       { name: "RSA-OAEP" },
@@ -110,13 +105,7 @@ export async function decryptTipData(
       encryptedKeyBytes
     )
 
-    const aesKey = await crypto.subtle.importKey(
-      "raw",
-      aesKeyRaw,
-      "AES-GCM",
-      false,
-      ["decrypt"]
-    )
+    const aesKey = await crypto.subtle.importKey("raw", aesKeyRaw, "AES-GCM", false, ["decrypt"])
 
     const decryptedBuffer = await crypto.subtle.decrypt(
       { name: "AES-GCM", iv: nonceBytes },

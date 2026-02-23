@@ -34,9 +34,7 @@ describe("isValidShieldedAddress", () => {
   })
 
   it("rejects ETH addresses", () => {
-    expect(
-      isValidShieldedAddress("0x1234567890abcdef1234567890abcdef12345678")
-    ).toBe(false)
+    expect(isValidShieldedAddress("0x1234567890abcdef1234567890abcdef12345678")).toBe(false)
   })
 
   it("rejects empty string", () => {
@@ -115,9 +113,7 @@ describe("parseNearError", () => {
   })
 
   it("parses expired deadline", () => {
-    expect(parseNearError(new Error("deadline_exceeded"))).toBe(
-      "Intent expired. Please try again."
-    )
+    expect(parseNearError(new Error("deadline_exceeded"))).toBe("Intent expired. Please try again.")
   })
 
   it("parses no solver", () => {
@@ -127,9 +123,7 @@ describe("parseNearError", () => {
   })
 
   it("parses invalid address", () => {
-    expect(parseNearError(new Error("invalid_address format"))).toBe(
-      "Invalid destination address"
-    )
+    expect(parseNearError(new Error("invalid_address format"))).toBe("Invalid destination address")
   })
 
   it("parses rate limit", () => {
@@ -139,9 +133,7 @@ describe("parseNearError", () => {
   })
 
   it("returns original message for unknown errors", () => {
-    expect(parseNearError(new Error("something weird"))).toBe(
-      "something weird"
-    )
+    expect(parseNearError(new Error("something weird"))).toBe("something weird")
   })
 
   it("handles non-Error objects", () => {

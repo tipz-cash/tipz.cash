@@ -33,10 +33,11 @@ async function addTestCreator() {
     platform: "x",
     handle: "definaly",
     handle_normalized: "definaly",
-    shielded_address: "u1j7cv5qec9w4zskfql4z4tuwftfvzrvhm293fg093gxxjuymaam05d99edg6rs96uqpx0ezkdl9epk2mw5k7uvwql2vlf78zs9g6v0g0cpfc423vl2pjwd40ewem8sxtdf6xe7l5vu968k9dmfrdxwfqvhdza765mv74cttstqcfr8fdm",
+    shielded_address:
+      "u1j7cv5qec9w4zskfql4z4tuwftfvzrvhm293fg093gxxjuymaam05d99edg6rs96uqpx0ezkdl9epk2mw5k7uvwql2vlf78zs9g6v0g0cpfc423vl2pjwd40ewem8sxtdf6xe7l5vu968k9dmfrdxwfqvhdza765mv74cttstqcfr8fdm",
     tweet_url: "https://x.com/definaly/status/test123",
     verification_status: "verified",
-    verified_at: new Date().toISOString()
+    verified_at: new Date().toISOString(),
   }
 
   console.log("Adding test creator:", creator.handle)
@@ -56,7 +57,7 @@ async function addTestCreator() {
         shielded_address: creator.shielded_address,
         verification_status: creator.verification_status,
         verified_at: creator.verified_at,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq("id", existing.id)
 

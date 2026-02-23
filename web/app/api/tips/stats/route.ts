@@ -11,10 +11,7 @@ export async function GET(request: NextRequest) {
   const handle = searchParams.get("handle")
 
   if (!handle) {
-    return NextResponse.json(
-      { error: "Missing handle parameter" },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: "Missing handle parameter" }, { status: 400 })
   }
 
   if (!supabase) {

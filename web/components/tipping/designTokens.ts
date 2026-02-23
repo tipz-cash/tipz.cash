@@ -75,9 +75,9 @@ export const tokens = {
 
   // Touch target sizes (WCAG 2.1 compliant)
   touch: {
-    minimum: 44,      // WCAG minimum (44x44px)
-    comfortable: 48,  // Recommended for touch
-    large: 56,        // Primary CTA buttons
+    minimum: 44, // WCAG minimum (44x44px)
+    comfortable: 48, // Recommended for touch
+    large: 56, // Primary CTA buttons
   },
 
   // Border radius

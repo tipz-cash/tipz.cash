@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabase, normalizeHandle, findCreatorByHandle, type Creator } from "@/lib/supabase"
 import { verifyTwitterToken } from "@/lib/twitter-api"
 import { getSessionFromRequest } from "@/lib/session"
-import {
-  rateLimit,
-  rateLimitHeaders,
-  getClientIP,
-  RATE_LIMITS
-} from "@/lib/rate-limit"
+import { rateLimit, rateLimitHeaders, getClientIP, RATE_LIMITS } from "@/lib/rate-limit"
 
 /**
  * POST /api/link
@@ -39,11 +34,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: "Too many requests. Please try again later.",
-        retryAfter: rateLimitResult.retryAfter
+        retryAfter: rateLimitResult.retryAfter,
       },
       {
         status: 429,
-        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) }
+        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) },
       }
     )
   }
@@ -64,20 +59,26 @@ export async function POST(request: NextRequest) {
     // Extension flow: verify Twitter OAuth token
     const tokenResult = await verifyTwitterToken(twitterAccessToken)
     if (!tokenResult.valid) {
-      return NextResponse.json({
-        error: "Invalid Twitter access token.",
-        code: "TOKEN_INVALID"
-      }, { status: 401, headers })
+      return NextResponse.json(
+        {
+          error: "Invalid Twitter access token.",
+          code: "TOKEN_INVALID",
+        },
+        { status: 401, headers }
+      )
     }
     normalizedHandle = normalizeHandle(tokenResult.username)
   } else {
     // Web dashboard flow: check session cookie
     const session = await getSessionFromRequest(request)
     if (!session) {
-      return NextResponse.json({
-        error: "Authentication required.",
-        code: "AUTH_REQUIRED"
-      }, { status: 401, headers })
+      return NextResponse.json(
+        {
+          error: "Authentication required.",
+          code: "AUTH_REQUIRED",
+        },
+        { status: 401, headers }
+      )
     }
     normalizedHandle = normalizeHandle(session.handle)
   }
@@ -130,9 +131,12 @@ export async function POST(request: NextRequest) {
 
   console.log("[link] Public key stored for creator:", typedCreator.handle)
 
-  return NextResponse.json({
-    success: true,
-    handle: typedCreator.handle,
-    verified: typedCreator.verification_status === "verified",
-  }, { headers })
+  return NextResponse.json(
+    {
+      success: true,
+      handle: typedCreator.handle,
+      verified: typedCreator.verification_status === "verified",
+    },
+    { headers }
+  )
 }

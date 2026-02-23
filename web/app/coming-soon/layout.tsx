@@ -20,10 +20,6 @@ export const metadata: Metadata = {
   },
 }
 
-export default function ComingSoonLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function ComingSoonLayout({ children }: { children: React.ReactNode }) {
   return children
 }
