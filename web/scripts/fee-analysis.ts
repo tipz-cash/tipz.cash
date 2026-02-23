@@ -320,7 +320,9 @@ async function main() {
     const result = await fetchQuote(pair)
     if (result) {
       results.push(result)
-      console.log(`✅ $${result.amountInUsd.toFixed(2)} → $${result.amountOutUsd.toFixed(2)} (${result.feePct.toFixed(2)}%)`)
+      console.log(
+        `✅ $${result.amountInUsd.toFixed(2)} → $${result.amountOutUsd.toFixed(2)} (${result.feePct.toFixed(2)}%)`
+      )
     } else {
       failures.push({ pair, error: "quote failed" })
     }

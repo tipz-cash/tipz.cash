@@ -13,10 +13,7 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100)
 
   if (!handle) {
-    return NextResponse.json(
-      { error: "Missing handle parameter" },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: "Missing handle parameter" }, { status: 400 })
   }
 
   if (!supabase) {

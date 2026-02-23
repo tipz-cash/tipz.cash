@@ -3,6 +3,12 @@
 import { useState } from "react"
 import { shortenAddress, type WalletState, type WalletType } from "@/lib/wallet"
 import { tokens, keyframes } from "./designTokens"
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
 interface WalletConnectProps {
   walletState: WalletState
@@ -30,21 +36,21 @@ const WALLET_OPTIONS: {
     icon: "/icons/rabby.png",
     gradient: "linear-gradient(135deg, #7B3FE4, #8C5CF2)",
     description: "Best for security & simulation",
-    badge: "Most Popular"
+    badge: "Most Popular",
   },
   {
     type: "metamask",
     name: "MetaMask",
     icon: "/icons/metamask.svg",
     gradient: "linear-gradient(135deg, #E2761B, #F5841F)",
-    description: "Most widely used"
+    description: "Most widely used",
   },
   {
     type: "phantom" as WalletType,
     name: "Phantom",
     icon: "/icons/phantom.png",
     gradient: "linear-gradient(135deg, #AB9FF2, #7C3AED)",
-    description: "Solana wallet"
+    description: "Solana wallet",
   },
 ]
 
@@ -195,7 +201,14 @@ export function WalletConnect({
             }}
           >
             <span>Open in MetaMask</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
               <polyline points="15 3 21 3 21 9" />
               <line x1="10" y1="14" x2="21" y2="3" />
@@ -245,7 +258,14 @@ export function WalletConnect({
             justifyContent: "center",
           }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.info} strokeWidth="2">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={tokens.colors.info}
+            strokeWidth="2"
+          >
             <rect x="2" y="6" width="20" height="12" rx="2" />
             <circle cx="12" cy="12" r="2" />
             <path d="M6 12h.01M18 12h.01" />
@@ -280,7 +300,14 @@ export function WalletConnect({
           }}
         >
           Install Rabby Wallet
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
             <polyline points="15 3 21 3 21 9" />
             <line x1="10" y1="14" x2="21" y2="3" />
@@ -348,12 +375,26 @@ export function WalletConnect({
           gap: tokens.space.sm,
         }}
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.colors.error} strokeWidth="2">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={tokens.colors.error}
+          strokeWidth="2"
+        >
           <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="8" x2="12" y2="12" />
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
-        <p style={{ color: tokens.colors.error, fontSize: "12px", fontFamily: tokens.font.sans, margin: 0 }}>
+        <p
+          style={{
+            color: tokens.colors.error,
+            fontSize: "12px",
+            fontFamily: tokens.font.sans,
+            margin: 0,
+          }}
+        >
           {error}
         </p>
         <style>{keyframes}</style>
@@ -361,7 +402,7 @@ export function WalletConnect({
     )
   }
 
-  // Ignition button + Drawer pattern
+  // Ignition button + Dialog pattern
   return (
     <div style={{ textAlign: "center" }}>
       <p
@@ -447,251 +488,157 @@ export function WalletConnect({
         New to crypto? Create a wallet.
       </a>
 
-      {/* Bottom Sheet Drawer */}
-      {isDrawerOpen && (
-        <>
-          {/* Backdrop */}
+      {/* Bottom Sheet Drawer — now uses Radix Dialog for focus trap + ARIA */}
+      <Dialog open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DialogContent
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            top: "auto",
+            transform: "none",
+            translate: "none",
+            background: tokens.colors.surface,
+            borderTopLeftRadius: tokens.radius.xl,
+            borderTopRightRadius: tokens.radius.xl,
+            borderBottomLeftRadius: 0,
+            borderBottomRightRadius: 0,
+            padding: tokens.space.lg,
+            paddingBottom: "env(safe-area-inset-bottom, 20px)",
+            maxHeight: "80vh",
+            overflowY: "auto",
+            border: "none",
+          }}
+          className="!w-full !max-w-full !translate-x-0 !translate-y-0 !left-0 !top-auto !gap-0"
+        >
+          {/* Visually hidden title for accessibility */}
+          <DialogTitle className="sr-only">Select Payment Method</DialogTitle>
+          <DialogDescription className="sr-only">
+            Choose a wallet to connect for sending tips.
+          </DialogDescription>
+
+          {/* Drawer handle */}
           <div
-            onClick={() => setIsDrawerOpen(false)}
             style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(0, 0, 0, 0.6)",
-              backdropFilter: "blur(4px)",
-              zIndex: 100,
-              animation: "fadeIn 200ms ease-out",
+              width: "36px",
+              height: "4px",
+              background: "rgba(255, 255, 255, 0.2)",
+              borderRadius: "2px",
+              margin: "0 auto 16px",
             }}
           />
 
-          {/* Drawer */}
+          {/* Header */}
           <div
             style={{
-              position: "fixed",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: tokens.colors.surface,
-              borderTopLeftRadius: tokens.radius.xl,
-              borderTopRightRadius: tokens.radius.xl,
-              padding: tokens.space.lg,
-              paddingBottom: "env(safe-area-inset-bottom, 20px)",
-              zIndex: 101,
-              animation: "slideUp 300ms cubic-bezier(0.16, 1, 0.3, 1)",
-              maxHeight: "80vh",
-              overflowY: "auto",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: tokens.space.lg,
             }}
           >
-            {/* Drawer handle */}
-            <div
+            <h3
               style={{
-                width: "36px",
-                height: "4px",
-                background: "rgba(255, 255, 255, 0.2)",
-                borderRadius: "2px",
-                margin: "0 auto 16px",
-              }}
-            />
-
-            {/* Header */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: tokens.space.lg,
+                color: tokens.colors.textBright,
+                fontSize: "16px",
+                fontWeight: 600,
+                fontFamily: tokens.font.sans,
+                margin: 0,
               }}
             >
-              <h3
-                style={{
-                  color: tokens.colors.textBright,
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  fontFamily: tokens.font.sans,
-                  margin: 0,
-                }}
-              >
-                Select Payment Method
-              </h3>
+              Select Payment Method
+            </h3>
+          </div>
+
+          {/* Wallet Options */}
+          <div style={{ display: "flex", flexDirection: "column", gap: tokens.space.sm }}>
+            {WALLET_OPTIONS.map((wallet) => (
               <button
-                onClick={() => setIsDrawerOpen(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: tokens.colors.textMuted,
-                  cursor: "pointer",
-                  padding: "4px",
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Wallet Options */}
-            <div style={{ display: "flex", flexDirection: "column", gap: tokens.space.sm }}>
-              {WALLET_OPTIONS.map((wallet) => (
-                <button
-                  key={wallet.type}
-                  onClick={() => handleWalletSelect(wallet.type)}
-                  onMouseEnter={() => setHoveredWallet(wallet.type)}
-                  onMouseLeave={() => setHoveredWallet(null)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: tokens.space.md,
-                    padding: "14px 16px",
-                    background: hoveredWallet === wallet.type
-                      ? "rgba(255, 255, 255, 0.08)"
-                      : "rgba(255, 255, 255, 0.03)",
-                    border: `1px solid ${hoveredWallet === wallet.type
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : "rgba(255, 255, 255, 0.08)"}`,
-                    borderRadius: tokens.radius.md,
-                    cursor: "pointer",
-                    transition: `all ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
-                    textAlign: "left",
-                  }}
-                >
-                  {/* Wallet icon */}
-                  <img
-                    src={wallet.icon}
-                    alt={wallet.name}
-                    width={40}
-                    height={40}
-                    style={{
-                      borderRadius: "10px",
-                      flexShrink: 0,
-                    }}
-                  />
-
-                  {/* Wallet info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: tokens.space.sm,
-                        marginBottom: "2px",
-                      }}
-                    >
-                      <span
-                        style={{
-                          color: tokens.colors.textBright,
-                          fontSize: "14px",
-                          fontWeight: 600,
-                          fontFamily: tokens.font.sans,
-                        }}
-                      >
-                        {wallet.name}
-                      </span>
-                      {wallet.badge && (
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "4px",
-                            padding: "2px 6px",
-                            background: "rgba(0, 255, 148, 0.15)",
-                            borderRadius: "4px",
-                            color: tokens.colors.signalGreen,
-                            fontSize: "9px",
-                            fontWeight: 600,
-                            fontFamily: tokens.font.sans,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.3px",
-                          }}
-                        >
-                          <span style={{
-                            width: "4px",
-                            height: "4px",
-                            borderRadius: "50%",
-                            background: tokens.colors.signalGreen
-                          }} />
-                          {wallet.badge}
-                        </span>
-                      )}
-                    </div>
-                    <span
-                      style={{
-                        color: tokens.colors.textMuted,
-                        fontSize: "12px",
-                        fontFamily: tokens.font.sans,
-                      }}
-                    >
-                      {wallet.description}
-                    </span>
-                  </div>
-
-                  {/* Arrow */}
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke={tokens.colors.textMuted}
-                    strokeWidth="2"
-                    style={{ flexShrink: 0 }}
-                  >
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                </button>
-              ))}
-
-              {/* WalletConnect option */}
-              <button
-                onClick={() => handleWalletSelect("walletconnect" as WalletType)}
-                onMouseEnter={() => setHoveredWallet("walletconnect" as WalletType)}
+                key={wallet.type}
+                onClick={() => handleWalletSelect(wallet.type)}
+                onMouseEnter={() => setHoveredWallet(wallet.type)}
                 onMouseLeave={() => setHoveredWallet(null)}
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: tokens.space.md,
                   padding: "14px 16px",
-                  background: hoveredWallet === "walletconnect"
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "rgba(255, 255, 255, 0.03)",
-                  border: `1px solid ${hoveredWallet === "walletconnect"
-                    ? "rgba(255, 255, 255, 0.15)"
-                    : "rgba(255, 255, 255, 0.08)"}`,
+                  background:
+                    hoveredWallet === wallet.type
+                      ? "rgba(255, 255, 255, 0.08)"
+                      : "rgba(255, 255, 255, 0.03)",
+                  border: `1px solid ${
+                    hoveredWallet === wallet.type
+                      ? "rgba(255, 255, 255, 0.15)"
+                      : "rgba(255, 255, 255, 0.08)"
+                  }`,
                   borderRadius: tokens.radius.md,
                   cursor: "pointer",
                   transition: `all ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
                   textAlign: "left",
                 }}
               >
-                {/* WalletConnect icon */}
-                <div
+                {/* Wallet icon */}
+                <img
+                  src={wallet.icon}
+                  alt={wallet.name}
+                  width={40}
+                  height={40}
                   style={{
-                    width: "40px",
-                    height: "40px",
                     borderRadius: "10px",
-                    background: "linear-gradient(135deg, #3B99FC, #2D7DD2)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "white",
-                    fontSize: "14px",
-                    fontWeight: 700,
                     flexShrink: 0,
                   }}
-                >
-                  WC
-                </div>
+                />
 
-                {/* WalletConnect info */}
+                {/* Wallet info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     style={{
-                      color: tokens.colors.textBright,
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      fontFamily: tokens.font.sans,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: tokens.space.sm,
                       marginBottom: "2px",
                     }}
                   >
-                    WalletConnect
+                    <span
+                      style={{
+                        color: tokens.colors.textBright,
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        fontFamily: tokens.font.sans,
+                      }}
+                    >
+                      {wallet.name}
+                    </span>
+                    {wallet.badge && (
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "2px 6px",
+                          background: "rgba(0, 255, 148, 0.15)",
+                          borderRadius: "4px",
+                          color: tokens.colors.signalGreen,
+                          fontSize: "9px",
+                          fontWeight: 600,
+                          fontFamily: tokens.font.sans,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.3px",
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: "4px",
+                            height: "4px",
+                            borderRadius: "50%",
+                            background: tokens.colors.signalGreen,
+                          }}
+                        />
+                        {wallet.badge}
+                      </span>
+                    )}
                   </div>
                   <span
                     style={{
@@ -700,7 +647,7 @@ export function WalletConnect({
                       fontFamily: tokens.font.sans,
                     }}
                   >
-                    Scan QR code
+                    {wallet.description}
                   </span>
                 </div>
 
@@ -717,33 +664,115 @@ export function WalletConnect({
                   <path d="M9 18l6-6-6-6" />
                 </svg>
               </button>
-            </div>
+            ))}
 
-            {/* Normie lifeline in drawer */}
-            <div
+            {/* WalletConnect option */}
+            <button
+              onClick={() => handleWalletSelect("walletconnect" as WalletType)}
+              onMouseEnter={() => setHoveredWallet("walletconnect" as WalletType)}
+              onMouseLeave={() => setHoveredWallet(null)}
               style={{
-                marginTop: tokens.space.lg,
-                paddingTop: tokens.space.md,
-                borderTop: `1px solid rgba(255, 255, 255, 0.1)`,
-                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                gap: tokens.space.md,
+                padding: "14px 16px",
+                background:
+                  hoveredWallet === "walletconnect"
+                    ? "rgba(255, 255, 255, 0.08)"
+                    : "rgba(255, 255, 255, 0.03)",
+                border: `1px solid ${
+                  hoveredWallet === "walletconnect"
+                    ? "rgba(255, 255, 255, 0.15)"
+                    : "rgba(255, 255, 255, 0.08)"
+                }`,
+                borderRadius: tokens.radius.md,
+                cursor: "pointer",
+                transition: `all ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
+                textAlign: "left",
               }}
             >
-              <a
-                href="https://rabby.io"
-                target="_blank"
-                rel="noopener noreferrer"
+              {/* WalletConnect icon */}
+              <div
                 style={{
-                  fontSize: "12px",
-                  color: tokens.colors.textMuted,
-                  textDecoration: "none",
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  background: "linear-gradient(135deg, #3B99FC, #2D7DD2)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  flexShrink: 0,
                 }}
               >
-                New to crypto? <span style={{ color: tokens.colors.gold }}>Create a wallet</span>
-              </a>
-            </div>
+                WC
+              </div>
+
+              {/* WalletConnect info */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    color: tokens.colors.textBright,
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    fontFamily: tokens.font.sans,
+                    marginBottom: "2px",
+                  }}
+                >
+                  WalletConnect
+                </div>
+                <span
+                  style={{
+                    color: tokens.colors.textMuted,
+                    fontSize: "12px",
+                    fontFamily: tokens.font.sans,
+                  }}
+                >
+                  Scan QR code
+                </span>
+              </div>
+
+              {/* Arrow */}
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={tokens.colors.textMuted}
+                strokeWidth="2"
+                style={{ flexShrink: 0 }}
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
           </div>
-        </>
-      )}
+
+          {/* Normie lifeline in drawer */}
+          <div
+            style={{
+              marginTop: tokens.space.lg,
+              paddingTop: tokens.space.md,
+              borderTop: `1px solid rgba(255, 255, 255, 0.1)`,
+              textAlign: "center",
+            }}
+          >
+            <a
+              href="https://rabby.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontSize: "12px",
+                color: tokens.colors.textMuted,
+                textDecoration: "none",
+              }}
+            >
+              New to crypto? <span style={{ color: tokens.colors.gold }}>Create a wallet</span>
+            </a>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <style>{`
         ${keyframes}
@@ -754,15 +783,6 @@ export function WalletConnect({
           }
           50% {
             border-color: rgba(255, 215, 0, 0.4);
-          }
-        }
-
-        @keyframes slideUp {
-          from {
-            transform: translateY(100%);
-          }
-          to {
-            transform: translateY(0);
           }
         }
       `}</style>

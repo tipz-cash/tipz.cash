@@ -4,7 +4,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 const mockSingle = vi.fn()
 const mockInsert = vi.fn()
 const mockUpdate = vi.fn()
-const mockSelect = vi.fn(() => ({ eq: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) })) }))
+const mockSelect = vi.fn(() => ({
+  eq: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) })),
+}))
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {
@@ -35,7 +37,7 @@ import { POST } from "@/app/api/register/route"
 import { clearAllRateLimits } from "@/lib/rate-limit"
 import { findCreatorByHandle } from "@/lib/supabase"
 
-const VALID_U1 = "u1" + "q".repeat(139)  // 141 chars, bech32m charset
+const VALID_U1 = "u1" + "q".repeat(139) // 141 chars, bech32m charset
 
 function createRequest(body: Record<string, unknown>): any {
   return {
@@ -63,13 +65,16 @@ beforeEach(() => {
   mockSession.mockResolvedValue({ handle: "testuser", creatorId: null })
 
   // Default: no existing registration
-  vi.mocked(findCreatorByHandle).mockResolvedValue({ data: null, error: { code: "PGRST116", message: "" } } as any)
+  vi.mocked(findCreatorByHandle).mockResolvedValue({
+    data: null,
+    error: { code: "PGRST116", message: "" },
+  } as any)
 
   // Default: insert succeeds
   mockInsert.mockReturnValue({
     select: () => ({
-      single: () => Promise.resolve({ data: { id: "new-id" }, error: null })
-    })
+      single: () => Promise.resolve({ data: { id: "new-id" }, error: null }),
+    }),
   })
 })
 
@@ -121,27 +126,39 @@ describe("POST /api/register", () => {
   })
 
   it("rejects transparent address (t1...)", async () => {
-    const res = await POST(createRequest(validBody({
-      shielded_address: "t1SomeTransparentAddress12345678901234",
-    })))
+    const res = await POST(
+      createRequest(
+        validBody({
+          shielded_address: "t1SomeTransparentAddress12345678901234",
+        })
+      )
+    )
     expect(res.status).toBe(400)
     const data = await res.json()
     expect(data.code).toBe("INVALID_ADDRESS")
   })
 
   it("rejects ETH address", async () => {
-    const res = await POST(createRequest(validBody({
-      shielded_address: "0x1234567890abcdef1234567890abcdef12345678",
-    })))
+    const res = await POST(
+      createRequest(
+        validBody({
+          shielded_address: "0x1234567890abcdef1234567890abcdef12345678",
+        })
+      )
+    )
     expect(res.status).toBe(400)
     const data = await res.json()
     expect(data.code).toBe("INVALID_ADDRESS")
   })
 
   it("rejects too-short u1 address", async () => {
-    const res = await POST(createRequest(validBody({
-      shielded_address: "u1" + "q".repeat(50), // only 52 chars
-    })))
+    const res = await POST(
+      createRequest(
+        validBody({
+          shielded_address: "u1" + "q".repeat(50), // only 52 chars
+        })
+      )
+    )
     expect(res.status).toBe(400)
   })
 
@@ -150,9 +167,13 @@ describe("POST /api/register", () => {
   // ================================================================
 
   it("strips HTML from address input", async () => {
-    const res = await POST(createRequest(validBody({
-      shielded_address: "<script>alert('xss')</script>" + VALID_U1,
-    })))
+    const res = await POST(
+      createRequest(
+        validBody({
+          shielded_address: "<script>alert('xss')</script>" + VALID_U1,
+        })
+      )
+    )
     // After stripping HTML, the address won't start with u1
     const data = await res.json()
     expect(data.code).toBe("INVALID_ADDRESS")

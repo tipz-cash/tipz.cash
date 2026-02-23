@@ -96,10 +96,7 @@ export async function GET(request: NextRequest) {
   if (creator) {
     // Registered creator — refresh avatar and create full session
     if (profileImageUrl) {
-      await supabase
-        .from("creators")
-        .update({ avatar_url: profileImageUrl })
-        .eq("id", creator.id)
+      await supabase.from("creators").update({ avatar_url: profileImageUrl }).eq("id", creator.id)
     }
 
     const token = await createSessionToken(creator.handle, creator.id)

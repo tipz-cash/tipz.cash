@@ -7,12 +7,7 @@ import {
   type SwapStatus,
 } from "@/lib/near-intents"
 import { supabase, findCreatorByHandle } from "@/lib/supabase"
-import {
-  rateLimit,
-  rateLimitHeaders,
-  getClientIP,
-  RATE_LIMITS
-} from "@/lib/rate-limit"
+import { rateLimit, rateLimitHeaders, getClientIP, RATE_LIMITS } from "@/lib/rate-limit"
 
 /**
  * Swap Status API
@@ -50,11 +45,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: "Too many status requests. Please try again later.",
-        retryAfter: rateLimitResult.retryAfter
+        retryAfter: rateLimitResult.retryAfter,
       },
       {
         status: 429,
-        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) }
+        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) },
       }
     )
   }
@@ -64,10 +59,7 @@ export async function GET(request: NextRequest) {
     const transactionId = request.nextUrl.searchParams.get("transactionId")
 
     if (!address) {
-      return NextResponse.json(
-        { error: "Missing address parameter" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Missing address parameter" }, { status: 400 })
     }
 
     console.log("[swap/status] Checking status")
@@ -94,10 +86,7 @@ export async function GET(request: NextRequest) {
         try {
           const newStatus = isSwapSuccessful(status.status) ? "confirmed" : "failed"
 
-          await supabase
-            .from("tipz")
-            .update({ status: newStatus })
-            .eq("id", transactionId)
+          await supabase.from("tipz").update({ status: newStatus }).eq("id", transactionId)
 
           console.log("[swap/status] Updated tip:", {
             id: transactionId,
@@ -112,7 +101,13 @@ export async function GET(request: NextRequest) {
       // Fallback: insert tip if execute missed it (no transactionId means DB insert never happened)
       const creatorAddress = request.nextUrl.searchParams.get("creatorAddress")
       const creatorHandle = request.nextUrl.searchParams.get("creatorHandle")
-      if (isSwapComplete(status.status) && isSwapSuccessful(status.status) && supabase && !transactionId && (creatorAddress || creatorHandle)) {
+      if (
+        isSwapComplete(status.status) &&
+        isSwapSuccessful(status.status) &&
+        supabase &&
+        !transactionId &&
+        (creatorAddress || creatorHandle)
+      ) {
         try {
           let creator: { id: string } | null = null
 
@@ -128,7 +123,9 @@ export async function GET(request: NextRequest) {
 
           // Fallback: look up by handle
           if (!creator && creatorHandle) {
-            const { data: fallbackCreator } = await findCreatorByHandle(creatorHandle, { select: "id" })
+            const { data: fallbackCreator } = await findCreatorByHandle(creatorHandle, {
+              select: "id",
+            })
             creator = fallbackCreator
             if (creator) {
               console.log("[swap/status] Found creator via handle fallback")
@@ -136,14 +133,12 @@ export async function GET(request: NextRequest) {
           }
 
           if (creator) {
-            const { error: insertError } = await supabase
-              .from("tipz")
-              .insert({
-                creator_id: creator.id,
-                source_platform: "web",
-                status: "confirmed",
-                data: null,
-              })
+            const { error: insertError } = await supabase.from("tipz").insert({
+              creator_id: creator.id,
+              source_platform: "web",
+              status: "confirmed",
+              data: null,
+            })
 
             if (!insertError) {
               console.log("[swap/status] Fallback tip insert for creator:", creator.id)
@@ -164,16 +159,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(response)
     } catch (error) {
       console.error("[swap/status] NEAR Intents error:", error)
-      return NextResponse.json(
-        { error: "Failed to fetch swap status" },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: "Failed to fetch swap status" }, { status: 500 })
     }
   } catch (error) {
     console.error("[swap/status] Error:", error)
-    return NextResponse.json(
-      { error: "Failed to check swap status" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to check swap status" }, { status: 500 })
   }
 }

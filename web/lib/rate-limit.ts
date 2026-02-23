@@ -86,7 +86,7 @@ function ensureCleanupRunning(): void {
 
     for (const [key, record] of store.entries()) {
       // Remove entries where all timestamps are expired
-      const recentTimestamps = record.timestamps.filter(ts => ts > cutoff)
+      const recentTimestamps = record.timestamps.filter((ts) => ts > cutoff)
 
       if (recentTimestamps.length === 0) {
         store.delete(key)
@@ -107,10 +107,7 @@ function ensureCleanupRunning(): void {
  * @param config - Rate limit configuration
  * @returns Rate limit result with allowed status and metadata
  */
-export function rateLimit(
-  identifier: string,
-  config: RateLimitConfig
-): RateLimitResult {
+export function rateLimit(identifier: string, config: RateLimitConfig): RateLimitResult {
   ensureCleanupRunning()
 
   const now = Date.now()
@@ -124,7 +121,7 @@ export function rateLimit(
   }
 
   // Filter to only timestamps within the current window
-  record.timestamps = record.timestamps.filter(ts => ts > windowStart)
+  record.timestamps = record.timestamps.filter((ts) => ts > windowStart)
 
   // Calculate reset time (end of current window)
   const oldestTimestamp = record.timestamps[0] || now
@@ -139,7 +136,7 @@ export function rateLimit(
       remaining: 0,
       resetTime,
       retryAfter: Math.max(1, retryAfter),
-      limit: config.maxRequests
+      limit: config.maxRequests,
     }
   }
 
@@ -150,7 +147,7 @@ export function rateLimit(
     allowed: true,
     remaining: config.maxRequests - record.timestamps.length,
     resetTime,
-    limit: config.maxRequests
+    limit: config.maxRequests,
   }
 }
 
@@ -164,7 +161,7 @@ export function rateLimitHeaders(result: RateLimitResult): Record<string, string
   const headers: Record<string, string> = {
     "X-RateLimit-Limit": String(result.limit),
     "X-RateLimit-Remaining": String(result.remaining),
-    "X-RateLimit-Reset": String(result.resetTime)
+    "X-RateLimit-Reset": String(result.resetTime),
   }
 
   if (result.retryAfter !== undefined) {
@@ -223,48 +220,48 @@ export const RATE_LIMITS = {
   registration: {
     windowMs: 60 * 60 * 1000, // 1 hour
     maxRequests: 10,
-    name: "registration"
+    name: "registration",
   } as RateLimitConfig,
 
   /** Single lookup: 100 requests per minute per IP */
   lookup: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 100,
-    name: "lookup"
+    name: "lookup",
   } as RateLimitConfig,
 
   /** Batch lookup: 10 requests per minute per IP */
   batchLookup: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 10,
-    name: "batch-lookup"
+    name: "batch-lookup",
   } as RateLimitConfig,
 
   /** Swap quote: 30 requests per minute per IP */
   swapQuote: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 30,
-    name: "swap-quote"
+    name: "swap-quote",
   } as RateLimitConfig,
 
   /** Swap execute: 10 requests per minute per IP */
   swapExecute: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 10,
-    name: "swap-execute"
+    name: "swap-execute",
   } as RateLimitConfig,
 
   /** Swap status: 60 requests per minute per IP (polling) */
   swapStatus: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 60,
-    name: "swap-status"
+    name: "swap-status",
   } as RateLimitConfig,
 
   /** Link: 10 requests per minute per IP */
   link: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 10,
-    name: "link"
-  } as RateLimitConfig
+    name: "link",
+  } as RateLimitConfig,
 } as const

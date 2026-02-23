@@ -84,26 +84,28 @@ export async function GET() {
     uptime_seconds: Math.floor((Date.now() - serviceStartTime) / 1000),
     checks: {
       database: {
-        status: "disconnected"
+        status: "disconnected",
       },
       tipz_table: {
-        status: "disconnected"
+        status: "disconnected",
       },
       environment: {
-        status: "configured"
+        status: "configured",
       },
       near: {
         status: nearConfigured ? "configured" : "not_configured",
         network: getNearNetwork(),
-        message: nearConfigured ? "Production mode - real payments enabled" : "NEAR credentials missing"
+        message: nearConfigured
+          ? "Production mode - real payments enabled"
+          : "NEAR credentials missing",
       },
       twitter: {
         status: twitterConfigured ? "configured" : "not_configured",
         message: twitterConfigured
           ? "Tweet verification enabled"
-          : "Tweet verification disabled - registrations default to pending"
-      }
-    }
+          : "Tweet verification disabled - registrations default to pending",
+      },
+    },
   }
 
   // Check environment configuration
@@ -112,7 +114,7 @@ export async function GET() {
     health.status = "degraded"
     health.checks.environment = {
       status: "misconfigured",
-      missing_vars: envCheck.missing
+      missing_vars: envCheck.missing,
     }
   }
 
@@ -120,11 +122,11 @@ export async function GET() {
   if (!supabase) {
     health.checks.database = {
       status: "disconnected",
-      error: "Supabase client not configured"
+      error: "Supabase client not configured",
     }
     health.checks.tipz_table = {
       status: "disconnected",
-      error: "Supabase client not configured"
+      error: "Supabase client not configured",
     }
   } else {
     try {
@@ -141,19 +143,19 @@ export async function GET() {
         health.status = "unhealthy"
         health.checks.database = {
           status: "disconnected",
-          error: error.message
+          error: error.message,
         }
       } else {
         health.checks.database = {
           status: "connected",
-          latency_ms: dbLatency
+          latency_ms: dbLatency,
         }
       }
     } catch (error) {
       health.status = "unhealthy"
       health.checks.database = {
         status: "disconnected",
-        error: error instanceof Error ? error.message : "Unknown database error"
+        error: error instanceof Error ? error.message : "Unknown database error",
       }
     }
 
@@ -176,12 +178,12 @@ export async function GET() {
         }
         health.checks.tipz_table = {
           status: "disconnected",
-          error: error.message
+          error: error.message,
         }
       } else {
         health.checks.tipz_table = {
           status: "connected",
-          latency_ms: txLatency
+          latency_ms: txLatency,
         }
       }
     } catch (error) {
@@ -190,7 +192,7 @@ export async function GET() {
       }
       health.checks.tipz_table = {
         status: "disconnected",
-        error: error instanceof Error ? error.message : "Unknown database error"
+        error: error instanceof Error ? error.message : "Unknown database error",
       }
     }
   }
@@ -208,6 +210,6 @@ export async function GET() {
     headers: {
       "Cache-Control": "no-cache, no-store, must-revalidate",
       "X-Health-Status": health.status,
-    }
+    },
   })
 }

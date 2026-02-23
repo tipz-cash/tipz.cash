@@ -33,10 +33,11 @@ async function addTestCreator() {
     platform: "x",
     handle: "definaly",
     handle_normalized: "definaly",
-    shielded_address: "u1testaddr1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+    shielded_address:
+      "u1testaddr1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
     tweet_url: "https://x.com/definaly/status/test123",
     verification_status: "verified",
-    verified_at: new Date().toISOString()
+    verified_at: new Date().toISOString(),
   }
 
   console.log("Adding test creator:", creator.handle)
@@ -56,7 +57,7 @@ async function addTestCreator() {
         shielded_address: creator.shielded_address,
         verification_status: creator.verification_status,
         verified_at: creator.verified_at,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq("id", existing.id)
 

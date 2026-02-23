@@ -12,6 +12,6 @@ export async function GET() {
       change24h: data.zcash.usd_24h_change,
     })
   } catch {
-    return NextResponse.json({ price: 27.50, change24h: 0 })
+    return NextResponse.json({ price: 27.5, change24h: 0 })
   }
 }

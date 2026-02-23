@@ -2,15 +2,7 @@
 
 import { colors } from "@/lib/colors"
 import type { TipzData } from "@/lib/tipz"
-
-function LockIcon({ size = 16, color = "currentColor" }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  )
-}
+import { LockIcon } from "@/components/Icons"
 
 interface DecryptedTip {
   id: string
@@ -56,85 +48,101 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
       }
 
   return (
-    <div style={{
-      position: "relative",
-      paddingLeft: "28px",
-      paddingRight: "16px",
-      paddingTop: "16px",
-      paddingBottom: "16px",
-      borderBottom: "1px solid rgba(255, 255, 255, 0.03)",
-      borderLeft: isNew ? `2px solid ${colors.primary}` : "2px solid transparent",
-      background: isNew ? "rgba(245, 166, 35, 0.03)" : "transparent",
-      transition: "background 5s ease-out, border-color 5s ease-out",
-      ...animStyle,
-    }}>
+    <div
+      style={{
+        position: "relative",
+        paddingLeft: "28px",
+        paddingRight: "16px",
+        paddingTop: "16px",
+        paddingBottom: "16px",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.03)",
+        borderLeft: isNew ? `2px solid ${colors.primary}` : "2px solid transparent",
+        background: isNew ? "rgba(245, 166, 35, 0.03)" : "transparent",
+        transition: "background 5s ease-out, border-color 5s ease-out",
+        ...animStyle,
+      }}
+    >
       {/* Timeline dot */}
-      <div style={{
-        position: "absolute",
-        left: "4px",
-        top: "22px",
-        width: "9px",
-        height: "9px",
-        borderRadius: "50%",
-        background: isNew ? colors.primary : colors.border,
-        boxShadow: isNew ? `0 0 8px ${colors.primaryGlow}` : "none",
-      }} />
+      <div
+        style={{
+          position: "absolute",
+          left: "4px",
+          top: "22px",
+          width: "9px",
+          height: "9px",
+          borderRadius: "50%",
+          background: isNew ? colors.primary : colors.border,
+          boxShadow: isNew ? `0 0 8px ${colors.primaryGlow}` : "none",
+        }}
+      />
 
       {tip.decrypted ? (
         /* State 1: Fully decrypted — show amounts + memo */
         <div>
-          <div style={{
-            display: "flex",
-            alignItems: "baseline",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "8px",
-          }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "8px",
+            }}
+          >
             <div>
-              <span style={{
-                fontSize: "15px",
-                fontWeight: 600,
-                color: colors.textBright,
-                fontFamily: "var(--font-family-mono)",
-              }}>
+              <span
+                style={{
+                  fontSize: "15px",
+                  fontWeight: 600,
+                  color: colors.textBright,
+                  fontFamily: "var(--font-family-mono)",
+                }}
+              >
                 {tip.decrypted.amount_zec.toFixed(4)} ZEC
               </span>
-              <span style={{
-                color: colors.success,
-                fontWeight: 400,
-                fontSize: "13px",
-                marginLeft: "8px",
-              }}>
+              <span
+                style={{
+                  color: colors.success,
+                  fontWeight: 400,
+                  fontSize: "13px",
+                  marginLeft: "8px",
+                }}
+              >
                 ${tip.decrypted.amount_usd.toFixed(2)}
               </span>
             </div>
-            <span style={{
-              fontSize: "11px",
-              color: colors.muted,
-              fontFamily: "var(--font-family-mono)",
-              whiteSpace: "nowrap",
-            }}>
+            <span
+              style={{
+                fontSize: "11px",
+                color: colors.muted,
+                fontFamily: "var(--font-family-mono)",
+                whiteSpace: "nowrap",
+              }}
+            >
               {formatDate(tip.created_at)}
             </span>
           </div>
           {tip.decrypted.memo && (
-            <div style={{
-              fontSize: "13px",
-              color: colors.text,
-              fontFamily: "var(--font-family)",
-              fontStyle: "italic",
-              marginTop: "4px",
-            }}>
+            <div
+              style={{
+                fontSize: "13px",
+                color: colors.text,
+                fontFamily: "var(--font-family)",
+                fontStyle: "italic",
+                marginTop: "4px",
+              }}
+            >
               &ldquo;{tip.decrypted.memo}&rdquo;
             </div>
           )}
-          <div style={{
-            fontSize: "11px",
-            color: colors.muted,
-            marginTop: "4px",
-            fontFamily: "var(--font-family-mono)",
-            opacity: 0.7,
-          }}>
+          <div
+            style={{
+              fontSize: "11px",
+              color: colors.muted,
+              marginTop: "4px",
+              fontFamily: "var(--font-family-mono)",
+              opacity: 0.7,
+            }}
+          >
             via {tip.source_platform}
           </div>
         </div>
@@ -143,36 +151,44 @@ export default function TipRow({ tip, index, zecPrice, prefersReducedMotion }: T
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <LockIcon size={14} color={colors.muted} />
           <div>
-            <div style={{
-              display: "flex",
-              alignItems: "baseline",
-              justifyContent: "space-between",
-              gap: "8px",
-            }}>
-              <span style={{
-                fontSize: "14px",
-                color: colors.muted,
-                fontStyle: "italic",
-                opacity: 0.7,
-              }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                justifyContent: "space-between",
+                gap: "8px",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "14px",
+                  color: colors.muted,
+                  fontStyle: "italic",
+                  opacity: 0.7,
+                }}
+              >
                 [Encrypted]
               </span>
-              <span style={{
-                fontSize: "11px",
-                color: colors.muted,
-                fontFamily: "var(--font-family-mono)",
-                whiteSpace: "nowrap",
-              }}>
+              <span
+                style={{
+                  fontSize: "11px",
+                  color: colors.muted,
+                  fontFamily: "var(--font-family-mono)",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {formatDate(tip.created_at)}
               </span>
             </div>
-            <div style={{
-              fontSize: "11px",
-              color: colors.muted,
-              marginTop: "2px",
-              fontFamily: "var(--font-family-mono)",
-              opacity: 0.7,
-            }}>
+            <div
+              style={{
+                fontSize: "11px",
+                color: colors.muted,
+                marginTop: "2px",
+                fontFamily: "var(--font-family-mono)",
+                opacity: 0.7,
+              }}
+            >
               via {tip.source_platform}
             </div>
           </div>

@@ -25,9 +25,7 @@ describe("mapTokenToAssetId", () => {
   })
 
   it("maps ETH on Optimism", () => {
-    expect(mapTokenToAssetId("ETH", 10)).toBe(
-      "nep245:v2_1.omni.hot.tg:10_11111111111111111111"
-    )
+    expect(mapTokenToAssetId("ETH", 10)).toBe("nep245:v2_1.omni.hot.tg:10_11111111111111111111")
   })
 
   it("maps USDC on all chains", () => {
@@ -78,15 +76,15 @@ describe("mapAddressToAssetId", () => {
   })
 
   it("maps USDC contract address on Ethereum", () => {
-    expect(
-      mapAddressToAssetId("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", 1)
-    ).toBe("nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near")
+    expect(mapAddressToAssetId("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", 1)).toBe(
+      "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near"
+    )
   })
 
   it("maps USDT contract address on Ethereum", () => {
-    expect(
-      mapAddressToAssetId("0xdac17f958d2ee523a2206206994597c13d831ec7", 1)
-    ).toBe("nep141:eth-0xdac17f958d2ee523a2206206994597c13d831ec7.omft.near")
+    expect(mapAddressToAssetId("0xdac17f958d2ee523a2206206994597c13d831ec7", 1)).toBe(
+      "nep141:eth-0xdac17f958d2ee523a2206206994597c13d831ec7.omft.near"
+    )
   })
 
   it("maps SOL native", () => {
@@ -94,35 +92,22 @@ describe("mapAddressToAssetId", () => {
   })
 
   it("maps SOL system program address", () => {
-    expect(
-      mapAddressToAssetId(
-        "So11111111111111111111111111111111111111112",
-        501
-      )
-    ).toBe("nep141:sol.omft.near")
+    expect(mapAddressToAssetId("So11111111111111111111111111111111111111112", 501)).toBe(
+      "nep141:sol.omft.near"
+    )
   })
 
   it("returns null for unknown contract address", () => {
-    expect(
-      mapAddressToAssetId("0x1234567890abcdef1234567890abcdef12345678", 1)
-    ).toBeNull()
+    expect(mapAddressToAssetId("0x1234567890abcdef1234567890abcdef12345678", 1)).toBeNull()
   })
 
   it("returns null for unsupported SPL token on Solana", () => {
-    expect(
-      mapAddressToAssetId("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", 501)
-    ).toBeNull()
+    expect(mapAddressToAssetId("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", 501)).toBeNull()
   })
 
   it("handles case-insensitive addresses", () => {
-    const upper = mapAddressToAssetId(
-      "0xA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48",
-      1
-    )
-    const lower = mapAddressToAssetId(
-      "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-      1
-    )
+    const upper = mapAddressToAssetId("0xA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48", 1)
+    const lower = mapAddressToAssetId("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", 1)
     expect(upper).toBe(lower)
   })
 })

@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase, normalizeHandle, findCreatorByHandle } from "@/lib/supabase"
-import {
-  rateLimit,
-  rateLimitHeaders,
-  getClientIP,
-  RATE_LIMITS
-} from "@/lib/rate-limit"
+import { rateLimit, rateLimitHeaders, getClientIP, RATE_LIMITS } from "@/lib/rate-limit"
 import { fetchUserProfileImage } from "@/lib/twitter-api"
 import { getSessionFromRequest, createSessionToken, setSessionCookie } from "@/lib/session"
 
@@ -21,7 +16,7 @@ export const ERROR_CODES = {
   INVALID_ADDRESS: "INVALID_ADDRESS",
   NOT_AUTHENTICATED: "NOT_AUTHENTICATED",
   DATABASE_ERROR: "DATABASE_ERROR",
-  INTERNAL_ERROR: "INTERNAL_ERROR"
+  INTERNAL_ERROR: "INTERNAL_ERROR",
 } as const
 
 type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES]
@@ -108,11 +103,11 @@ export async function POST(request: NextRequest) {
       {
         error: "Too many registration attempts. Please try again later.",
         code: ERROR_CODES.RATE_LIMITED,
-        retryAfter: rateLimitResult.retryAfter
+        retryAfter: rateLimitResult.retryAfter,
       } satisfies ErrorResponse,
       {
         status: 429,
-        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) }
+        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) },
       }
     )
   }
@@ -253,7 +248,7 @@ export async function POST(request: NextRequest) {
         success: true,
         message: "Registration updated",
         handle: sessionHandle,
-        platform: "x"
+        platform: "x",
       },
       { status: 200, headers }
     )
@@ -307,7 +302,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Registration successful",
       handle: sessionHandle,
-      platform: "x"
+      platform: "x",
     },
     { status: 201, headers }
   )

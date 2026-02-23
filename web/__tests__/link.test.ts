@@ -51,16 +51,19 @@ beforeEach(() => {
 })
 
 // 4096-bit (512-byte) modulus in base64url for test fixtures
-const VALID_4096_MODULUS = "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s"
+const VALID_4096_MODULUS =
+  "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s"
 
 describe("POST /api/link", () => {
   it("links with valid token and valid public key", async () => {
     mockVerifyTwitterToken.mockResolvedValue({ valid: true, username: "testcreator" })
 
-    const res = await linkHandler(createRequest({
-      twitterAccessToken: "valid-oauth-token",
-      publicKey: { kty: "RSA", n: VALID_4096_MODULUS, e: "AQAB" },
-    }))
+    const res = await linkHandler(
+      createRequest({
+        twitterAccessToken: "valid-oauth-token",
+        publicKey: { kty: "RSA", n: VALID_4096_MODULUS, e: "AQAB" },
+      })
+    )
     const data = await res.json()
 
     expect(res.status).toBe(200)
@@ -72,10 +75,12 @@ describe("POST /api/link", () => {
   it("rejects invalid Twitter token", async () => {
     mockVerifyTwitterToken.mockResolvedValue({ valid: false })
 
-    const res = await linkHandler(createRequest({
-      twitterAccessToken: "bad-token",
-      publicKey: { kty: "RSA", n: "abc", e: "AQAB" },
-    }))
+    const res = await linkHandler(
+      createRequest({
+        twitterAccessToken: "bad-token",
+        publicKey: { kty: "RSA", n: "abc", e: "AQAB" },
+      })
+    )
     const data = await res.json()
 
     expect(res.status).toBe(401)
@@ -85,9 +90,11 @@ describe("POST /api/link", () => {
   it("rejects missing public key", async () => {
     mockVerifyTwitterToken.mockResolvedValue({ valid: true, username: "testcreator" })
 
-    const res = await linkHandler(createRequest({
-      twitterAccessToken: "valid-oauth-token",
-    }))
+    const res = await linkHandler(
+      createRequest({
+        twitterAccessToken: "valid-oauth-token",
+      })
+    )
 
     expect(res.status).toBe(400)
     expect((await res.json()).error).toContain("Public key is required")
@@ -96,19 +103,23 @@ describe("POST /api/link", () => {
   it("rejects invalid RSA key format", async () => {
     mockVerifyTwitterToken.mockResolvedValue({ valid: true, username: "testcreator" })
 
-    const res = await linkHandler(createRequest({
-      twitterAccessToken: "valid-oauth-token",
-      publicKey: { kty: "EC", crv: "P-256" },
-    }))
+    const res = await linkHandler(
+      createRequest({
+        twitterAccessToken: "valid-oauth-token",
+        publicKey: { kty: "EC", crv: "P-256" },
+      })
+    )
 
     expect(res.status).toBe(400)
     expect((await res.json()).error).toContain("Invalid RSA public key")
   })
 
   it("rejects missing Twitter access token", async () => {
-    const res = await linkHandler(createRequest({
-      publicKey: { kty: "RSA", n: "abc", e: "AQAB" },
-    }))
+    const res = await linkHandler(
+      createRequest({
+        publicKey: { kty: "RSA", n: "abc", e: "AQAB" },
+      })
+    )
 
     expect(res.status).toBe(401)
     expect((await res.json()).code).toBe("AUTH_REQUIRED")
@@ -118,11 +129,14 @@ describe("POST /api/link", () => {
     mockVerifyTwitterToken.mockResolvedValue({ valid: true, username: "testcreator" })
 
     // 2048-bit (256-byte) modulus — too small
-    const weakModulus = "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s"
-    const res = await linkHandler(createRequest({
-      twitterAccessToken: "valid-oauth-token",
-      publicKey: { kty: "RSA", n: weakModulus, e: "AQAB" },
-    }))
+    const weakModulus =
+      "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s"
+    const res = await linkHandler(
+      createRequest({
+        twitterAccessToken: "valid-oauth-token",
+        publicKey: { kty: "RSA", n: weakModulus, e: "AQAB" },
+      })
+    )
     const data = await res.json()
 
     expect(res.status).toBe(400)

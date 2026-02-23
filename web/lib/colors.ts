@@ -44,8 +44,10 @@ export const colors = {
   // Gradients
   gradientGold: "linear-gradient(135deg, #F5A623 0%, #FFB84D 50%, #F5A623 100%)",
   gradientGoldSweep: "linear-gradient(90deg, transparent, #F5A623, transparent)",
-  gradientHolographic: "linear-gradient(90deg, rgba(255,0,150,0.1), rgba(0,255,255,0.1), rgba(255,255,0,0.1), rgba(255,0,150,0.1))",
-  gradientMetallic: "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
-} as const;
+  gradientHolographic:
+    "linear-gradient(90deg, rgba(255,0,150,0.1), rgba(0,255,255,0.1), rgba(255,255,0,0.1), rgba(255,0,150,0.1))",
+  gradientMetallic:
+    "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
+} as const
 
-export type ColorKey = keyof typeof colors;
+export type ColorKey = keyof typeof colors

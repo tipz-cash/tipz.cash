@@ -21,9 +21,9 @@ import {
  */
 
 interface LinkTokenRequest {
-  destinationAddress: string  // Creator's ZEC shielded address
-  amountUsd: number          // Amount in USD
-  creatorHandle: string      // For reference/memo
+  destinationAddress: string // Creator's ZEC shielded address
+  amountUsd: number // Amount in USD
+  creatorHandle: string // For reference/memo
 }
 
 interface LinkTokenResponse {
@@ -42,10 +42,7 @@ export async function POST(request: NextRequest) {
   try {
     // Validate Mesh credentials
     if (!MESH_CLIENT_ID || !MESH_CLIENT_SECRET) {
-      return NextResponse.json(
-        { error: "Mesh not configured" },
-        { status: 503 }
-      )
+      return NextResponse.json({ error: "Mesh not configured" }, { status: 503 })
     }
 
     // Parse request
@@ -53,10 +50,7 @@ export async function POST(request: NextRequest) {
     try {
       body = await request.json()
     } catch {
-      return NextResponse.json(
-        { error: "Invalid JSON" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
     }
 
     const { destinationAddress, amountUsd, creatorHandle } = body
@@ -112,12 +106,14 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         userId: `tip_${creatorHandle}_${Date.now()}`,
         transferOptions: {
-          toAddresses: [{
-            symbol: "USDC",
-            address: quote.depositAddress,
-            networkId: "polygon",
-            amount: amountUsd,
-          }],
+          toAddresses: [
+            {
+              symbol: "USDC",
+              address: quote.depositAddress,
+              networkId: "polygon",
+              amount: amountUsd,
+            },
+          ],
         },
         // Optional: customize the experience
         integrationConfig: {
@@ -129,20 +125,14 @@ export async function POST(request: NextRequest) {
     if (!meshResponse.ok) {
       const errorText = await meshResponse.text()
       console.error("[mesh/link-token] Mesh API error:", meshResponse.status, errorText)
-      return NextResponse.json(
-        { error: "Failed to create Mesh link token" },
-        { status: 502 }
-      )
+      return NextResponse.json({ error: "Failed to create Mesh link token" }, { status: 502 })
     }
 
     const meshData = await meshResponse.json()
 
     if (!meshData.linkToken) {
       console.error("[mesh/link-token] No linkToken in Mesh response:", meshData)
-      return NextResponse.json(
-        { error: "Invalid Mesh response" },
-        { status: 502 }
-      )
+      return NextResponse.json({ error: "Invalid Mesh response" }, { status: 502 })
     }
 
     console.log("[mesh/link-token] Mesh link token created")
@@ -156,7 +146,6 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(response)
-
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error"
     console.error("[mesh/link-token] Error:", message)

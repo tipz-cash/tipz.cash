@@ -59,9 +59,7 @@ export function AmountSelector({
     const cleaned = value.replace(/[^0-9.]/g, "")
     // Prevent multiple decimal points
     const parts = cleaned.split(".")
-    const formatted = parts.length > 2
-      ? parts[0] + "." + parts.slice(1).join("")
-      : cleaned
+    const formatted = parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : cleaned
 
     setInputValue(formatted)
     onSelect(null, formatted)
@@ -74,7 +72,8 @@ export function AmountSelector({
   }
 
   const currentUsdAmount = selectedAmount || parseFloat(inputValue) || 0
-  const isCustomTooLow = isCustom && inputValue && parseFloat(inputValue) > 0 && parseFloat(inputValue) < 1
+  const isCustomTooLow =
+    isCustom && inputValue && parseFloat(inputValue) > 0 && parseFloat(inputValue) < 1
 
   return (
     <div style={{ width: "100%" }}>
@@ -103,8 +102,8 @@ export function AmountSelector({
                 background: isSelected
                   ? "#FFFFFF"
                   : isHovered
-                  ? "rgba(255, 255, 255, 0.08)"
-                  : "rgba(255, 255, 255, 0.05)",
+                    ? "rgba(255, 255, 255, 0.08)"
+                    : "rgba(255, 255, 255, 0.05)",
                 border: isSelected
                   ? "1px solid transparent"
                   : `1px solid ${isHovered ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.1)"}`,
@@ -115,7 +114,9 @@ export function AmountSelector({
                 fontFamily: "var(--font-family-mono)",
                 cursor: disabled ? "not-allowed" : "pointer",
                 opacity: disabled ? 0.5 : 1,
-                boxShadow: isSelected ? "0 0 24px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)" : "none",
+                boxShadow: isSelected
+                  ? "0 0 24px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)"
+                  : "none",
                 transform: isHovered && !isSelected ? "translateY(-1px)" : "translateY(0)",
                 transition: `all ${tokens.duration.fast}ms ${tokens.ease.smooth}`,
               }}
@@ -137,18 +138,23 @@ export function AmountSelector({
           gap: "4px",
           padding: "14px 14px",
           marginTop: tokens.space.sm,
-          background: isCustom && inputValue
-            ? "#FFFFFF"
-            : isFocused
-            ? "rgba(255, 255, 255, 0.08)"
-            : "rgba(255, 255, 255, 0.05)",
-          border: isCustom && inputValue
-            ? "1px solid transparent"
-            : `1px solid ${isFocused ? tokens.colors.gold : "rgba(255, 255, 255, 0.1)"}`,
+          background:
+            isCustom && inputValue
+              ? "#FFFFFF"
+              : isFocused
+                ? "rgba(255, 255, 255, 0.08)"
+                : "rgba(255, 255, 255, 0.05)",
+          border:
+            isCustom && inputValue
+              ? "1px solid transparent"
+              : `1px solid ${isFocused ? tokens.colors.gold : "rgba(255, 255, 255, 0.1)"}`,
           borderRadius: tokens.radius.md,
           cursor: disabled ? "not-allowed" : "text",
           opacity: disabled ? 0.5 : 1,
-          boxShadow: isCustom && inputValue ? "0 0 24px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)" : "none",
+          boxShadow:
+            isCustom && inputValue
+              ? "0 0 24px rgba(255, 215, 0, 0.5), 0 0 8px rgba(255, 215, 0, 0.3)"
+              : "none",
           transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
           boxSizing: "border-box",
         }}

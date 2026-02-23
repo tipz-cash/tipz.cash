@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration"
+import { Providers } from "@/components/Providers"
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,7 +26,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "TIPZ",
-  description: "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
+  description:
+    "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://tipz.cash"),
   appleWebApp: {
@@ -34,7 +37,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "TIPZ - Private Tips. Any Asset. Zero Fees.",
-    description: "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
+    description:
+      "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
     type: "website",
     siteName: "TIPZ",
     url: "https://tipz.cash",
@@ -43,24 +47,20 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "TIPZ - Private Tips. Any Asset. Zero Fees.",
-    description: "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
+    description:
+      "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
     images: ["/og-image.png"],
   },
 }
 
-export default function RootLayout({
-  children
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <head>
-        {/* Icons are auto-generated from app/icon.tsx and app/apple-icon.tsx */}
-      </head>
+      <head>{/* Icons are auto-generated from app/icon.tsx and app/apple-icon.tsx */}</head>
       <body>
         <ServiceWorkerRegistration />
-        {children}
+        <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   )

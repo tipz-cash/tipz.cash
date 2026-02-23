@@ -53,105 +53,161 @@ function DashboardSkeleton() {
   return (
     <div style={{ display: "flex", flexDirection: "column", opacity: 1 }}>
       {/* Profile skeleton — centered */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
-        <div style={{
-          width: "64px",
-          height: "64px",
-          borderRadius: "50%",
-          background: colors.border,
-          animation: "shimmer 1.5s ease-in-out infinite",
-        }} />
-        <div style={{
-          width: "120px",
-          height: "18px",
-          borderRadius: "4px",
-          background: colors.border,
-          animation: "shimmer 1.5s ease-in-out infinite",
-        }} />
-        <div style={{
-          width: "80px",
-          height: "12px",
-          borderRadius: "4px",
-          background: colors.border,
-          animation: "shimmer 1.5s ease-in-out infinite",
-        }} />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "12px",
+          marginBottom: "24px",
+        }}
+      >
+        <div
+          style={{
+            width: "64px",
+            height: "64px",
+            borderRadius: "50%",
+            background: colors.border,
+            animation: "shimmer 1.5s ease-in-out infinite",
+          }}
+        />
+        <div
+          style={{
+            width: "120px",
+            height: "18px",
+            borderRadius: "4px",
+            background: colors.border,
+            animation: "shimmer 1.5s ease-in-out infinite",
+          }}
+        />
+        <div
+          style={{
+            width: "80px",
+            height: "12px",
+            borderRadius: "4px",
+            background: colors.border,
+            animation: "shimmer 1.5s ease-in-out infinite",
+          }}
+        />
       </div>
 
       {/* Hero stat skeleton — centered */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "20px", marginBottom: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div style={{
-          width: "200px",
-          height: "40px",
-          borderRadius: "4px",
-          background: colors.border,
-          animation: "shimmer 1.5s ease-in-out infinite",
-          marginBottom: "8px",
-        }} />
-        <div style={{
-          width: "100px",
-          height: "12px",
-          borderRadius: "4px",
-          background: colors.border,
-          animation: "shimmer 1.5s ease-in-out infinite",
-          marginBottom: "16px",
-        }} />
+      <div
+        style={{
+          borderTop: "1px solid rgba(255,255,255,0.06)",
+          paddingTop: "20px",
+          marginBottom: "20px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <div
+          style={{
+            width: "200px",
+            height: "40px",
+            borderRadius: "4px",
+            background: colors.border,
+            animation: "shimmer 1.5s ease-in-out infinite",
+            marginBottom: "8px",
+          }}
+        />
+        <div
+          style={{
+            width: "100px",
+            height: "12px",
+            borderRadius: "4px",
+            background: colors.border,
+            animation: "shimmer 1.5s ease-in-out infinite",
+            marginBottom: "16px",
+          }}
+        />
         {/* 3 stat cards skeleton */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", width: "100%" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "12px",
+            width: "100%",
+          }}
+        >
           {[1, 2, 3].map((i) => (
-            <div key={i} style={{
-              height: "64px",
-              borderRadius: "10px",
-              background: colors.border,
-              animation: "shimmer 1.5s ease-in-out infinite",
-              animationDelay: `${i * 0.1}s`,
-            }} />
+            <div
+              key={i}
+              style={{
+                height: "64px",
+                borderRadius: "10px",
+                background: colors.border,
+                animation: "shimmer 1.5s ease-in-out infinite",
+                animationDelay: `${i * 0.1}s`,
+              }}
+            />
           ))}
         </div>
       </div>
 
       {/* Activity skeleton */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px", marginBottom: "20px" }}>
-        <div style={{
-          width: "60px",
-          height: "12px",
-          borderRadius: "4px",
-          background: colors.border,
-          animation: "shimmer 1.5s ease-in-out infinite",
-          marginBottom: "12px",
-        }} />
-        <div style={{ border: `1px solid ${colors.border}`, borderRadius: "12px", overflow: "hidden" }}>
+      <div
+        style={{
+          borderTop: "1px solid rgba(255,255,255,0.06)",
+          paddingTop: "16px",
+          marginBottom: "20px",
+        }}
+      >
+        <div
+          style={{
+            width: "60px",
+            height: "12px",
+            borderRadius: "4px",
+            background: colors.border,
+            animation: "shimmer 1.5s ease-in-out infinite",
+            marginBottom: "12px",
+          }}
+        />
+        <div
+          style={{ border: `1px solid ${colors.border}`, borderRadius: "12px", overflow: "hidden" }}
+        >
           {[1, 2, 3].map((i) => (
-            <div key={i} style={{
-              padding: "16px 20px",
-              borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.03)" : "none",
-              display: "flex",
-              gap: "12px",
-              alignItems: "center",
-            }}>
-              <div style={{
-                width: "9px",
-                height: "9px",
-                borderRadius: "50%",
-                background: colors.border,
-                animation: "shimmer 1.5s ease-in-out infinite",
-                flexShrink: 0,
-              }} />
+            <div
+              key={i}
+              style={{
+                padding: "16px 20px",
+                borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.03)" : "none",
+                display: "flex",
+                gap: "12px",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: "9px",
+                  height: "9px",
+                  borderRadius: "50%",
+                  background: colors.border,
+                  animation: "shimmer 1.5s ease-in-out infinite",
+                  flexShrink: 0,
+                }}
+              />
               <div style={{ flex: 1 }}>
-                <div style={{
-                  width: "120px",
-                  height: "14px",
-                  borderRadius: "4px",
-                  background: colors.border,
-                  animation: "shimmer 1.5s ease-in-out infinite",
-                  marginBottom: "6px",
-                }} />
-                <div style={{
-                  width: "80px",
-                  height: "10px",
-                  borderRadius: "4px",
-                  background: colors.border,
-                  animation: "shimmer 1.5s ease-in-out infinite",
-                }} />
+                <div
+                  style={{
+                    width: "120px",
+                    height: "14px",
+                    borderRadius: "4px",
+                    background: colors.border,
+                    animation: "shimmer 1.5s ease-in-out infinite",
+                    marginBottom: "6px",
+                  }}
+                />
+                <div
+                  style={{
+                    width: "80px",
+                    height: "10px",
+                    borderRadius: "4px",
+                    background: colors.border,
+                    animation: "shimmer 1.5s ease-in-out infinite",
+                  }}
+                />
               </div>
             </div>
           ))}
@@ -160,19 +216,24 @@ function DashboardSkeleton() {
 
       {/* Stamp tiles skeleton */}
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px" }}>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "8px",
-        }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "8px",
+          }}
+        >
           {[1, 2, 3].map((i) => (
-            <div key={i} style={{
-              height: "72px",
-              borderRadius: "10px",
-              background: colors.border,
-              animation: "shimmer 1.5s ease-in-out infinite",
-              animationDelay: `${i * 0.1}s`,
-            }} />
+            <div
+              key={i}
+              style={{
+                height: "72px",
+                borderRadius: "10px",
+                background: colors.border,
+                animation: "shimmer 1.5s ease-in-out infinite",
+                animationDelay: `${i * 0.1}s`,
+              }}
+            />
           ))}
         </div>
       </div>
@@ -193,7 +254,9 @@ export default function MyTipzPage() {
   const [error, setError] = useState<string | null>(null)
   const [loggingOut, setLoggingOut] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
-  const [toastTips, setToastTips] = useState<Array<{ id: string; decrypted?: TipzData; status: string }>>([])
+  const [toastTips, setToastTips] = useState<
+    Array<{ id: string; decrypted?: TipzData; status: string }>
+  >([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [zecPrice, setZecPrice] = useState<number>(0)
   const [showBackground, setShowBackground] = useState(false)
@@ -201,9 +264,11 @@ export default function MyTipzPage() {
   const [ogNumber, setOgNumber] = useState<number | undefined>(undefined)
 
   // Real-time tips
-  const { status: connectionStatus, newTips, clearNewTips } = useRealtimeTips(
-    authenticated ? creatorId : null
-  )
+  const {
+    status: connectionStatus,
+    newTips,
+    clearNewTips,
+  } = useRealtimeTips(authenticated ? creatorId : null)
 
   // Merge real-time tips into feed + show toasts
   useEffect(() => {
@@ -278,9 +343,9 @@ export default function MyTipzPage() {
   // Fetch live ZEC price
   useEffect(() => {
     fetch("/api/zec-price")
-      .then(res => res.json())
-      .then(data => setZecPrice(data.price))
-      .catch(() => setZecPrice(27.50))
+      .then((res) => res.json())
+      .then((data) => setZecPrice(data.price))
+      .catch(() => setZecPrice(27.5))
   }, [])
 
   // Check for error in URL params
@@ -429,12 +494,14 @@ export default function MyTipzPage() {
     : { animation: "fadeInUp 0.4s ease-out forwards" }
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: colors.pageBg,
-      color: colors.text,
-      fontFamily: "var(--font-family-mono)",
-    }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: colors.pageBg,
+        color: colors.text,
+        fontFamily: "var(--font-family-mono)",
+      }}
+    >
       {/* Matrix letter grid background */}
       {showBackground && (
         <div
@@ -462,17 +529,19 @@ export default function MyTipzPage() {
       <SiteHeader activePage="my" />
 
       {/* Page Content */}
-      <main style={{
-        position: "relative",
-        zIndex: 1,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        padding: "clamp(24px, 6vw, 48px) clamp(16px, 4vw, 24px)",
-        paddingTop: "80px",
-      }}>
+      <main
+        style={{
+          position: "relative",
+          zIndex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          padding: "clamp(24px, 6vw, 48px) clamp(16px, 4vw, 24px)",
+          paddingTop: "80px",
+        }}
+      >
         <div
           className="my-dashboard-card"
           style={{
@@ -489,23 +558,24 @@ export default function MyTipzPage() {
             overflow: "hidden",
           }}
         >
-
           {/* Loading Skeleton */}
           {loading && <DashboardSkeleton />}
 
           {/* Error from OAuth redirect */}
           {error && !loading && (
-            <div style={{
-              marginBottom: "24px",
-              padding: "16px 20px",
-              backgroundColor: colors.errorGlow,
-              border: `1px solid ${colors.error}`,
-              borderRadius: "12px",
-              fontSize: "14px",
-              color: colors.error,
-              fontFamily: "var(--font-family)",
-              ...animStyle,
-            }}>
+            <div
+              style={{
+                marginBottom: "24px",
+                padding: "16px 20px",
+                backgroundColor: colors.errorGlow,
+                border: `1px solid ${colors.error}`,
+                borderRadius: "12px",
+                fontSize: "14px",
+                color: colors.error,
+                fontFamily: "var(--font-family)",
+                ...animStyle,
+              }}
+            >
               {error}
             </div>
           )}
@@ -517,28 +587,32 @@ export default function MyTipzPage() {
 
           {/* Key setup in progress */}
           {keySetup && (
-            <div style={{
-              marginBottom: "24px",
-              padding: "16px 20px",
-              backgroundColor: colors.goldGlow,
-              border: `1px solid ${colors.primaryGlow}`,
-              borderRadius: "12px",
-              fontSize: "13px",
-              color: colors.text,
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-            }}>
-              <span style={{
-                display: "inline-block",
-                width: "16px",
-                height: "16px",
-                border: `2px solid ${colors.border}`,
-                borderTopColor: colors.primary,
-                borderRadius: "50%",
-                animation: "spin 0.8s linear infinite",
-                flexShrink: 0,
-              }} />
+            <div
+              style={{
+                marginBottom: "24px",
+                padding: "16px 20px",
+                backgroundColor: colors.goldGlow,
+                border: `1px solid ${colors.primaryGlow}`,
+                borderRadius: "12px",
+                fontSize: "13px",
+                color: colors.text,
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "16px",
+                  height: "16px",
+                  border: `2px solid ${colors.border}`,
+                  borderTopColor: colors.primary,
+                  borderRadius: "50%",
+                  animation: "spin 0.8s linear infinite",
+                  flexShrink: 0,
+                }}
+              />
               Generating encryption keys...
             </div>
           )}

@@ -3,26 +3,26 @@
 
 // Breakpoint constants (mobile-first: min-width)
 export const breakpoints = {
-  xs: 375,   // iPhone SE, small phones
-  sm: 428,   // iPhone 14 Pro Max, larger phones
-  md: 768,   // Tablets portrait
-  lg: 1024,  // Tablets landscape, small laptops
-  xl: 1280,  // Desktops
+  xs: 375, // iPhone SE, small phones
+  sm: 428, // iPhone 14 Pro Max, larger phones
+  md: 768, // Tablets portrait
+  lg: 1024, // Tablets landscape, small laptops
+  xl: 1280, // Desktops
 } as const
 
 // Max-width breakpoints (for @media max-width queries)
 export const maxBreakpoints = {
-  xs: 374,   // Below iPhone SE
-  sm: 427,   // Below iPhone 14 Pro Max
-  md: 767,   // Below tablets
-  lg: 1023,  // Below laptops
+  xs: 374, // Below iPhone SE
+  sm: 427, // Below iPhone 14 Pro Max
+  md: 767, // Below tablets
+  lg: 1023, // Below laptops
 } as const
 
 // Touch target constants (WCAG 2.1 compliant)
 export const touchTargets = {
-  minimum: 44,      // WCAG minimum (44x44px)
-  comfortable: 48,  // Recommended for touch
-  large: 56,        // Primary CTA buttons
+  minimum: 44, // WCAG minimum (44x44px)
+  comfortable: 48, // Recommended for touch
+  large: 56, // Primary CTA buttons
 } as const
 
 // Fluid spacing using clamp()
@@ -44,16 +44,16 @@ export const fluidSpacing = {
 export const gridMinmax = {
   // Card grid: 2 columns on small phones, more on larger
   cardGrid: {
-    xs: "minmax(140px, 1fr)",  // 2 columns on 375px
-    sm: "minmax(160px, 1fr)",  // 2 columns on small phones
-    md: "minmax(200px, 1fr)",  // 2-3 columns on tablets
-    lg: "minmax(240px, 1fr)",  // 3-4 columns on desktop
+    xs: "minmax(140px, 1fr)", // 2 columns on 375px
+    sm: "minmax(160px, 1fr)", // 2 columns on small phones
+    md: "minmax(200px, 1fr)", // 2-3 columns on tablets
+    lg: "minmax(240px, 1fr)", // 3-4 columns on desktop
   },
 } as const
 
 // Font sizes that prevent iOS zoom (16px minimum for inputs)
 export const fontSizes = {
-  inputMobile: "16px",  // Prevents iOS zoom on focus
+  inputMobile: "16px", // Prevents iOS zoom on focus
   bodyMobile: "14px",
   smallMobile: "12px",
   captionMobile: "11px",

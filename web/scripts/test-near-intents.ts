@@ -26,8 +26,10 @@ try {
     const key = trimmed.slice(0, eqIdx).trim()
     let value = trimmed.slice(eqIdx + 1).trim()
     // Strip surrounding quotes
-    if ((value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))) {
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
       value = value.slice(1, -1)
     }
     if (!process.env[key]) {
@@ -127,9 +129,7 @@ async function testAuth() {
 
   // Decode JWT payload (no verification, just inspect)
   try {
-    const payload = JSON.parse(
-      Buffer.from(JWT.split(".")[1], "base64").toString()
-    )
+    const payload = JSON.parse(Buffer.from(JWT.split(".")[1], "base64").toString())
     console.log(`  Partner ID: ${payload.partner_id}`)
     console.log(`  Issued: ${new Date(payload.iat * 1000).toISOString()}`)
     console.log(`  Expires: ${new Date(payload.exp * 1000).toISOString()}`)

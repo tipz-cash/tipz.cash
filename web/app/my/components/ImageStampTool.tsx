@@ -107,7 +107,7 @@ export default function ImageStampTool({ handle, onClose }: ImageStampToolProps)
       let totalLuminance = 0
       const pixelCount = pixels.length / 4
       for (let i = 0; i < pixels.length; i += 4) {
-        totalLuminance += (pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114)
+        totalLuminance += pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114
       }
       const avgLuminance = totalLuminance / pixelCount // 0-255
 
@@ -190,7 +190,10 @@ export default function ImageStampTool({ handle, onClose }: ImageStampToolProps)
       {!image ? (
         <div
           onClick={() => fileInputRef.current?.click()}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDragOver(true)
+          }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           style={{
@@ -212,36 +215,42 @@ export default function ImageStampTool({ handle, onClose }: ImageStampToolProps)
             strokeWidth="1.5"
             style={{ margin: "0 auto 10px", display: "block" }}
           >
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <path d="M21 15l-5-5L5 21"/>
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <path d="M21 15l-5-5L5 21" />
           </svg>
-          <div style={{
-            fontSize: "13px",
-            fontWeight: 500,
-            color: colors.primary,
-            fontFamily: "var(--font-family)",
-            marginBottom: "4px",
-          }}>
+          <div
+            style={{
+              fontSize: "13px",
+              fontWeight: 500,
+              color: colors.primary,
+              fontFamily: "var(--font-family)",
+              marginBottom: "4px",
+            }}
+          >
             Drop, Paste, or Click to Upload
           </div>
-          <div style={{
-            fontSize: "11px",
-            color: colors.muted,
-            fontFamily: "var(--font-family)",
-          }}>
+          <div
+            style={{
+              fontSize: "11px",
+              color: colors.muted,
+              fontFamily: "var(--font-family)",
+            }}
+          >
             Ctrl+V to paste from clipboard
           </div>
         </div>
       ) : (
         <>
-          <div style={{
-            position: "relative",
-            marginBottom: "10px",
-            borderRadius: "8px",
-            overflow: "hidden",
-            border: `1px solid ${colors.border}`,
-          }}>
+          <div
+            style={{
+              position: "relative",
+              marginBottom: "10px",
+              borderRadius: "8px",
+              overflow: "hidden",
+              border: `1px solid ${colors.border}`,
+            }}
+          >
             {stampedImage && (
               <img
                 src={stampedImage}
@@ -274,16 +283,30 @@ export default function ImageStampTool({ handle, onClose }: ImageStampToolProps)
             >
               {status === "copied" ? (
                 <>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
                     <path d="M20 6L9 17l-5-5" />
                   </svg>
                   Copied!
                 </>
               ) : (
                 <>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                   </svg>
                   Copy Stamped Image
                 </>

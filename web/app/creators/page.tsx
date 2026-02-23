@@ -1,77 +1,77 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { CreatorCard, SkeletonCard, Creator } from "@/components/CreatorCard";
-import { CreatorModal } from "@/components/CreatorModal";
-import { ActivityTicker } from "@/components/ActivityTicker";
-import { Leaderboard } from "@/components/Leaderboard";
-import { LetterGridBackground } from "@/components/LetterGridBackground";
-import { colors } from "@/lib/colors";
-import { animationKeyframes } from "@/lib/animations";
-import SiteHeader from "@/components/SiteHeader";
+import { useEffect, useState } from "react"
+import { CreatorCard, SkeletonCard, Creator } from "@/components/CreatorCard"
+import { CreatorModal } from "@/components/CreatorModal"
+import { ActivityTicker } from "@/components/ActivityTicker"
+import { Leaderboard } from "@/components/Leaderboard"
+import { LetterGridBackground } from "@/components/LetterGridBackground"
+import { colors } from "@/lib/colors"
+import { animationKeyframes } from "@/lib/animations"
+import SiteHeader from "@/components/SiteHeader"
 
 interface ApiResponse {
-  creators: Creator[];
-  total: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
+  creators: Creator[]
+  total: number
+  limit: number
+  offset: number
+  hasMore: boolean
 }
 
 export default function CreatorsPage() {
-  const [creators, setCreators] = useState<Creator[]>([]);
-  const [total, setTotal] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [offset, setOffset] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
-  const limit = 50;
+  const [creators, setCreators] = useState<Creator[]>([])
+  const [total, setTotal] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [offset, setOffset] = useState(0)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
+  const limit = 50
 
   // Filter creators based on search query
   const filteredCreators = creators.filter((creator) =>
     creator.handle.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  )
 
   async function fetchCreators(newOffset: number = 0, append: boolean = false) {
     try {
       if (append) {
-        setLoadingMore(true);
+        setLoadingMore(true)
       } else {
-        setLoading(true);
+        setLoading(true)
       }
-      setError(null);
+      setError(null)
 
-      const res = await fetch(`/api/creators?limit=${limit}&offset=${newOffset}`);
-      if (!res.ok) throw new Error("Failed to fetch creators");
+      const res = await fetch(`/api/creators?limit=${limit}&offset=${newOffset}`)
+      if (!res.ok) throw new Error("Failed to fetch creators")
 
-      const data: ApiResponse = await res.json();
+      const data: ApiResponse = await res.json()
 
       if (append) {
-        setCreators((prev) => [...prev, ...data.creators]);
+        setCreators((prev) => [...prev, ...data.creators])
       } else {
-        setCreators(data.creators);
+        setCreators(data.creators)
       }
-      setTotal(data.total);
-      setHasMore(data.hasMore);
-      setOffset(newOffset);
+      setTotal(data.total)
+      setHasMore(data.hasMore)
+      setOffset(newOffset)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      setLoading(false)
+      setLoadingMore(false)
     }
   }
 
   useEffect(() => {
-    fetchCreators();
-  }, []);
+    fetchCreators()
+  }, [])
 
   function handleLoadMore() {
     if (!loadingMore && hasMore) {
-      fetchCreators(offset + limit, true);
+      fetchCreators(offset + limit, true)
     }
   }
 
@@ -87,14 +87,17 @@ export default function CreatorsPage() {
 
         body {
           margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+          font-family:
+            -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
           overflow-x: hidden;
         }
 
         .cta-primary {
           position: relative;
           overflow: hidden;
-          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+          transition:
+            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            filter 0.3s ease;
           will-change: transform;
         }
 
@@ -104,13 +107,13 @@ export default function CreatorsPage() {
         }
 
         .cta-primary::before {
-          content: '';
+          content: "";
           position: absolute;
           top: 0;
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
           transition: left 0.5s;
         }
 
@@ -263,16 +266,20 @@ export default function CreatorsPage() {
             <Leaderboard />
 
             {/* Search Bar */}
-            <div style={{
-              display: "flex",
-              justifyContent: "center",
-              marginBottom: "8px",
-            }}>
-              <div style={{
-                position: "relative",
-                width: "100%",
-                maxWidth: "400px",
-              }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: "8px",
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  maxWidth: "400px",
+                }}
+              >
                 <svg
                   width="18"
                   height="18"
@@ -309,7 +316,6 @@ export default function CreatorsPage() {
                 />
               </div>
             </div>
-
           </section>
 
           {/* Activity Ticker - Social proof before browsing */}
@@ -451,10 +457,10 @@ export default function CreatorsPage() {
                       onClick={() => {
                         // If creator has a shielded address, navigate to their tip page
                         if (creator.shielded_address) {
-                          window.location.href = `/${creator.handle}`;
+                          window.location.href = `/${creator.handle}`
                         } else {
                           // Otherwise show the invite modal
-                          setSelectedCreator(creator);
+                          setSelectedCreator(creator)
                         }
                       }}
                     />
@@ -503,12 +509,9 @@ export default function CreatorsPage() {
 
         {/* Creator Modal */}
         {selectedCreator && (
-          <CreatorModal
-            creator={selectedCreator}
-            onClose={() => setSelectedCreator(null)}
-          />
+          <CreatorModal creator={selectedCreator} onClose={() => setSelectedCreator(null)} />
         )}
       </div>
     </>
-  );
+  )
 }

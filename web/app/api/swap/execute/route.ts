@@ -4,18 +4,15 @@ import {
   isValidShieldedAddress as nearValidateAddress,
   estimateCompletionTime,
 } from "@/lib/near"
-import {
-  submitDeposit,
-} from "@/lib/near-intents"
+import { submitDeposit } from "@/lib/near-intents"
 import { type TipzData, type SourcePlatform } from "@/lib/tipz"
-import { encryptMessage, serializeEncryptedMessage, isValidPublicKey } from "@/lib/message-encryption"
-import { supabase, findCreatorByHandle } from "@/lib/supabase"
 import {
-  rateLimit,
-  rateLimitHeaders,
-  getClientIP,
-  RATE_LIMITS
-} from "@/lib/rate-limit"
+  encryptMessage,
+  serializeEncryptedMessage,
+  isValidPublicKey,
+} from "@/lib/message-encryption"
+import { supabase, findCreatorByHandle } from "@/lib/supabase"
+import { rateLimit, rateLimitHeaders, getClientIP, RATE_LIMITS } from "@/lib/rate-limit"
 
 /**
  * Swap Execute API
@@ -103,11 +100,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: "Too many swap requests. Please try again later.",
-        retryAfter: rateLimitResult.retryAfter
+        retryAfter: rateLimitResult.retryAfter,
       },
       {
         status: 429,
-        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) }
+        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) },
       }
     )
   }
@@ -131,18 +128,12 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!fromChain || !fromToken || !fromAmount || !walletAddress || !destinationAddress) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
     // Validate wallet address
     if (!isValidWalletAddress(walletAddress)) {
-      return NextResponse.json(
-        { error: "Invalid wallet address format" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Invalid wallet address format" }, { status: 400 })
     }
 
     // Validate destination address (should be ZEC shielded)
@@ -210,16 +201,24 @@ export async function POST(request: NextRequest) {
           .eq("shielded_address", destinationAddress)
           .single()
 
-        console.log("[swap/execute] Primary lookup (shielded_address):", addressCreator ? `FOUND id=${addressCreator.id}` : `NOT FOUND error=${creatorError?.message}`)
+        console.log(
+          "[swap/execute] Primary lookup (shielded_address):",
+          addressCreator
+            ? `FOUND id=${addressCreator.id}`
+            : `NOT FOUND error=${creatorError?.message}`
+        )
 
         let creator = addressCreator
 
         if ((creatorError || !creator) && creatorHandle) {
           // Fallback: look up by handle when shielded_address doesn't match
           console.log("[swap/execute] Attempting handle fallback")
-          const { data: fallbackCreator, error: fallbackError } = await findCreatorByHandle(creatorHandle, {
-            select: "id, public_key",
-          })
+          const { data: fallbackCreator, error: fallbackError } = await findCreatorByHandle(
+            creatorHandle,
+            {
+              select: "id, public_key",
+            }
+          )
           if (fallbackCreator) {
             creator = fallbackCreator
             console.log("[swap/execute] Handle fallback FOUND id=", fallbackCreator.id)
@@ -259,7 +258,12 @@ export async function POST(request: NextRequest) {
             .single()
 
           if (tipError) {
-            console.error("[swap/execute] INSERT FAILED:", { error: tipError.message, code: tipError.code, details: tipError.details, hint: tipError.hint })
+            console.error("[swap/execute] INSERT FAILED:", {
+              error: tipError.message,
+              code: tipError.code,
+              details: tipError.details,
+              hint: tipError.hint,
+            })
           } else {
             transactionId = tip.id
             console.log("[swap/execute] INSERT SUCCESS:", {
@@ -286,9 +290,10 @@ export async function POST(request: NextRequest) {
       estimatedCompletion,
       depositAddress,
       statusUrl,
-      message: status === "pending_deposit"
-        ? `Send funds to deposit address to complete swap`
-        : "Swap initiated via NEAR Intents",
+      message:
+        status === "pending_deposit"
+          ? `Send funds to deposit address to complete swap`
+          : "Swap initiated via NEAR Intents",
     }
 
     console.log("[swap/execute] Execution complete:", {
@@ -300,9 +305,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response)
   } catch (error) {
     console.error("[swap/execute] Error:", error)
-    return NextResponse.json(
-      { error: "Failed to execute swap" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to execute swap" }, { status: 500 })
   }
 }

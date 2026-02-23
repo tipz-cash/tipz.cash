@@ -5,9 +5,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY
 
 // Only create client if credentials are available
 export const supabase: SupabaseClient | null =
-  supabaseUrl && supabaseServiceKey
-    ? createClient(supabaseUrl, supabaseServiceKey)
-    : null
+  supabaseUrl && supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey) : null
 
 // Helper to check if Supabase is configured
 export const isSupabaseConfigured = (): boolean => supabase !== null

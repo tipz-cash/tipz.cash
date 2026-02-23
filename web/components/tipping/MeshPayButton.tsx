@@ -77,9 +77,7 @@ export function MeshPayButton({
         justifyContent: "center",
         gap: tokens.space.sm,
         padding: "12px 16px",
-        background: isDisabled
-          ? "rgba(255, 255, 255, 0.05)"
-          : "rgba(255, 255, 255, 0.08)",
+        background: isDisabled ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.08)",
         border: `1px solid ${isDisabled ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.15)"}`,
         borderRadius: tokens.radius.md,
         color: isDisabled ? tokens.colors.textMuted : tokens.colors.text,

@@ -140,7 +140,11 @@ const PRESET_AMOUNTS = [1, 5, 10, 25]
 const STATUS_POLL_INTERVAL = 5000 // 5 seconds
 
 const FALLBACK_PRICES: Record<string, number> = { ETH: 3200, SOL: 200, MATIC: 0.85 }
-const COINGECKO_IDS: Record<string, string> = { ETH: "ethereum", SOL: "solana", MATIC: "matic-network" }
+const COINGECKO_IDS: Record<string, string> = {
+  ETH: "ethereum",
+  SOL: "solana",
+  MATIC: "matic-network",
+}
 
 /**
  * Retry wrapper for fetch calls. Retries on network errors and 5xx responses.
@@ -151,10 +155,10 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 2): P
     try {
       const res = await fetch(url, options)
       if (res.ok || res.status < 500) return res // Don't retry client errors
-      if (i < retries) await new Promise(r => setTimeout(r, 1000 * (i + 1)))
+      if (i < retries) await new Promise((r) => setTimeout(r, 1000 * (i + 1)))
     } catch (e) {
       if (i === retries) throw e
-      await new Promise(r => setTimeout(r, 1000 * (i + 1)))
+      await new Promise((r) => setTimeout(r, 1000 * (i + 1)))
     }
   }
   throw new Error("Max retries exceeded")
@@ -277,7 +281,14 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
           // Show pending tip notification to user
           setPendingTipNotification(pendingTip)
           // Start silent background polling
-          startBackgroundPolling(pendingTip.depositAddress, pendingTip.creatorHandle, pendingTip.amount, pendingTip.transactionId, pendingTip.tokenSymbol, shieldedAddress)
+          startBackgroundPolling(
+            pendingTip.depositAddress,
+            pendingTip.creatorHandle,
+            pendingTip.amount,
+            pendingTip.transactionId,
+            pendingTip.tokenSymbol,
+            shieldedAddress
+          )
         } else {
           // Tip too old, clean up
           localStorage.removeItem(PENDING_TIP_KEY)
@@ -308,7 +319,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     setAvailableTokens(tokens)
     // Auto-select first token on current chain if none selected
     if (tokens.length > 0 && !selectedToken && chainId) {
-      const currentChainToken = tokens.find(t => t.chainId === chainId)
+      const currentChainToken = tokens.find((t) => t.chainId === chainId)
       if (currentChainToken) {
         setSelectedToken(currentChainToken)
       }
@@ -322,7 +333,7 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
     const fetchBalances = async () => {
       const balances: Record<string, TokenBalance> = {}
       // Only fetch balances for tokens on the current chain
-      const currentChainTokens = availableTokens.filter(t => t.chainId === chainId)
+      const currentChainTokens = availableTokens.filter((t) => t.chainId === chainId)
       for (const token of currentChainTokens) {
         const balance = await getTokenBalance(token.address, walletAddress)
         if (balance) {
@@ -344,236 +355,264 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
    * Poll swap status from the API
    * If shownOptimisticSuccess is true, we don't update UI - just track for notifications
    */
-  const pollSwapStatus = useCallback(async (address: string, txId?: string) => {
-    try {
-      const effectiveTxId = txId ?? transactionId
-      let url = `/api/swap/status?depositAddress=${encodeURIComponent(address)}`
-      if (effectiveTxId) {
-        url += `&transactionId=${encodeURIComponent(effectiveTxId)}`
-      }
-      if (shieldedAddress) {
-        url += `&creatorAddress=${encodeURIComponent(shieldedAddress)}`
-      }
-      if (creatorHandle) {
-        url += `&creatorHandle=${encodeURIComponent(creatorHandle)}`
-      }
-      const response = await fetch(url)
-      if (!response.ok) {
-        console.error("[useTipping] Status poll failed:", response.status)
-        return
-      }
-
-      const data = await response.json()
-
-      // Always update swap status for UI feedback
-      setSwapStatus(data.status)
-
-      // Handle completion states
-      if (data.complete) {
-        // Stop polling
-        if (pollingRef.current) {
-          clearInterval(pollingRef.current)
-          pollingRef.current = null
-        }
-
-        // Clear pending tip from localStorage
-        localStorage.removeItem(PENDING_TIP_KEY)
-
-        if (data.success) {
-          console.log("[useTipping] Swap completed successfully")
-          // Clear pending notification
-          setPendingTipNotification(null)
-          // Transition from "delivering" to "success" when confirmed
-          setFlowState("success")
-          if (transaction) {
-            setTransaction({
-              ...transaction,
-              status: "completed",
-              completedAt: Date.now(),
-            })
-          }
-          addToTipHistory({
-            creatorHandle,
-            amount: transaction?.fromAmount || "unknown",
-            tokenSymbol: selectedToken?.symbol || "UNKNOWN",
-            status: "delivered",
-            timestamp: Date.now(),
-            depositAddress: depositAddress || undefined,
-          })
-        } else if (data.status === "REFUNDED") {
-          // Swap was refunded
-          addToTipHistory({
-            creatorHandle,
-            amount: transaction?.fromAmount || "unknown",
-            tokenSymbol: selectedToken?.symbol || "UNKNOWN",
-            status: "refunded",
-            timestamp: Date.now(),
-            depositAddress: depositAddress || undefined,
-          })
-          if (shownOptimisticSuccess) {
-            // User already saw success screen - store failure for next visit
-            const failedTip: FailedTip = {
-              creatorHandle,
-              amount: transaction?.fromAmount || "unknown",
-              reason: "refunded",
-              timestamp: Date.now(),
-            }
-            localStorage.setItem(FAILED_TIP_KEY, JSON.stringify(failedTip))
-            console.log("[useTipping] Swap refunded after optimistic success, stored notification")
-          } else {
-            setFlowState("refunded")
-            setError(`Swap was refunded. ${data.refundTxHash ? `Tx: ${data.refundTxHash.slice(0, 16)}...` : ""}`)
-          }
-        } else {
-          // Swap failed
-          addToTipHistory({
-            creatorHandle,
-            amount: transaction?.fromAmount || "unknown",
-            tokenSymbol: selectedToken?.symbol || "UNKNOWN",
-            status: "failed",
-            timestamp: Date.now(),
-            depositAddress: depositAddress || undefined,
-          })
-          if (shownOptimisticSuccess) {
-            // User already saw success screen - store failure for next visit
-            const failedTip: FailedTip = {
-              creatorHandle,
-              amount: transaction?.fromAmount || "unknown",
-              reason: "failed",
-              timestamp: Date.now(),
-            }
-            localStorage.setItem(FAILED_TIP_KEY, JSON.stringify(failedTip))
-            console.log("[useTipping] Swap failed after optimistic success, stored notification")
-          } else {
-            setFlowState("error")
-            setError(data.errorMessage || "Swap failed. Please try again.")
-          }
-        }
-      }
-    } catch (err) {
-      console.error("[useTipping] Status poll error:", err)
-    }
-  }, [transaction, shownOptimisticSuccess, creatorHandle, transactionId, selectedToken, depositAddress, shieldedAddress])
-
-  /**
-   * Start polling for swap status (updates UI)
-   */
-  const startStatusPolling = useCallback((address: string, txId?: string) => {
-    // Don't start if already polling this address
-    if (pollingRef.current && pollingAddressRef.current === address) {
-      return
-    }
-
-    // Clear any existing polling
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current)
-    }
-
-    pollingAddressRef.current = address
-
-    // Initial poll
-    pollSwapStatus(address, txId)
-
-    // Set up interval
-    pollingRef.current = setInterval(() => {
-      pollSwapStatus(address, txId)
-    }, STATUS_POLL_INTERVAL)
-  }, [pollSwapStatus])
-
-  /**
-   * Start silent background polling (fire-and-forget mode)
-   * Does NOT update UI state - just tracks completion for notifications
-   */
-  const startBackgroundPolling = useCallback((address: string, handle: string, amount: string, txId?: string, tokenSymbol?: string, creatorAddr?: string) => {
-    // Don't start if already polling
-    if (pollingRef.current && pollingAddressRef.current === address) {
-      return
-    }
-
-    // Clear any existing polling
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current)
-    }
-
-    pollingAddressRef.current = address
-
-    const pollSilently = async () => {
+  const pollSwapStatus = useCallback(
+    async (address: string, txId?: string) => {
       try {
+        const effectiveTxId = txId ?? transactionId
         let url = `/api/swap/status?depositAddress=${encodeURIComponent(address)}`
-        if (txId) {
-          url += `&transactionId=${encodeURIComponent(txId)}`
+        if (effectiveTxId) {
+          url += `&transactionId=${encodeURIComponent(effectiveTxId)}`
         }
-        if (creatorAddr) {
-          url += `&creatorAddress=${encodeURIComponent(creatorAddr)}`
+        if (shieldedAddress) {
+          url += `&creatorAddress=${encodeURIComponent(shieldedAddress)}`
         }
-        if (handle) {
-          url += `&creatorHandle=${encodeURIComponent(handle)}`
+        if (creatorHandle) {
+          url += `&creatorHandle=${encodeURIComponent(creatorHandle)}`
         }
         const response = await fetch(url)
         if (!response.ok) {
-          console.error("[useTipping] Background poll failed:", response.status)
+          console.error("[useTipping] Status poll failed:", response.status)
           return
         }
 
         const data = await response.json()
 
+        // Always update swap status for UI feedback
+        setSwapStatus(data.status)
+
+        // Handle completion states
         if (data.complete) {
           // Stop polling
           if (pollingRef.current) {
             clearInterval(pollingRef.current)
             pollingRef.current = null
           }
-          pollingAddressRef.current = null
 
-          // Clear pending tip from localStorage and UI
+          // Clear pending tip from localStorage
           localStorage.removeItem(PENDING_TIP_KEY)
-          setPendingTipNotification(null)
 
           if (data.success) {
-            console.log("[useTipping] Background swap completed successfully")
+            console.log("[useTipping] Swap completed successfully")
+            // Clear pending notification
+            setPendingTipNotification(null)
+            // Transition from "delivering" to "success" when confirmed
             setFlowState("success")
+            if (transaction) {
+              setTransaction({
+                ...transaction,
+                status: "completed",
+                completedAt: Date.now(),
+              })
+            }
             addToTipHistory({
-              creatorHandle: handle,
-              amount,
-              tokenSymbol: tokenSymbol || "UNKNOWN",
+              creatorHandle,
+              amount: transaction?.fromAmount || "unknown",
+              tokenSymbol: selectedToken?.symbol || "UNKNOWN",
               status: "delivered",
               timestamp: Date.now(),
-              depositAddress: address,
+              depositAddress: depositAddress || undefined,
             })
-          } else {
-            // Swap failed/refunded - store for notification banner
-            const status = data.status === "REFUNDED" ? "refunded" : "failed"
+          } else if (data.status === "REFUNDED") {
+            // Swap was refunded
             addToTipHistory({
-              creatorHandle: handle,
-              amount,
-              tokenSymbol: tokenSymbol || "UNKNOWN",
-              status,
+              creatorHandle,
+              amount: transaction?.fromAmount || "unknown",
+              tokenSymbol: selectedToken?.symbol || "UNKNOWN",
+              status: "refunded",
               timestamp: Date.now(),
-              depositAddress: address,
+              depositAddress: depositAddress || undefined,
             })
-            const failedTip: FailedTip = {
-              creatorHandle: handle,
-              amount,
-              reason: status,
-              timestamp: Date.now(),
+            if (shownOptimisticSuccess) {
+              // User already saw success screen - store failure for next visit
+              const failedTip: FailedTip = {
+                creatorHandle,
+                amount: transaction?.fromAmount || "unknown",
+                reason: "refunded",
+                timestamp: Date.now(),
+              }
+              localStorage.setItem(FAILED_TIP_KEY, JSON.stringify(failedTip))
+              console.log(
+                "[useTipping] Swap refunded after optimistic success, stored notification"
+              )
+            } else {
+              setFlowState("refunded")
+              setError(
+                `Swap was refunded. ${data.refundTxHash ? `Tx: ${data.refundTxHash.slice(0, 16)}...` : ""}`
+              )
             }
-            localStorage.setItem(FAILED_TIP_KEY, JSON.stringify(failedTip))
-            setFailedTipNotification(failedTip)
-            setFlowState(data.status === "REFUNDED" ? "refunded" : "error")
-            console.log("[useTipping] Background swap failed, stored for notification")
+          } else {
+            // Swap failed
+            addToTipHistory({
+              creatorHandle,
+              amount: transaction?.fromAmount || "unknown",
+              tokenSymbol: selectedToken?.symbol || "UNKNOWN",
+              status: "failed",
+              timestamp: Date.now(),
+              depositAddress: depositAddress || undefined,
+            })
+            if (shownOptimisticSuccess) {
+              // User already saw success screen - store failure for next visit
+              const failedTip: FailedTip = {
+                creatorHandle,
+                amount: transaction?.fromAmount || "unknown",
+                reason: "failed",
+                timestamp: Date.now(),
+              }
+              localStorage.setItem(FAILED_TIP_KEY, JSON.stringify(failedTip))
+              console.log("[useTipping] Swap failed after optimistic success, stored notification")
+            } else {
+              setFlowState("error")
+              setError(data.errorMessage || "Swap failed. Please try again.")
+            }
           }
         }
       } catch (err) {
-        console.error("[useTipping] Background poll error:", err)
+        console.error("[useTipping] Status poll error:", err)
       }
-    }
+    },
+    [
+      transaction,
+      shownOptimisticSuccess,
+      creatorHandle,
+      transactionId,
+      selectedToken,
+      depositAddress,
+      shieldedAddress,
+    ]
+  )
 
-    // Initial poll
-    pollSilently()
+  /**
+   * Start polling for swap status (updates UI)
+   */
+  const startStatusPolling = useCallback(
+    (address: string, txId?: string) => {
+      // Don't start if already polling this address
+      if (pollingRef.current && pollingAddressRef.current === address) {
+        return
+      }
 
-    // Set up interval
-    pollingRef.current = setInterval(pollSilently, STATUS_POLL_INTERVAL)
-  }, [])
+      // Clear any existing polling
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current)
+      }
+
+      pollingAddressRef.current = address
+
+      // Initial poll
+      pollSwapStatus(address, txId)
+
+      // Set up interval
+      pollingRef.current = setInterval(() => {
+        pollSwapStatus(address, txId)
+      }, STATUS_POLL_INTERVAL)
+    },
+    [pollSwapStatus]
+  )
+
+  /**
+   * Start silent background polling (fire-and-forget mode)
+   * Does NOT update UI state - just tracks completion for notifications
+   */
+  const startBackgroundPolling = useCallback(
+    (
+      address: string,
+      handle: string,
+      amount: string,
+      txId?: string,
+      tokenSymbol?: string,
+      creatorAddr?: string
+    ) => {
+      // Don't start if already polling
+      if (pollingRef.current && pollingAddressRef.current === address) {
+        return
+      }
+
+      // Clear any existing polling
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current)
+      }
+
+      pollingAddressRef.current = address
+
+      const pollSilently = async () => {
+        try {
+          let url = `/api/swap/status?depositAddress=${encodeURIComponent(address)}`
+          if (txId) {
+            url += `&transactionId=${encodeURIComponent(txId)}`
+          }
+          if (creatorAddr) {
+            url += `&creatorAddress=${encodeURIComponent(creatorAddr)}`
+          }
+          if (handle) {
+            url += `&creatorHandle=${encodeURIComponent(handle)}`
+          }
+          const response = await fetch(url)
+          if (!response.ok) {
+            console.error("[useTipping] Background poll failed:", response.status)
+            return
+          }
+
+          const data = await response.json()
+
+          if (data.complete) {
+            // Stop polling
+            if (pollingRef.current) {
+              clearInterval(pollingRef.current)
+              pollingRef.current = null
+            }
+            pollingAddressRef.current = null
+
+            // Clear pending tip from localStorage and UI
+            localStorage.removeItem(PENDING_TIP_KEY)
+            setPendingTipNotification(null)
+
+            if (data.success) {
+              console.log("[useTipping] Background swap completed successfully")
+              setFlowState("success")
+              addToTipHistory({
+                creatorHandle: handle,
+                amount,
+                tokenSymbol: tokenSymbol || "UNKNOWN",
+                status: "delivered",
+                timestamp: Date.now(),
+                depositAddress: address,
+              })
+            } else {
+              // Swap failed/refunded - store for notification banner
+              const status = data.status === "REFUNDED" ? "refunded" : "failed"
+              addToTipHistory({
+                creatorHandle: handle,
+                amount,
+                tokenSymbol: tokenSymbol || "UNKNOWN",
+                status,
+                timestamp: Date.now(),
+                depositAddress: address,
+              })
+              const failedTip: FailedTip = {
+                creatorHandle: handle,
+                amount,
+                reason: status,
+                timestamp: Date.now(),
+              }
+              localStorage.setItem(FAILED_TIP_KEY, JSON.stringify(failedTip))
+              setFailedTipNotification(failedTip)
+              setFlowState(data.status === "REFUNDED" ? "refunded" : "error")
+              console.log("[useTipping] Background swap failed, stored for notification")
+            }
+          }
+        } catch (err) {
+          console.error("[useTipping] Background poll error:", err)
+        }
+      }
+
+      // Initial poll
+      pollSilently()
+
+      // Set up interval
+      pollingRef.current = setInterval(pollSilently, STATUS_POLL_INTERVAL)
+    },
+    []
+  )
 
   // Actions
   const expand = useCallback(() => {
@@ -610,22 +649,30 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
    * Fetch a quote and apply it to state. Returns the quote for callers that
    * need it immediately (sendTip). Sets flowState to "confirming" on success.
    */
-  const fetchAndApplyQuote = useCallback(async (token: SupportedToken, usdAmount: number): Promise<SwapQuote> => {
-    const tokenAmount = await calculateTokenAmount(token, usdAmount)
-    const newQuote = await getSwapQuote(token, tokenAmount, shieldedAddress, walletAddress || undefined)
-    setQuote(newQuote)
-    setQuoteExpiresAt(newQuote.expiresAt)
+  const fetchAndApplyQuote = useCallback(
+    async (token: SupportedToken, usdAmount: number): Promise<SwapQuote> => {
+      const tokenAmount = await calculateTokenAmount(token, usdAmount)
+      const newQuote = await getSwapQuote(
+        token,
+        tokenAmount,
+        shieldedAddress,
+        walletAddress || undefined
+      )
+      setQuote(newQuote)
+      setQuoteExpiresAt(newQuote.expiresAt)
 
-    const quoteData = newQuote as any
-    if (quoteData.depositAddress) {
-      setDepositAddress(quoteData.depositAddress)
-      setIsRealSwap(true)
-    } else {
-      setIsRealSwap(false)
-    }
+      const quoteData = newQuote as any
+      if (quoteData.depositAddress) {
+        setDepositAddress(quoteData.depositAddress)
+        setIsRealSwap(true)
+      } else {
+        setIsRealSwap(false)
+      }
 
-    return newQuote
-  }, [shieldedAddress, walletAddress])
+      return newQuote
+    },
+    [shieldedAddress, walletAddress]
+  )
 
   const getQuote = useCallback(async () => {
     if (!selectedToken) {
@@ -655,121 +702,137 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
    * After wallet signs and tx is on-chain: log to DB, persist to localStorage,
    * start polling. Shared by confirmTip and sendTip.
    */
-  const handlePostExecution = useCallback(async (
-    tx: TipTransaction,
-    activeQuote: SwapQuote,
-    token: SupportedToken,
-    hasDepositAddr: boolean,
-    knownDepositAddress: string | null,
-  ) => {
-    const usdAmt = selectedAmount || (customAmount ? parseFloat(customAmount) : 0)
-    tx.usdAmount = usdAmt
-    tx.networkFee = activeQuote.fees?.network
-    setTransaction(tx)
+  const handlePostExecution = useCallback(
+    async (
+      tx: TipTransaction,
+      activeQuote: SwapQuote,
+      token: SupportedToken,
+      hasDepositAddr: boolean,
+      knownDepositAddress: string | null
+    ) => {
+      const usdAmt = selectedAmount || (customAmount ? parseFloat(customAmount) : 0)
+      tx.usdAmount = usdAmt
+      tx.networkFee = activeQuote.fees?.network
+      setTransaction(tx)
 
-    const txData = tx as any
-    const pollAddress = knownDepositAddress || txData.depositAddress
+      const txData = tx as any
+      const pollAddress = knownDepositAddress || txData.depositAddress
 
-    if (hasDepositAddr && pollAddress) {
-      setDepositAddress(pollAddress)
+      if (hasDepositAddr && pollAddress) {
+        setDepositAddress(pollAddress)
 
-      // Log the tip to the database (idempotent — unique deposit address)
-      let txId: string | undefined
-      try {
-        const execRes = await fetchWithRetry("/api/swap/execute", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fromChain: token.chainId,
-            fromToken: token.address,
-            fromAmount: activeQuote.fromAmount,
-            walletAddress: walletAddress || "",
-            destinationAddress: shieldedAddress,
-            creatorHandle,
-            sourceTxHash: tx.txHash,
-            depositAddress: pollAddress,
-            sourcePlatform: "web",
-            memo: privateMessage.trim() || undefined,
-            quote: {
-              toAmount: activeQuote.toAmount,
-              exchangeRate: activeQuote.exchangeRate,
-              fees: activeQuote.fees,
-              estimatedTime: activeQuote.estimatedTime,
-              route: activeQuote.route,
-              expiresAt: activeQuote.expiresAt,
-              quoteId: (activeQuote as any).quoteId,
+        // Log the tip to the database (idempotent — unique deposit address)
+        let txId: string | undefined
+        try {
+          const execRes = await fetchWithRetry("/api/swap/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fromChain: token.chainId,
+              fromToken: token.address,
+              fromAmount: activeQuote.fromAmount,
+              walletAddress: walletAddress || "",
+              destinationAddress: shieldedAddress,
+              creatorHandle,
+              sourceTxHash: tx.txHash,
               depositAddress: pollAddress,
-            },
-          }),
-        })
-        if (execRes.ok) {
-          const execData = await execRes.json()
-          txId = execData.transactionId
-          if (!execData.tracked) {
-            setExecuteWarning("Tip sent but could not be tracked on the creator's dashboard. The ZEC will still arrive.")
+              sourcePlatform: "web",
+              memo: privateMessage.trim() || undefined,
+              quote: {
+                toAmount: activeQuote.toAmount,
+                exchangeRate: activeQuote.exchangeRate,
+                fees: activeQuote.fees,
+                estimatedTime: activeQuote.estimatedTime,
+                route: activeQuote.route,
+                expiresAt: activeQuote.expiresAt,
+                quoteId: (activeQuote as any).quoteId,
+                depositAddress: pollAddress,
+              },
+            }),
+          })
+          if (execRes.ok) {
+            const execData = await execRes.json()
+            txId = execData.transactionId
+            if (!execData.tracked) {
+              setExecuteWarning(
+                "Tip sent but could not be tracked on the creator's dashboard. The ZEC will still arrive."
+              )
+            }
+          } else {
+            console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
+            setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
           }
-        } else {
-          console.error("[useTipping] Execute failed:", execRes.status, await execRes.text())
+        } catch (e) {
+          console.error("[useTipping] Failed to log tip after retries:", e)
           setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
         }
-      } catch (e) {
-        console.error("[useTipping] Failed to log tip after retries:", e)
-        setExecuteWarning("Tip sent but could not be tracked. It will still arrive.")
+
+        if (txId) setTransactionId(txId)
+
+        setFlowState("delivering")
+        setShownOptimisticSuccess(true)
+
+        const pendingTip: PendingTip = {
+          depositAddress: pollAddress,
+          transactionId: txId || undefined,
+          creatorHandle,
+          amount: tx.fromAmount || selectedAmount?.toString() || customAmount,
+          tokenSymbol: token.symbol || "UNKNOWN",
+          timestamp: Date.now(),
+        }
+        localStorage.setItem(PENDING_TIP_KEY, JSON.stringify(pendingTip))
+
+        startStatusPolling(pollAddress, txId)
+      } else {
+        setFlowState("success")
+        addToTipHistory({
+          creatorHandle,
+          amount: tx.fromAmount || selectedAmount?.toString() || customAmount || "unknown",
+          tokenSymbol: token.symbol || "UNKNOWN",
+          status: "delivered",
+          timestamp: Date.now(),
+        })
       }
-
-      if (txId) setTransactionId(txId)
-
-      setFlowState("delivering")
-      setShownOptimisticSuccess(true)
-
-      const pendingTip: PendingTip = {
-        depositAddress: pollAddress,
-        transactionId: txId || undefined,
-        creatorHandle,
-        amount: tx.fromAmount || selectedAmount?.toString() || customAmount,
-        tokenSymbol: token.symbol || "UNKNOWN",
-        timestamp: Date.now(),
-      }
-      localStorage.setItem(PENDING_TIP_KEY, JSON.stringify(pendingTip))
-
-      startStatusPolling(pollAddress, txId)
-    } else {
-      setFlowState("success")
-      addToTipHistory({
-        creatorHandle,
-        amount: tx.fromAmount || selectedAmount?.toString() || customAmount || "unknown",
-        tokenSymbol: token.symbol || "UNKNOWN",
-        status: "delivered",
-        timestamp: Date.now(),
-      })
-    }
-  }, [creatorHandle, shieldedAddress, walletAddress, privateMessage, startStatusPolling, selectedAmount, customAmount])
+    },
+    [
+      creatorHandle,
+      shieldedAddress,
+      walletAddress,
+      privateMessage,
+      startStatusPolling,
+      selectedAmount,
+      customAmount,
+    ]
+  )
 
   /**
    * Execute the tip against the wallet and run post-execution flow.
    * Shared signing + processing state transitions.
    */
-  const executeAndFinalize = useCallback(async (
-    activeQuote: SwapQuote,
-    token: SupportedToken,
-    hasDepositAddr: boolean,
-    knownDepositAddress: string | null,
-  ) => {
-    setFlowState("signing")
+  const executeAndFinalize = useCallback(
+    async (
+      activeQuote: SwapQuote,
+      token: SupportedToken,
+      hasDepositAddr: boolean,
+      knownDepositAddress: string | null
+    ) => {
+      setFlowState("signing")
 
-    const tx = await executeTip(
-      activeQuote,
-      creatorHandle,
-      shieldedAddress,
-      (status: TransactionStatus) => {
-        if (status === "swapping" || status === "routing" || status === "confirming") {
-          setFlowState("processing")
+      const tx = await executeTip(
+        activeQuote,
+        creatorHandle,
+        shieldedAddress,
+        (status: TransactionStatus) => {
+          if (status === "swapping" || status === "routing" || status === "confirming") {
+            setFlowState("processing")
+          }
         }
-      }
-    )
+      )
 
-    await handlePostExecution(tx, activeQuote, token, hasDepositAddr, knownDepositAddress)
-  }, [creatorHandle, shieldedAddress, handlePostExecution])
+      await handlePostExecution(tx, activeQuote, token, hasDepositAddr, knownDepositAddress)
+    },
+    [creatorHandle, shieldedAddress, handlePostExecution]
+  )
 
   const confirmTip = useCallback(async () => {
     if (!quote) {
@@ -791,7 +854,15 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
       setError(classifyTxError(err))
       setFlowState("error")
     }
-  }, [quote, isQuoteExpired, getQuote, selectedToken, isRealSwap, depositAddress, executeAndFinalize])
+  }, [
+    quote,
+    isQuoteExpired,
+    getQuote,
+    selectedToken,
+    isRealSwap,
+    depositAddress,
+    executeAndFinalize,
+  ])
 
   const reset = useCallback(() => {
     // Stop polling
@@ -867,7 +938,12 @@ export function useTipping(options: UseTippingOptions): UseTippingReturn {
       const quoteData = newQuote as any
       const hasDepositAddr = !!quoteData.depositAddress
 
-      await executeAndFinalize(newQuote, selectedToken, hasDepositAddr, quoteData.depositAddress || null)
+      await executeAndFinalize(
+        newQuote,
+        selectedToken,
+        hasDepositAddr,
+        quoteData.depositAddress || null
+      )
     } catch (err: any) {
       setError(classifyTxError(err))
       setFlowState("error")

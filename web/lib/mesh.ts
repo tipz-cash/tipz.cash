@@ -216,7 +216,6 @@ export async function openMeshTransfer(
 
     // Open the Link modal with the token
     link.openLink(linkToken)
-
   } catch (error: any) {
     console.error("[mesh] Failed to open Link:", error)
     onComplete({

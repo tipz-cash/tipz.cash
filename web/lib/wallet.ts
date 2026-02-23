@@ -3,10 +3,24 @@
  *
  * Direct wallet connection for web checkout (no extension bridge needed).
  * Supports MetaMask, Rabby, and other injected providers.
+ *
+ * Uses viem for EVM interactions and @solana/web3.js for Solana.
  */
 
-import { BrowserProvider, formatUnits, parseUnits, Contract } from "ethers"
-import type { Eip1193Provider } from "ethers"
+import {
+  createWalletClient,
+  createPublicClient,
+  custom,
+  http,
+  formatUnits,
+  parseUnits,
+  erc20Abi,
+  type WalletClient,
+  type PublicClient,
+  type Address,
+  type Chain,
+} from "viem"
+import { mainnet, polygon, arbitrum, optimism } from "viem/chains"
 
 // ============================================================================
 // Types
@@ -93,13 +107,23 @@ export interface TipTransaction {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
 
-export const SUPPORTED_CHAINS: Record<number, {
-  chainId: string
-  chainName: string
-  nativeCurrency: { name: string; symbol: string; decimals: number }
-  rpcUrls: string[]
-  blockExplorerUrls: string[]
-}> = {
+const VIEM_CHAINS: Record<number, Chain> = {
+  1: mainnet,
+  137: polygon,
+  42161: arbitrum,
+  10: optimism,
+}
+
+export const SUPPORTED_CHAINS: Record<
+  number,
+  {
+    chainId: string
+    chainName: string
+    nativeCurrency: { name: string; symbol: string; decimals: number }
+    rpcUrls: string[]
+    blockExplorerUrls: string[]
+  }
+> = {
   1: {
     chainId: "0x1",
     chainName: "Ethereum Mainnet",
@@ -136,16 +160,6 @@ export const SUPPORTED_CHAINS: Record<number, {
     blockExplorerUrls: ["https://solscan.io"],
   },
 }
-
-// ERC20 ABI for token interactions
-const ERC20_ABI = [
-  "function balanceOf(address owner) view returns (uint256)",
-  "function decimals() view returns (uint8)",
-  "function symbol() view returns (string)",
-  "function approve(address spender, uint256 amount) returns (bool)",
-  "function transfer(address to, uint256 amount) returns (bool)",
-  "function allowance(address owner, address spender) view returns (uint256)",
-]
 
 // ============================================================================
 // Session Persistence
@@ -190,15 +204,30 @@ export function clearWalletSession(): void {
 // Global State
 // ============================================================================
 
-let currentProvider: BrowserProvider | null = null
+let currentWalletClient: WalletClient | null = null
+let currentPublicClient: PublicClient | null = null
 let currentWalletType: WalletType | null = null
 let currentSolanaPublicKey: string | null = null
+
+/**
+ * Create a public client for the given chain
+ */
+function getPublicClientForChain(chainId: number): PublicClient {
+  const chain = VIEM_CHAINS[chainId]
+  if (!chain) throw new Error(`Unsupported chain: ${chainId}`)
+
+  const rpcUrl = SUPPORTED_CHAINS[chainId]?.rpcUrls[0]
+  return createPublicClient({
+    chain,
+    transport: http(rpcUrl),
+  })
+}
 
 /**
  * Get the Ethereum provider from window
  * @param preferredType - Optional: specific wallet type to look for
  */
-function getEthereumProvider(preferredType?: WalletType): Eip1193Provider | null {
+function getEthereumProvider(preferredType?: WalletType): any | null {
   if (typeof window === "undefined") return null
   const ethereum = (window as any).ethereum
   if (!ethereum) return null
@@ -210,24 +239,24 @@ function getEthereumProvider(preferredType?: WalletType): Eip1193Provider | null
     if (providers && Array.isArray(providers)) {
       for (const provider of providers) {
         if (preferredType === "rabby" && provider.isRabby) {
-          return provider as Eip1193Provider
+          return provider
         }
         if (preferredType === "metamask" && provider.isMetaMask && !provider.isRabby) {
-          return provider as Eip1193Provider
+          return provider
         }
       }
     }
 
     // Check the main ethereum object
     if (preferredType === "rabby" && (ethereum as any).isRabby) {
-      return ethereum as Eip1193Provider
+      return ethereum
     }
     if (preferredType === "metamask" && (ethereum as any).isMetaMask) {
-      return ethereum as Eip1193Provider
+      return ethereum
     }
   }
 
-  return ethereum as Eip1193Provider
+  return ethereum
 }
 
 /**
@@ -290,7 +319,8 @@ export async function connectPhantomWallet(): Promise<WalletState> {
 
     currentSolanaPublicKey = publicKey
     currentWalletType = "phantom"
-    currentProvider = null // Not using ethers for Solana
+    currentWalletClient = null
+    currentPublicClient = null
 
     // Get SOL balance via RPC
     let balanceFormatted = "0"
@@ -372,7 +402,7 @@ export async function connectWallet(preferredType?: WalletType): Promise<WalletS
 
   try {
     // Request account access
-    const accounts = await (ethereum as any).request({
+    const accounts = await ethereum.request({
       method: "eth_requestAccounts",
     })
 
@@ -380,15 +410,27 @@ export async function connectWallet(preferredType?: WalletType): Promise<WalletS
       throw new Error("No accounts found. Please unlock your wallet.")
     }
 
-    const address = accounts[0]
-    const chainIdHex = await (ethereum as any).request({ method: "eth_chainId" })
+    const address = accounts[0] as Address
+    const chainIdHex = await ethereum.request({ method: "eth_chainId" })
     const chainId = parseInt(chainIdHex, 16)
 
-    currentProvider = new BrowserProvider(ethereum)
+    const chain = VIEM_CHAINS[chainId] || mainnet
+
+    currentWalletClient = createWalletClient({
+      account: address,
+      chain,
+      transport: custom(ethereum),
+    })
+
+    currentPublicClient = createPublicClient({
+      chain,
+      transport: custom(ethereum),
+    })
+
     currentWalletType = preferredType || detected || "metamask"
 
     // Get balance
-    const balance = await currentProvider.getBalance(address)
+    const balance = await currentPublicClient.getBalance({ address })
     const balanceFormatted = formatUnits(balance, 18)
 
     // Get USD value
@@ -412,9 +454,7 @@ export async function connectWallet(preferredType?: WalletType): Promise<WalletS
         symbol: nativeSymbol,
         amount: balanceFormatted,
         decimals: 18,
-        usdValue: ethPriceUsd
-          ? (parseFloat(balanceFormatted) * ethPriceUsd).toFixed(2)
-          : null,
+        usdValue: ethPriceUsd ? (parseFloat(balanceFormatted) * ethPriceUsd).toFixed(2) : null,
       },
     }
   } catch (error: any) {
@@ -452,7 +492,8 @@ export async function restoreWalletSession(): Promise<WalletState | null> {
 
       currentSolanaPublicKey = publicKey
       currentWalletType = "phantom"
-      currentProvider = null
+      currentWalletClient = null
+      currentPublicClient = null
 
       return {
         isConnected: true,
@@ -473,7 +514,6 @@ export async function restoreWalletSession(): Promise<WalletState | null> {
   }
 
   // Handle EVM wallet session restoration
-  // Use the saved wallet type to get the correct provider
   const ethereum = getEthereumProvider(session.walletType)
   if (!ethereum) {
     clearWalletSession()
@@ -482,7 +522,7 @@ export async function restoreWalletSession(): Promise<WalletState | null> {
 
   try {
     // Check if still connected
-    const accounts = await (ethereum as any).request({
+    const accounts = await ethereum.request({
       method: "eth_accounts",
     })
 
@@ -499,14 +539,27 @@ export async function restoreWalletSession(): Promise<WalletState | null> {
     }
 
     // Get current chain
-    const chainIdHex = await (ethereum as any).request({ method: "eth_chainId" })
+    const chainIdHex = await ethereum.request({ method: "eth_chainId" })
     const chainId = parseInt(chainIdHex, 16)
+    const chain = VIEM_CHAINS[chainId] || mainnet
 
-    currentProvider = new BrowserProvider(ethereum)
+    currentWalletClient = createWalletClient({
+      account: session.address as Address,
+      chain,
+      transport: custom(ethereum),
+    })
+
+    currentPublicClient = createPublicClient({
+      chain,
+      transport: custom(ethereum),
+    })
+
     currentWalletType = session.walletType
 
     // Get balance
-    const balance = await currentProvider.getBalance(session.address)
+    const balance = await currentPublicClient.getBalance({
+      address: session.address as Address,
+    })
     const balanceFormatted = formatUnits(balance, 18)
     const nativeSymbol = SUPPORTED_CHAINS[chainId]?.nativeCurrency.symbol || "ETH"
 
@@ -545,7 +598,8 @@ export function disconnectWallet(): void {
     currentSolanaPublicKey = null
   }
 
-  currentProvider = null
+  currentWalletClient = null
+  currentPublicClient = null
   currentWalletType = null
   clearWalletSession()
 }
@@ -570,7 +624,7 @@ export async function getWalletState(): Promise<WalletState> {
     }
   }
 
-  if (!currentProvider || !currentWalletType) {
+  if (!currentWalletClient || !currentPublicClient || !currentWalletType) {
     return {
       isConnected: false,
       address: null,
@@ -581,12 +635,10 @@ export async function getWalletState(): Promise<WalletState> {
   }
 
   try {
-    const signer = await currentProvider.getSigner()
-    const address = await signer.getAddress()
-    const network = await currentProvider.getNetwork()
-    const chainId = Number(network.chainId)
+    const [address] = await currentWalletClient.getAddresses()
+    const chainId = await currentPublicClient.getChainId()
 
-    const balance = await currentProvider.getBalance(address)
+    const balance = await currentPublicClient.getBalance({ address })
     const balanceFormatted = formatUnits(balance, 18)
     const nativeSymbol = SUPPORTED_CHAINS[chainId]?.nativeCurrency.symbol || "ETH"
 
@@ -624,15 +676,30 @@ export async function switchChain(chainId: number): Promise<boolean> {
   if (!chainConfig) return false
 
   try {
-    await (ethereum as any).request({
+    await ethereum.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: chainConfig.chainId }],
     })
+
+    // Recreate clients for the new chain
+    const chain = VIEM_CHAINS[chainId]
+    if (chain && currentWalletClient?.account) {
+      currentWalletClient = createWalletClient({
+        account: currentWalletClient.account,
+        chain,
+        transport: custom(ethereum),
+      })
+      currentPublicClient = createPublicClient({
+        chain,
+        transport: custom(ethereum),
+      })
+    }
+
     return true
   } catch (switchError: any) {
     if (switchError.code === 4902) {
       try {
-        await (ethereum as any).request({
+        await ethereum.request({
           method: "wallet_addEthereumChain",
           params: [chainConfig],
         })
@@ -843,13 +910,14 @@ export async function getTokenBalance(
     }
   }
 
-  if (!currentProvider) return null
+  if (!currentPublicClient) return null
 
   try {
     if (tokenAddress === "0x0000000000000000000000000000000000000000") {
-      const balance = await currentProvider.getBalance(walletAddress)
-      const network = await currentProvider.getNetwork()
-      const chainId = Number(network.chainId)
+      const balance = await currentPublicClient.getBalance({
+        address: walletAddress as Address,
+      })
+      const chainId = await currentPublicClient.getChainId()
       const symbol = SUPPORTED_CHAINS[chainId]?.nativeCurrency.symbol || "ETH"
 
       return {
@@ -860,11 +928,23 @@ export async function getTokenBalance(
       }
     }
 
-    const contract = new Contract(tokenAddress, ERC20_ABI, currentProvider)
     const [balance, decimals, symbol] = await Promise.all([
-      contract.balanceOf(walletAddress),
-      contract.decimals(),
-      contract.symbol(),
+      currentPublicClient.readContract({
+        address: tokenAddress as Address,
+        abi: erc20Abi,
+        functionName: "balanceOf",
+        args: [walletAddress as Address],
+      }),
+      currentPublicClient.readContract({
+        address: tokenAddress as Address,
+        abi: erc20Abi,
+        functionName: "decimals",
+      }),
+      currentPublicClient.readContract({
+        address: tokenAddress as Address,
+        abi: erc20Abi,
+        functionName: "symbol",
+      }),
     ])
 
     return {
@@ -956,8 +1036,7 @@ async function executeSolanaTip(
         lamports,
       })
 
-      // Create transaction using Solana Web3.js (requires @solana/web3.js)
-      // For now, use Phantom's native signAndSendTransaction
+      // Create transaction using Solana Web3.js
       const { Connection, PublicKey, Transaction, SystemProgram } = await import("@solana/web3.js")
 
       const connection = new Connection("https://api.mainnet-beta.solana.com", "confirmed")
@@ -998,7 +1077,6 @@ async function executeSolanaTip(
       // Transaction sent - NEAR Intents will handle the rest
       updateStatus("routing")
       ;(transaction as any).depositAddress = depositAddress
-
     } else {
       throw new Error("No deposit address available — cannot send transaction")
     }
@@ -1007,7 +1085,6 @@ async function executeSolanaTip(
 
     saveTransactionToHistory(transaction)
     return transaction
-
   } catch (error: any) {
     updateStatus("failed")
     if (error.code === 4001 || error.message?.includes("rejected")) {
@@ -1084,13 +1161,12 @@ export async function executeTip(
     return executeSolanaTip(quote, recipientHandle, recipientAddress, onStatusChange)
   }
 
-  if (!currentProvider) {
+  if (!currentWalletClient || !currentPublicClient) {
     throw new Error("Wallet not connected")
   }
 
   const txId = `tip_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  const signer = await currentProvider.getSigner()
-  const walletAddress = await signer.getAddress()
+  const [walletAddress] = await currentWalletClient.getAddresses()
 
   const transaction: TipTransaction = {
     id: txId,
@@ -1127,33 +1203,25 @@ export async function executeTip(
           amountWei: amountWei.toString(),
         })
 
-        const tx = await signer.sendTransaction({
-          to: depositAddress,
+        const hash = await currentWalletClient.sendTransaction({
+          to: depositAddress as Address,
           value: amountWei,
+          account: walletAddress,
+          chain: currentWalletClient.chain,
         })
 
-        console.log("[wallet] Transaction sent:", tx.hash)
-        transaction.txHash = tx.hash
+        console.log("[wallet] Transaction sent:", hash)
+        transaction.txHash = hash
 
         // Wait for confirmation
         updateStatus("confirming")
-        const receipt = await tx.wait()
-        console.log("[wallet] Transaction confirmed:", receipt?.hash)
-
+        const receipt = await currentPublicClient.waitForTransactionReceipt({ hash })
+        console.log("[wallet] Transaction confirmed:", receipt.transactionHash)
       } else {
         // Send ERC20 token
         updateStatus("approving")
 
-        const tokenContract = new Contract(
-          quote.fromToken.address,
-          ERC20_ABI,
-          signer
-        )
-
         const amountSmallest = parseUnits(quote.fromAmount, quote.fromToken.decimals)
-
-        // Check allowance first (not needed for transfer, but good practice)
-        // For 1Click we just transfer directly, no approval needed
 
         updateStatus("swapping")
 
@@ -1163,15 +1231,22 @@ export async function executeTip(
         })
 
         // Use transfer directly to deposit address
-        const tx = await tokenContract.transfer(depositAddress, amountSmallest)
+        const hash = await currentWalletClient.writeContract({
+          address: quote.fromToken.address as Address,
+          abi: erc20Abi,
+          functionName: "transfer",
+          args: [depositAddress as Address, amountSmallest],
+          account: walletAddress,
+          chain: currentWalletClient.chain,
+        })
 
-        console.log("[wallet] Transaction sent:", tx.hash)
-        transaction.txHash = tx.hash
+        console.log("[wallet] Transaction sent:", hash)
+        transaction.txHash = hash
 
         // Wait for confirmation
         updateStatus("confirming")
-        const receipt = await tx.wait()
-        console.log("[wallet] Transaction confirmed:", receipt?.hash)
+        const receipt = await currentPublicClient.waitForTransactionReceipt({ hash })
+        console.log("[wallet] Transaction confirmed:", receipt.transactionHash)
       }
 
       // Transaction sent - NEAR Intents will handle the rest
@@ -1179,7 +1254,6 @@ export async function executeTip(
 
       // Store deposit address for status polling
       ;(transaction as any).depositAddress = depositAddress
-
     } else {
       throw new Error("No deposit address available — cannot send transaction")
     }
@@ -1194,9 +1268,14 @@ export async function executeTip(
   } catch (error: any) {
     updateStatus("failed")
     // Provide user-friendly error messages
-    if (error.code === 4001 || error.code === "ACTION_REJECTED") {
+    // viem uses error names instead of string codes
+    if (
+      error.name === "UserRejectedRequestError" ||
+      error.code === 4001 ||
+      error.code === "ACTION_REJECTED"
+    ) {
       transaction.error = "Transaction rejected by user"
-    } else if (error.code === "INSUFFICIENT_FUNDS") {
+    } else if (error.name === "InsufficientFundsError" || error.code === "INSUFFICIENT_FUNDS") {
       transaction.error = "Insufficient funds for transaction"
     } else {
       transaction.error = error.message || "Transaction failed"

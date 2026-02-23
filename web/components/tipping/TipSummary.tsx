@@ -229,7 +229,13 @@ export function TipSummary({
             marginBottom: tokens.space.sm,
           }}
         >
-          <span style={{ color: tokens.colors.textMuted, fontSize: "12px", fontFamily: tokens.font.mono }}>
+          <span
+            style={{
+              color: tokens.colors.textMuted,
+              fontSize: "12px",
+              fontFamily: tokens.font.mono,
+            }}
+          >
             Swap spread
           </span>
           <span
@@ -252,7 +258,13 @@ export function TipSummary({
             marginBottom: tokens.space.sm,
           }}
         >
-          <span style={{ color: tokens.colors.textMuted, fontSize: "12px", fontFamily: tokens.font.mono }}>
+          <span
+            style={{
+              color: tokens.colors.textMuted,
+              fontSize: "12px",
+              fontFamily: tokens.font.mono,
+            }}
+          >
             TIPZ fee
           </span>
           <span
@@ -276,10 +288,18 @@ export function TipSummary({
             borderTop: `1px solid ${tokens.colors.borderSubtle}`,
           }}
         >
-          <span style={{ color: tokens.colors.textMuted, fontSize: "12px", fontFamily: tokens.font.mono }}>
+          <span
+            style={{
+              color: tokens.colors.textMuted,
+              fontSize: "12px",
+              fontFamily: tokens.font.mono,
+            }}
+          >
             Est. time
           </span>
-          <span style={{ color: tokens.colors.text, fontSize: "12px", fontFamily: tokens.font.mono }}>
+          <span
+            style={{ color: tokens.colors.text, fontSize: "12px", fontFamily: tokens.font.mono }}
+          >
             ~{estimatedMinutes} min
           </span>
         </div>
@@ -311,7 +331,9 @@ export function TipSummary({
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
-          <span style={{ color: tokens.colors.error, fontSize: "12px", fontFamily: tokens.font.mono }}>
+          <span
+            style={{ color: tokens.colors.error, fontSize: "12px", fontFamily: tokens.font.mono }}
+          >
             Quote expired. Will refresh on confirm.
           </span>
         </div>
@@ -354,10 +376,23 @@ export function TipSummary({
           </svg>
         </div>
         <div>
-          <div style={{ color: tokens.colors.success, fontSize: "12px", fontWeight: 600, fontFamily: tokens.font.mono }}>
+          <div
+            style={{
+              color: tokens.colors.success,
+              fontSize: "12px",
+              fontWeight: 600,
+              fontFamily: tokens.font.mono,
+            }}
+          >
             Shielded Delivery
           </div>
-          <div style={{ color: tokens.colors.textMuted, fontSize: "10px", fontFamily: tokens.font.mono }}>
+          <div
+            style={{
+              color: tokens.colors.textMuted,
+              fontSize: "10px",
+              fontFamily: tokens.font.mono,
+            }}
+          >
             Routed via NEAR Intents to shielded ZEC
           </div>
         </div>
@@ -390,8 +425,8 @@ export function TipSummary({
           boxShadow: isLoading
             ? tokens.shadow.sm
             : isHovered
-            ? `${tokens.shadow.glow.goldIntense}, ${tokens.shadow.lg}`
-            : `${tokens.shadow.glow.gold}, ${tokens.shadow.md}`,
+              ? `${tokens.shadow.glow.goldIntense}, ${tokens.shadow.lg}`
+              : `${tokens.shadow.glow.gold}, ${tokens.shadow.md}`,
           transform: isHovered && !isLoading ? "translateY(-2px)" : "translateY(0)",
           transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
         }}

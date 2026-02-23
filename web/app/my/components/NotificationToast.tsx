@@ -24,17 +24,19 @@ export default function NotificationToast({
   if (tips.length === 0) return null
 
   return (
-    <div style={{
-      position: "fixed",
-      top: "80px",
-      right: "16px",
-      zIndex: 150,
-      display: "flex",
-      flexDirection: "column",
-      gap: "8px",
-      maxWidth: "340px",
-      width: "100%",
-    }}>
+    <div
+      style={{
+        position: "fixed",
+        top: "80px",
+        right: "16px",
+        zIndex: 150,
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        maxWidth: "340px",
+        width: "100%",
+      }}
+    >
       {tips.map((tip) => (
         <ToastCard
           key={tip.id}
@@ -49,19 +51,23 @@ export default function NotificationToast({
 
 function Particle({ delay, tx, ty }: { delay: string; tx: string; ty: string }) {
   return (
-    <div style={{
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      width: "4px",
-      height: "4px",
-      borderRadius: "50%",
-      background: colors.primary,
-      "--tx": tx,
-      "--ty": ty,
-      animation: `particleBurst 0.6s ease-out ${delay} both`,
-      pointerEvents: "none",
-    } as React.CSSProperties} />
+    <div
+      style={
+        {
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: "4px",
+          height: "4px",
+          borderRadius: "50%",
+          background: colors.primary,
+          "--tx": tx,
+          "--ty": ty,
+          animation: `particleBurst 0.6s ease-out ${delay} both`,
+          pointerEvents: "none",
+        } as React.CSSProperties
+      }
+    />
   )
 }
 
@@ -96,7 +102,7 @@ function ToastCard({
   const particles = useMemo(() => {
     if (prefersReducedMotion) return []
     return Array.from({ length: 6 }, (_, i) => {
-      const angle = (i / 6) * Math.PI * 2 + (Math.random() * 0.5)
+      const angle = (i / 6) * Math.PI * 2 + Math.random() * 0.5
       const dist = 20 + Math.random() * 20
       return {
         key: i,
@@ -124,13 +130,17 @@ function ToastCard({
       }}
     >
       {/* Gold top accent */}
-      <div style={{
-        position: "absolute",
-        top: 0, left: 0, right: 0,
-        height: "2px",
-        background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
-        borderRadius: "12px 12px 0 0",
-      }} />
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "2px",
+          background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+          borderRadius: "12px 12px 0 0",
+        }}
+      />
 
       {/* Particle burst */}
       {particles.length > 0 && (
@@ -141,87 +151,105 @@ function ToastCard({
         </div>
       )}
 
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        marginBottom: "8px",
-      }}>
-        <span style={{
-          display: "inline-block",
-          width: "6px",
-          height: "6px",
-          background: tip.status === "confirmed" ? colors.success : colors.primary,
-          borderRadius: "50%",
-          boxShadow: `0 0 8px ${tip.status === "confirmed" ? colors.success : colors.primary}`,
-        }} />
-        <span style={{
-          fontSize: "11px",
-          color: colors.muted,
-          letterSpacing: "1px",
-          fontFamily: "var(--font-family-mono)",
-        }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          marginBottom: "8px",
+        }}
+      >
+        <span
+          style={{
+            display: "inline-block",
+            width: "6px",
+            height: "6px",
+            background: tip.status === "confirmed" ? colors.success : colors.primary,
+            borderRadius: "50%",
+            boxShadow: `0 0 8px ${tip.status === "confirmed" ? colors.success : colors.primary}`,
+          }}
+        />
+        <span
+          style={{
+            fontSize: "11px",
+            color: colors.muted,
+            letterSpacing: "1px",
+            fontFamily: "var(--font-family-mono)",
+          }}
+        >
           NEW TIP
         </span>
       </div>
 
       {tip.decrypted ? (
         <>
-          <div style={{
-            fontSize: "20px",
-            fontWeight: 700,
-            color: colors.success,
-            fontFamily: "var(--font-family-mono)",
-            marginBottom: "2px",
-            animation: prefersReducedMotion ? "none" : "tipSlideIn 0.3s ease-out",
-          }}>
+          <div
+            style={{
+              fontSize: "20px",
+              fontWeight: 700,
+              color: colors.success,
+              fontFamily: "var(--font-family-mono)",
+              marginBottom: "2px",
+              animation: prefersReducedMotion ? "none" : "tipSlideIn 0.3s ease-out",
+            }}
+          >
             ${tip.decrypted.amount_usd.toFixed(2)}
           </div>
-          <div style={{
-            fontSize: "13px",
-            color: colors.primary,
-            fontFamily: "var(--font-family-mono)",
-          }}>
+          <div
+            style={{
+              fontSize: "13px",
+              color: colors.primary,
+              fontFamily: "var(--font-family-mono)",
+            }}
+          >
             {tip.decrypted.amount_zec.toFixed(4)} ZEC
           </div>
           {tip.decrypted.memo && (
-            <div style={{
-              fontSize: "13px",
-              color: colors.text,
-              fontFamily: "var(--font-family)",
-              fontStyle: "italic",
-              marginTop: "8px",
-            }}>
+            <div
+              style={{
+                fontSize: "13px",
+                color: colors.text,
+                fontFamily: "var(--font-family)",
+                fontStyle: "italic",
+                marginTop: "8px",
+              }}
+            >
               &ldquo;{tip.decrypted.memo}&rdquo;
             </div>
           )}
         </>
       ) : (
-        <div style={{
-          fontSize: "14px",
-          color: colors.muted,
-          fontStyle: "italic",
-        }}>
+        <div
+          style={{
+            fontSize: "14px",
+            color: colors.muted,
+            fontStyle: "italic",
+          }}
+        >
           Encrypted tip received
         </div>
       )}
 
       {/* Progress bar */}
-      <div style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: "2px",
-        borderRadius: "0 0 12px 12px",
-        overflow: "hidden",
-      }}>
-        <div style={{
-          height: "100%",
-          background: colors.primary,
-          animation: prefersReducedMotion ? "none" : "progressShrink 6s linear forwards",
-          transformOrigin: "left",
-        }} />
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "2px",
+          borderRadius: "0 0 12px 12px",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            background: colors.primary,
+            animation: prefersReducedMotion ? "none" : "progressShrink 6s linear forwards",
+            transformOrigin: "left",
+          }}
+        />
       </div>
     </div>
   )

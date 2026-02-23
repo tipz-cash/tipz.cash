@@ -77,11 +77,7 @@ export function ZecDirectSend({
   // Copy full URI to clipboard
   const copyUri = useCallback(async () => {
     try {
-      const uri = createZcashUri(
-        shieldedAddress,
-        zecAmount,
-        `Tip for @${creatorHandle} via TIPZ`
-      )
+      const uri = createZcashUri(shieldedAddress, zecAmount, `Tip for @${creatorHandle} via TIPZ`)
       await navigator.clipboard.writeText(uri)
       setLinkCopied(true)
       setTimeout(() => setLinkCopied(false), 2000)
@@ -368,11 +364,25 @@ export function ZecDirectSend({
             aria-label="Copy address"
           >
             {addressCopied ? (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             ) : (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
@@ -446,8 +456,7 @@ export function ZecDirectSend({
           fontWeight: 700,
           fontFamily: tokens.font.sans,
           cursor: "pointer",
-          boxShadow:
-            "inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 4px 12px rgba(255, 215, 0, 0.3)",
+          boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 4px 12px rgba(255, 215, 0, 0.3)",
           transition: `all ${tokens.duration.base}ms ${tokens.ease.smooth}`,
         }}
       >

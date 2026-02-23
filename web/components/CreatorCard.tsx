@@ -1,38 +1,38 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { colors } from "@/lib/colors";
-import { CypherpunkShield, VerifiedCheck } from "@/components/BadgeIcons";
+import { useState } from "react"
+import { colors } from "@/lib/colors"
+import { CypherpunkShield, VerifiedCheck } from "@/components/BadgeIcons"
 
 export interface Creator {
-  id: string;
-  platform: string;
-  handle: string;
-  shielded_address: string;
-  created_at: string;
-  avatar_url?: string;
-  is_og_cypherpunk?: boolean;
+  id: string
+  platform: string
+  handle: string
+  shielded_address: string
+  created_at: string
+  avatar_url?: string
+  is_og_cypherpunk?: boolean
 }
 
 // Generate a consistent hue from a string
 export function hashToHue(str: string): number {
-  let hash = 0;
+  let hash = 0
   for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
   }
-  return Math.abs(hash % 360);
+  return Math.abs(hash % 360)
 }
 
 interface CreatorCardProps {
-  creator: Creator;
-  index: number;
-  compact?: boolean;
-  onClick?: () => void;
+  creator: Creator
+  index: number
+  compact?: boolean
+  onClick?: () => void
 }
 
 export function CreatorCard({ creator, index, compact = false, onClick }: CreatorCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  const hue = hashToHue(creator.handle);
+  const [isHovered, setIsHovered] = useState(false)
+  const hue = hashToHue(creator.handle)
 
   return (
     <>
@@ -66,7 +66,9 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
           borderTop: "1px solid rgba(255, 215, 0, 0.5)",
           borderLeft: isHovered ? "1px solid rgba(255, 215, 0, 0.3)" : "none",
           borderRight: isHovered ? "1px solid rgba(255, 215, 0, 0.3)" : "none",
-          borderBottom: isHovered ? "1px solid rgba(255, 215, 0, 0.3)" : "1px solid rgba(0, 0, 0, 0.8)",
+          borderBottom: isHovered
+            ? "1px solid rgba(255, 215, 0, 0.3)"
+            : "1px solid rgba(0, 0, 0, 0.8)",
           borderRadius: compact ? "16px" : "24px",
           padding: compact ? "20px 16px" : "32px 24px",
           opacity: 0,
@@ -201,7 +203,7 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
         </div>
       </div>
     </>
-  );
+  )
 }
 
 // Skeleton Card for loading state
@@ -220,9 +222,15 @@ export function SkeletonCard({ index }: { index: number }) {
           }
         }
         @keyframes shimmerSkeleton {
-          0% { opacity: 0.5; }
-          50% { opacity: 0.8; }
-          100% { opacity: 0.5; }
+          0% {
+            opacity: 0.5;
+          }
+          50% {
+            opacity: 0.8;
+          }
+          100% {
+            opacity: 0.5;
+          }
         }
       `}</style>
       <div
@@ -287,5 +295,5 @@ export function SkeletonCard({ index }: { index: number }) {
         />
       </div>
     </>
-  );
+  )
 }

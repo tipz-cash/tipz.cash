@@ -312,7 +312,7 @@ export const animationKeyframes = `
       box-shadow: 0 0 0 6px rgba(245, 166, 35, 0);
     }
   }
-`;
+`
 
 // Transition presets
 export const transitions = {
@@ -320,7 +320,7 @@ export const transitions = {
   normal: "0.3s cubic-bezier(0.4, 0, 0.2, 1)",
   spring: "0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
   slow: "0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-} as const;
+} as const
 
 // Easing functions
 export const easings = {
@@ -328,4 +328,4 @@ export const easings = {
   easeOutExpo: "cubic-bezier(0.16, 1, 0.3, 1)",
   spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
   bounce: "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
-} as const;
+} as const

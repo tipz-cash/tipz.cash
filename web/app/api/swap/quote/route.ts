@@ -6,12 +6,7 @@ import {
   toSmallestUnits,
   fromSmallestUnits,
 } from "@/lib/near-intents"
-import {
-  rateLimit,
-  rateLimitHeaders,
-  getClientIP,
-  RATE_LIMITS
-} from "@/lib/rate-limit"
+import { rateLimit, rateLimitHeaders, getClientIP, RATE_LIMITS } from "@/lib/rate-limit"
 
 /**
  * Swap Quote API
@@ -88,7 +83,11 @@ const TOKEN_DECIMALS: Record<string, number> = {
 function resolveTokenSymbol(address: string, chainId: number): string {
   // Solana native token
   if (chainId === 501) {
-    if (address === "native" || address === "" || address === "So11111111111111111111111111111111111111112") {
+    if (
+      address === "native" ||
+      address === "" ||
+      address === "So11111111111111111111111111111111111111112"
+    ) {
       return "SOL"
     }
     return "UNKNOWN"
@@ -196,7 +195,9 @@ async function generateRealQuote(
     }
   } catch (error) {
     console.error("[swap/quote] NEAR Intents error:", error)
-    throw new Error(`Failed to get quote from NEAR Intents: ${error instanceof Error ? error.message : "Unknown error"}`)
+    throw new Error(
+      `Failed to get quote from NEAR Intents: ${error instanceof Error ? error.message : "Unknown error"}`
+    )
   }
 }
 
@@ -210,11 +211,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: "Too many quote requests. Please try again later.",
-        retryAfter: rateLimitResult.retryAfter
+        retryAfter: rateLimitResult.retryAfter,
       },
       {
         status: 429,
-        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) }
+        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) },
       }
     )
   }
@@ -233,26 +234,17 @@ export async function POST(request: NextRequest) {
 
     // Validate destination address (ZEC shielded)
     if (!destinationAddress) {
-      return NextResponse.json(
-        { error: "Missing destinationAddress" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Missing destinationAddress" }, { status: 400 })
     }
 
     // Check for unsupported token
     const fromSymbol = resolveTokenSymbol(fromToken, fromChain)
     if (fromSymbol === "UNKNOWN") {
-      return NextResponse.json(
-        { error: "Unsupported token address" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Unsupported token address" }, { status: 400 })
     }
 
     if (!refundAddress) {
-      return NextResponse.json(
-        { error: "Missing refundAddress for swap" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Missing refundAddress for swap" }, { status: 400 })
     }
 
     const response = await generateRealQuote(
