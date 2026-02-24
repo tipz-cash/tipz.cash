@@ -770,7 +770,7 @@ export default function HomePage() {
                   textShadow: `0 0 30px ${colors.successGlow}`,
                   fontFamily: "var(--font-family-mono)",
                 }}>
-                  120s
+                  30s
                 </div>
                 <div style={{
                   fontSize: "10px",
