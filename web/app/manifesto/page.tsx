@@ -226,7 +226,6 @@ export default function ManifestoPage() {
             // DECLARATION_OF_PRINCIPLES
           </div>
           <div style={{ marginBottom: "24px" }}>
-            <span style={{ color: colors.success, fontSize: "20px" }}>$</span>{" "}
             <span
               className="manifesto-hero-title"
               style={{
@@ -242,9 +241,6 @@ export default function ManifestoPage() {
           </div>
           <p style={{ color: colors.muted, fontSize: "16px", maxWidth: "600px", lineHeight: 1.6 }}>
             On privacy, sovereignty, and the future of creator support.
-          </p>
-          <p style={{ color: colors.muted, fontSize: "12px", marginTop: "16px" }}>
-            Published: 2025 | License: CC0 (Public Domain)
           </p>
         </div>
       </section>

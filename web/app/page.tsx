@@ -223,9 +223,9 @@ export default function HomePage() {
                 letterSpacing: "0.01em",
                 color: colors.muted,
               }}>
-                No platform cut. No frozen accounts.
+                No platform cut. No frozen accounts. No trace.
                 <br />
-                <span style={{ color: colors.textBright }}>Just your audience paying you directly.</span>
+                <span style={{ color: colors.textBright }}>Private payments, directly from your audience.</span>
               </p>
             </TerminalReveal>
 
@@ -353,9 +353,8 @@ export default function HomePage() {
           </TerminalReveal>
 
           <TypingHeading
-            prefix=">"
-            prefixColor={colors.error}
             text="The False Choice."
+            delay={200}
             style={{ fontSize: isMobile ? "32px" : "44px" }}
           />
 
@@ -369,7 +368,7 @@ export default function HomePage() {
           }}>
 
             {/* THE DRAIN - Feudal Model */}
-            <TerminalReveal delay={200} style={{ height: "100%" }}>
+            <TerminalReveal delay={900} style={{ height: "100%" }}>
               <div style={{
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
@@ -480,7 +479,7 @@ export default function HomePage() {
             </TerminalReveal>
 
             {/* THE LOCK - Surveillance Model */}
-            <TerminalReveal delay={300} style={{ height: "100%" }}>
+            <TerminalReveal delay={1100} style={{ height: "100%" }}>
               <div style={{
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
@@ -625,7 +624,7 @@ export default function HomePage() {
           </div>
 
           {/* The Third Way - Simple, Confident */}
-          <TerminalReveal delay={500}>
+          <TerminalReveal delay={600}>
             <div style={{
               marginTop: "64px",
               marginBottom: isMobile ? "40px" : "0",
@@ -712,13 +711,12 @@ export default function HomePage() {
           </TerminalReveal>
 
           <TypingHeading
-            prefix=">"
-            prefixColor={colors.primary}
             text="Build a Sovereign Economy."
+            delay={200}
             style={{ fontSize: isMobile ? "32px" : "40px" }}
           />
 
-          <TerminalReveal delay={100}>
+          <TerminalReveal delay={400}>
             <p style={{
               color: colors.muted,
               fontSize: "16px",
@@ -741,7 +739,7 @@ export default function HomePage() {
             flexWrap: isMobile ? "wrap" : "nowrap",
           }}>
             {/* Left Supporting Stat - 2 Min Setup */}
-            <TerminalReveal delay={350}>
+            <TerminalReveal delay={700}>
               <div style={{
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
@@ -792,7 +790,7 @@ export default function HomePage() {
             </TerminalReveal>
 
             {/* Center Hero Stat - 0% Fees with Halo */}
-            <TerminalReveal delay={200}>
+            <TerminalReveal delay={500}>
               <div style={{
                 position: "relative",
               }}>
@@ -869,7 +867,7 @@ export default function HomePage() {
             </TerminalReveal>
 
             {/* Right Supporting Stat - 100% Private */}
-            <TerminalReveal delay={500}>
+            <TerminalReveal delay={600}>
               <div style={{
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`,
@@ -1170,9 +1168,10 @@ export default function HomePage() {
 
           <TypingHeading
             text="Accept anything. Receive privacy."
+            delay={200}
           />
 
-          <TerminalReveal delay={200}>
+          <TerminalReveal delay={500}>
             <p style={{
               color: colors.muted,
               fontSize: "18px",
@@ -1183,7 +1182,7 @@ export default function HomePage() {
             </p>
           </TerminalReveal>
 
-          <TerminalReveal delay={350}>
+          <TerminalReveal delay={700}>
             {/* Main Terminal Container */}
             <div style={{
               backgroundColor: colors.surface,
@@ -1594,7 +1593,7 @@ export default function HomePage() {
           </TerminalReveal>
 
           {/* Trust Footer - Terminal Status Cards */}
-          <TerminalReveal delay={500}>
+          <TerminalReveal delay={900}>
             <div style={{
               display: "grid",
               gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
@@ -1693,10 +1692,11 @@ export default function HomePage() {
             <div style={{ order: 0 }}>
               <TypingHeading
                 text="The Sovereign Dashboard."
+                delay={200}
                 style={{ marginBottom: "20px", fontSize: "clamp(32px, 4vw, 42px)" }}
               />
 
-              <TerminalReveal delay={250}>
+              <TerminalReveal delay={400}>
                 <p style={{
                   color: colors.muted,
                   fontSize: "18px",
@@ -1708,7 +1708,7 @@ export default function HomePage() {
               </TerminalReveal>
 
               {/* Feature Deck - Vertical Stack with Descriptions */}
-              <TerminalReveal delay={500}>
+              <TerminalReveal delay={600}>
                 <div style={{
                   display: "flex",
                   flexDirection: "column",
@@ -1788,7 +1788,7 @@ export default function HomePage() {
               </TerminalReveal>
 
               {/* CTA Button */}
-              <TerminalReveal delay={750}>
+              <TerminalReveal delay={800}>
                 <a
                   href="/my"
                   style={{
@@ -1816,7 +1816,7 @@ export default function HomePage() {
             </div>
 
             {/* Right: Dashboard Mockup (below text on mobile) */}
-            <TerminalReveal delay={300}>
+            <TerminalReveal delay={500}>
               <div ref={dashboardInView.ref} style={{
                 position: "relative",
                 height: isMobile ? "auto" : "540px",
@@ -2039,17 +2039,20 @@ export default function HomePage() {
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
             <TypingHeading
               text={`Join the Cypherpunks.`}
+              delay={200}
               style={{ marginBottom: 0 }}
             />
-            {/* Z shield next to title — connects to badge in card below */}
-            <svg width={28} height={28} viewBox="0 0 24 24" style={{ filter: "drop-shadow(0 0 8px rgba(245,166,35,0.5))", flexShrink: 0, marginTop: "2px" }}>
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#F5A623" />
-              <path d="M12 3l7 2.5v6.5c0 4-4 7.2-7 9" fill="rgba(255,255,255,0.15)" />
-              <path d="M9 8h6l-6 8h6" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            {/* Z shield — appears after title finishes typing */}
+            <TerminalReveal delay={900}>
+              <svg width={28} height={28} viewBox="0 0 24 24" style={{ filter: "drop-shadow(0 0 8px rgba(245,166,35,0.5))", flexShrink: 0, marginTop: "2px" }}>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#F5A623" />
+                <path d="M12 3l7 2.5v6.5c0 4-4 7.2-7 9" fill="rgba(255,255,255,0.15)" />
+                <path d="M9 8h6l-6 8h6" stroke="#050505" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </TerminalReveal>
           </div>
 
-          <TerminalReveal delay={100}>
+          <TerminalReveal delay={1100}>
             <p style={{
               fontSize: "16px",
               color: colors.muted,
@@ -2061,7 +2064,7 @@ export default function HomePage() {
           </TerminalReveal>
 
           {/* Animated Badge Visual */}
-          <TerminalReveal delay={200}>
+          <TerminalReveal delay={500}>
             <div style={{
               display: "flex",
               justifyContent: "center",
@@ -2072,7 +2075,7 @@ export default function HomePage() {
           </TerminalReveal>
 
           {/* Privilege Strip — compact single row */}
-          <TerminalReveal delay={300}>
+          <TerminalReveal delay={700}>
             <div style={{
               display: "flex",
               flexDirection: isMobile ? "column" : "row",
@@ -2121,7 +2124,7 @@ export default function HomePage() {
           </TerminalReveal>
 
           {/* Spots Remaining */}
-          <TerminalReveal delay={400}>
+          <TerminalReveal delay={900}>
             <div style={{
               display: "flex",
               alignItems: "center",
@@ -2161,10 +2164,11 @@ export default function HomePage() {
 
           <TypingHeading
             text="Common questions."
+            delay={200}
             style={{ marginBottom: "48px" }}
           />
 
-          <TerminalReveal delay={200}>
+          <TerminalReveal delay={900}>
             <div style={{
               display: "grid",
               gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
@@ -2249,10 +2253,11 @@ export default function HomePage() {
 
           <TypingHeading
             text="Claim your sovereign income."
+            delay={200}
             style={{ marginBottom: "16px" }}
           />
 
-          <TerminalReveal delay={50}>
+          <TerminalReveal delay={1100}>
             <p style={{
               fontSize: "16px",
               color: colors.muted,
@@ -2270,7 +2275,7 @@ export default function HomePage() {
           }}>
             {/* For Creators */}
             <div>
-              <TerminalReveal delay={200}>
+              <TerminalReveal delay={1500}>
                 <h3 style={{
                   color: colors.primary,
                   fontSize: "14px",
@@ -2374,7 +2379,7 @@ export default function HomePage() {
 
             {/* For Supporters */}
             <div>
-              <TerminalReveal delay={300}>
+              <TerminalReveal delay={1700}>
                 <h3 style={{
                   color: colors.success,
                   fontSize: "14px",
@@ -2497,10 +2502,11 @@ export default function HomePage() {
             text="Exit the Rental "
             suffix="Economy."
             suffixColor={colors.primary}
+            delay={200}
             style={{ fontSize: "44px", lineHeight: 1.2 }}
           />
 
-          <TerminalReveal delay={200}>
+          <TerminalReveal delay={900}>
             <p style={{
               color: colors.muted,
               fontSize: "18px",
@@ -2510,7 +2516,7 @@ export default function HomePage() {
             </p>
           </TerminalReveal>
 
-          <TerminalReveal delay={300}>
+          <TerminalReveal delay={1300}>
             <div style={{ display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap", marginBottom: "24px" }}>
               <a
                 href="/register"
@@ -2549,7 +2555,7 @@ export default function HomePage() {
           </TerminalReveal>
 
           {/* signup-flow-cro: trust signals near CTA */}
-          <TerminalReveal delay={500}>
+          <TerminalReveal delay={1700}>
             <div style={{ display: "flex", justifyContent: "center", gap: "24px", fontSize: "12px", color: colors.muted }}>
               <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite" }}>✓ No KYC</span>
               <span style={{ animation: prefersReducedMotion ? "none" : "idle-breathe 4s ease-in-out infinite 0.3s" }}>✓ Instant Deployment</span>

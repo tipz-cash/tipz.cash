@@ -169,12 +169,10 @@ export function CypherpunkCardPreview({ isMobile }: { isMobile: boolean }) {
             src="/tipz-avatar.png"
             alt="tipz_cash"
             style={{
-              width: "140%",
-              height: "140%",
+              width: "100%",
+              height: "100%",
               objectFit: "cover",
               objectPosition: "center",
-              marginLeft: "-20%",
-              marginTop: "-20%",
             }}
           />
         </div>
