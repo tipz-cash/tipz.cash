@@ -7,8 +7,8 @@ export const IRONMAN_BASE_HEIGHT = 580;
 export const IRONMAN_TWEET_WIDTH = 400;
 export const IRONMAN_CARD_WIDTH = 340;
 
-// Naval avatar URL - preloaded to prevent animation lag
-export const NAVAL_AVATAR_URL = "https://pbs.twimg.com/profile_images/1256841238298292232/ycqwaMI2_400x400.jpg";
+// TIPZ avatar URL - preloaded to prevent animation lag
+export const TIPZ_AVATAR_URL = "/tipz-avatar.png";
 
 // Header height constant for scroll-padding calculations
 export const HEADER_HEIGHT = 60; // px

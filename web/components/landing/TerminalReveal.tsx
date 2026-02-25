@@ -44,7 +44,7 @@ export function TerminalReveal({
       ref={ref}
       style={{
         opacity: shouldAnimate ? (visible ? 1 : 0) : 1,
-        transform: shouldAnimate ? (visible ? "translateY(0) scale(1)" : "translateY(16px) scale(0.98)") : "none",
+        transform: shouldAnimate ? (visible ? "translateY(0) scale(1)" : "translateY(10px) scale(0.98)") : "none",
         transition: shouldAnimate ? "opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
         willChange: shouldAnimate && !visible ? "opacity, transform" : "auto",
         ...style,

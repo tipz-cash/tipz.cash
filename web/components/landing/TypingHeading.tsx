@@ -11,6 +11,8 @@ export function TypingHeading({
   suffix,
   suffixColor,
   style,
+  delay = 0,
+  speed = 30,
 }: {
   prefix?: string;
   prefixColor?: string;
@@ -18,9 +20,12 @@ export function TypingHeading({
   suffix?: string;
   suffixColor?: string;
   style?: React.CSSProperties;
+  delay?: number;
+  speed?: number;
 }) {
   const ref = useRef<HTMLHeadingElement>(null);
   const [hasTriggered, setHasTriggered] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const [displayText, setDisplayText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
   const [cursorVisible, setCursorVisible] = useState(true);
@@ -43,9 +48,20 @@ export function TypingHeading({
     return () => observer.disconnect();
   }, [hasTriggered]);
 
-  // Start typing animation once triggered
+  // Apply delay before starting the typing animation
   useEffect(() => {
     if (!hasTriggered) return;
+    if (delay <= 0) {
+      setIsReady(true);
+      return;
+    }
+    const timer = setTimeout(() => setIsReady(true), delay);
+    return () => clearTimeout(timer);
+  }, [hasTriggered, delay]);
+
+  // Start typing animation once ready
+  useEffect(() => {
+    if (!isReady) return;
 
     let index = 0;
     const timer = setInterval(() => {
@@ -56,10 +72,10 @@ export function TypingHeading({
         setIsComplete(true);
         clearInterval(timer);
       }
-    }, 25);
+    }, speed);
 
     return () => clearInterval(timer);
-  }, [hasTriggered, text]);
+  }, [isReady, text, speed]);
 
   // Blink cursor until complete
   useEffect(() => {

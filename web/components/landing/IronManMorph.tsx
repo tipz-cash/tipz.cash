@@ -9,7 +9,7 @@ import {
   IRONMAN_BASE_HEIGHT,
   IRONMAN_TWEET_WIDTH,
   IRONMAN_CARD_WIDTH,
-  NAVAL_AVATAR_URL,
+  TIPZ_AVATAR_URL,
 } from "./constants";
 
 
@@ -20,12 +20,12 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
   const [imageReady, setImageReady] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  // Preload Naval avatar image to prevent animation lag
+  // Preload TIPZ avatar image to prevent animation lag
   useEffect(() => {
     const img = new Image();
     img.onload = () => setImageReady(true);
     img.onerror = () => setImageReady(true); // Proceed even if image fails
-    img.src = NAVAL_AVATAR_URL;
+    img.src = TIPZ_AVATAR_URL;
 
     // Fallback timeout - proceed after 1.5s even if image isn't loaded
     const fallback = setTimeout(() => setImageReady(true), 1500);
@@ -150,14 +150,15 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
           padding: `${16 * scale}px`,
           width: `${tweetWidth * scale}px`,
           boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
         }}>
           {/* Tweet 1: The Hook */}
           <div style={{ display: "flex", gap: `${12 * scale}px` }}>
             {/* Avatar Column with Thread Line */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
               <img
-                src={NAVAL_AVATAR_URL}
-                alt="Naval"
+                src={TIPZ_AVATAR_URL}
+                alt="TIPZ"
                 style={{
                   width: `${40 * scale}px`,
                   height: `${40 * scale}px`,
@@ -178,7 +179,7 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px` }}>
-                  <span style={{ fontWeight: 700, fontSize: `${15 * scale}px`, color: "#E7E9EA" }}>Naval</span>
+                  <span style={{ fontWeight: 700, fontSize: `${15 * scale}px`, color: "#E7E9EA" }}>TIPZ</span>
                   <svg width={18 * scale} height={18 * scale} viewBox="0 0 22 22" fill="none">
                     <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681.132-.637.075-1.299-.165-1.903.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="#1D9BF0"/>
                   </svg>
@@ -188,12 +189,12 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
                 </svg>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px`, color: "rgb(113, 118, 123)", fontSize: `${15 * scale}px` }}>
-                <span>@naval</span>
+                <span>@tipz_cash</span>
                 <span>·</span>
                 <span>3h</span>
               </div>
               <p style={{ fontSize: `${15 * scale}px`, lineHeight: 1.5, color: "#E7E9EA", margin: `${12 * scale}px 0 ${12 * scale}px 0` }}>
-                Privacy is the only luxury they can't inflate.
+                Tips without the middleman. Privacy without the trade-off.
               </p>
               {/* Engagement Bar - on Tweet 1 */}
               <div style={{
@@ -235,8 +236,8 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
           <div style={{ display: "flex", gap: `${12 * scale}px`, marginTop: `${4 * scale}px` }}>
             {/* Avatar */}
             <img
-              src={NAVAL_AVATAR_URL}
-              alt="Naval"
+              src={TIPZ_AVATAR_URL}
+              alt="TIPZ"
               style={{
                 width: `${40 * scale}px`,
                 height: `${40 * scale}px`,
@@ -248,7 +249,7 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
             {/* Tweet 2 Content */}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px` }}>
-                <span style={{ fontWeight: 700, fontSize: `${15 * scale}px`, color: "#E7E9EA" }}>Naval</span>
+                <span style={{ fontWeight: 700, fontSize: `${15 * scale}px`, color: "#E7E9EA" }}>TIPZ</span>
                 <svg width={18 * scale} height={18 * scale} viewBox="0 0 22 22" fill="none">
                   <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681.132-.637.075-1.299-.165-1.903.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="#1D9BF0"/>
                 </svg>
@@ -298,20 +299,27 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
                       gap: `${8 * scale}px`,
                     }}>
                       {/* Avatar - Squircle */}
-                      <img
-                        src={NAVAL_AVATAR_URL}
-                        alt="Naval"
-                        style={{
-                          width: `${24 * scale}px`,
-                          height: `${24 * scale}px`,
-                          borderRadius: `${6 * scale}px`,
-                          objectFit: "cover",
-                          flexShrink: 0,
-                          boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
-                        }}
-                      />
+                      <div style={{
+                        width: `${24 * scale}px`,
+                        height: `${24 * scale}px`,
+                        borderRadius: `${6 * scale}px`,
+                        overflow: "hidden",
+                        flexShrink: 0,
+                        boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+                      }}>
+                        <img
+                          src={TIPZ_AVATAR_URL}
+                          alt="TIPZ"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            transform: "scale(1.35)",
+                          }}
+                        />
+                      </div>
 
-                      {/* @naval - EXTRA BOLD HEADLINE */}
+                      {/* @tipz_cash - EXTRA BOLD HEADLINE */}
                       <div style={{
                         fontSize: `${20 * scale}px`,
                         fontWeight: 800,
@@ -319,7 +327,7 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
                         fontFamily: "var(--font-family-mono)",
                         letterSpacing: "-1px",
                       }}>
-                        @naval
+                        @tipz_cash
                       </div>
                     </div>
 
@@ -615,18 +623,25 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
           transition: shouldAnimate ? "all 0.3s ease-out 0.1s" : "none",
         }}>
           {/* Avatar - squircle with inner glow */}
-          <img
-            src={NAVAL_AVATAR_URL}
-            alt="Naval"
-            style={{
-              width: `${48 * scale}px`,
-              height: `${48 * scale}px`,
-              borderRadius: "22%",
-              objectFit: "cover",
-              boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
-              flexShrink: 0,
-            }}
-          />
+          <div style={{
+            width: `${48 * scale}px`,
+            height: `${48 * scale}px`,
+            borderRadius: "22%",
+            overflow: "hidden",
+            boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+            flexShrink: 0,
+          }}>
+            <img
+              src={TIPZ_AVATAR_URL}
+              alt="TIPZ"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transform: "scale(1.35)",
+              }}
+            />
+          </div>
           {/* Handle + Shield */}
           <div style={{ display: "flex", alignItems: "center", gap: `${4 * scale}px` }}>
             <span style={{
@@ -635,7 +650,7 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
               fontWeight: 700,
               fontFamily: "var(--font-family-mono)",
             }}>
-              @naval
+              @tipz_cash
             </span>
             {/* Premium Cypherpunk shield */}
             <svg width={12 * scale} height={12 * scale} viewBox="0 0 24 24" style={{ filter: "drop-shadow(0 0 4px rgba(245,166,35,0.4))" }}>
@@ -1072,7 +1087,7 @@ export function IronManMorph({ isVisible, scale = 1 }: { isVisible: boolean; sca
                 fontFamily: "var(--font-family-mono)",
                 marginBottom: `${12 * scale}px`,
               }}>
-                to <span style={{ color: "#FFFFFF" }}>@naval</span>
+                to <span style={{ color: "#FFFFFF" }}>@tipz_cash</span>
               </div>
 
               {/* Receipt Table */}
