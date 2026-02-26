@@ -14,7 +14,7 @@ TIPZ lets creators receive tips directly to their Zcash shielded address. Suppor
 
 - **Zero Fees**: 100% of tips go to you
 - **Private Income**: Shielded addresses keep your earnings private
-- **Easy Setup**: 4-step registration with tweet verification
+- **Easy Setup**: Sign in with X, enter your shielded address, done
 - **Sovereign Dashboard**: Real-time earnings, tip feed, encrypted messages, and promotion tools at `tipz.cash/my`
 - **Encrypted Messages**: End-to-end encrypted notes from supporters (RSA-OAEP 4096-bit + AES-GCM)
 - **Real-Time Notifications**: Instant tip alerts via Supabase Realtime WebSocket
@@ -158,7 +158,7 @@ tipz/
 | `/api/tips/stats` | GET | Aggregated tip statistics |
 | `/api/og` | GET | Default OG image |
 | `/api/og/[handle]` | GET | Dynamic OG image per creator |
-| `/api/register` | POST | Register as creator (tweet verification) |
+| `/api/register` | POST | Register as creator |
 
 
 ### Swap (NEAR Intents)
@@ -191,7 +191,6 @@ CREATE TABLE creators (
   handle TEXT NOT NULL,
   handle_normalized TEXT NOT NULL,
   shielded_address TEXT NOT NULL,
-  tweet_url TEXT NOT NULL,
   verification_status verification_status DEFAULT 'pending',
   public_key JSONB,                    -- RSA-OAEP 4096-bit JWK for message encryption
   key_created_at TIMESTAMPTZ,
@@ -226,7 +225,7 @@ See `.env.example` in `/web` for full configuration. Key groups:
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Client-side Realtime |
 | `NEAR_ACCOUNT_ID`, `NEAR_PRIVATE_KEY`, `NEAR_NETWORK` | Yes | Cross-chain swaps |
 | `NEAR_INTENTS_JWT` | No | Avoids 0.1% NEAR fee |
-| `TWITTER_BEARER_TOKEN` | No | Automated tweet verification |
+| `TWITTER_BEARER_TOKEN` | No | Avatar fetching from X |
 | `TWITTER_CLIENT_ID` | No | Creator dashboard OAuth |
 | `SESSION_SECRET` | Yes | JWT cookie signing |
 | `NEXT_PUBLIC_MESH_CLIENT_ID`, `MESH_CLIENT_SECRET` | No | MeshConnect fiat/exchange payments |

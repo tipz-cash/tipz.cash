@@ -146,7 +146,6 @@ Content-Type: application/json
 | platform | string | Yes | `x` or `substack` |
 | handle | string | Yes | Creator's handle |
 | shielded_address | string | Yes | Zcash unified address (u1...) |
-| tweet_url | string | Yes | Verification tweet URL |
 
 #### Example Request
 
@@ -156,8 +155,7 @@ curl -X POST "https://tipz.app/api/register" \
   -d '{
     "platform": "x",
     "handle": "myhandle",
-    "shielded_address": "u1rl42v9qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
-    "tweet_url": "https://x.com/myhandle/status/1234567890"
+    "shielded_address": "u1rl42v9qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
   }'
 ```
 
@@ -208,18 +206,6 @@ curl -X POST "https://tipz.app/api/register" \
 }
 ```
 
-```json
-{
-  "error": "Invalid tweet URL format"
-}
-```
-
-```json
-{
-  "error": "Tweet must be from the handle being registered"
-}
-```
-
 **Error (500 Internal Server Error)**:
 ```json
 {
@@ -242,13 +228,9 @@ curl -X POST "https://tipz.app/api/register" \
 - 141+ characters
 - Uses Bech32m encoding
 
-**Tweet URL**:
-- Must match pattern: `https://(x|twitter).com/{handle}/status/{id}`
-- Handle in URL must match registered handle (case-insensitive)
-
 #### Notes
 - Uses upsert logic: same platform + handle updates existing record
-- Tweet URL verification is currently URL-pattern only (TODO: actual API verification)
+- Identity verified via Twitter OAuth 2.0 PKCE (no tweet verification needed)
 
 ---
 
@@ -848,7 +830,6 @@ interface RegisterRequest {
   platform: 'x' | 'substack';
   handle: string;
   shielded_address: string;
-  tweet_url: string;
 }
 
 // Response types
@@ -899,10 +880,9 @@ interface RegisterResponse {
 ### v1.0.0
 - Initial API release
 - Single and batch creator lookup
-- Creator registration with tweet verification (URL only)
+- Creator registration with OAuth verification
 
 ### Planned
-- Twitter API integration for proper tweet verification
 - Creator analytics endpoint (`GET /api/creator/stats`)
 - Transaction webhook notifications
 - Recurring tip subscriptions

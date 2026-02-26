@@ -170,14 +170,14 @@ web/
 ├── lib/
 │   ├── supabase.ts          # Database client
 │   ├── near.ts              # NEAR Intents integration
-│   └── twitter-api.ts       # Tweet verification
+│   └── twitter-api.ts       # OAuth token verification + avatar fetching
 └── public/
     └── logo.svg             # Static assets
 ```
 
 #### Key Responsibilities
 1. **Landing Page**: Marketing, product explanation, privacy manifesto
-2. **Registration**: 4-step wizard with tweet verification
+2. **Registration**: OAuth-first wizard (sign in with X + enter shielded address)
 3. **Tip Pages**: Individual creator pages at `/{handle}` with TippingFlow component
 4. **Creator Directory**: Paginated list of registered creators
 5. **API Routes**: Creator CRUD, swap quotes, NEAR Intents, OG images
@@ -246,7 +246,6 @@ CREATE TABLE creators (
   handle TEXT NOT NULL,             -- Original handle (preserves case)
   handle_normalized TEXT NOT NULL,  -- Lowercase, no @ prefix
   shielded_address TEXT NOT NULL,   -- Zcash shielded (zs...)
-  tweet_url TEXT NOT NULL,          -- Verification tweet
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -258,27 +257,21 @@ CREATE INDEX idx_creators_platform_handle ON creators(platform, handle_normalize
 
 ## Data Flow
 
-### Creator Registration (4-Step Wizard)
+### Creator Registration (OAuth)
 
 ```
-Step 1: Handle Entry
-  - Creator enters X handle
-  - Client validates format
+Step 1: OAuth Login
+  - Creator signs in with X (Twitter OAuth 2.0 PKCE)
+  - Server verifies token, extracts handle
 
 Step 2: Wallet Setup
-  - Creator enters Zcash shielded address (zs... or u1...)
+  - Creator enters Zcash unified address (u1...)
   - Client validates address format
 
-Step 3: Tweet Verification
-  - Creator posts verification tweet containing handle + address
-  - Creator pastes tweet URL into form
-  - If Twitter API configured: server verifies tweet content
-  - If not configured: URL format validation only
-
-Step 4: Confirmation
-  - Server upserts to Supabase (platform, handle, handle_normalized, shielded_address, tweet_url)
+Step 3: Confirmation
+  - Server upserts to Supabase (platform, handle, handle_normalized, shielded_address)
   - Server sets localStorage `tipz_creator_identity` for extension bridge
-  - Returns success with verification_status (pending/verified)
+  - Returns success with verification_status
 ```
 
 ### Extension Identity Linking (Web Bridge)
@@ -346,12 +339,11 @@ Step 4: Confirmation
 ### Creator Re-Linking (Returning Creator)
 
 ```
-1. Creator with existing registration visits tipz.cash
-2. Enters handle in link form
-3. Client calls POST /api/link with handle
-4. Server looks up creator, verifies original tweet still valid
-5. Returns success - client sets localStorage for extension bridge
-6. Extension detects new identity on next visit
+1. Creator logs in via OAuth at tipz.cash/my
+2. Server verifies Twitter token, looks up creator by handle
+3. Client generates RSA key pair, uploads public key via POST /api/link
+4. Returns success - client sets localStorage for extension bridge
+5. Extension detects new identity on next visit
 ```
 
 ### Creator Dashboard Flow
@@ -410,14 +402,13 @@ Step 4: Confirmation
 | CSRF | ⚠️ | No state-changing GET routes |
 | Rate limiting | ❌ | Not implemented |
 | Auth | ❌ | No user authentication |
-| Tweet verification | ⚠️ | URL-only, no content check |
+| OAuth verification | ✅ | Twitter OAuth 2.0 PKCE |
 
 ### Recommended Improvements
 
 1. **Rate limiting**: Implement per-IP limits on /api/register
-2. **Twitter API verification**: Actually fetch and verify tweet content
-3. **Request signing**: Sign extension requests for authenticity
-4. **Audit logging**: Log all registrations for review
+2. **Request signing**: Sign extension requests for authenticity
+3. **Audit logging**: Log all registrations for review
 
 ---
 
@@ -483,7 +474,7 @@ Step 4: Confirmation
 SUPABASE_URL=https://xxx.supabase.co
 SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-# Twitter Verification (optional - enables automated tweet verification)
+# Twitter API (optional - enables avatar fetching)
 TWITTER_BEARER_TOKEN=your-bearer-token
 
 # NEAR Intents (required for real payments)

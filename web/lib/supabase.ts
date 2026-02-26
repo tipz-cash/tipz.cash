@@ -18,13 +18,9 @@ export interface Creator {
   handle: string
   handle_normalized: string
   shielded_address: string
-  tweet_url: string
   created_at: string
   avatar_url?: string
-  // Verification fields (added in migration 20250123)
   verification_status?: VerificationStatus
-  tweet_id?: string
-  twitter_user_id?: string
   verified_at?: string
   public_key?: Record<string, unknown>
   key_created_at?: string

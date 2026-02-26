@@ -12,7 +12,7 @@ import { isTwitterApiConfigured } from "@/lib/twitter-api"
  * - Transactions table accessibility
  * - Environment configuration
  * - NEAR configuration (for real payments)
- * - Twitter API configuration (for tweet verification)
+ * - Twitter API configuration (for avatar fetching)
  *
  * Returns:
  * - 200: Service healthy
@@ -102,8 +102,8 @@ export async function GET() {
       twitter: {
         status: twitterConfigured ? "configured" : "not_configured",
         message: twitterConfigured
-          ? "Tweet verification enabled"
-          : "Tweet verification disabled - registrations default to pending",
+          ? "Twitter API configured"
+          : "Twitter bearer token not set — avatar fetching disabled",
       },
     },
   }

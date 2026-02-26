@@ -6,7 +6,6 @@ const mockCreator = {
   handle: "testcreator",
   handle_normalized: "testcreator",
   shielded_address: "u1" + "q".repeat(139),
-  tweet_id: "1234567890",
   verification_status: "verified",
 }
 
