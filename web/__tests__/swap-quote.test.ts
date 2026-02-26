@@ -36,7 +36,6 @@ vi.mock("@/lib/near-intents", () => ({
 }))
 
 import { POST } from "@/app/api/swap/quote/route"
-import { clearAllRateLimits } from "@/lib/rate-limit"
 
 // Helper to create a NextRequest-like object
 function createRequest(body: Record<string, unknown>): any {
@@ -45,10 +44,6 @@ function createRequest(body: Record<string, unknown>): any {
     headers: new Headers({ "x-forwarded-for": "127.0.0.1" }),
   }
 }
-
-beforeEach(() => {
-  clearAllRateLimits()
-})
 
 describe("POST /api/swap/quote", () => {
   it("returns a quote for ETH → ZEC", async () => {
@@ -127,24 +122,4 @@ describe("POST /api/swap/quote", () => {
     expect(data.error).toContain("refundAddress")
   })
 
-  it("enforces rate limits", async () => {
-    const makeReq = () =>
-      createRequest({
-        fromChain: 1,
-        fromToken: "0x0000000000000000000000000000000000000000",
-        fromAmount: "0.01",
-        destinationAddress: "u1" + "q".repeat(139),
-        refundAddress: "0x1234567890abcdef1234567890abcdef12345678",
-      })
-
-    // swapQuote rate limit is 30/min - send 31 requests
-    for (let i = 0; i < 30; i++) {
-      await POST(makeReq())
-    }
-
-    const res = await POST(makeReq())
-    expect(res.status).toBe(429)
-    const data = await res.json()
-    expect(data.error).toContain("Too many")
-  })
 })

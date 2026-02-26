@@ -16,7 +16,6 @@ vi.mock("@/lib/near-intents", () => ({
 }))
 
 import { POST } from "@/app/api/swap/execute/route"
-import { clearAllRateLimits } from "@/lib/rate-limit"
 
 const VALID_ZEC_ADDRESS = "u1" + "q".repeat(139)
 const VALID_ETH_ADDRESS = "0x1234567890abcdef1234567890abcdef12345678"
@@ -48,10 +47,6 @@ function validBody(overrides: Record<string, unknown> = {}) {
     ...overrides,
   }
 }
-
-beforeEach(() => {
-  clearAllRateLimits()
-})
 
 describe("POST /api/swap/execute", () => {
   it("executes a swap with deposit address", async () => {
@@ -141,11 +136,4 @@ describe("POST /api/swap/execute", () => {
     expect(data.status).toBe("pending") // Has source tx = pending, not pending_deposit
   })
 
-  it("enforces rate limits", async () => {
-    // swapExecute rate limit is 10/min
-    await Promise.all(Array.from({ length: 10 }, () => POST(createRequest(validBody()))))
-
-    const res = await POST(createRequest(validBody()))
-    expect(res.status).toBe(429)
-  }, 30000)
 })

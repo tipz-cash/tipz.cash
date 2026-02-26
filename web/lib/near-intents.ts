@@ -75,7 +75,7 @@ export const ASSET_IDS: Record<string, Record<number, AssetId>> = {
 export const ZEC_ASSET_ID = "nep141:zec.omft.near"
 
 /**
- * USDC on Polygon asset ID (commonly used for Mesh transfers)
+ * USDC on Polygon asset ID
  */
 export const USDC_POLYGON_ASSET_ID = "nep245:v2_1.omni.hot.tg:137_qiStmoQJDQPTebaPjgx5VBxZv6L"
 

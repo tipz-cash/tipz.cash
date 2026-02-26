@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   }
 
   const { data, error } = await findCreatorByHandle(handle, {
-    select: "id, platform, handle, shielded_address, avatar_url, public_key",
+    select: "id, platform, handle, shielded_address, avatar_url, public_key, is_og_cypherpunk, og_number",
     platform,
   })
 
@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
       shielded_address: data.shielded_address,
       avatar_url: data.avatar_url,
       public_key: data.public_key,
-      is_og_cypherpunk: true,
+      is_og_cypherpunk: data.is_og_cypherpunk ?? false,
+      og_number: data.og_number ?? null,
     },
   })
 }

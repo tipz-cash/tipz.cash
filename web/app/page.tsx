@@ -54,9 +54,16 @@ export default function HomePage() {
   const [checklistVisible, setChecklistVisible] = useState(false);
   const checklistRef = useRef<HTMLDivElement>(null);
 
+  // OG Cypherpunk spots remaining
+  const [ogSpotsRemaining, setOgSpotsRemaining] = useState<number | null>(null);
+
   // Track mount state for hydration-safe animations
   useEffect(() => {
     setHasMounted(true);
+    fetch("/api/og-spots")
+      .then((r) => r.json())
+      .then((d) => setOgSpotsRemaining(d.remaining ?? null))
+      .catch(() => {});
   }, []);
 
   // Intersection Observer for checklist scroll-triggered animation
@@ -2141,9 +2148,9 @@ export default function HomePage() {
                 color: colors.primary,
                 fontWeight: 700,
                 fontSize: "18px",
-              }}>97</span>
+              }}>{ogSpotsRemaining ?? "—"}</span>
               <span style={{ color: colors.muted }}>/</span>
-              <span style={{ color: colors.muted }}>100 spots remaining</span>
+              <span style={{ color: colors.muted }}>100 OG spots remaining</span>
             </div>
           </TerminalReveal>
         </div>

@@ -31,7 +31,6 @@ vi.mock("@/lib/twitter-api", () => ({
 }))
 
 import { POST as linkHandler } from "@/app/api/link/route"
-import { clearAllRateLimits } from "@/lib/rate-limit"
 import { verifyTwitterToken } from "@/lib/twitter-api"
 
 const mockVerifyTwitterToken = vi.mocked(verifyTwitterToken)
@@ -45,7 +44,6 @@ function createRequest(body: Record<string, unknown>): any {
 }
 
 beforeEach(() => {
-  clearAllRateLimits()
   vi.clearAllMocks()
 })
 

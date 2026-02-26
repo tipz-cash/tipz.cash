@@ -14,8 +14,7 @@
     "capture:og": "npx tsx scripts/capture-og.ts"
   },
   "dependencies": {
-    "@meshconnect/web-link-sdk": "^3.5.0",
-    "@near-js/client": "^2.5.1",
+"@near-js/client": "^2.5.1",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",

@@ -6,7 +6,6 @@ import {
   toSmallestUnits,
   fromSmallestUnits,
 } from "@/lib/near-intents"
-import { rateLimit, rateLimitHeaders, getClientIP, RATE_LIMITS } from "@/lib/rate-limit"
 
 /**
  * Swap Quote API
@@ -202,24 +201,6 @@ async function generateRealQuote(
 }
 
 export async function POST(request: NextRequest) {
-  // Apply rate limiting
-  const clientIP = getClientIP(request.headers)
-  const rateLimitResult = rateLimit(clientIP, RATE_LIMITS.swapQuote)
-  const headers = rateLimitHeaders(rateLimitResult)
-
-  if (!rateLimitResult.allowed) {
-    return NextResponse.json(
-      {
-        error: "Too many quote requests. Please try again later.",
-        retryAfter: rateLimitResult.retryAfter,
-      },
-      {
-        status: 429,
-        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) },
-      }
-    )
-  }
-
   try {
     const body: QuoteRequest = await request.json()
     const { fromChain, fromToken, fromAmount, destinationAddress, refundAddress } = body

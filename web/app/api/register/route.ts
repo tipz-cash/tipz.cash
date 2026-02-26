@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase, normalizeHandle, findCreatorByHandle } from "@/lib/supabase"
-import { rateLimit, rateLimitHeaders, getClientIP, RATE_LIMITS } from "@/lib/rate-limit"
+
 import { fetchUserProfileImage } from "@/lib/twitter-api"
 import { getSessionFromRequest, createSessionToken, setSessionCookie } from "@/lib/session"
 
@@ -9,8 +9,7 @@ import { getSessionFromRequest, createSessionToken, setSessionCookie } from "@/l
  * Used for programmatic error handling by clients.
  */
 export const ERROR_CODES = {
-  RATE_LIMITED: "RATE_LIMITED",
-  INVALID_JSON: "INVALID_JSON",
+INVALID_JSON: "INVALID_JSON",
   MISSING_FIELDS: "MISSING_FIELDS",
   INVALID_FIELD_TYPE: "INVALID_FIELD_TYPE",
   INVALID_ADDRESS: "INVALID_ADDRESS",
@@ -93,24 +92,7 @@ function isValidShieldedAddress(address: string): boolean {
  * Body: { shielded_address: string }
  */
 export async function POST(request: NextRequest) {
-  // Apply rate limiting
-  const clientIP = getClientIP(request.headers)
-  const rateLimitResult = rateLimit(clientIP, RATE_LIMITS.registration)
-  const headers = rateLimitHeaders(rateLimitResult)
-
-  if (!rateLimitResult.allowed) {
-    return NextResponse.json(
-      {
-        error: "Too many registration attempts. Please try again later.",
-        code: ERROR_CODES.RATE_LIMITED,
-        retryAfter: rateLimitResult.retryAfter,
-      } satisfies ErrorResponse,
-      {
-        status: 429,
-        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) },
-      }
-    )
-  }
+  const headers: Record<string, string> = {}
 
   // Require authenticated session (from Twitter OAuth)
   const session = await getSessionFromRequest(request)
@@ -295,8 +277,32 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Upgrade session to include creatorId
   const creatorId = newCreator?.id
+
+  // Assign OG Cypherpunk badge if under 100 creators
+  if (creatorId) {
+    const { count } = await supabase
+      .from("creators")
+      .select("id", { count: "exact", head: true })
+      .eq("is_og_cypherpunk", true)
+
+    if ((count ?? 0) < 100) {
+      const { error: ogError } = await supabase
+        .from("creators")
+        .update({
+          is_og_cypherpunk: true,
+          og_number: (count ?? 0) + 1,
+        })
+        .eq("id", creatorId)
+
+      if (ogError) {
+        // Unique index on og_number prevents race condition duplicates — safe to ignore
+        console.warn("[register] OG badge assignment failed (race condition?):", ogError.message)
+      }
+    }
+  }
+
+  // Upgrade session to include creatorId
   const response = NextResponse.json(
     {
       success: true,

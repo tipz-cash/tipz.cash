@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   // Build query
   let query = supabase
     .from("creators")
-    .select("id, platform, handle, shielded_address, created_at, avatar_url", { count: "exact" })
+    .select("id, platform, handle, shielded_address, created_at, avatar_url, is_og_cypherpunk, og_number", { count: "exact" })
 
   if (platform) {
     query = query.eq("platform", platform)
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json(
     {
-      creators: (data || []).map((c: any) => ({ ...c, is_og_cypherpunk: true })),
+      creators: data || [],
       total: count || 0,
       limit,
       offset,

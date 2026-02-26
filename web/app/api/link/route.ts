@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabase, normalizeHandle, findCreatorByHandle, type Creator } from "@/lib/supabase"
 import { verifyTwitterToken } from "@/lib/twitter-api"
 import { getSessionFromRequest } from "@/lib/session"
-import { rateLimit, rateLimitHeaders, getClientIP, RATE_LIMITS } from "@/lib/rate-limit"
 
 /**
  * POST /api/link
@@ -25,23 +24,7 @@ import { rateLimit, rateLimitHeaders, getClientIP, RATE_LIMITS } from "@/lib/rat
  * 3. Browser calls this endpoint with the public key (session cookie authenticates)
  */
 export async function POST(request: NextRequest) {
-  // Apply rate limiting
-  const clientIP = getClientIP(request.headers)
-  const rateLimitResult = rateLimit(clientIP, RATE_LIMITS.link)
-  const headers = rateLimitHeaders(rateLimitResult)
-
-  if (!rateLimitResult.allowed) {
-    return NextResponse.json(
-      {
-        error: "Too many requests. Please try again later.",
-        retryAfter: rateLimitResult.retryAfter,
-      },
-      {
-        status: 429,
-        headers: { ...headers, "Retry-After": String(rateLimitResult.retryAfter) },
-      }
-    )
-  }
+  const headers: Record<string, string> = {}
 
   let body: Record<string, unknown>
   try {

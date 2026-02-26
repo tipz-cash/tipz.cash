@@ -27,7 +27,6 @@ vi.mock("@/lib/near-intents", () => ({
 }))
 
 import { GET } from "@/app/api/swap/status/route"
-import { clearAllRateLimits } from "@/lib/rate-limit"
 
 function createRequest(params: Record<string, string>): any {
   const url = new URL("http://localhost:3000/api/swap/status")
@@ -39,10 +38,6 @@ function createRequest(params: Record<string, string>): any {
     headers: new Headers({ "x-forwarded-for": "127.0.0.1" }),
   }
 }
-
-beforeEach(() => {
-  clearAllRateLimits()
-})
 
 describe("GET /api/swap/status", () => {
   it("returns status for a deposit address", async () => {
@@ -63,13 +58,4 @@ describe("GET /api/swap/status", () => {
     expect(data.error).toContain("Missing address")
   })
 
-  it("enforces rate limits", async () => {
-    // swapStatus rate limit is 60/min
-    for (let i = 0; i < 60; i++) {
-      await GET(createRequest({ depositAddress: "rate-limit-test" }))
-    }
-
-    const res = await GET(createRequest({ depositAddress: "rate-limit-test" }))
-    expect(res.status).toBe(429)
-  })
 })

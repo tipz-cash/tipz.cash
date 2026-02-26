@@ -11,9 +11,15 @@ const mockSelect = vi.fn(() => ({
 vi.mock("@/lib/supabase", () => ({
   supabase: {
     from: () => ({
-      select: mockSelect,
+      select: (...args: any[]) => {
+        // Count query: .select("id", { count: "exact", head: true })
+        if (args[1]?.count === "exact") {
+          return { eq: () => Promise.resolve({ count: 3, error: null }) }
+        }
+        return mockSelect(...args)
+      },
       insert: mockInsert,
-      update: () => ({ eq: mockUpdate }),
+      update: () => ({ eq: () => Promise.resolve({ error: null }) }),
     }),
   },
   normalizeHandle: (h: string) => h.toLowerCase().replace(/^@/, ""),
@@ -34,7 +40,6 @@ vi.mock("@/lib/session", () => ({
 }))
 
 import { POST } from "@/app/api/register/route"
-import { clearAllRateLimits } from "@/lib/rate-limit"
 import { findCreatorByHandle } from "@/lib/supabase"
 
 const VALID_U1 = "u1" + "q".repeat(139) // 141 chars, bech32m charset
@@ -55,7 +60,6 @@ function validBody(overrides: Record<string, unknown> = {}) {
 }
 
 beforeEach(() => {
-  clearAllRateLimits()
   mockSingle.mockReset()
   mockInsert.mockReset()
   mockUpdate.mockReset()
@@ -177,22 +181,6 @@ describe("POST /api/register", () => {
     // After stripping HTML, the address won't start with u1
     const data = await res.json()
     expect(data.code).toBe("INVALID_ADDRESS")
-  })
-
-  // ================================================================
-  // Rate Limiting
-  // ================================================================
-
-  it("enforces registration rate limits", async () => {
-    // Registration is 10 per hour
-    for (let i = 0; i < 10; i++) {
-      await POST(createRequest(validBody()))
-    }
-
-    const res = await POST(createRequest(validBody()))
-    expect(res.status).toBe(429)
-    const data = await res.json()
-    expect(data.code).toBe("RATE_LIMITED")
   })
 
   // ================================================================

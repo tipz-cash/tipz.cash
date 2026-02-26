@@ -69,7 +69,6 @@ vi.mock("@/lib/transactions", () => ({
 import { POST as quoteHandler } from "@/app/api/swap/quote/route"
 import { POST as executeHandler } from "@/app/api/swap/execute/route"
 import { GET as statusHandler } from "@/app/api/swap/status/route"
-import { clearAllRateLimits } from "@/lib/rate-limit"
 
 const VALID_ZEC_ADDRESS = "u1" + "q".repeat(139)
 const VALID_ETH_ADDRESS = "0x1234567890abcdef1234567890abcdef12345678"
@@ -91,10 +90,6 @@ function createGetRequest(params: Record<string, string>): any {
     headers: new Headers({ "x-forwarded-for": "10.0.0.1" }),
   }
 }
-
-beforeEach(() => {
-  clearAllRateLimits()
-})
 
 describe("Full Payment Flow", () => {
   it("completes a full ETH → ZEC tip flow", async () => {
