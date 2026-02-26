@@ -134,6 +134,7 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 /* Section base styles */
@@ -492,8 +493,8 @@ a {
 /* Hero glow background */
 .hero-glow {
   position: absolute;
-  width: min(600px, 100vw);
-  height: min(600px, 100vw);
+  width: min(600px, 100%);
+  height: min(600px, 100%);
   background: radial-gradient(ellipse at center, rgba(244, 183, 40, 0.12) 0%, transparent 70%);
   pointer-events: none;
   z-index: -1;
