@@ -723,23 +723,14 @@ export default function RegisterPage() {
                   <p style={{ margin: 0, fontSize: "12px", color: colors.text, lineHeight: 1.5 }}>
                     Download{" "}
                     <a
-                      href="https://zecwallet.co/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: colors.primary, textDecoration: "underline" }}
-                    >
-                      Zecwallet Lite
-                    </a>{" "}
-                    (desktop) or{" "}
-                    <a
-                      href="https://zashi.app/"
+                      href="https://www.zashi.app/"
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: colors.primary, textDecoration: "underline" }}
                     >
                       Zashi
                     </a>{" "}
-                    (mobile) — free, under 2 minutes.
+                    (iOS / Android / desktop) — free, under 2 minutes.
                   </p>
                 </div>
               </details>

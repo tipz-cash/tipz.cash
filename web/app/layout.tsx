@@ -42,14 +42,14 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "TIPZ",
     url: "https://tipz.cash",
-    images: [{ url: "/api/og", width: 1200, height: 630, alt: "TIPZ - Uncensorable Income on X" }],
+    images: [{ url: "/og-image.png", width: 3200, height: 1800, alt: "TIPZ - Private tips for creators" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "TIPZ - Private Tips. Any Asset. Zero Fees.",
     description:
       "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
-    images: ["/og-image.png"],
+    images: [{ url: "/og-image.png", alt: "TIPZ - Private tips for creators" }],
   },
 }
 

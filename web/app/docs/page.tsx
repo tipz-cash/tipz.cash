@@ -559,21 +559,12 @@ Auto-refund if swap fails (rare, but handled).`}</CodeBlock>
         <Callout>
           For maximum privacy, tip directly with shielded ZEC using{" "}
           <a
-            href="https://electriccoin.co/zashi/"
+            href="https://www.zashi.app/"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: colors.primary, textDecoration: "underline" }}
           >
             Zashi
-          </a>{" "}
-          or{" "}
-          <a
-            href="https://zodl.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: colors.primary, textDecoration: "underline" }}
-          >
-            Zodl
           </a>
           . Zero public footprint. Zero trace.
         </Callout>
@@ -754,7 +745,7 @@ function CreatorsTab() {
 
         <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
           <a
-            href="https://electriccoin.co/zashi/"
+            href="https://www.zashi.app/"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -1115,8 +1106,8 @@ function CreatorsTab() {
                   Your wallet still gets it
                 </span>
                 <p style={{ color: colors.muted, margin: "4px 0 0" }}>
-                  The ZEC lands in your Zashi or Zodl wallet regardless. Only you hold the viewing
-                  key to see it.
+                  The ZEC lands in your Zashi wallet regardless. Only you hold the viewing key to
+                  see it.
                 </p>
               </div>
             </div>
@@ -1149,7 +1140,7 @@ function CreatorsTab() {
 
         <Callout>
           This is the power of real privacy. Not even the platform that connects you can surveil
-          your income. Check your Zashi or Zodl wallet periodically for direct ZEC tips.
+          your income. Check your Zashi wallet periodically for direct ZEC tips.
         </Callout>
       </section>
 
@@ -1547,7 +1538,7 @@ OUTPUT
             gap: "12px",
           }}
         >
-          {[{ name: "ZODL", note: "Recommended", url: "https://zodl.com" }].map((wallet) => (
+          {[{ name: "Zashi", note: "Recommended", url: "https://www.zashi.app/" }].map((wallet) => (
             <a
               key={wallet.name}
               href={wallet.url}
@@ -1789,21 +1780,12 @@ Key Management:
                 address, amount, and link to your wallet. For zero public footprint, tip directly
                 with shielded ZEC via{" "}
                 <a
-                  href="https://electriccoin.co/zashi/"
+                  href="https://www.zashi.app/"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: colors.primary, textDecoration: "underline" }}
                 >
                   Zashi
-                </a>{" "}
-                or{" "}
-                <a
-                  href="https://zodl.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: colors.primary, textDecoration: "underline" }}
-                >
-                  Zodl
                 </a>
                 .
               </p>
@@ -2670,7 +2652,7 @@ TIPZ (shielded ZEC):
               {[
                 {
                   title: "Tip directly with ZEC",
-                  desc: "Bypasses NEAR Intents entirely. Zero metadata. Use Zashi or Zodl.",
+                  desc: "Bypasses NEAR Intents entirely. Zero metadata. Use Zashi.",
                 },
                 {
                   title: "Use a dedicated wallet",
