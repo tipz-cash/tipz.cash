@@ -39,3 +39,9 @@ yarn-error.log*
 # Extension builds
 extension/build/
 extension/keys.json
+
+# Local assets / marketing
+Social Media /
+
+# Supabase local
+supabase/.temp/
