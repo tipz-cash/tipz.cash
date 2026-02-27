@@ -53,81 +53,103 @@ tipz/
 ├── web/                           # Next.js 16 app
 │   ├── app/
 │   │   ├── page.tsx               # Landing page
-│   │   ├── [handle]/page.tsx      # Creator tip page (/:handle)
-│   │   ├── my/                    # Creator dashboard (auth-gated)
+│   │   ├── layout.tsx             # Root layout
+│   │   ├── error.tsx              # Error boundary
+│   │   ├── not-found.tsx          # 404 page
+│   │   ├── robots.ts             # robots.txt generation
+│   │   ├── sitemap.ts            # Sitemap generation
+│   │   ├── icon.tsx              # Favicon generation
+│   │   ├── apple-icon.tsx        # Apple touch icon
+│   │   ├── landing.css           # Landing page animations/keyframes
+│   │   ├── [handle]/page.tsx     # Creator tip page (/:handle)
+│   │   ├── my/                   # Creator dashboard (auth-gated)
 │   │   │   ├── page.tsx
-│   │   │   ├── components/        # Dashboard UI (ActivityFeed, HeroStat, StampTools, etc.)
-│   │   │   └── hooks/             # useRealtimeTips (Supabase WebSocket)
-│   │   ├── register/page.tsx      # Registration wizard
-│   │   ├── creators/page.tsx      # Creator directory
-│   │   ├── manifesto/page.tsx     # Mission statement
-│   │   ├── docs/page.tsx          # Documentation
-│   │   ├── coming-soon/page.tsx   # Pre-launch lockdown
-│   │   ├── landing.css            # Landing page animations/keyframes
+│   │   │   ├── components/       # ActivityFeed, HeroStat, StampTools, etc.
+│   │   │   └── hooks/            # useRealtimeTips (Supabase WebSocket)
+│   │   ├── register/page.tsx     # Registration wizard
+│   │   ├── creators/page.tsx     # Creator directory
+│   │   ├── manifesto/page.tsx    # Mission statement
+│   │   ├── docs/page.tsx         # Documentation
 │   │   └── api/
-│   │       ├── auth/              # Twitter OAuth 2.0 PKCE
-│   │       ├── swap/              # Quote, execute, status (NEAR Intents)
-│   │       ├── tips/              # Tips data (encrypted)
-│   │       ├── og/                # Dynamic OG image generation
-│   │       ├── register/          # Creator registration
-│   │       ├── creators/          # Creator directory
-│   │       ├── leaderboard/       # Creator rankings
-│   │       ├── activity/          # Recent tip activity
-│   │       ├── creator/           # Single creator lookup
-│   │       ├── mesh/              # MeshConnect link tokens
-│   │       ├── zec-price/         # ZEC price (CoinGecko)
-│   │       └── health/            # Health check
+│   │       ├── auth/             # Twitter OAuth 2.0 PKCE
+│   │       ├── swap/             # Quote, execute, status (NEAR Intents)
+│   │       ├── tips/             # Tips data (encrypted)
+│   │       ├── og/               # Dynamic OG image generation
+│   │       ├── og-spots/         # OG image spot data
+│   │       ├── register/         # Creator registration
+│   │       ├── creators/         # Creator directory
+│   │       ├── creator/          # Single creator lookup
+│   │       ├── leaderboard/      # Creator rankings
+│   │       ├── activity/         # Recent tip activity
+│   │       ├── link/             # Tip link generation
+│   │       ├── zec-price/        # ZEC price (CoinGecko)
+│   │       └── health/           # Health check
 │   ├── components/
-│   │   ├── landing/               # Landing page components
-│   │   │   ├── IronManMorph.tsx   # SVG morph animation (tweet → card → receipt)
-│   │   │   ├── HeroTitle.tsx      # Typing headline animation
+│   │   ├── landing/              # Landing page components
+│   │   │   ├── IronManMorph.tsx  # SVG morph animation (tweet → card → receipt)
+│   │   │   ├── HeroTitle.tsx     # Typing headline animation
 │   │   │   ├── TypingComponents.tsx # Cursor, animated characters
-│   │   │   ├── TypingHeading.tsx  # Section headings with typing effect
+│   │   │   ├── TypingHeading.tsx # Section headings with typing effect
 │   │   │   ├── TerminalReveal.tsx # Scroll-triggered reveal
-│   │   │   ├── LandingUI.tsx      # Stats, chapter nav, card preview
-│   │   │   └── constants.tsx      # Chapter data, layout constants
-│   │   ├── tipping/               # Tipping flow components
-│   │   │   ├── TippingFlow.tsx    # Multi-step tipping wizard
+│   │   │   ├── LandingUI.tsx     # Stats, chapter nav, card preview
+│   │   │   └── constants.tsx     # Chapter data, layout constants
+│   │   ├── tipping/              # Tipping flow components
+│   │   │   ├── TippingFlow.tsx   # Multi-step tipping wizard
 │   │   │   ├── AmountSelector.tsx # Amount input + presets
-│   │   │   ├── TokenSelector.tsx  # ETH/SOL/USDC/USDT picker
-│   │   │   ├── WalletConnect.tsx  # Wallet connection UI
-│   │   │   ├── MessageTrench.tsx  # Encrypted message input
-│   │   │   └── TransactionStatus.tsx # Tx confirmation
+│   │   │   ├── TokenSelector.tsx # ETH/SOL/USDC/USDT picker
+│   │   │   ├── PaymentMethodPicker.tsx # Payment method selection
+│   │   │   ├── WalletConnect.tsx # Wallet connection UI
+│   │   │   ├── MessageTrench.tsx # Encrypted message input
+│   │   │   ├── TransactionStatus.tsx # Tx confirmation
+│   │   │   ├── TipHistory.tsx    # Past tips display
+│   │   │   ├── TipSummary.tsx    # Tip summary card
+│   │   │   ├── ZecDirectSend.tsx # Direct ZEC send
+│   │   │   └── designTokens.ts  # Tipping component design tokens
+│   │   ├── ui/                   # shadcn/ui primitives
 │   │   ├── SiteHeader.tsx
 │   │   ├── CreatorCard.tsx
+│   │   ├── CreatorModal.tsx
 │   │   ├── Leaderboard.tsx
+│   │   ├── ActivityTicker.tsx
+│   │   ├── LetterGridBackground.tsx
 │   │   └── TipzLogo.tsx
 │   ├── hooks/
-│   │   ├── useTipping.ts          # Tipping state machine (quote → sign → deliver → poll)
-│   │   ├── useWallet.ts           # Wallet connection + balance
-│   │   ├── useLandingHooks.ts     # Landing page animations/scroll
-│   │   ├── useResponsive.ts       # Breakpoint detection
-│   │   └── useTextScramble.ts     # Text scramble effect
+│   │   ├── useTipping.ts         # Tipping state machine (quote → sign → deliver → poll)
+│   │   ├── useWallet.ts          # Wallet connection + balance
+│   │   ├── useLandingHooks.ts    # Landing page animations/scroll
+│   │   ├── useResponsive.ts      # Breakpoint detection
+│   │   └── useTextScramble.ts    # Text scramble effect
 │   ├── lib/
-│   │   ├── wallet.ts              # Wallet connection, tx execution
-│   │   ├── near-intents.ts        # NEAR Intents API (quote/execute/status)
-│   │   ├── near.ts                # NEAR core utilities
-│   │   ├── session.ts             # JWT session (HS256, httpOnly, 7-day TTL)
-│   │   ├── supabase.ts            # Supabase server helpers
-│   │   ├── supabase-client.ts     # Supabase browser client
-│   │   ├── message-encryption.ts  # RSA keypair + E2E encryption
-│   │   ├── crypto-client.ts       # Client-side crypto
-│   │   ├── mesh.ts                # MeshConnect SDK wrapper
-│   │   ├── twitter-api.ts         # Twitter API integration
-│   │   ├── colors.ts              # Design system color palette
-│   │   ├── animations.ts          # Framer Motion helpers
-│   │   └── rate-limit.ts          # API rate limiting
-│   ├── __tests__/                 # Vitest tests (10 test files)
+│   │   ├── wallet.ts             # Wallet connection, tx execution
+│   │   ├── near-intents.ts       # NEAR Intents API (quote/execute/status)
+│   │   ├── near.ts               # NEAR core utilities
+│   │   ├── session.ts            # JWT session (HS256, httpOnly, 7-day TTL)
+│   │   ├── supabase.ts           # Supabase server helpers
+│   │   ├── supabase-client.ts    # Supabase browser client
+│   │   ├── message-encryption.ts # RSA keypair + E2E encryption
+│   │   ├── crypto-client.ts      # Client-side crypto
+│   │   ├── twitter-api.ts        # Twitter API integration
+│   │   ├── wagmi.ts              # Wagmi EVM wallet config
+│   │   ├── tipz.ts               # Core tipz utilities
+│   │   ├── qrcode.ts             # QR code generation
+│   │   ├── og-fonts.ts           # OG image font loading
+│   │   ├── colors.ts             # Design system color palette
+│   │   ├── animations.ts         # Framer Motion helpers
+│   │   ├── responsive.ts         # Responsive breakpoints
+│   │   └── utils.ts              # General utilities
+│   ├── __tests__/                # Vitest tests (9 test files)
+│   ├── scripts/                  # Dev utilities
 │   └── public/
-│       ├── fonts/                 # JetBrains Mono, Inter
-│       ├── icons/                 # Wallet icons (Phantom, Rabby)
-│       └── zec/                   # Zcash assets
+│       ├── fonts/                # JetBrains Mono, Inter
+│       ├── icons/                # Wallet icons (Phantom, Rabby)
+│       └── zec/                  # Zcash assets
 ├── supabase/
-│   └── migrations/                # 13 migration files
+│   └── migrations/               # 13 migration files
 └── docs/
-    ├── engineering/               # Architecture, roadmap
-    ├── technical/                  # Implementation guides
-    └── operations/                 # Runbooks, support
+    ├── engineering/              # Architecture, API reference
+    ├── technical/                # Implementation guides
+    ├── operations/               # Support FAQ
+    └── brand/                    # Logo philosophy
 ```
 
 ## Tech Stack
@@ -136,10 +158,9 @@ tipz/
 - **Styling**: Tailwind CSS, Framer Motion
 - **Database**: Supabase (PostgreSQL + Realtime WebSocket)
 - **Payments**: NEAR Intents (cross-chain swaps)
-- **Web3**: ethers.js (EVM), @solana/web3.js (Solana)
+- **Web3**: ethers.js (EVM), @solana/web3.js (Solana), Wagmi
 - **Auth**: Twitter OAuth 2.0 PKCE, JWT sessions
-- **Encryption**: RSA-OAEP 4096-bit + AES-GCM (hybrid E2E)
-- **Testing**: Vitest, Playwright
+- **Testing**: Vitest
 
 ## API Endpoints
 
@@ -159,7 +180,7 @@ tipz/
 | `/api/og` | GET | Default OG image |
 | `/api/og/[handle]` | GET | Dynamic OG image per creator |
 | `/api/register` | POST | Register as creator |
-
+| `/api/link` | GET | Tip link generation |
 
 ### Swap (NEAR Intents)
 
@@ -178,8 +199,6 @@ tipz/
 | `/api/auth/me` | GET | Check session status |
 | `/api/auth/logout` | POST | End session |
 
-Tips endpoints are safe to be public because all sensitive data (amounts, memos) lives in an encrypted `data` blob — only the creator's RSA private key (stored in IndexedDB) can decrypt it.
-
 ## Database Schema
 
 ### creators
@@ -192,9 +211,9 @@ CREATE TABLE creators (
   handle_normalized TEXT NOT NULL,
   shielded_address TEXT NOT NULL,
   verification_status verification_status DEFAULT 'pending',
-  public_key JSONB,                    -- RSA-OAEP 4096-bit JWK for message encryption
+  public_key JSONB,
   key_created_at TIMESTAMPTZ,
-  avatar_url TEXT,                     -- X/Twitter profile image
+  avatar_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(platform, handle_normalized)
 );
@@ -207,11 +226,9 @@ CREATE TABLE tipz (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   creator_id UUID REFERENCES creators(id) ON DELETE SET NULL,
-  source_platform TEXT NOT NULL,       -- 'x', 'web', etc.
+  source_platform TEXT NOT NULL,
   status transaction_status NOT NULL DEFAULT 'pending',
-  data TEXT                            -- Encrypted blob (RSA + AES-GCM)
-  -- No plaintext amount columns. All tip amounts and memos live
-  -- exclusively inside the encrypted data blob.
+  data TEXT
 );
 ```
 
@@ -228,7 +245,6 @@ See `.env.example` in `/web` for full configuration. Key groups:
 | `TWITTER_BEARER_TOKEN` | No | Avatar fetching from X |
 | `TWITTER_CLIENT_ID` | No | Creator dashboard OAuth |
 | `SESSION_SECRET` | Yes | JWT cookie signing |
-| `NEXT_PUBLIC_MESH_CLIENT_ID`, `MESH_CLIENT_SECRET` | No | MeshConnect fiat/exchange payments |
 | `COINGECKO_API_KEY` | No | Higher rate limits for ZEC price |
 
 ## Testing
@@ -238,14 +254,14 @@ npm run test         # Run all tests
 npm run test:watch   # Watch mode
 ```
 
-10 test files covering swap quotes/execute/status, NEAR Intents integration, registration, tips API, payment flows, and rate limiting.
+9 test files covering swap quotes/execute/status, NEAR Intents integration, registration, tips API, and payment flows.
 
 ## Documentation
 
-- [Engineering Roadmap](./docs/engineering/roadmap.md)
-- [Architecture](./docs/engineering/)
-- [Operations](./docs/operations/)
-
-## License
-
-MIT
+- [Architecture](./docs/engineering/architecture.md)
+- [API Reference](./docs/engineering/api-reference.md)
+- [NEAR Intents Integration](./docs/technical/near-intents-integration.md)
+- [Private Messaging Spec](./docs/engineering/private-messaging-spec.md)
+- [Support FAQ](./docs/operations/support.md)
+- [Design System](./docs/design-system.md)
+- [Brand Philosophy](./docs/brand/logo-philosophy.md)

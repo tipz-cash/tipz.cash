@@ -1,50 +1,34 @@
 # TIPZ Documentation
 
-Welcome to the TIPZ documentation hub. This directory contains all planning, strategy, and technical documentation for the TIPZ private micro-tipping platform.
+Technical documentation for the TIPZ private micro-tipping platform.
 
 ## Directory Structure
 
 ```
 docs/
-├── design/           # Brand, components, UX flows
-├── engineering/      # Architecture, API, roadmap
-├── gtm/              # Go-to-market, partnerships, launch
-├── guides/           # User-facing how-to guides
-├── marketing/        # Messaging, content, assets
-└── operations/       # Deployment, monitoring, support
+├── engineering/              # Architecture, API reference, messaging spec
+├── technical/                # NEAR Intents integration guide
+├── operations/               # Support FAQ and troubleshooting
+├── brand/                    # Logo philosophy and design principles
+└── design-system.md          # Visual design tokens and component specs
 ```
 
 ## Quick Links
 
-### Design
-- [Brand Guidelines](./design/brand-guidelines.md) - Colors, typography, logo usage
-- [Component Library](./design/component-library.md) - UI component specs
-- [UX Flows](./design/ux-flows.md) - User journey maps
-
-### Marketing
-- [Messaging](./marketing/messaging.md) - Value props, taglines, copy
-- [Content Calendar](./marketing/content-calendar.md) - Social/blog schedule
-- [Assets](./marketing/assets.md) - Graphics, videos, demos
-
-### Go-to-Market
-- [Strategy](./gtm/strategy.md) - Go-to-market plan
-- [KOL Outreach](./gtm/kol-outreach.md) - Influencer relationships
-- [Partnerships](./gtm/partnerships.md) - Ecosystem integrations
-- [Launch Checklist](./gtm/launch-checklist.md) - Pre-launch tasks
-
 ### Engineering
-- [Architecture](./engineering/architecture.md) - System design
-- [API Reference](./engineering/api-reference.md) - Endpoint documentation
-- [Roadmap](./engineering/roadmap.md) - Feature priorities
+- [Architecture](./engineering/architecture.md) — System design and data flows
+- [API Reference](./engineering/api-reference.md) — Endpoint documentation
+- [Private Messaging Spec](./engineering/private-messaging-spec.md) — E2E encryption technical spec
+
+### Technical
+- [NEAR Intents Integration](./technical/near-intents-integration.md) — Cross-chain swap implementation
 
 ### Operations
-- [Runbook](./operations/runbook.md) - Deployment, monitoring
-- [Support](./operations/support.md) - FAQ, troubleshooting
+- [Support](./operations/support.md) — FAQ and troubleshooting
 
-### Guides
-- [Tipping from Exchange](./guides/tipping-from-exchange.md) - Tip without a wallet via Mesh Connect
-- [Creator Onboarding](./guides/creator-onboarding.md) - Set up your tip page
-- [Privacy Guarantees](./guides/privacy-guarantees.md) - How TIPZ protects your privacy
+### Design
+- [Design System](./design-system.md) — Colors, typography, component patterns
+- [Logo Philosophy](./brand/logo-philosophy.md) — Brand design principles
 
 ## Product Overview
 
@@ -52,16 +36,7 @@ docs/
 
 **Core Value Proposition**: Private tips. Any asset. Zero trace.
 
-**Target Audience**: Crypto-native creators on X/Twitter and Substack
-
 **Tech Stack**:
-- Web App: Next.js 16, Supabase
-- Extension: Plasmo, Chrome MV3
-- Payments: SwapKit SDK, NEAR Intents, Zcash shielded
-
-## Contributing
-
-Each workstream has its own directory. When making changes:
-- Design decisions go in `/docs/design/`
-- Copy and messaging go in `/docs/marketing/`
-- Commit messages should prefix with workstream: `[design]`, `[marketing]`, `[gtm]`, `[ext]`, `[api]`
+- Web App: Next.js 16, Supabase, TypeScript
+- Payments: NEAR Intents (cross-chain swaps to shielded ZEC)
+- Web3: ethers.js (EVM), @solana/web3.js (Solana), Wagmi
