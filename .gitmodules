@@ -1,3 +1,0 @@
-[submodule ".claude/skills/skill-bank"]
-	path = .claude/skills/skill-bank
-	url = https://github.com/defi-naly/skillbank.git
