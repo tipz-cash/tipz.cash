@@ -109,6 +109,6 @@ Tip shows as sent in your wallet?
 
 ## Contact
 
-- Twitter: [@tipaborrem](https://x.com/tipaborrem)
+- Twitter: [@tipz_cash](https://x.com/tipz_cash)
 - Documentation: tipz.cash/docs
 - GitHub: github.com/tipz-cash/tipz.cash
