@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/my/", "/register/"],
       },
     ],
-    sitemap: "https://tipz.cash/sitemap.xml",
+    sitemap: "https://www.tipz.cash/sitemap.xml",
   }
 }
