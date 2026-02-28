@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     title: "TIPZ",
   },
   openGraph: {
-    title: "TIPZ - Private Tips. Any Asset. Zero Fees.",
+    title: "TIPZ - Private Tips. Any Asset. Zero Platform Fees.",
     description:
       "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
     type: "website",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TIPZ - Private Tips. Any Asset. Zero Fees.",
+    title: "TIPZ - Private Tips. Any Asset. Zero Platform Fees.",
     description:
       "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
     images: [{ url: "/og-image.png", alt: "TIPZ - Private tips for creators" }],

@@ -435,7 +435,7 @@ export default function ManifestoPage() {
               lineHeight: 1.6,
             }}
           >
-            Register as a creator or install the extension to start tipping privately.
+            Register as a creator to start receiving private tips.
           </p>
           <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
             <Link
@@ -455,23 +455,6 @@ export default function ManifestoPage() {
             >
               Register as Creator →
             </Link>
-            <a
-              href="https://chromewebstore.google.com/detail/tipz"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cta-secondary"
-              style={{
-                backgroundColor: "transparent",
-                color: colors.textBright,
-                border: `1px solid ${colors.border}`,
-                padding: "16px 32px",
-                fontFamily: "var(--font-family-mono)",
-                fontSize: "14px",
-                textDecoration: "none",
-              }}
-            >
-              Install Extension
-            </a>
           </div>
         </div>
       </section>
@@ -529,7 +512,7 @@ export default function ManifestoPage() {
             MY TIPZ
           </Link>
           <a
-            href="https://github.com/tipz-app"
+            href="https://github.com/tipz-cash"
             target="_blank"
             rel="noopener noreferrer"
             style={{

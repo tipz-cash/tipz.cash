@@ -1115,7 +1115,7 @@ export default function HomePage() {
                         fontSize: "13px",
                         color: colors.muted,
                         marginTop: "4px",
-                      }}>100% yours. Self-custody. Zero fees.</div>
+                      }}>100% yours. Self-custody. Zero platform fees.</div>
                     </div>
                   </div>
 
@@ -2420,7 +2420,7 @@ export default function HomePage() {
                   {
                     step: "03",
                     title: "Confirm & send",
-                    desc: "100% arrives instantly. Zero fees. Shielded delivery.",
+                    desc: "100% arrives instantly. Zero platform fees. Shielded delivery.",
                     icon: "/icons/lock.svg",
                   },
                 ]}
@@ -2592,7 +2592,7 @@ export default function HomePage() {
           <a href="/manifesto" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>MANIFESTO</a>
           <a href="/docs" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>DOCS</a>
           <a href="/my" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>MY TIPZ</a>
-          <a href="https://github.com/tipz-app" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>GITHUB</a>
+          <a href="https://github.com/tipz-cash" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>GITHUB</a>
           <a href="https://x.com/tipz_cash" target="_blank" rel="noopener noreferrer" style={{ color: colors.muted, textDecoration: "none", fontSize: "11px", letterSpacing: "1px", transition: "color 0.2s" }}>X</a>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", color: colors.muted }}>

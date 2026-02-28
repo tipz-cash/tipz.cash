@@ -457,7 +457,7 @@
   100% { background-position: 200% 0; }
 }
 
-/* Red pulse for competitor fees */
+/* Red pulse for comparison fees */
 @keyframes idle-pulse-red {
   0%, 100% { color: #EF4444; }
   50% { color: #F87171; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }

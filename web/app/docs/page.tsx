@@ -2212,7 +2212,7 @@ TIPZ (shielded ZEC):
                   tipperPrivacy: "Full (shielded)",
                   creatorPrivacy: "Full",
                   custody: "Self-custody",
-                  fees: "0%",
+                  fees: "0% platform",
                   highlight: true,
                 },
               ].map((row) => (
