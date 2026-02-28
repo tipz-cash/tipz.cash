@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og"
 import { NextRequest } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { getJetBrainsMonoBold, getOgFonts } from "@/lib/og-fonts"
 
 export const runtime = "edge"
 
@@ -13,6 +14,23 @@ function getAvatarHue(handle: string): number {
   return handle.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360
 }
 
+async function loadCreator(normalizedHandle: string): Promise<{ handle: string; avatar_url?: string } | null> {
+  const supabaseUrl = process.env.SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY
+  if (!supabaseUrl || !supabaseKey) return null
+  try {
+    const supabase = createClient(supabaseUrl, supabaseKey)
+    const { data } = await supabase
+      .from('creators')
+      .select('handle, avatar_url')
+      .eq('handle_normalized', normalizedHandle)
+      .single()
+    return data
+  } catch {
+    return null
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ handle: string }> }
@@ -20,25 +38,13 @@ export async function GET(
   const { handle } = await params
   const cleanHandle = handle.replace(/^@/, "")
   const normalizedHandle = normalizeHandle(cleanHandle)
+  const baseUrl = new URL(request.url).origin
 
-  // Look up creator in database
-  let creator: { handle: string; avatar_url?: string } | null = null
-  const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_SERVICE_KEY
-
-  if (supabaseUrl && supabaseKey) {
-    try {
-      const supabase = createClient(supabaseUrl, supabaseKey)
-      const { data } = await supabase
-        .from('creators')
-        .select('handle, avatar_url')
-        .eq('handle_normalized', normalizedHandle)
-        .single()
-      creator = data
-    } catch {
-      // Silently fail - creator will be null
-    }
-  }
+  // Load font + creator data in parallel
+  const [fontData, creator] = await Promise.all([
+    getJetBrainsMonoBold(baseUrl),
+    loadCreator(normalizedHandle),
+  ])
 
   const displayHandle = creator?.handle || cleanHandle
   const avatarHue = getAvatarHue(displayHandle)
@@ -91,7 +97,7 @@ export async function GET(
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: colors.bg,
-          fontFamily: "system-ui, -apple-system, sans-serif",
+          fontFamily: "JetBrains Mono, monospace",
         }}
       >
         {/* Wall-to-Wall Dense App Terminal */}
@@ -383,6 +389,10 @@ export async function GET(
     {
       width: 1200,
       height: 630,
+      fonts: getOgFonts(fontData),
+      headers: {
+        "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+      },
     }
   )
 }
