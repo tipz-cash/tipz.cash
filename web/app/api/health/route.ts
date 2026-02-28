@@ -42,7 +42,6 @@ interface HealthStatus {
     tipz_table: DatabaseCheck
     environment: {
       status: "configured" | "misconfigured"
-      missing_vars?: string[]
     }
     near: {
       status: "configured" | "not_configured"
@@ -114,7 +113,6 @@ export async function GET() {
     health.status = "degraded"
     health.checks.environment = {
       status: "misconfigured",
-      missing_vars: envCheck.missing,
     }
   }
 

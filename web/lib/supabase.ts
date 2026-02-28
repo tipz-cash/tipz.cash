@@ -48,10 +48,11 @@ export async function findCreatorByHandle(
   }
 
   const normalized = normalizeHandle(handle)
+  const safe = normalized.replace(/[^a-z0-9_]/g, "")
   const select = options?.select ?? "id"
 
   // Primary: fast path via handle_normalized
-  let query = supabase.from("creators").select(select).eq("handle_normalized", normalized)
+  let query = supabase.from("creators").select(select).eq("handle_normalized", safe)
   if (options?.platform) {
     query = query.eq("platform", options.platform)
   }
@@ -65,7 +66,7 @@ export async function findCreatorByHandle(
   let fallbackQuery = supabase
     .from("creators")
     .select(select)
-    .or(`handle.ilike.${normalized},handle.ilike.@${normalized}`)
+    .or(`handle.ilike.${safe},handle.ilike.@${safe}`)
   if (options?.platform) {
     fallbackQuery = fallbackQuery.eq("platform", options.platform)
   }
@@ -76,10 +77,10 @@ export async function findCreatorByHandle(
     Promise.resolve(
       supabase
         .from("creators")
-        .update({ handle_normalized: normalized })
-        .or(`handle.ilike.${normalized},handle.ilike.@${normalized}`)
+        .update({ handle_normalized: safe })
+        .or(`handle.ilike.${safe},handle.ilike.@${safe}`)
     )
-      .then(() => console.log(`[supabase] Auto-healed handle_normalized for ${normalized}`))
+      .then(() => console.log(`[supabase] Auto-healed handle_normalized for ${safe}`))
       .catch(() => {})
 
     return { data: fallbackData, error: null }
