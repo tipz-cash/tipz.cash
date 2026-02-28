@@ -173,6 +173,7 @@ export function CypherpunkCardPreview({ isMobile }: { isMobile: boolean }) {
               height: "100%",
               objectFit: "cover",
               objectPosition: "center",
+              transform: "scale(1.35)",
             }}
           />
         </div>
