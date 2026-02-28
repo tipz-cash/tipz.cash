@@ -45,3 +45,7 @@ Social Media /
 
 # Supabase local
 supabase/.temp/
+
+# Claude Code
+.claude/
+.agents/
