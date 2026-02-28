@@ -43,10 +43,9 @@ try {
 const BASE_URL = "https://1click.chaindefuser.com"
 const JWT = process.env.NEAR_INTENTS_JWT
 
-// Real ZEC unified address for testing quotes
-// (no funds will be sent — we're only requesting quotes)
+// Dummy ZEC unified address for testing quotes (no funds sent — dry-run only)
 const TEST_ZEC_ADDRESS =
-  "u1testaddr0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  "u1" + "q".repeat(139) + "test"
 const TEST_REFUND_ADDRESS_EVM = "0x0000000000000000000000000000000000000001"
 const TEST_REFUND_ADDRESS_SOL = "11111111111111111111111111111111"
 

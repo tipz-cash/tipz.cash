@@ -1,6 +1,6 @@
 /**
  * Quick script to add a test creator directly to Supabase
- * Run with: npx tsx scripts/add-test-creator.ts
+ * Run with: npx tsx scripts/add-test-creator.ts [handle] [shielded_address]
  */
 
 import { createClient } from "@supabase/supabase-js"
@@ -29,11 +29,16 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 async function addTestCreator() {
+  const handle = process.argv[2] || "testcreator"
+  const address =
+    process.argv[3] ||
+    "u1" + "a".repeat(139) + "test" // dummy address — pass a real one as argv[3]
+
   const creator = {
     platform: "x",
-    handle: "definaly",
-    handle_normalized: "definaly",
-    shielded_address: "u1testaddr1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+    handle,
+    handle_normalized: handle.toLowerCase(),
+    shielded_address: address,
     verification_status: "verified",
     verified_at: new Date().toISOString(),
   }
