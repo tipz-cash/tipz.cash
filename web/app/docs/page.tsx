@@ -2949,7 +2949,7 @@ export default function DocsPage() {
             MY TIPZ
           </Link>
           <a
-            href="https://github.com/tipz-cash"
+            href="https://github.com/tipz-cash/tipz.cash"
             target="_blank"
             rel="noopener noreferrer"
             style={{
