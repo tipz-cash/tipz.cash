@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   description:
     "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
   manifest: "/manifest.json",
-  metadataBase: new URL("https://www.tipz.cash"),
+  metadataBase: new URL("https://tipz.cash"),
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
       "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
     type: "website",
     siteName: "TIPZ",
-    url: "https://www.tipz.cash",
+    url: "https://tipz.cash",
     images: [{ url: "/og-image.png", width: 3200, height: 1800, alt: "TIPZ - Private tips for creators" }],
   },
   twitter: {

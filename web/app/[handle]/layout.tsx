@@ -17,14 +17,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: `@${cleanHandle} | TIPZ`,
       description: `Send private tips to @${cleanHandle} on TIPZ. Powered by Zcash shielded transactions.`,
+      url: `https://tipz.cash/${cleanHandle}`,
       type: "profile",
-      images: [`/api/og/${cleanHandle}`],
+      images: [
+        {
+          url: `https://tipz.cash/api/og/${cleanHandle}`,
+          width: 1200,
+          height: 630,
+          type: "image/png",
+          alt: `Send private tips to @${cleanHandle} on TIPZ`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: `@${cleanHandle} | TIPZ`,
       description: `Send private tips to @${cleanHandle} on TIPZ.`,
-      images: [`/api/og/${cleanHandle}`],
+      images: [
+        {
+          url: `https://tipz.cash/api/og/${cleanHandle}`,
+          width: 1200,
+          height: 630,
+          alt: `Send private tips to @${cleanHandle} on TIPZ`,
+        },
+      ],
     },
   }
 }

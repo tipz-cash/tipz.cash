@@ -1,34 +1,12 @@
 import { ImageResponse } from "next/og"
 import { NextRequest } from "next/server"
-import { createClient } from "@supabase/supabase-js"
 import { getJetBrainsMonoBold, getOgFonts } from "@/lib/og-fonts"
 
 export const runtime = "edge"
 
-function normalizeHandle(handle: string): string {
-  return handle.toLowerCase().replace(/^@/, "")
-}
-
 // Generate avatar color based on handle
 function getAvatarHue(handle: string): number {
   return handle.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360
-}
-
-async function loadCreator(normalizedHandle: string): Promise<{ handle: string; avatar_url?: string } | null> {
-  const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_SERVICE_KEY
-  if (!supabaseUrl || !supabaseKey) return null
-  try {
-    const supabase = createClient(supabaseUrl, supabaseKey)
-    const { data } = await supabase
-      .from('creators')
-      .select('handle, avatar_url')
-      .eq('handle_normalized', normalizedHandle)
-      .single()
-    return data
-  } catch {
-    return null
-  }
 }
 
 export async function GET(
@@ -37,47 +15,18 @@ export async function GET(
 ) {
   const { handle } = await params
   const cleanHandle = handle.replace(/^@/, "")
-  const normalizedHandle = normalizeHandle(cleanHandle)
   const baseUrl = new URL(request.url).origin
 
-  // Load font + creator data in parallel
-  const [fontData, creator] = await Promise.all([
-    getJetBrainsMonoBold(baseUrl),
-    loadCreator(normalizedHandle),
-  ])
+  const fontData = await getJetBrainsMonoBold(baseUrl)
 
-  const displayHandle = creator?.handle || cleanHandle
-  const avatarHue = getAvatarHue(displayHandle)
-
-  // Pre-fetch avatar image and convert to data URL so Satori doesn't need to fetch externally
-  let avatarDataUrl: string | null = null
-  if (creator?.avatar_url) {
-    try {
-      const avatarRes = await fetch(creator.avatar_url)
-      if (avatarRes.ok) {
-        const avatarBuffer = await avatarRes.arrayBuffer()
-        const contentType = avatarRes.headers.get('content-type') || 'image/jpeg'
-        const base64 = Buffer.from(avatarBuffer).toString('base64')
-        avatarDataUrl = `data:${contentType};base64,${base64}`
-      }
-    } catch {
-      // Silently fail - will use letter avatar fallback
-    }
-  }
+  const avatarHue = getAvatarHue(cleanHandle)
 
   // Color palette
   const colors = {
     bg: "#050505",
-    glassBg: "rgba(26, 26, 26, 0.6)",
-    goldBorderTop: "rgba(255, 215, 0, 0.5)",
-    shadowBorderBottom: "rgba(0, 0, 0, 0.8)",
     green: "#00FF94",
-    gold: "#FFD700",
-    orange: "#FFA500",
     textWhite: "#FFFFFF",
     textMuted: "rgba(255, 255, 255, 0.5)",
-    chipBg: "rgba(255, 255, 255, 0.05)",
-    chipBorder: "rgba(255, 255, 255, 0.1)",
   }
 
   const priceChips = [
@@ -124,40 +73,25 @@ export async function GET(
                 gap: "16px",
               }}
             >
-              {/* Avatar - Squircle */}
-              {avatarDataUrl ? (
-                <img
-                  src={avatarDataUrl}
-                  alt={displayHandle}
-                  style={{
-                    width: "56px",
-                    height: "56px",
-                    borderRadius: "14px",
-                    objectFit: "cover",
-                    flexShrink: 0,
-                    boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: "56px",
-                    height: "56px",
-                    borderRadius: "14px",
-                    background: `linear-gradient(135deg, hsl(${avatarHue}, 50%, 35%) 0%, hsl(${avatarHue}, 60%, 25%) 100%)`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "24px",
-                    fontWeight: 800,
-                    color: colors.textWhite,
-                    flexShrink: 0,
-                    boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
-                  }}
-                >
-                  {displayHandle[0]?.toUpperCase() || "?"}
-                </div>
-              )}
+              {/* Avatar - Letter Squircle */}
+              <div
+                style={{
+                  width: "56px",
+                  height: "56px",
+                  borderRadius: "14px",
+                  background: `linear-gradient(135deg, hsl(${avatarHue}, 50%, 35%) 0%, hsl(${avatarHue}, 60%, 25%) 100%)`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "24px",
+                  fontWeight: 800,
+                  color: colors.textWhite,
+                  flexShrink: 0,
+                  boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+                }}
+              >
+                {cleanHandle[0]?.toUpperCase() || "?"}
+              </div>
 
               {/* @handle - Bold Headline */}
               <div
@@ -169,7 +103,7 @@ export async function GET(
                   letterSpacing: "-1px",
                 }}
               >
-                {`@${displayHandle.toLowerCase()}`}
+                {`@${cleanHandle.toLowerCase()}`}
               </div>
             </div>
 
