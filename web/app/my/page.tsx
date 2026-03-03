@@ -442,7 +442,7 @@ export default function MyTipzPage() {
 
     async function checkSession() {
       try {
-        const res = await fetch("/api/auth/me")
+        const res = await fetch("/api/auth/me", { cache: "no-store" })
         const data = await res.json()
 
         if (data.authenticated) {

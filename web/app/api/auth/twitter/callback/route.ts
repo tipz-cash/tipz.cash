@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabase, findCreatorByHandle } from "@/lib/supabase"
 import { createSessionToken, setSessionCookie } from "@/lib/session"
 
+export const dynamic = "force-dynamic"
+
 /**
  * GET /api/auth/twitter/callback?code=...&state=...
  *
