@@ -5,7 +5,7 @@
  * Uses a cache-first strategy for static assets and network-first for API calls.
  */
 
-const CACHE_NAME = "tipz-v1"
+const CACHE_NAME = "tipz-v2"
 
 // Assets to cache on install
 const STATIC_ASSETS = ["/", "/manifest.json", "/icons/icon-192x192.png", "/icons/icon-512x512.png"]
@@ -41,6 +41,12 @@ self.addEventListener("fetch", (event) => {
 
   // Skip non-GET requests
   if (request.method !== "GET") {
+    return
+  }
+
+  // Never intercept auth routes — SW swallows Set-Cookie headers on
+  // redirect responses (opaqueredirect), breaking the OAuth login flow
+  if (url.pathname.startsWith("/api/auth/")) {
     return
   }
 
