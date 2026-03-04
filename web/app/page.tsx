@@ -33,7 +33,7 @@ import {
 import "./landing.css";
 
 export default function HomePage() {
-  const heroText = "Uncensorable\nIncome on X";
+  const heroText = "Private TIPZ\nFor Creators";
   const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const handleHeroComplete = useCallback(() => setHeroAnimationReady(true), []);
   const [tweetVisible, setTweetVisible] = useState(false);
@@ -230,9 +230,7 @@ export default function HomePage() {
                 letterSpacing: "0.01em",
                 color: colors.muted,
               }}>
-                No platform cut. No frozen accounts. No trace.
-                <br />
-                <span style={{ color: colors.textBright }}>Private payments, directly from your audience.</span>
+                Create content, share your link, and let fans tip in any crypto. You receive shielded ZEC with 0% platform fees.
               </p>
             </TerminalReveal>
 
@@ -296,7 +294,7 @@ export default function HomePage() {
                   </svg>
 
                   <span style={{ position: "relative", zIndex: 1, fontFamily: "var(--font-family-mono)" }}>
-                    Claim Your Tipz ID
+                    Claim Your TIPZ ID
                   </span>
                 </a>
 
@@ -402,7 +400,7 @@ export default function HomePage() {
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
                   </svg>
-                  OPTION A: SERFDOM
+                  PLATFORMS: SERFDOM
                 </div>
 
                 {/* THE OWNERSHIP AUDIT - Who owns what */}
@@ -513,7 +511,7 @@ export default function HomePage() {
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                     <circle cx="12" cy="12" r="3"/>
                   </svg>
-                  OPTION B: SURVEILLANCE
+                  CRYPTO: SURVEILLANCE
                 </div>
 
                 {/* THE LOCK ANIMATION - Data being exposed */}

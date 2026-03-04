@@ -60,10 +60,10 @@ export function HeroTitle({
     }
   }, [isComplete, onComplete, prefersReducedMotion]);
 
-  // Find "TIPZ" indices for highlighting
+  // Find "TIPZ" — only highlight the Z
   const tipzStartIndex = text.toLowerCase().indexOf("tipz");
   const isTipzChar = (index: number) => {
-    return tipzStartIndex !== -1 && index >= tipzStartIndex && index < tipzStartIndex + 4;
+    return tipzStartIndex !== -1 && index === tipzStartIndex + 3;
   };
 
   // Check if character is the final "X" (for X logo)

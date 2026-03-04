@@ -103,7 +103,7 @@ export async function GET(_request: NextRequest) {
             marginBottom: "16px",
           }}
         >
-          Private Tips. Any Asset. Zero Trace.
+          Private Tips For Creators
         </div>
 
         {/* Subtitle */}

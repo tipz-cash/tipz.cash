@@ -36,17 +36,17 @@ export const metadata: Metadata = {
     title: "TIPZ",
   },
   openGraph: {
-    title: "TIPZ - Private Tips. Any Asset. Zero Platform Fees.",
+    title: "TIPZ — Private Tips For Creators",
     description:
       "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
     type: "website",
     siteName: "TIPZ",
     url: "https://tipz.cash",
-    images: [{ url: "/og-image.png", width: 3200, height: 1800, alt: "TIPZ - Private tips for creators" }],
+    images: [{ url: "/og-image.png", width: 3200, height: 1800, alt: "TIPZ — Private Tips For Creators" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "TIPZ - Private Tips. Any Asset. Zero Platform Fees.",
+    title: "TIPZ — Private Tips For Creators",
     description:
       "Non-custodial tipping for creators. Tip anyone on X with any token. 0% platform fees. Shielded ZEC delivery.",
     images: [{ url: "/og-image.png", alt: "TIPZ - Private tips for creators" }],
