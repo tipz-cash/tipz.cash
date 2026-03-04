@@ -10,14 +10,13 @@ function getAvatarHue(handle: string): number {
 }
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ handle: string }> }
 ) {
   const { handle } = await params
   const cleanHandle = handle.replace(/^@/, "")
-  const baseUrl = new URL(request.url).origin
 
-  const fontData = await getJetBrainsMonoBold(baseUrl)
+  const fontData = await getJetBrainsMonoBold()
 
   const avatarHue = getAvatarHue(cleanHandle)
 

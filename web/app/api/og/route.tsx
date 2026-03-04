@@ -4,9 +4,8 @@ import { getJetBrainsMonoBold, getOgFonts } from "@/lib/og-fonts"
 
 export const runtime = "edge"
 
-export async function GET(request: NextRequest) {
-  const baseUrl = new URL(request.url).origin
-  const fontData = await getJetBrainsMonoBold(baseUrl)
+export async function GET(_request: NextRequest) {
+  const fontData = await getJetBrainsMonoBold()
 
   return new ImageResponse(
     (

@@ -1,14 +1,12 @@
 // Shared font loader for OG image routes
-// Fetches JetBrains Mono Bold as ArrayBuffer for Satori rendering
+// Reads JetBrains Mono Bold at build time — no runtime self-fetch needed
 
-let fontCache: ArrayBuffer | null = null
+const fontPromise = fetch(
+  new URL("../public/fonts/JetBrainsMono-Bold.ttf", import.meta.url)
+).then((res) => res.arrayBuffer())
 
-export async function getJetBrainsMonoBold(baseUrl: string): Promise<ArrayBuffer> {
-  if (fontCache) return fontCache
-
-  const res = await fetch(`${baseUrl}/fonts/JetBrainsMono-Bold.ttf`)
-  fontCache = await res.arrayBuffer()
-  return fontCache
+export async function getJetBrainsMonoBold(): Promise<ArrayBuffer> {
+  return fontPromise
 }
 
 export function getOgFonts(fontData: ArrayBuffer) {
