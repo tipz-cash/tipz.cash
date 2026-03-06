@@ -35,7 +35,7 @@ export async function GET(
     { amount: "$25", selected: false },
   ]
 
-  return new ImageResponse(
+  const imageResponse = new ImageResponse(
     (
       <div
         style={{
@@ -323,9 +323,17 @@ export async function GET(
       width: 1200,
       height: 630,
       fonts: getOgFonts(fontData),
-      headers: {
-        "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
-      },
     }
   )
+
+  // Buffer the stream so we can set Content-Length (required by Twitter's crawler)
+  const buffer = await imageResponse.arrayBuffer()
+
+  return new Response(buffer, {
+    headers: {
+      "Content-Type": "image/png",
+      "Content-Length": buffer.byteLength.toString(),
+      "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+    },
+  })
 }

@@ -45,6 +45,7 @@ export const metadata: Metadata = {
     images: [{ url: "/og-image.png", width: 3200, height: 1800, alt: "TIPZ — Private Tips For Creators" }],
   },
   twitter: {
+    site: "@tipz_cash",
     card: "summary_large_image",
     title: "TIPZ — Private Tips For Creators",
     description:

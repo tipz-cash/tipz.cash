@@ -225,6 +225,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Upgrade session to include creatorId
+    // Pre-warm OG image CDN cache
+    fetch(`https://tipz.cash/api/og/${normalizedHandle}`).catch(() => {})
+
     const response = NextResponse.json(
       {
         success: true,
@@ -301,6 +304,9 @@ export async function POST(request: NextRequest) {
       }
     }
   }
+
+  // Pre-warm OG image CDN cache
+  fetch(`https://tipz.cash/api/og/${normalizedHandle}`).catch(() => {})
 
   // Upgrade session to include creatorId
   const response = NextResponse.json(
