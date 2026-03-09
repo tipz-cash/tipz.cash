@@ -30,8 +30,21 @@ export default function CreatorsPage() {
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
   const limit = 50
 
+  // Shuffle creators on initial load for variety (Fisher-Yates)
+  const [shuffledCreators, setShuffledCreators] = useState<Creator[]>([])
+
+  useEffect(() => {
+    if (creators.length === 0) return
+    const arr = [...creators]
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+    setShuffledCreators(arr)
+  }, [creators])
+
   // Filter creators based on search query
-  const filteredCreators = creators.filter((creator) =>
+  const filteredCreators = shuffledCreators.filter((creator) =>
     creator.handle.toLowerCase().includes(searchQuery.toLowerCase())
   )
 

@@ -3,80 +3,51 @@
 import { useEffect, useState } from "react"
 import { colors } from "@/lib/colors"
 
-interface LeaderboardEntry {
-  rank: number
+interface RecentCreator {
+  id: string
   handle: string
-  tip_count: number
-  tier: "bronze" | "silver" | "gold"
   avatar_url?: string
-}
-
-interface LeaderboardResponse {
-  leaderboard: LeaderboardEntry[]
-}
-
-// Tier colors: gold, silver, bronze (based on rank position)
-const tierColors = {
-  gold: "#F5A623",
-  silver: "#C0C0C0",
-  bronze: "#CD7F32",
-}
-
-const tierGlows = {
-  gold: "rgba(245, 166, 35, 0.4)",
-  silver: "rgba(192, 192, 192, 0.3)",
-  bronze: "rgba(205, 127, 50, 0.3)",
-}
-
-const tierGlowsStrong = {
-  gold: "rgba(245, 166, 35, 0.6)",
-  silver: "rgba(192, 192, 192, 0.5)",
-  bronze: "rgba(205, 127, 50, 0.5)",
-}
-
-// Get tier based on rank position
-function getTierFromRank(rank: number): "gold" | "silver" | "bronze" {
-  if (rank === 1) return "gold"
-  if (rank === 2) return "silver"
-  return "bronze"
-}
-
-// Privacy: Fuzzy buckets to prevent oracle attacks
-function getSignalBucket(count: number): string {
-  if (count >= 1000) return "1K+ Tipz"
-  if (count >= 500) return "500+ Tipz"
-  if (count >= 200) return "200+ Tipz"
-  if (count >= 100) return "100+ Tipz"
-  if (count >= 50) return "50+ Tipz"
-  if (count >= 10) return "10+ Tipz"
-  return "Tipz"
+  created_at: string
 }
 
 interface LeaderboardProps {
   prefersReducedMotion?: boolean
 }
 
+function timeAgo(dateStr: string): string {
+  const now = Date.now()
+  const then = new Date(dateStr).getTime()
+  const seconds = Math.floor((now - then) / 1000)
+
+  if (seconds < 60) return "just now"
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}d ago`
+  const weeks = Math.floor(days / 7)
+  return `${weeks}w ago`
+}
+
 export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) {
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
+  const [creators, setCreators] = useState<RecentCreator[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchLeaderboard() {
+    async function fetchRecent() {
       try {
-        const res = await fetch("/api/leaderboard?limit=3")
-        const data: LeaderboardResponse = await res.json()
-        setLeaderboard(data.leaderboard)
+        const res = await fetch("/api/creators?limit=3&offset=0")
+        const data = await res.json()
+        setCreators(data.creators ?? [])
       } catch (error) {
-        console.error("[Leaderboard] Fetch error:", error)
+        console.error("[RecentlyJoined] Fetch error:", error)
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchLeaderboard()
-    // Refresh every 5 minutes
-    const interval = setInterval(fetchLeaderboard, 5 * 60 * 1000)
-    return () => clearInterval(interval)
+    fetchRecent()
   }, [])
 
   if (isLoading) {
@@ -119,11 +90,10 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
               style={{
                 width: "100%",
                 maxWidth: "160px",
-                height: "100px",
+                height: "90px",
                 background: "rgba(26, 26, 26, 0.6)",
                 backdropFilter: "blur(16px)",
                 WebkitBackdropFilter: "blur(16px)",
-                borderTop: "1px solid rgba(245, 166, 35, 0.2)",
                 border: `1px solid ${colors.border}`,
                 borderRadius: "16px",
                 animation: prefersReducedMotion
@@ -139,7 +109,7 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
     )
   }
 
-  if (leaderboard.length === 0) {
+  if (creators.length === 0) {
     return null
   }
 
@@ -166,7 +136,7 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
           padding: "0 24px",
         }}
       >
-        {/* Section header with stagger animation */}
+        {/* Section header */}
         <div
           style={{
             textAlign: "center",
@@ -187,25 +157,24 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
               textTransform: "uppercase",
             }}
           >
-            Most Supported
+            Recently Joined
           </h2>
         </div>
 
-        {/* Leaderboard entries - podium style (2nd, 1st, 3rd) */}
+        {/* Recent creators row */}
         <div
           style={{
             display: "flex",
             justifyContent: "center",
-            alignItems: "flex-end",
+            alignItems: "stretch",
             gap: "16px",
             position: "relative",
           }}
         >
-          {/* Reorder for podium: 2nd place left, 1st place center, 3rd place right */}
-          {[leaderboard[1], leaderboard[0], leaderboard[2]].filter(Boolean).map((entry, index) => (
-            <LeaderboardCard
-              key={entry.handle}
-              entry={entry}
+          {creators.map((creator, index) => (
+            <RecentCreatorCard
+              key={creator.id}
+              creator={creator}
               index={index}
               prefersReducedMotion={prefersReducedMotion}
             />
@@ -216,19 +185,15 @@ export function Leaderboard({ prefersReducedMotion = false }: LeaderboardProps) 
   )
 }
 
-interface LeaderboardCardProps {
-  entry: LeaderboardEntry
+interface RecentCreatorCardProps {
+  creator: RecentCreator
   index: number
   prefersReducedMotion: boolean
 }
 
-function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCardProps) {
+function RecentCreatorCard({ creator, index, prefersReducedMotion }: RecentCreatorCardProps) {
   const [isHovered, setIsHovered] = useState(false)
-  // Use rank-based tier (1st = gold, 2nd = silver, 3rd = bronze)
-  const tier = getTierFromRank(entry.rank)
-  const tierColor = tierColors[tier]
-  const tierGlow = tierGlows[tier]
-  const tierGlowStrong = tierGlowsStrong[tier]
+  const accentColor = colors.primary // tipz gold
 
   return (
     <>
@@ -243,45 +208,25 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
             transform: translateY(0);
           }
         }
-
-        @keyframes rankBadgePop {
-          0% {
-            transform: translateX(-50%) scale(0);
-            opacity: 0;
-          }
-          60% {
-            transform: translateX(-50%) scale(1.15);
-          }
-          100% {
-            transform: translateX(-50%) scale(1);
-            opacity: 1;
-          }
-        }
       `}</style>
 
       <a
-        href={`/${entry.handle}`}
+        href={`/${creator.handle}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
-          // @ts-expect-error CSS custom property
-          "--tier-glow": tierGlow,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "10px",
+          gap: "8px",
           padding: "20px 24px",
-          // Podium height: 1st place elevated above others
-          marginBottom: entry.rank === 1 ? 24 : 0,
-          // Glassmorphism background
           background: "rgba(26, 26, 26, 0.6)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
-          // Gradient top border for premium feel
-          borderTop: `1px solid ${isHovered ? tierColor : `${tierColor}40`}`,
-          borderLeft: `1px solid ${isHovered ? `${tierColor}50` : "rgba(255, 255, 255, 0.08)"}`,
-          borderRight: `1px solid ${isHovered ? `${tierColor}50` : "rgba(255, 255, 255, 0.08)"}`,
-          borderBottom: `1px solid ${isHovered ? `${tierColor}30` : "rgba(0, 0, 0, 0.3)"}`,
+          borderTop: `1px solid ${isHovered ? `${accentColor}60` : `${accentColor}20`}`,
+          borderLeft: `1px solid ${isHovered ? `${accentColor}30` : "rgba(255, 255, 255, 0.08)"}`,
+          borderRight: `1px solid ${isHovered ? `${accentColor}30` : "rgba(255, 255, 255, 0.08)"}`,
+          borderBottom: `1px solid ${isHovered ? `${accentColor}20` : "rgba(0, 0, 0, 0.3)"}`,
           borderRadius: "16px",
           textDecoration: "none",
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -289,66 +234,30 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
           minWidth: "96px",
           flex: 1,
           maxWidth: "180px",
-          // Staggered entrance animation
           opacity: 0,
           animation: prefersReducedMotion ? "none" : `fadeInUp 0.5s ease forwards`,
           animationDelay: `${0.1 + index * 0.1}s`,
-          // 3D perspective hover effect
-          transform: isHovered
-            ? "translateY(-6px) perspective(1000px) rotateX(2deg)"
-            : "translateY(0) perspective(1000px) rotateX(0deg)",
-          // Always-on tier glow + intensify on hover
+          transform: isHovered ? "translateY(-4px)" : "translateY(0)",
           boxShadow: isHovered
-            ? `0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px ${tierGlowStrong}`
-            : `0 4px 16px rgba(0, 0, 0, 0.3), 0 0 16px ${tierGlow}`,
+            ? `0 16px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 166, 35, 0.15)`
+            : `0 4px 16px rgba(0, 0, 0, 0.3)`,
         }}
       >
-        {/* Rank badge with pop animation */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-14px",
-            left: "50%",
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-            background: `linear-gradient(135deg, ${tierColor} 0%, ${tierColor}dd 100%)`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "14px",
-            fontWeight: 700,
-            color: colors.bg,
-            fontFamily: "var(--font-family-mono)",
-            boxShadow: `0 0 16px ${tierGlow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
-            opacity: 0,
-            animation: prefersReducedMotion
-              ? "none"
-              : "rankBadgePop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards",
-            animationDelay: `${0.3 + index * 0.1}s`,
-            border: "2px solid rgba(255,255,255,0.2)",
-          }}
-        >
-          {entry.rank}
-        </div>
-
         {/* Avatar */}
-        {entry.avatar_url && (
+        {creator.avatar_url && (
           <div
             style={{
-              marginTop: "8px",
-              width: "48px",
-              height: "48px",
+              width: "44px",
+              height: "44px",
               borderRadius: "50%",
               overflow: "hidden",
-              border: `2px solid ${isHovered ? tierColor : colors.border}`,
+              border: `2px solid ${isHovered ? accentColor : colors.border}`,
               transition: "border-color 0.3s ease",
-              boxShadow: isHovered ? `0 0 12px ${tierGlow}` : "none",
             }}
           >
             <img
-              src={entry.avatar_url}
-              alt={entry.handle}
+              src={creator.avatar_url}
+              alt={creator.handle}
               style={{
                 width: "100%",
                 height: "100%",
@@ -358,10 +267,9 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
           </div>
         )}
 
-        {/* Handle with text glow on hover */}
+        {/* Handle */}
         <span
           style={{
-            marginTop: entry.avatar_url ? "8px" : "12px",
             fontSize: "14px",
             fontWeight: 600,
             color: colors.textBright,
@@ -370,50 +278,21 @@ function LeaderboardCard({ entry, index, prefersReducedMotion }: LeaderboardCard
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
             maxWidth: "100%",
-            transition: "text-shadow 0.3s ease",
-            textShadow: isHovered ? `0 0 12px ${tierColor}` : "none",
           }}
         >
-          @{entry.handle}
+          @{creator.handle}
         </span>
 
-        {/* Tip count with enhanced tier badge */}
-        <div
+        {/* Joined time */}
+        <span
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
+            fontSize: "11px",
+            color: colors.muted,
+            fontFamily: "var(--font-family-mono)",
           }}
         >
-          <span
-            style={{
-              fontSize: "12px",
-              color: colors.muted,
-              fontFamily: "var(--font-family-mono)",
-              transition: "color 0.3s ease",
-            }}
-          >
-            {getSignalBucket(entry.tip_count)}
-          </span>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            style={{
-              opacity: isHovered ? 1 : 0.7,
-              transition: "opacity 0.3s ease",
-              filter: isHovered ? `drop-shadow(0 0 4px ${tierGlow})` : "none",
-            }}
-          >
-            <path
-              d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-              stroke={tierColor}
-              strokeWidth="1.5"
-              fill={`${tierColor}15`}
-            />
-          </svg>
-        </div>
+          {timeAgo(creator.created_at)}
+        </span>
       </a>
     </>
   )
