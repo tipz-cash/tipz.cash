@@ -2190,7 +2190,7 @@ export default function HomePage() {
                   Do I need to understand crypto?
                 </div>
                 <div style={{ fontSize: "13px", color: colors.muted, lineHeight: 1.6 }}>
-                  No. Download Zashi wallet, copy your address, paste it in our form. Done. Two minutes, max.
+                  No. Download Zodl wallet, copy your address, paste it in our form. Done. Two minutes, max.
                 </div>
               </div>
 

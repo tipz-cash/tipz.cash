@@ -29,9 +29,8 @@ Zcash has the most battle-tested privacy technology in crypto. Shielded transact
 
 **Where do I get a Zcash unified address?**
 Download a Zcash wallet that supports unified addresses:
-- **Zashi** (mobile): Official Zcash wallet by ECC
+- **Zodl** (mobile): Official Zcash wallet by ZODL (formerly Zashi by ECC)
 - **Ywallet** (mobile): Community wallet
-- **Zecwallet Lite** (desktop): Full-featured desktop wallet
 
 When creating a new address, select "unified" — it starts with `u1`.
 

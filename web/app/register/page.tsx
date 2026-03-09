@@ -728,7 +728,7 @@ export default function RegisterPage() {
                       rel="noopener noreferrer"
                       style={{ color: colors.primary, textDecoration: "underline" }}
                     >
-                      Zashi
+                      Zodl
                     </a>{" "}
                     (iOS / Android / desktop) — free, under 2 minutes.
                   </p>

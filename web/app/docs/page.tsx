@@ -398,7 +398,7 @@ Auto-refund if swap fails (rare, but handled).`}</CodeBlock>
                 letterSpacing: "1px",
               }}
             >
-              DIRECT ZEC TIPS (VIA ZASHI OR ZODL)
+              DIRECT ZEC TIPS (VIA ZODL)
             </div>
             <span
               style={{
@@ -559,12 +559,12 @@ Auto-refund if swap fails (rare, but handled).`}</CodeBlock>
         <Callout>
           For maximum privacy, tip directly with shielded ZEC using{" "}
           <a
-            href="https://www.zashi.app/"
+            href="https://zodl.com/"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: colors.primary, textDecoration: "underline" }}
           >
-            Zashi
+            Zodl
           </a>
           . Zero public footprint. Zero trace.
         </Callout>
@@ -727,7 +727,7 @@ function CreatorsTab() {
               {
                 num: "01",
                 title: "Get a Zcash wallet",
-                desc: "Download Zashi (iOS/Android). Free. Takes 30 seconds. Create wallet, backup seed phrase.",
+                desc: "Download Zodl (iOS/Android). Free. Takes 30 seconds. Create wallet, backup seed phrase.",
               },
               {
                 num: "02",
@@ -745,7 +745,7 @@ function CreatorsTab() {
 
         <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
           <a
-            href="https://www.zashi.app/"
+            href="https://zodl.com/"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -758,7 +758,7 @@ function CreatorsTab() {
               fontSize: "13px",
             }}
           >
-            Download Zashi
+            Download Zodl
           </a>
           <Link
             href="/register"
@@ -1106,7 +1106,7 @@ function CreatorsTab() {
                   Your wallet still gets it
                 </span>
                 <p style={{ color: colors.muted, margin: "4px 0 0" }}>
-                  The ZEC lands in your Zashi wallet regardless. Only you hold the viewing key to
+                  The ZEC lands in your Zodl wallet regardless. Only you hold the viewing key to
                   see it.
                 </p>
               </div>
@@ -1140,7 +1140,7 @@ function CreatorsTab() {
 
         <Callout>
           This is the power of real privacy. Not even the platform that connects you can surveil
-          your income. Check your Zashi wallet periodically for direct ZEC tips.
+          your income. Check your Zodl wallet periodically for direct ZEC tips.
         </Callout>
       </section>
 
@@ -1538,7 +1538,7 @@ OUTPUT
             gap: "12px",
           }}
         >
-          {[{ name: "Zashi", note: "Recommended", url: "https://www.zashi.app/" }].map((wallet) => (
+          {[{ name: "Zodl", note: "Recommended", url: "https://zodl.com/" }].map((wallet) => (
             <a
               key={wallet.name}
               href={wallet.url}
@@ -1780,12 +1780,12 @@ Key Management:
                 address, amount, and link to your wallet. For zero public footprint, tip directly
                 with shielded ZEC via{" "}
                 <a
-                  href="https://www.zashi.app/"
+                  href="https://zodl.com/"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: colors.primary, textDecoration: "underline" }}
                 >
-                  Zashi
+                  Zodl
                 </a>
                 .
               </p>
@@ -2652,7 +2652,7 @@ TIPZ (shielded ZEC):
               {[
                 {
                   title: "Tip directly with ZEC",
-                  desc: "Bypasses NEAR Intents entirely. Zero metadata. Use Zashi.",
+                  desc: "Bypasses NEAR Intents entirely. Zero metadata. Use Zodl.",
                 },
                 {
                   title: "Use a dedicated wallet",
