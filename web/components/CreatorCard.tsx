@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { colors } from "@/lib/colors"
 import { CypherpunkShield, VerifiedCheck } from "@/components/BadgeIcons"
+import { useAvatarFallback } from "@/hooks/useAvatarFallback"
 
 export interface Creator {
   id: string
@@ -33,6 +34,7 @@ interface CreatorCardProps {
 export function CreatorCard({ creator, index, compact = false, onClick }: CreatorCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const hue = hashToHue(creator.handle)
+  const { imgFailed, onImgError } = useAvatarFallback(creator.avatar_url)
 
   return (
     <>
@@ -112,10 +114,11 @@ export function CreatorCard({ creator, index, compact = false, onClick }: Creato
             }}
           />
           {/* Avatar */}
-          {creator.avatar_url ? (
+          {creator.avatar_url && !imgFailed ? (
             <img
               src={creator.avatar_url}
               alt={creator.handle}
+              onError={onImgError}
               style={{
                 position: "relative",
                 width: compact ? "56px" : "72px",

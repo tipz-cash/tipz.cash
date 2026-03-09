@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useWallet } from "@/hooks/useWallet"
 import { useTipping } from "@/hooks/useTipping"
+import { useAvatarFallback } from "@/hooks/useAvatarFallback"
 import { AmountSelector } from "./AmountSelector"
 import { TokenSelector } from "./TokenSelector"
 import { TransactionStatus } from "./TransactionStatus"
@@ -44,6 +45,7 @@ export function TippingFlow({
   isOgCypherpunk,
 }: TippingFlowProps) {
   const contentRef = useRef<HTMLDivElement>(null)
+  const { imgFailed, onImgError } = useAvatarFallback(avatarUrl)
   const [showZecDirect, setShowZecDirect] = useState(false)
   const [showPaymentPicker, setShowPaymentPicker] = useState(false)
   const [showTokenSelector, setShowTokenSelector] = useState(false)
@@ -812,10 +814,11 @@ export function TippingFlow({
                     flexShrink: 0,
                   }}
                 >
-                  {avatarUrl ? (
+                  {avatarUrl && !imgFailed ? (
                     <img
                       src={avatarUrl}
                       alt={creatorHandle}
+                      onError={onImgError}
                       style={{
                         width: "100%",
                         height: "100%",

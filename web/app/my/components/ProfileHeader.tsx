@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { colors } from "@/lib/colors"
 import { transitions } from "@/lib/animations"
+import { useAvatarFallback } from "@/hooks/useAvatarFallback"
 import ConnectionIndicator from "./ConnectionIndicator"
 import { CypherpunkShield, VerifiedCheck } from "@/components/BadgeIcons"
 import { LogOutIcon, CopyIcon, CheckIcon } from "@/components/Icons"
@@ -36,6 +37,7 @@ export default function ProfileHeader({
   isOgCypherpunk,
 }: ProfileHeaderProps) {
   const [urlCopied, setUrlCopied] = useState(false)
+  const { imgFailed, onImgError } = useAvatarFallback(avatarUrl)
   const tipUrl = `tipz.cash/${handle}`
 
   const handleCopyUrl = async () => {
@@ -158,10 +160,11 @@ export default function ProfileHeader({
             }}
           />
           {/* Avatar circle */}
-          {avatarUrl ? (
+          {avatarUrl && !imgFailed ? (
             <img
               src={avatarUrl}
               alt={`@${handle}`}
+              onError={onImgError}
               style={{
                 position: "absolute",
                 top: "4px",

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { colors } from "@/lib/colors"
+import { useAvatarFallback } from "@/hooks/useAvatarFallback"
+import { hashToHue } from "@/components/CreatorCard"
 
 interface RecentCreator {
   id: string
@@ -193,6 +195,8 @@ interface RecentCreatorCardProps {
 
 function RecentCreatorCard({ creator, index, prefersReducedMotion }: RecentCreatorCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const { imgFailed, onImgError } = useAvatarFallback(creator.avatar_url)
+  const hue = hashToHue(creator.handle)
   const accentColor = colors.primary // tipz gold
 
   return (
@@ -244,28 +248,49 @@ function RecentCreatorCard({ creator, index, prefersReducedMotion }: RecentCreat
         }}
       >
         {/* Avatar */}
-        {creator.avatar_url && (
-          <div
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "50%",
-              overflow: "hidden",
-              border: `2px solid ${isHovered ? accentColor : colors.border}`,
-              transition: "border-color 0.3s ease",
-            }}
-          >
+        <div
+          style={{
+            width: "44px",
+            height: "44px",
+            borderRadius: "50%",
+            overflow: "hidden",
+            border: `2px solid ${isHovered ? accentColor : colors.border}`,
+            transition: "border-color 0.3s ease",
+            flexShrink: 0,
+          }}
+        >
+          {creator.avatar_url && !imgFailed ? (
             <img
               src={creator.avatar_url}
               alt={creator.handle}
+              onError={onImgError}
               style={{
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
               }}
             />
-          </div>
-        )}
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+                background: `linear-gradient(135deg, hsl(${hue}, 50%, 35%) 0%, hsl(${hue}, 60%, 25%) 100%)`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "18px",
+                fontWeight: 700,
+                color: "#fff",
+                textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                textTransform: "uppercase",
+                fontFamily: "var(--font-family-mono)",
+              }}
+            >
+              {creator.handle[0]}
+            </div>
+          )}
+        </div>
 
         {/* Handle */}
         <span
