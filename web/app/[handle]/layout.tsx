@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "profile",
       images: [
         {
-          url: `https://tipz.cash/api/og/${cleanHandle}`,
-          width: 1200,
-          height: 630,
+          url: "https://tipz.cash/og-image.png",
+          width: 3200,
+          height: 1800,
           type: "image/png",
-          alt: `Send private tips to @${cleanHandle} on TIPZ`,
+          alt: "TIPZ — Private Tips For Creators",
         },
       ],
     },
@@ -35,10 +35,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: `Send private tips to @${cleanHandle} on TIPZ.`,
       images: [
         {
-          url: `https://tipz.cash/api/og/${cleanHandle}`,
-          width: 1200,
-          height: 630,
-          alt: `Send private tips to @${cleanHandle} on TIPZ`,
+          url: "https://tipz.cash/og-image.png",
+          alt: "TIPZ — Private Tips For Creators",
         },
       ],
     },
